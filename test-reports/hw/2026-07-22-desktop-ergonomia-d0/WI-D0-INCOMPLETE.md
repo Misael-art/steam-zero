@@ -1,6 +1,6 @@
 # WI-D0 — evidência física parcial (não concluído)
 
-Data: 2026-07-22. Sessão observada: Wayland, Plasma/KWin, usuário `misael`.
+Data: 2026-07-22. Sessão observada: Wayland, Plasma/KWin, operador local.
 Nenhum perfil, escala, regra de janela ou configuração persistente foi alterado.
 
 ## Base verificada
@@ -13,9 +13,9 @@ Nenhum perfil, escala, regra de janela ou configuração persistente foi alterad
 
 ## Medição da tela
 
-| Físico | Lógico observado | Escala | Orientação | Área de janela observada |
-|---|---:|---:|---|---:|
-| eDP-1, 800×1280 @ 60 Hz | 949×593 | 1,35 | retrato (KScreen rotation 8) | 948×553 |
+| Painel nativo | Framebuffer/captura rotacionada | Geometria lógica | Escala | Orientação | Área útil maximizada |
+|---|---:|---:|---:|---|---:|
+| eDP-1, 800×1280 @ 60 Hz | 1280×800 | 949×593 | 1,35 | retrato (KScreen rotation 8) | 948×553 |
 
 O orçamento normativo de 592 px lógicos é compatível com a geometria observada;
 a janela maximizada perde cerca de 40 px lógicos para o shell.

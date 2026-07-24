@@ -3,8 +3,9 @@
 ## Bloqueio reproduzível
 
 O agente está na sessão física ativa (`Wayland`, `WAYLAND_DISPLAY=wayland-0`,
-`DISPLAY=:0`, barramento de sessão disponível). Spectacle captura o painel físico em
-1280×800. O `kdotool` consegue listar/ativar uma superfície, mas não controla a
+`DISPLAY=:0`, barramento de sessão disponível). O painel nativo é 800×1280; o
+framebuffer/captura rotacionada é 1280×800; a geometria lógica é 949×593, com escala
+1,35 e área útil maximizada de 948×553. O `kdotool` consegue listar/ativar uma superfície, mas não controla a
 geometria da superfície efetivamente composta: após `windowactivate` e
 `windowstate --add MAXIMIZED`, Dolphin continuou registrado como 948×553 lógicos e
 a captura mostrou Ashyterm por trás/por cima. Assim não é possível garantir a
