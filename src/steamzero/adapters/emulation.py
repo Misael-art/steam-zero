@@ -59,6 +59,8 @@ from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
 from steamzero.domain.bitrot import BitrotManager, BitrotTarget
 from steamzero.domain.cloud_platforms import CloudPlatformService
+from steamzero.domain.library import PlatformRomScanner
+from steamzero.domain.platforms import PlatformRegistry
 from steamzero.domain.emulation_workspace import build_switch_workspace
 from steamzero.domain.input_profiles import InputProfileManager
 from steamzero.domain.media_pipeline import MediaPipeline
@@ -863,6 +865,9 @@ class EmulationController:
 
     def _scan_library_now(self, ctx: JobContext | None = None) -> dict[str, Any]:
         scanner = SwitchLibraryScanner()
+        platform_scanner = PlatformRomScanner.from_manifests(
+            [{"id": m.id, "media": dict(m.media)} for m in PlatformRegistry.bundled().list()]
+        )
         emulator_cache = EmulatorCacheReader(paths.data_home())
         discovered: dict[str, dict[str, Any]] = {}
         auxiliary: list[Any] = []
@@ -885,23 +890,41 @@ class EmulationController:
                     unit="roots",
                     current_item=root.name,
                 )
+            switch_matches: list[Any] = []
             try:
-                matches = scanner.inventory(root)
+                switch_matches = list(scanner.inventory(root))
             except (OSError, SteamZeroError) as exc:
                 errors.append(f"{root}: {exc}")
                 counts["errors"] += 1
                 root_stats[root_id(root)] = {"counts": counts, "lastScan": scanned_at}
                 continue
-            for match in matches:
-                if match.content_kind == "base":
-                    counts["base"] += 1
-                elif match.content_kind == "update":
-                    counts["updates"] += 1
-                elif match.content_kind == "dlc":
-                    counts["dlcs"] += 1
-                if match.content_kind != "base":
-                    auxiliary.append(match)
+
+            if switch_matches:
+                matches = switch_matches
+                is_switch = True
+            else:
+                try:
+                    matches = platform_scanner.inventory(root)
+                except (OSError, SteamZeroError) as exc:
+                    errors.append(f"{root}: {exc}")
+                    counts["errors"] += 1
+                    root_stats[root_id(root)] = {"counts": counts, "lastScan": scanned_at}
                     continue
+                is_switch = False
+
+            for match in matches:
+                if is_switch:
+                    if match.content_kind == "base":
+                        counts["base"] += 1
+                    elif match.content_kind == "update":
+                        counts["updates"] += 1
+                    elif match.content_kind == "dlc":
+                        counts["dlcs"] += 1
+                    if match.content_kind != "base":
+                        auxiliary.append(match)
+                        continue
+                else:
+                    counts["base"] += 1
                 try:
                     stat = match.path.stat()
                 except OSError as exc:
@@ -911,42 +934,77 @@ class EmulationController:
                 fingerprint = hashlib.sha256(
                     f"{match.path}\0{stat.st_size}\0{stat.st_mtime_ns}".encode()
                 ).hexdigest()
-                identity_verified = match.title_id is not None
-                if not identity_verified:
-                    unidentified += 1
                 stable_id = hashlib.sha256(str(match.path).encode()).hexdigest()[:24]
-                banner_asset, media_source = self._cover_asset(match.title_id)
-                cached_title = (
-                    emulator_cache.find_title(match.title_id)
-                    if match.title_id is not None
-                    else None
-                )
-                discovered[str(match.path)] = {
-                    "id": stable_id,
-                    "titleId": match.title_id,
-                    "name": cached_title or scanner.clean_display_name(match.path),
-                    "state": "ready" if identity_verified else "unverified",
-                    "statusLabel": (
-                        match.format.upper()
-                        if identity_verified
-                        else f"{match.format.upper()} · Title ID não identificado"
-                    ),
-                    "emulatorId": None,
-                    "path": str(match.path),
-                    "fingerprint": fingerprint,
-                    "size": stat.st_size,
-                    "format": match.format,
-                    "identityVerified": identity_verified,
-                    "contentKind": "base",
-                    "metadataSource": "emulator-cache" if cached_title else match.metadata_source,
-                    "version": f"v{match.version}" if match.version is not None else None,
-                    "updateCount": 0,
-                    "updateVersion": None,
-                    "dlcCount": 0,
-                    "bannerAsset": banner_asset,
-                    "coverUrl": banner_asset,
-                    "mediaSource": media_source,
-                }
+
+                if is_switch:
+                    identity_verified = match.title_id is not None
+                    if not identity_verified:
+                        unidentified += 1
+                    banner_asset, media_source = self._cover_asset(match.title_id)
+                    cached_title = (
+                        emulator_cache.find_title(match.title_id)
+                        if match.title_id is not None
+                        else None
+                    )
+                    discovered[str(match.path)] = {
+                        "id": stable_id,
+                        "titleId": match.title_id,
+                        "name": cached_title or scanner.clean_display_name(match.path),
+                        "state": "ready" if identity_verified else "unverified",
+                        "statusLabel": (
+                            match.format.upper()
+                            if identity_verified
+                            else f"{match.format.upper()} · Title ID não identificado"
+                        ),
+                        "emulatorId": None,
+                        "path": str(match.path),
+                        "fingerprint": fingerprint,
+                        "size": stat.st_size,
+                        "format": match.format,
+                        "identityVerified": identity_verified,
+                        "contentKind": "base",
+                        "metadataSource": (
+                            "emulator-cache" if cached_title else match.metadata_source
+                        ),
+                        "version": f"v{match.version}" if match.version is not None else None,
+                        "updateCount": 0,
+                        "updateVersion": None,
+                        "dlcCount": 0,
+                        "bannerAsset": banner_asset,
+                        "coverUrl": banner_asset,
+                        "mediaSource": media_source,
+                    }
+                else:
+                    platform_verified = match.platform is not None
+                    if not platform_verified:
+                        unidentified += 1
+                    discovered[str(match.path)] = {
+                        "id": stable_id,
+                        "titleId": None,
+                        "platformId": match.platform,
+                        "name": match.path.stem,
+                        "state": "ready" if platform_verified else "unverified",
+                        "statusLabel": (
+                            match.format.upper()
+                            if platform_verified
+                            else f"{match.format.upper()} · Plataforma não identificada"
+                        ),
+                        "emulatorId": None,
+                        "path": str(match.path),
+                        "fingerprint": fingerprint,
+                        "size": stat.st_size,
+                        "format": match.format,
+                        "identityVerified": platform_verified,
+                        "contentKind": match.content_kind,
+                        "metadataSource": "classify",
+                        "version": None,
+                        "updateCount": 0,
+                        "updateVersion": None,
+                        "dlcCount": 0,
+                        "bannerAsset": None,
+                        "coverUrl": None,
+                        "mediaSource": None,
+                    }
             try:
                 for candidate in root.rglob("*"):
                     if candidate.is_symlink():
@@ -2717,6 +2775,18 @@ class EmulationController:
                         "ready" if games else "attention",
                         f"{len(roots)} diretório(s)",
                         action=self._action("library.root.add", "Adicionar diretório"),
+                    ),
+                    self._card(
+                        "converters",
+                        "Conversores",
+                        f"NSZ: {'disponível' if nsz_ready else 'não instalado'}",
+                        "ready" if nsz_ready else "attention",
+                        "Instalar por demanda" if not nsz_ready else "Pronto",
+                        action=(
+                            None
+                            if nsz_ready
+                            else self._action("nsz.install", "Instalar NSZ", confirmation=True)
+                        ),
                     ),
                 ],
                 "primaryAction": self._action("library.scan", "Varrer biblioteca"),

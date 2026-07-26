@@ -34,6 +34,34 @@ Which = Callable[[str], str | None]
 CommandRunner = Callable[[Sequence[str], float], int]
 ToolProbe = Callable[[Sequence[str], float], tuple[int, str]]
 
+_FLATPAK_BIN_DIRS = (
+    "/var/lib/flatpak/exports/bin",
+    Path.home() / ".local" / "share" / "flatpak" / "exports" / "bin",
+)
+
+
+def flatpak_which(tool: str) -> str | None:
+    """Resolve *tool* via ``shutil.which``, depois tenta diretórios flatpak.
+
+    Flatpak expõe symlinks em ``/var/lib/flatpak/exports/bin/`` e
+    ``~/.local/share/flatpak/exports/bin/`` com o nome do comando real
+    (ex.: ``dolphin-emu``, ``org.DolphinEmu.dolphin-emu``).
+    """
+    resolved = shutil.which(tool)
+    if resolved is not None:
+        return resolved
+    for flatpak_dir in _FLATPAK_BIN_DIRS:
+        candidate = Path(flatpak_dir) / tool
+        if candidate.is_file() and not candidate.is_symlink():
+            return str(candidate.resolve())
+        if candidate.is_file():
+            return str(candidate)
+        full_ref = candidate.with_name(tool)
+        if full_ref.is_file() or full_ref.is_symlink():
+            return str(full_ref)
+    return None
+
+
 # Conversões allowlisted por ferramenta (nunca aceitar par arbitrário).
 _NSZ_CONVERSIONS = frozenset({("nsp", "nsz"), ("nsz", "nsp")})
 _NSZ_VERSION = "4.6.1"

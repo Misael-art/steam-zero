@@ -10,6 +10,8 @@
 - Multidisco: agrupa "(Disc N)" no mesmo multi_disc_group.
 - Organização: scan→plan→apply→verify→commit, com confirmação e rollback
   byte-idêntico pelo núcleo transacional (M7/G-FULL).
+- Scan multi-plataforma (D1): PlatformRomScanner classifica ROMs por extensão,
+  pareamento .bin+.cue e exclusividade sem ler o arquivo.
 
 Conteúdo é sempre do usuário (CONTENT-POLICY): nada é obtido, sugerido ou baixado.
 """
@@ -17,8 +19,10 @@ Conteúdo é sempre do usuário (CONTENT-POLICY): nada é obtido, sugerido ou ba
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from steamzero.core import fs, ids, paths, safezip, transaction
 from steamzero.core.errors import SteamZeroError
@@ -40,11 +44,97 @@ _FORMAT_BY_EXT = {
     ".smc": "snes",
     ".gba": "gba",
     ".nds": "nds",
+    ".gcm": "gcm",
+    ".wbfs": "wbfs",
+    ".wad": "wad",
+    ".ciso": "ciso",
+    ".gcz": "gcz",
+    ".pbp": "pbp",
+    ".nsp": "nsp",
+    ".nsz": "nsz",
+    ".xci": "xci",
+    ".xcz": "xcz",
+    ".nca": "nca",
+    ".nro": "nro",
+    ".gb": "gb",
+    ".gbc": "gbc",
+    ".fds": "fds",
+    ".unf": "unf",
+    ".fig": "fig",
+    ".md": "md",
+    ".gen": "gen",
+    ".32x": "32x",
 }
 
 
 def detect_format(name: str) -> str:
     return _FORMAT_BY_EXT.get(Path(name).suffix.lower(), "unknown")
+
+
+def build_ext_map(
+    manifests: Sequence[dict[str, Any]],
+) -> dict[str, list[str]]:
+    ext_map: dict[str, list[str]] = {}
+    for manifest in manifests:
+        platform_id = manifest["id"]
+        for ext in manifest.get("media", {}).get("extensions", []):
+            key = f".{ext.lower()}"
+            ext_map.setdefault(key, []).append(platform_id)
+    return ext_map
+
+
+def classify_rom(
+    name: str,
+    siblings: set[str],
+    ext_map: Mapping[str, Sequence[str]],
+    *,
+    root_platform: str | None = None,
+) -> tuple[str | None, str, str]:
+    """Pure classifier: (platform_id|None, content_kind, evidence).
+
+    Regras D1 executadas em ordem de precedência:
+
+    1. *root configurado vence* — se ``root_platform`` está definido e a
+       extensão é reconhecida por alguma plataforma, o resultado é
+       ``root_platform`` independentemente de ambiguidade.
+    2. Arquivos .zip e .7z → sempre unknown (archives, não ROMs).
+    3. Arquivos .cue com par .bin no mesmo diretório → PlayStation.
+    4. .cue sem .bin → unknown (tracklist órfã).
+    5. .bin com par .cue no mesmo diretório → PlayStation.
+    6. .bin sem .cue → unknown (mega-drive e PS1 compartilham .bin).
+    7. Extensão exclusiva de uma plataforma → classifica nela.
+    8. Extensão em múltiplas plataformas → unknown (ambíguo sem root).
+    9. Extensão não listada → unknown.
+    """
+    stem = Path(name).stem
+    suffix = Path(name).suffix.lower()
+    lower_siblings = {s.lower() for s in siblings}
+
+    if suffix in {".zip", ".7z"}:
+        return None, "unknown", "archived"
+
+    if suffix == ".cue":
+        expected_bin = f"{stem}.bin".lower()
+        if expected_bin in lower_siblings:
+            return "playstation", "base", "cue-pair"
+        return None, "unknown", "cue-orphan"
+
+    if suffix == ".bin":
+        expected_cue = f"{stem}.cue".lower()
+        if expected_cue in lower_siblings:
+            return "playstation", "base", "cue-pair"
+        if root_platform is not None and ext_map.get(suffix):
+            return root_platform, "base", "root-wins"
+        return None, "unknown", "bin-orphan"
+
+    platforms = ext_map.get(suffix, [])
+    if len(platforms) == 0:
+        return None, "unknown", "no-ext-match"
+    if root_platform is not None:
+        return root_platform, "base", "root-wins"
+    if len(platforms) == 1:
+        return platforms[0], "base", "exclusive-ext"
+    return None, "unknown", "ambiguous-ext"
 
 
 def disc_group(title: str) -> tuple[str, int | None]:
@@ -54,6 +144,62 @@ def disc_group(title: str) -> tuple[str, int | None]:
         return title, None
     base = _DISC_RE.sub("", title).strip()
     return base, int(match.group(1))
+
+
+@dataclass(frozen=True)
+class RomCandidate:
+    path: Path
+    format: str
+    platform: str | None
+    content_kind: str
+    evidence: str
+
+
+class PlatformRomScanner:
+    """Scanner multi-plataforma barato, sem ler dumps inteiros (D1).
+
+    Usa :func:`classify_rom` para classificar cada arquivo por extensão,
+    pareamento .bin+.cue e exclusividade. .zip e .7z são rejeitados como
+    unknown. A assinatura ``inventory(root)`` espelha
+    ``SwitchLibraryScanner.inventory()``.
+    """
+
+    def __init__(
+        self,
+        ext_map: Mapping[str, Sequence[str]],
+    ) -> None:
+        self._ext_map = ext_map
+
+    @classmethod
+    def from_manifests(
+        cls,
+        manifests: Sequence[dict[str, Any]],
+    ) -> PlatformRomScanner:
+        return cls(ext_map=build_ext_map(manifests))
+
+    def inventory(
+        self, root: Path, *, root_platform: str | None = None
+    ) -> list[RomCandidate]:
+        results: list[RomCandidate] = []
+        for path in fs.iter_files(root):
+            siblings = {p.name for p in path.parent.iterdir()}
+            platform_id, content_kind, evidence = classify_rom(
+                path.name,
+                siblings=siblings,
+                ext_map=self._ext_map,
+                root_platform=root_platform,
+            )
+            fmt = detect_format(path.name)
+            results.append(
+                RomCandidate(
+                    path=path,
+                    format=fmt,
+                    platform=platform_id,
+                    content_kind=content_kind,
+                    evidence=evidence,
+                )
+            )
+        return results
 
 
 @dataclass(frozen=True)
