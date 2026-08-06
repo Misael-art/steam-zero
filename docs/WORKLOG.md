@@ -4937,3 +4937,27 @@ confere que um valor hostil herdado é substituído antes do `qml6` iniciar.
 Validação dirigida: 25 testes da bridge Desktop passaram; Ruff check e
 format-check, mypy, independência, boundaries e `git diff --check` passaram.
 Nenhuma ação de host, release, push ou tag foi executada por esta correção.
+
+## 2026-08-06 — Gestão global de emulação e correção de composição do overview
+
+A central de emulação deixa de abrir como se Nintendo Switch fosse o contexto
+global. O novo read model `globalManagement` é separado das plataformas: reúne
+36 plataformas técnicas, 37 destinos editoriais (Steam como origem adicional)
+e 155 experiências históricas, sem duplicar lifecycle. Cada card técnico
+publica identidade, jogos reais, prontidão, runtime, core, requisitos de
+keys/firmware/BIOS, bloqueador e ação de abertura. Os componentes globais
+também expõem sua ação independente de instalar ou reparar, com o motivo quando
+ela estiver indisponível.
+
+O overview editorial agora publica sua altura implícita ao `ColumnLayout` pai;
+isso impede que o conteúdo posterior seja desenhado sobre os cards. A mídia
+mantém visível uma falha persistida de provider — incluindo quota — mesmo se a
+varredura seguinte já não tiver o jogo que a originou. Nenhum segredo é
+serializado no read model.
+
+Validação dirigida: 8 testes de contrato/workspace, 16 de mídia multiprovider
+e 25 harnesses QML offscreen passaram; Ruff check e format-check, mypy,
+independência, boundaries e `git diff --check` passaram. O runner isolado
+integral foi iniciado sem processos residuais, mas a sessão não devolveu resumo
+ou exit code conclusivo; a CI da PR será o gate autoritativo. Ações de host,
+release e tag: **nenhuma**.
