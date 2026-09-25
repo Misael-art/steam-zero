@@ -12490,3 +12490,44 @@ plataformas, com preview/consentimento/quarentena/rollback, sem apagar originais
 
 Central fechada; nenhum emulador, tema ou frontend ficou aberto. Nenhuma ROM
 original foi renomeada, movida ou apagada.
+
+## 2026-09-25 — Contrato `media-registry-v1` e leitura de órfãos por caminho
+
+A linha A7 do EXPANSION-LEDGER prometia um registro canônico do MediaHub. O
+WORKLOG do `main` já registrava uma tentativa anterior de porte desse contrato e
+a recusa dela; este lote não repete o porte. Ele reimplementa a capacidade sobre
+`5e2e8194` e reconcilia com as duas correções que o `main` fez depois: masters
+separados por plataforma e auditoria filtrada por escopo.
+
+O contrato público entra como `src/steamzero/schemas/media-registry-v1.schema.json`
+e o read model é `MediaPipeline.registry_snapshot()`, expondo entradas, índice de
+hash, plataformas, optimized por jogo/perfil, views por frontend e três listas de
+órfãos por caminho (`masterFiles`, `optimizedFiles`, `brokenViewLinks`). Duas
+diferenças em relação ao ramo abandonado são deliberadas: `optimized` passa a ser
+lista por perfil, para que uma duplicata seja visível em vez de "vence a última",
+e a atribuição do dono de um optimized usa o prefixo mais longo entre os
+`game_id` conhecidos, porque `game_id` pode conter `_` — separar no primeiro
+underscore chamaria de órfão um arquivo perfeitamente dono. A varredura de órfãos
+foi extraída para `_unreferenced_master_files()` e `plan_prune_orphan_cache()`
+passa a consumir a mesma fonte, com um teste que exige igualdade entre o que o
+snapshot reporta e o que o plano remove.
+
+Medição real: `tests/integration/test_mediahub_canonical.py` com
+`tests/golden/test_contracts.py` → 25 testes; o filtro de mídia
+(`-k media`) → 203 passed, 4151 deselected, provando que a extração não alterou o
+comportamento do prune; suíte integral isolada → 6296 passed, 47 skipped em
+2154,23 s (0:35:54), sem falha. Gates: `ruff check` verde, `ruff format --check`
+com 665 arquivos já formatados, `mypy src` sem issues em 296 arquivos,
+independência de runtime OK, fronteiras com 0 violações e `STATUS-CHECK: OK`.
+
+O snapshot **não** foi ligado ao `EmulationController`. O leitor existente só
+aceita o arquivo de auditoria cached enquanto ele couber em 1 MiB; embutir o
+snapshot de uma biblioteca real faria a interface reportar "nunca auditado" — uma
+promessa falsa trocando o problema de lugar. Falta decisão de produto sobre onde
+o snapshot é consumido, e isso está registrado no `nextAction` do item.
+
+Quatro digests de itens com superfície compartilhada foram recomputados
+(AURA-RICH-MEDIA-PROJECTION, GOVERNANCE-STATUS, MEDIA-AUDIT-PLATFORM-SCOPE,
+MEDIA-SCRAPING) e as views regeneradas. Nada foi integrado, publicado, instalado
+ou certificado: o item permanece `feature-branch`/`unit`. Nenhuma ref, tag,
+bundle ou espelho foi removido; nenhuma ROM de usuário foi tocada.
