@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-09-CONTROLS-PROFILE-SCOPE-HONESTY",
+  "item": "SZ-CONTROLS-INPUT-PROFILES",
+  "branch": "codex/controls-profile-scope-honesty-2026-09-25",
+  "baseRef": "5e2e8194",
+  "owner": "codex-integration-revisao-2026-09-24",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/ui/qml/ControlsProfileCard.qml",
+    "tests/qml/check_controls_profile_card.qml",
+    "docs/status/workstreams/controls-profile-scope-honesty-2026-09-25.json"
+  ],
+  "sharedPaths": [
+    "docs/ACTIVE-WORK.md",
+    "docs/STATUS.md",
+    "docs/WORKLOG.md",
+    "docs/status/COVERAGE.md",
+    "docs/status/items/controls-input-profiles.json"
+  ],
+  "nextAction": "Executar a matriz QML focada e os gates integrais, publicar a branch e repetir no host a leitura do cartão no estado aplicado; a prova física continua sendo o que mantém o item em verification: hw.",
+  "updatedAt": "2026-09-25"
+}

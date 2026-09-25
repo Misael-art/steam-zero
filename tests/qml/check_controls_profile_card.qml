@@ -169,6 +169,10 @@ Window {
                   "perfil aplicado é o ÚNICO estado que pode ficar verde")
             check(card.applyAction === null,
                   "já aplicado não pode oferecer uma confirmação que não muda nada")
+            // O mecanismo é `--appendconfig` no lançamento que o SteamZero faz. Dizer
+            // só "valendo no emulador" prometeria um RetroArch aberto por fora.
+            check(String(card.honestMessage()).indexOf("Aberto por fora") >= 0,
+                  "o estado aplicado precisa declarar que não vale para o RetroArch aberto fora do SteamZero")
 
             // Sem perfil ativo, o cartão não inventa estado.
             card.profile = harness.perfil(null, {})

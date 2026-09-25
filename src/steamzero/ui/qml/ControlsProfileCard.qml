@@ -97,7 +97,11 @@ Item {
         if (current === "conflict")
             return qsTr("Existe um arquivo de controle que não foi criado pelo SteamZero. Ele não "
                 + "será sobrescrito.")
-        return qsTr("O perfil está aplicado e valendo no emulador.")
+        // O alcance faz parte da afirmação: o perfil vale porque o SteamZero lança
+        // o RetroArch com `--appendconfig` apontando para a árvore gerenciada. Um
+        // RetroArch aberto por fora continua lendo a configuração própria dele.
+        return qsTr("O perfil está aplicado e vale quando o RetroArch é aberto pelo "
+            + "SteamZero. Aberto por fora, o emulador usa a configuração própria dele.")
     }
 
     Rectangle {
