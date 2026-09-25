@@ -96,6 +96,12 @@
       "reference": "docs/09-operations/RELEASE-LEDGER.md",
       "command": "2026-09-22: release governada 2.0.0rc1-504d10b14485 instalada do commit 504d10b144851b70eab99d1fad7110ae34e88f84; CI run 35712683583 verde; wheel SHA256 d55ea7a2ae97accc2aaf8a98abbbcf67468f648ae486dd9712054489d3fe2476; rollback 2.0.0rc1-13c933c30ace; primeira convergencia attempts=1/restarted=true e segunda idempotente attempts=0/restarted=false, daemon confirmou a identidade exata; doctor ok=true degraded, sem blockers, pending, stale ou orphan",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_project_status.py",
+      "command": "2026-09-25, gate de fechamento do lote que elevou o eixo integration: `tools/run_tests_isolated.py tests -q` nesta branch devolve 6285 passed, 47 skipped em 2299,01 s (0:38:19), rc=0, com o estado do host identico antes e depois; `tools/project_status.py check` => STATUS-CHECK OK. O diff do lote e inteiramente de docs/status: nenhum arquivo de src, tools, tests, Makefile, AGENTS.md ou CI foi tocado, entao os gates de codigo desta branch sao os da propria base 5e2e8194, medidos verdes nesta revisao (ruff check, ruff format --check em 664 arquivos, mypy em 296 arquivos, lint_boundaries com 0 violacoes, check_independence OK).",
+      "result": "passed"
     }
   ],
   "nextAction": "Manter status-check e WORKLOG append-only verdes; repetir apenas as provas fisicas restantes com a release 2.0.0rc1-504d10b14485 instalada.",
@@ -103,6 +109,6 @@
     "WS-2026-08-HARMONIZE-A45",
     "WS-2026-09-INTEGRATION-AXIS-HONESTY"
   ],
-  "updatedAt": "2026-09-10",
+  "updatedAt": "2026-09-25",
   "notes": "WORKLOG e historico append-only e nao entra no digest funcional; check_worklog_append_only reprova reescrita de sessoes anteriores. G38 doctor service.generation usa observe(). Digest renovado apos tornar execucao autonoma, evidencia fisica e taxonomia AURA/Theme Engine/Theme Studio regras normativas do AGENTS.md; teste focado de project_status preserva a consistencia do catalogo. Em 2026-08-20 o gate acusou pyproject.toml alterado sem item responsavel: ninguem o declarava, embora ele defina entry points, dependencias e empacotamento. Passou para este item, que ja governa ci.yml, AGENTS.md e Makefile. 2026-08-24: KNOWN-GAPS.md corrigido na linha G40, que afirmava que a tabela platform_slug->systemeid 'nao existe no repositorio' quando ela existe como _PLATFORM_MAP. Documento de lacunas que envelhece sem ser conferido vira o oposto do que promete: manda reimplementar o que ja esta feito. G42 REABERTA em 2026-08-24: fora marcada fechada por 'quatro rotas na ponte HTTP', mas o enunciado dela e 'o motor existe, o caminho de usuario nao' — rota na ponte ainda e motor. Zero QML alcanca os 12 contratos theme.import. 2026-08-25: versao elevada de 0.1.0a46 para 2.0.0rc1 (pre-release, nao 2.0.0 final). O bump entra ANTES do merge porque release_host.prepare exige que o commit seja o tip de origin/main, entao a versao precisa estar na linha principal para a release 2.0.0 poder ser construida. Forma canonica PEP 440 sem hifen: RELEASE_RE monta <versao>-<12 hex>, entao 2.0.0-rc1 produziria id com dois hifens e leitura ambigua; 2.0.0rc1 nao. 2026-09-03: scopeDigest renovado por documento GERADO (COVERAGE.md e STATUS.md) apos a rota theme.scene.render entrar no contrato, em WS-2026-09-CENA-ESDE. Regerado pela ferramenta, nao editado a mao."
 }

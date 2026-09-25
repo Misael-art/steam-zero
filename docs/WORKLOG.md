@@ -12524,3 +12524,25 @@ heads locais que não alcançam `5e2e8194`, apenas seis carregam arquivo de cód
 ou teste inexistente no main, e quatro desses já foram tratados nos lotes desta
 revisão. Nenhum branch antigo foi mesclado em massa, nenhuma ref, tag, bundle ou
 espelho foi removido, e nenhuma instalação ou release foi publicada.
+
+## 2026-09-25 — Fechamento do lote que corrigiu o eixo `integration`
+
+Gate de fechamento (AGENTS.md seção 6) rodado nesta branch:
+`tools/run_tests_isolated.py tests -q` → **6285 passed, 47 skipped em 2299,01 s
+(0:38:19)**, retorno 0, estado do host antes e depois idêntico. `STATUS-CHECK:
+OK`. Como o diff inteiro é de `docs/status/` — nenhum arquivo de `src`, `tools`,
+`tests`, `Makefile`, `AGENTS.md` ou CI foi tocado — os gates de código desta
+branch são os da própria base `5e2e8194`, medidos verdes nesta revisão (ruff
+check e `format --check` em 664 arquivos, mypy sem issues em 296 arquivos,
+fronteiras com 0 violações, independência de runtime OK).
+
+Correção de forma incluída no lote: as oito evidências `diagnostic` entraram com
+as chaves a quatro espaços, enquanto o catálogo inteiro usa seis. Semântica
+inalterada, mas o diff de qualquer evidência futura apareceria como reescrita de
+bloco.
+
+O que a suíte NÃO promove: `integration: integrated` diz só que o código está no
+`main`. `verification`, `operation` e `distribution` continuam onde estavam, e
+as capacidades seguem esperando a etapa física no host — as duas verificações do
+cartão de controles, por exemplo, seguem listadas em `nextAction` do próprio
+item. Publicação das branches continua dependente de autorização do operador.
