@@ -67,7 +67,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 21 | 12 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
-| SZ-LIBRARY-DERIVED-CLEANUP | 8 | 3 | 2 | unit |  |
+| SZ-LIBRARY-DERIVED-CLEANUP | 10 | 4 | 3 | unit |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 4 | 2 | hw |  |
 | SZ-MEDIA-PIPELINE-PLATFORM-SCOPE | 3 | 7 | 5 | hw |  |
 | SZ-MEDIA-PROVIDER-PLATFORM-FILTER | 10 | 2 | 2 | unit |  |

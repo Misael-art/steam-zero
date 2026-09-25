@@ -12490,3 +12490,34 @@ plataformas, com preview/consentimento/quarentena/rollback, sem apagar originais
 
 Central fechada; nenhum emulador, tema ou frontend ficou aberto. Nenhuma ROM
 original foi renomeada, movida ou apagada.
+
+## 2026-09-25 — Cleanup de derivados: suíte integral e gates de fechamento
+
+A capacidade G58 foi reimplementada sobre o tip atualizado de `origin/main`
+(`5e2e8194`) na branch `codex/library-derived-cleanup-universal-2026-09-25`, em
+dois commits: `a7257dc4` traz o modelo universal de relacionados/derivados com
+manifesto de proveniência relativo à raiz, e `0b7b17ca` vincula os jobs
+`archive.materialize` e `multidisc.materialize` a todas as ROMs de origem do
+mesmo job. Nada foi commiteado em branch antiga nem em `main`.
+
+Medição real das provas citadas no item `SZ-LIBRARY-DERIVED-CLEANUP`:
+`pytest tests/unit/test_library_management.py -q` → 9 testes;
+`pytest tests/unit/test_vita_packaging.py tests/unit/test_library_cache_directory_native.py -q`
+→ 7 testes; `pytest tests/unit/test_emulation_controller.py -q` → 148 testes.
+A suíte integral isolada fechou com `6292 passed, 47 skipped in 2182.29s`
+(0:36:22), sem falha. Gates: `ruff check src tools tests` → All checks passed;
+`ruff format --check` → 665 arquivos já formatados; `mypy src` → sem issues em
+297 arquivos; `check_independence.py` → independência de runtime OK;
+`lint_boundaries.py` → 0 violações; `project_status.py check` → STATUS-CHECK OK.
+
+O rebase no main atual deslocou superfícies compartilhadas, então 27 digests de
+itens foram recomputados e as views `docs/STATUS.md` e `docs/status/COVERAGE.md`
+foram regeneradas com `render --write`; nenhuma outra linha desses arquivos
+mudou. Essa é a diferença documental deste fechamento.
+
+A linha G58 continua aberta e o item permanece `integration: feature-branch`,
+`verification: unit`, `operation: unknown`, `distribution: not-packaged`: ainda
+não há merge para `main`, release governada nem certificação física no host
+(ZIP Vita, extrações de archive e multidisco reais). O mesmo vale para G51.
+Nenhuma ROM original foi renomeada, movida ou apagada; nenhuma ref, tag, bundle
+ou espelho foi removido.

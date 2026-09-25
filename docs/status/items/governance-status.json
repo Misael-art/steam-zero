@@ -33,7 +33,7 @@
     "pyproject.toml",
     "docs/09-operations/HANDOFF-2026-08-27.md"
   ],
-  "scopeDigest": "32a9e4484f1e63f93cd41e55eac9b4099f217dabefbc86cf0247f7a0939a2dee",
+  "scopeDigest": "63b3d2d7850a049b5965e1c6f46270338907e853eb3c035e3d779f2e4ee6d6ad",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
