@@ -5,7 +5,7 @@
   "title": "Contexto de emulação por plataforma",
   "domain": "emulation",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "degraded",
   "distribution": "not-packaged",
@@ -54,10 +54,16 @@
       "reference": "tests",
       "command": ".venv/bin/python tools/run_tests_isolated.py tests -q (runner interrompido após permanecer sem saída em 17%; sem processo residual)",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/status/workstreams/emulation-platform-context-2026-09-02.json",
+      "command": "prova de integração medida em 2026-09-25 na extensão do lote por varredura keyed por item (o lote original procurou a partir dos workstreams `active` e por isso não enxergou este, cujo workstream está `closed`): `git merge-base --is-ancestor codex/ux-audit-platform-context-2026-09-02 5e2e8194` devolve 0 (codex/ux-audit-platform-context-2026-09-02 está em 4b4c42ec9926), workstream WS-2026-09-EMULATION-PLATFORM-CONTEXT (closed). Os 3 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a composição na próxima release e validar no host; a UI de requisitos e o ciclo físico de lançamento permanecem com as frentes proprietárias.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-09-25",
   "notes": "A auditoria das capturas encontrou prontidão de 100% ao lado de 'Nenhum emulador definido' em uma plataforma não-Switch. A composição genérica publica as linhas de emuladores, mas não materializa primaryEmulator; o overview também injeta Keys/Firmware por fallback quando a plataforma não possui essa área. A correção desta frente cobre a primeira causa; a segunda pertence à UI compartilhada já custodiada por outro workstream."
 }

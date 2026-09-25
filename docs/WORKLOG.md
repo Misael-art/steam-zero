@@ -12546,3 +12546,62 @@ O que a suíte NÃO promove: `integration: integrated` diz só que o código est
 as capacidades seguem esperando a etapa física no host — as duas verificações do
 cartão de controles, por exemplo, seguem listadas em `nextAction` do próprio
 item. Publicação das branches continua dependente de autorização do operador.
+
+## 2026-09-25 — Correção de número e alcance do lote do eixo `integration`
+
+Duas afirmações da sessão anterior deste lote estavam erradas e são corrigidas
+aqui, na direção exigida pelo AGENTS.md (acréscimo, não reescrita).
+
+**As contagens de heads.** O parágrafo final de "Eixo `integration` do catálogo
+medido contra o main" escreveu *"Dos 79 heads locais que não alcançam `5e2e8194`,
+apenas seis carregam arquivo de código ou teste inexistente no main, e quatro
+desse já foram tratados"*. O 79 vinha de uma varredura parcial, limitada aos
+branches que tocavam `docs/status/`. A medição refeita, head por head, com
+`git merge-base --is-ancestor <head> 5e2e8194` sobre todas as refs locais:
+
+- **341** heads; **259** já são inteiros anteriores a `5e2e8194`; **82** carregam
+  trabalho próprio;
+- dos 82, **7** têm caminho sob `src/`, `tests/` ou `tools/` ausente no tip da
+  base. **3** são os branches desta própria revisão (lote B
+  `codex/library-derived-cleanup-universal-2026-09-25`, lote C
+  `codex/ui-control-matrix-parallel-2026-09-25`, lote D
+  `codex/media-registry-contract-2026-09-25`). Dos **4** pré-existentes, **2**
+  foram reimplementados sobre a base atual nesta revisão (o G58 de
+  `codex/library-derived-cleanup-universal-2026-09-22` virou o lote B; o
+  contrato do MediaHub de `feat/mediahub-canonical-e2e` virou o lote D) e **2**
+  foram julgados e não porterados: `tests/qml/launcher/check_launcher_exit.qml`
+  de `codex/aura-launcher-exit-2026-09-17` está **substituído** por desenho
+  posterior — a saída atual é `LauncherShell.handleEscape()` → `exitRequested()`
+  → `Qt.quit()`, sem prompt, com a asserção equivalente em
+  `tests/qml/launcher/check_launcher_focus_bootstrap.qml:182` — e
+  `tests/unit/test_launcher_return_context.py` de `codex/launcher-real-library`
+  é **obsoleto** porque o branch remove `launcher_process.py` e dois testes de
+  integração que o main mantém.
+
+Ou seja: nenhum dos 82 pendentes esconde arquivo de código que esta revisão não
+tenha tratado, reimplementado ou classificado com prova. O número correto é 7,
+não 6, e a repartição é 3 + 2 + 2, não "4 já tratados".
+
+**O alcance da varredura.** O lote partiu dos workstreams com `state: active` na
+base (27) e por construção não enxergava item cujo workstream dono já estava
+`closed`. Refeita a procura no sentido inverso — keyada por item, sobre os **89**
+itens do catálogo, resolvendo cada workstream que o referencia e medindo a
+contenção do branch de cada um —, **24** itens declaravam menos do que a prova
+mostra, não 8. Desses, **21** têm todos os branches donos resolúveis e ancestrais
+de `5e2e8194`; **3** ficaram de fora por falta de prova resolvível
+(`SZ-AURA-METADATA`, `SZ-EMULATION-STORAGE-READMODEL` e `SZ-UI-DESKTOP-AUDIT`,
+com 4, 1 e 5 workstreams donos, respectivamente, cujo branch não existe mais ou
+não está contido). **12** promoções novas entram neste acréscimo — as 8 anteriores
+mais estas somam **20**. `SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE` tem contenção
+provável e **não** foi promovido: o próprio item registra "não promover esta
+frente por agregação histórica", e uma correção de eixo não revoga decisão
+explícita.
+
+Nada muda de eixo além de `integration`, e nenhum `scopeDigest` envelhece com
+isso: dos 20 itens promovidos, nenhum lista `docs/STATUS.md`,
+`docs/status/COVERAGE.md` ou `docs/WORKLOG.md` entre os seus `scopePaths`, o que
+foi conferido caminho a caminho. Nota de forma: o texto das 12 evidências novas
+entrou sem acentos (escrito por um caminho de shell que descarta diacríticos) e
+foi corrigido no próprio arquivo antes deste commit; nenhuma outra linha do
+catálogo foi tocada. Nenhuma ref, tag, bundle ou espelho foi removido, nenhuma
+instalação ou release foi publicada, e nenhum branch antigo foi mesclado em massa.

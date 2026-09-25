@@ -5,7 +5,7 @@
   "title": "Importação de temas acessível pela área Temas",
   "domain": "themes",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "degraded",
   "distribution": "not-packaged",
@@ -77,10 +77,16 @@
       "reference": "tests/qml/check_theme_editor_import.qml",
       "command": "QT_QPA_PLATFORM=offscreen /usr/lib/qt6/bin/qml tests/qml/check_theme_editor_import.qml",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/status/workstreams/theme-import-surface-2026-09-02.json",
+      "command": "prova de integração medida em 2026-09-25 na extensão do lote por varredura keyed por item (o lote original procurou a partir dos workstreams `active` e por isso não enxergou este, cujo workstream está `closed`): `git merge-base --is-ancestor codex/ux-audit-platform-context-2026-09-02 5e2e8194` devolve 0 (codex/ux-audit-platform-context-2026-09-02 está em 4b4c42ec9926), workstream WS-2026-09-THEME-IMPORT-SURFACE (closed). Os 4 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Validar na release 2.0.0rc1-504d10b14485 com fontes ES-DE e pacote SteamZero reais; manter ausência explícita enquanto ES-DE/SRM não estiverem instalados e RetroFE não tiver pacote lançável.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-22",
+  "updatedAt": "2026-09-25",
   "notes": "O backend já implementa inspect/apply como tema editável. Esta frente fecha a descoberta e a jornada da superfície Temas sem duplicar o importador. 2026-09-03: scopeDigest renovado por mudanca da frente WS-2026-09-CENA-ESDE (rota theme.scene.render e o botao de previa). A evidencia NAO foi carimbada: foi reexecutada e passou (117 testes de contrato, dashboard e import)."
 }

@@ -19,12 +19,24 @@
     "docs/status/items/aura-launcher.json",
     "docs/status/items/aura-platform-media-scope-2026-09-20.json",
     "docs/status/items/controls-input-profiles.json",
+    "docs/status/items/emulation-long-operations.json",
+    "docs/status/items/emulation-m10.json",
+    "docs/status/items/emulation-platform-context.json",
+    "docs/status/items/emulation-platform-scope.json",
+    "docs/status/items/emulation-storage-management.json",
+    "docs/status/items/emulation-storage-platform-scope.json",
     "docs/status/items/governance-status.json",
+    "docs/status/items/host-update-transactional.json",
+    "docs/status/items/library-conversion-contract.json",
+    "docs/status/items/multidisc-descriptor-reconciliation.json",
+    "docs/status/items/platform-core-per-system.json",
     "docs/status/items/platform-ps4-physical-install.json",
     "docs/status/items/platform-ps5-catalog.json",
+    "docs/status/items/platform-requirement-scope.json",
     "docs/status/items/ps3-official-firmware-download.json",
-    "docs/status/items/sharpemu-component-smoke-contract.json"
+    "docs/status/items/sharpemu-component-smoke-contract.json",
+    "docs/status/items/theme-import-surface.json"
   ],
-  "nextAction": "Fechar os gates, criar o commit documental e abrir a PR para revisão; nenhum eixo de verificação, operação ou distribuição foi alterado, portanto nenhuma capacidade passou a estar certificada por esta correção.",
+  "nextAction": "Publicar a branch e abrir a PR. A varredura foi ampliada de workstream-ativo para keyed-por-item depois que a procura original deixou passar itens cujo workstream está closed: dos 24 itens que declaravam menos do que a prova mostra, 21 têm o branch integralmente contido em 5e2e8194 e 20 foram promovidos (8 no lote original, 12 nesta extensão); SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE tem contenção provável mas não foi promovido por decisão registrada no próprio item. SZ-AURA-METADATA, SZ-EMULATION-STORAGE-READMODEL e SZ-UI-DESKTOP-AUDIT ficaram de fora porque ao menos um workstream dono não tem prova de contenção resolvível. Nenhum eixo de verificação, operação ou distribuição foi alterado, portanto nenhuma capacidade passou a estar certificada por esta correção.",
   "updatedAt": "2026-09-25"
 }

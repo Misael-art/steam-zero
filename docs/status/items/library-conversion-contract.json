@@ -5,7 +5,7 @@
   "title": "Conversão de biblioteca por contrato de plataforma",
   "domain": "platform",
   "implementation": "complete",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "unknown",
   "distribution": "not-packaged",
@@ -38,10 +38,16 @@
       "reference": "tests",
       "command": ".venv/bin/python tools/run_tests_isolated.py tests -q (5291 passed, 44 skipped); ruff check/format, mypy, independence e boundaries verdes",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/status/workstreams/library-conversion-contract.json",
+      "command": "prova de integração medida em 2026-09-25 na extensão do lote por varredura keyed por item (o lote original procurou a partir dos workstreams `active` e por isso não enxergou este, cujo workstream está `closed`): `git merge-base --is-ancestor codex/library-conversion-contract 5e2e8194` devolve 0 (codex/library-conversion-contract está em d8e407438010), workstream WS-2026-08-LIBRARY-CONVERSION-CONTRACT (closed). Os 4 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a branch; a interface de armazenamento deve consumir o atalho em lote sem reaplicar a regra Switch fora do manifesto.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-08-29",
+  "updatedAt": "2026-09-25",
   "notes": "Baseline: ConversionManager.convert aceitava target_format apenas pela sintaxe e não recebia plataforma, natureza ou formatos; assim, uma chamada direta podia pedir CHD para .nes. Correção: ConversionPolicy recebe platformId, nature, formats, conversionTargets e preferredFormat declarados; ela recusa origem ou destino fora do contrato antes do staging/conversor. O serviço NSZ constrói a política a partir do manifesto Switch, preservando NSP↔NSZ. A extensão em lote reutiliza o mesmo staging, hash, confirmação e rollback por arquivo sem substituir originais."
 }

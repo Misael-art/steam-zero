@@ -5,7 +5,7 @@
   "title": "Escopo de requisitos por plataforma",
   "domain": "platform",
   "implementation": "complete",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "unknown",
   "distribution": "not-packaged",
@@ -51,10 +51,16 @@
       "reference": "tests",
       "command": "TMPDIR=/tmp .venv/bin/python tools/run_tests_isolated.py tests -q; runner chegou a 17%, ficou sem saída por 30s e foi interrompido com código 130; sem processos pytest/run_tests_isolated residuais",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/status/workstreams/platform-requirement-scope-2026-09-02.json",
+      "command": "prova de integração medida em 2026-09-25 na extensão do lote por varredura keyed por item (o lote original procurou a partir dos workstreams `active` e por isso não enxergou este, cujo workstream está `closed`): `git merge-base --is-ancestor codex/ux-audit-platform-context-2026-09-02 5e2e8194` devolve 0 (codex/ux-audit-platform-context-2026-09-02 está em 4b4c42ec9926), workstream WS-2026-09-PLATFORM-REQUIREMENT-SCOPE (closed). Os 7 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a remoção visual de cards não aplicáveis no QML compartilhado e ligar o store de firmware PS3.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-09-25",
   "notes": "Recorte funcional do agregador de manifests. O campo declarativo é opcional para preservar manifests antigos; Switch declara keys+firmware e PS3 declara firmware. O read model não publica esses requisitos em NES e demais plataformas sem declaração. Não promete ainda a verificação física do firmware PS3 nem adiciona o manifesto PS Vita; ambos permanecem lacunas explícitas."
 }

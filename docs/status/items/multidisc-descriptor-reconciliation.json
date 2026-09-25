@@ -5,7 +5,7 @@
   "title": "Reconciliação de descritor multidisco",
   "domain": "platform",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "dev",
   "operation": "unknown",
   "distribution": "not-packaged",
@@ -123,6 +123,12 @@
       "reference": "docs/09-operations/evidence/2026-09-17-multidisc-archive-audit/ARCHIVE-AUDIT.json",
       "command": "ArchiveAwareMultiDiscResolver read-only nos archives reais X68000 Garou e Amiga Super Street Fighter II",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/status/workstreams/multidisc-descriptor-reconciliation-2026-09-16.json",
+      "command": "prova de integração medida em 2026-09-25 na extensão do lote por varredura keyed por item (o lote original procurou a partir dos workstreams `active` e por isso não enxergou este, cujo workstream está `closed`): `git merge-base --is-ancestor codex/aura-multidisc-audit-2026-09-17 5e2e8194` devolve 0 (codex/aura-multidisc-audit-2026-09-17 está em 57b8fa4b3374), workstream WS-2026-09-MULTIDISC-DESCRIPTOR-RECONCILIATION (closed). Os 14 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
@@ -130,6 +136,6 @@
   ],
   "scopeDigest": "08beecfb2f5817a41a3fd96653dff096268cec1aa1a3677cd89e5e5e52dc6f3b",
   "nextAction": "Implementar o contrato de extração/conversão e comprovar PUAE/PX68K; só então executar plan/apply/verify transacional, promover a release e fazer a prova física com jogo multidisco legítimo.",
-  "updatedAt": "2026-09-16",
+  "updatedAt": "2026-09-25",
   "notes": "A capacidade foi criada como requisito central. A camada ArchiveAwareMultiDiscResolver indexa ZIP com hashes de archive/membro, rejeita conteúdo inseguro e decompõe archives X68000 multi-jogo. A identidade do disco agora usa o hash do membro, duplicatas idênticas são canonizadas, variantes incompatíveis são conflito e Disk N↔Disk A/B é validado. X68000 declara agora DIM/XDF, aceitando extensões .dim/.xdf/.img sem perder a semântica lógica. Amiga usa extração gerenciada; X68000 permanece bloqueado por contrato PX68K M3U não comprovado. Nenhuma playlist, extração ou mídia do usuário foi alterada nesta etapa."
 }
