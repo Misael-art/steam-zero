@@ -5,7 +5,7 @@
   "title": "Download assistido do firmware oficial do PS3",
   "domain": "emulation",
   "implementation": "complete",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "unknown",
   "distribution": "not-packaged",
@@ -49,12 +49,18 @@
       "reference": "src/steamzero/domain/ps3_firmware.py",
       "command": "Fonte oficial consultada; versão recomendada 4.93 e nome PS3/UPDATE/PS3UPDAT.PUP conferidos; a página não publica SHA-256.",
       "result": "recorded"
+    },
+    {
+    "kind": "diagnostic",
+    "reference": "src/steamzero/domain/ps3_firmware.py",
+    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps3-assisted-firmware-download-2026-09-20 5e2e8194` devolve 0 (origin/codex/ps3-assisted-firmware-download-2026-09-20 está em f1ab096a), logo todo o branch registrado no workstream WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD já está contido no main, e os 8 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+    "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch, instalar uma release governada e executar a prova física do assistente com download oficial, erro controlado, cancelamento/rollback e lançamento posterior do RPCS3.",
   "activeWorkstreams": [
     "WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD"
   ],
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-09-25",
   "notes": "O fluxo de importação local continua disponível para firmware fornecido pelo usuário. A automação é deliberadamente limitada ao artefato oficial da Sony e não altera um console PS3 físico."
 }

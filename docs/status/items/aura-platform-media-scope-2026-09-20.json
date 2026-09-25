@@ -5,7 +5,7 @@
   "title": "AURA — projeção de mídia com escopo de plataforma",
   "domain": "media",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "ready",
   "distribution": "not-packaged",
@@ -40,12 +40,18 @@
       "reference": "docs/09-operations/evidence/2026-09-20-aura-platform-media/REGISTRY-PLATFORM-AUDIT.json",
       "command": "projeção read-only com catálogo atual; 51 entradas registradas como Switch foram rejeitadas para jogos não-Switch",
       "result": "passed"
+    },
+    {
+    "kind": "diagnostic",
+    "reference": "src/steamzero/adapters/launcher_media.py",
+    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/aura-platform-media-scope-2026-09-20 5e2e8194` devolve 0 (origin/codex/aura-platform-media-scope-2026-09-20 está em 5fae1cad), logo todo o branch registrado no workstream WS-2026-09-AURA-PLATFORM-MEDIA-SCOPE já está contido no main, e os 3 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+    "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-PLATFORM-MEDIA-SCOPE"
   ],
   "nextAction": "Integrar na release governada e repetir a captura física com mídia corretamente escopada.",
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-09-25",
   "notes": "A auditoria física da release atual encontrou capas NES projetadas a partir de masters/switch. O bloqueio ocorre na projeção do registry; nenhuma mídia de usuário será apagada ou reclassificada por esta frente."
 }

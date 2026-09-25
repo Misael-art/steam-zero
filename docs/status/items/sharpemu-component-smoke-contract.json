@@ -5,7 +5,7 @@
   "title": "Contrato de verificação do componente SharpEmu",
   "domain": "platform",
   "implementation": "complete",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "ready",
   "distribution": "not-packaged",
@@ -28,10 +28,16 @@
       "reference": "tests/unit/test_sharpemu_verify_contract.py",
       "command": "run_tests_isolated.py tests/unit/test_sharpemu_verify_contract.py tests/unit/test_sharpemu_tarball.py -q; 6 passed",
       "result": "passed"
+    },
+    {
+    "kind": "diagnostic",
+    "reference": "src/steamzero/adapters/manifests/sharpemu.adapter.json",
+    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps5-component-tar-path 5e2e8194` devolve 0 (origin/codex/ps5-component-tar-path está em f2144559), logo todo o branch registrado no workstream WS-2026-09-SHARPEMU-COMPONENT-SMOKE já está contido no main, e os 3 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+    "result": "recorded"
     }
   ],
   "nextAction": "Executar gates, publicar a correção e reaplicar o componente SharpEmu na release governada; depois validar o dump PS5 e capturar a evidência física.",
   "activeWorkstreams": ["WS-2026-09-SHARPEMU-COMPONENT-SMOKE"],
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-09-25",
   "notes": "O asset oficial retorna Usage: SharpEmu com exit code 1 para --help. O apply anterior fez rollback com E-TX-VERIFY-FAILED porque o manifesto aceitava somente 0."
 }

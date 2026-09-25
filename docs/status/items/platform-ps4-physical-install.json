@@ -5,7 +5,7 @@
   "title": "Instalação física do shadPS4 e lançamento PS4",
   "domain": "platform",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "dev",
   "operation": "degraded",
   "distribution": "not-packaged",
@@ -51,13 +51,19 @@
       "reference": "docs/09-operations/evidence/2026-09-15-aura-visual-completion/shadps4-final-release.json",
       "command": "Release 2.0.0rc1-3c4b563242a9: repair governado concluído; component status --id shadps4 = installed; component verify --id shadps4 = verified=true; lançamento efetivo usa --appimage-extract-and-run -b com APPIMAGELAUNCHER_DISABLE, sem popup ou processo residual do AppImageLauncher.",
       "result": "passed"
+    },
+    {
+    "kind": "diagnostic",
+    "reference": "src/steamzero/adapters/lifecycle.py",
+    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps4-aura-physical-closure-2026-09-14 5e2e8194` devolve 0 (origin/codex/ps4-aura-physical-closure-2026-09-14 está em 18b59cc3), logo todo o branch registrado no workstream WS-2026-09-PS4-PHYSICAL-CLOSURE já está contido no main, e os 8 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+    "result": "recorded"
     }
   ],
   "nextAction": "A correção de XDG/JIT e o bypass explícito do AppImageLauncher estão instalados e verificados em 2.0.0rc1-3c4b563242a9. Obter conteúdo PS4 legítimo e provar jogo real em fullscreen, retorno ao AURA e preservação de foco; não promover antes dessa evidência.",
   "activeWorkstreams": [
     "WS-2026-09-PS4-PHYSICAL-CLOSURE"
   ],
-  "updatedAt": "2026-09-16",
+  "updatedAt": "2026-09-25",
   "notes": "O primeiro apply físico revelou que o payload real é um zip contendo Shadps4-sdl.AppImage. O AppImage direto bloqueava neste host por depender do mount FUSE e o core endurecido abortava o JIT com Xbyak sob MemoryDenyWriteExecute=true; o AppImageLauncher também interceptava o launch sem bypass explícito. A correção está instalada na release 2.0.0rc1-3c4b563242a9: roda smoke/launch em unidade transitória endurecida com W^X liberado apenas no componente, usa runtime path compartilhado, extract-and-run, APPIMAGELAUNCHER_DISABLE e a flag -b do Big Picture. O componente está installed e verified, sem staging órfão nem popup do AppImageLauncher. Ainda não existe conteúdo de jogo PS4 no host; portanto não se pode alegar lançamento real nem fabricar captura de fullscreen.",
   "scopeDigest": "8bda1ab5e82b0d727ce40e49198bd049fbb03a3ba8a8a97e843a4f0a53ac8137"
 }

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-09-INTEGRATION-AXIS-HONESTY",
+  "item": "SZ-GOVERNANCE-STATUS",
+  "branch": "codex/integration-axis-honesty-2026-09-25",
+  "baseRef": "5e2e8194",
+  "owner": "codex-integration-revisao-2026-09-24",
+  "state": "active",
+  "exclusivePaths": [
+    "docs/status/workstreams/integration-axis-honesty-2026-09-25.json"
+  ],
+  "sharedPaths": [
+    "docs/ACTIVE-WORK.md",
+    "docs/STATUS.md",
+    "docs/WORKLOG.md",
+    "docs/status/COVERAGE.md",
+    "docs/status/items/aura-esde-runtime-bridge-2026-09-20.json",
+    "docs/status/items/aura-launcher.json",
+    "docs/status/items/aura-platform-media-scope-2026-09-20.json",
+    "docs/status/items/controls-input-profiles.json",
+    "docs/status/items/governance-status.json",
+    "docs/status/items/platform-ps4-physical-install.json",
+    "docs/status/items/platform-ps5-catalog.json",
+    "docs/status/items/ps3-official-firmware-download.json",
+    "docs/status/items/sharpemu-component-smoke-contract.json"
+  ],
+  "nextAction": "Fechar os gates, criar o commit documental e abrir a PR para revisão; nenhum eixo de verificação, operação ou distribuição foi alterado, portanto nenhuma capacidade passou a estar certificada por esta correção.",
+  "updatedAt": "2026-09-25"
+}
