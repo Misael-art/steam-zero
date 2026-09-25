@@ -20,6 +20,6 @@
     "docs/ACTIVE-WORK.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Re-medir serial x paralelo sobre 5e2e8194 (a reducao anterior foi medida na base antiga), rodar a matriz visual e os gates integrais, depois abrir o PR.",
+  "nextAction": "Serial x paralelo re-medidos sobre 5e2e8194 (576 s com workers=1 contra 176 s com workers=4, mesma matriz) e a variacao ±1 de presenca por scenario registrada como lacuna. Falta a suíte integral desta base, o gate de format/type/independence e o PR.",
   "updatedAt": "2026-09-25"
 }

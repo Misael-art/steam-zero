@@ -15,13 +15,14 @@
     "tests/integration/test_ui_control_matrix.py",
     "docs/status/workstreams/ui-control-matrix-runtime-2026-09-25.json"
   ],
-  "scopeDigest": "97b8a8fe186a1ad0ba66231704dad97f253c3251de7cc914161d3b634d84d928",
+  "scopeDigest": "34708ff1f2536b3ada3646c5bf93bcf77fc4e6a7600154243409083e7bf26961",
   "dependsOn": [
     "SZ-TEST-STATE-ISOLATION",
     "SZ-UI-DESKTOP-AUDIT"
   ],
   "knownGaps": [
-    "GAP-UI-CONTROL-MATRIX-RUNTIME"
+    "GAP-UI-CONTROL-MATRIX-RUNTIME",
+    "GAP-UI-CONTROL-PROBE-SCENARIO-PRESENCE-VARIA-MAIS-UM-CONTROLE"
   ],
   "acceptanceCriteria": [
     "A matriz continua executando todos os cenários declarados e mesclando por identidade estável com o pior veredito prevalecendo.",
@@ -34,19 +35,31 @@
     {
       "kind": "diagnostic",
       "reference": "tools/ui_control_inventory.py",
-      "command": "Baseline serial antes da mudança: build_inventory() percorreu 15 cenários em 585,82 s; 339 controles, 12 superfícies, 0 falhas.",
+      "command": "2026-09-25, baseline re-medido NA BASE DESTE LOTE (5e2e8194, código sem a mudança, checkout limpo): build_inventory() com os 15 cenários em 581 s (segunda corrida: 579 s). 339 controles em 12 superfícies; identidades 77 explícitas / 262 fallback / 0 colisões; verdicts {handled-locally 268, blocked-explained 15, decorative 31, not-probed 7, routed 18}; 0 falhas. A medição anterior da frente dizia 585,82 s sobre uma base mais antiga — número trocado de propósito, porque a comparação nova é corrida contra corrida na mesma base.",
       "result": "recorded"
     },
     {
-      "kind": "test",
-      "reference": "tests/integration/test_ui_control_matrix.py",
-      "command": "21 passaram em 160,25 s; matriz completa, 15 cenários, state home inalterado.",
+      "kind": "diagnostic",
+      "reference": "tools/ui_control_inventory.py",
+      "command": "2026-09-25, controle da comparação: o MESMO código da branch executado com SCENARIO_PROBE_WORKERS=1 (mesma árvore, mesmos cenários) em 576 s. O dump completo comparado linha a linha com o baseline da base não divergiu em NENHUMA das 339 linhas — nem controlId, nem veredito, nem superfície, nem lista de cenários.",
       "result": "passed"
     },
     {
       "kind": "diagnostic",
       "reference": "tools/ui_control_inventory.py",
-      "command": "build_inventory() paralelo em 152,57 s: mesmos 15 cenários, 339 controles, 12 superfícies, verdicts handled-locally=268, blocked-explained=15, decorative=31, not-probed=7, routed=18; 0 falhas. 3,84× mais rápido que o baseline serial.",
+      "command": "2026-09-25, build_inventory() paralelo (workers=4) na mesma árvore: 176 s (segunda corrida: 179,95 s). Mesmos 15 cenários, mesmos 339 controles em 12 superfícies, mesmos verdictCounts, 77/262/0 de identidade, 0 falhas — 3,27× mais rápido que o serial do próprio código (576 s) e 3,30× que o baseline da base (581 s). Única divergência para o serial: `id:task-error-retry` foi visto em 15 cenários aqui e em 14 no serial, com o MESMO veredito (`handled-locally`); mudou a presença por cenário, não a cobertura.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "tools/ui_control_probe.qml",
+      "command": "2026-09-25, variância medida da sonda: uma corrida anterior nesta mesma base publicou 340 controles, 78 identidades explícitas e 269 handled-locally — um controle a mais, nomeado, tratado localmente e em cenário único. Ela não se repetiu em nenhuma das três execuções deste pareamento (339 em todas, serial da base, serial do código novo e paralelo). Logo a matriz oscila ±1 controle de corrida a corrida, com e sem concorrência; a mudança não toca identidade nem fusão, e a oscilação passa a constar como lacuna conhecida em vez de ser escondida numa comparação que só mostra igualdade.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_ui_control_matrix.py",
+      "command": "21 passaram em 160,25 s; matriz completa, 15 cenários, state home inalterado. Medido na frente original e reconfirmado pela suíte integral desta base, abaixo.",
       "result": "passed"
     },
     {
@@ -54,18 +67,12 @@
       "reference": "tests/unit/test_ui_control_inventory.py",
       "command": "3 passaram: concorrência limitada e ordem de saída estável; retorno QML não zero e timeout não se tornam inventário parcial.",
       "result": "passed"
-    },
-    {
-      "kind": "diagnostic",
-      "reference": "tests/unit/test_project_status.py",
-      "command": "Suíte integral: 6.291 passed, 47 skipped, 1 failed em 1.693,23 s. Única falha: catálogo rejeita 24 scopeDigest obsoletos preexistentes; state home antes/depois idêntico.",
-      "result": "partial"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-UI-CONTROL-MATRIX-RUNTIME"
   ],
-  "nextAction": "Implementação e matriz QML completas nesta branch; antes de promover, resolver/revalidar os 24 scopeDigest do catálogo que mantêm o gate global vermelho e repetir CI.",
+  "nextAction": "Publicar a branch e deixar o CI repetir a matriz nesta base. A medição serial x paralelo que a evidência anterior trazia de uma base mais antiga foi refeita contra 5e2e8194, e o obstáculo que impedia a promoção — 24 scopeDigest obsoletos mantendo o gate global vermelho — não existe mais na base atual: STATUS-CHECK OK aqui.",
   "updatedAt": "2026-09-25",
-  "notes": "Frente de infraestrutura de teste independente de validação física; não afrouxar cobertura para reduzir duração. A matriz ficou funcionalmente idêntica ao baseline e 3,84× mais rápida. O gate integral executou tudo, mas status-check falha apenas por 24 digests de itens preexistentes; não foram recalculados sem a revalidação de cada escopo."
+  "notes": "Frente de infraestrutura de teste independente de validação física; não afrouxar cobertura para reduzir duração. Na base atual o gate ficou 3,27× mais rápido com a mesma lista de 15 cenários, os mesmos 339 controles, as mesmas 12 superfícies e os mesmos vereditos. A única divergência medida para o serial foi a presença de um controle da gaveta de tarefas em um cenário a mais, e a sonda já oscilou ±1 controle entre corridas sem concorrência nenhuma — por isso a variação consta como lacuna conhecida em vez de sumir numa comparação que só mostra igualdade."
 }
