@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-LIBRARY-DERIVED-CLEANUP",
+  "title": "Gestão universal de pastas e artefatos derivados da biblioteca",
+  "domain": "platform",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "unit",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/06-api/LOCAL-API-CONTRACT.md",
+    "docs/KNOWN-GAPS.md",
+    "src/steamzero/domain/library_derived.py",
+    "src/steamzero/domain/library_management.py",
+    "src/steamzero/adapters/discovery/vita_packaging.py",
+    "src/steamzero/ui/qml/Main.qml",
+    "tests/unit/test_library_management.py",
+    "tests/unit/test_vita_packaging.py"
+  ],
+  "scopeDigest": "a79cbf158b61c391cdd22a7f0bf643e02e1c1baeaa1dd085b8ba5eea496d55a8",
+  "dependsOn": [
+    "SZ-LIBRARY-CANONICAL"
+  ],
+  "knownGaps": [
+    "GAP-G51",
+    "GAP-G58"
+  ],
+  "acceptanceCriteria": [
+    "A auditoria universal apresenta arquivos e pastas internas com o ownerPath em todas as plataformas reconhecidas.",
+    "O pacote Vita derivado grava um manifesto de proveniência relativo à raiz junto do ZIP, sem alterar a app de origem.",
+    "Saídas legadas sem proveniência permanecem selecionáveis como generated-unlinked, sem associação inferida pelo nome.",
+    "A UI mostra categoria, caminho e origem/relação antes da confirmação de quarentena.",
+    "Quarentena de uma pasta derivada move seu conteúdo e manifesto em operação reversível, sem incluir os arquivos de origem.",
+    "Manifesto inválido, symlink, caminho fora de .steamzero/derived ou tentativa de apontar uma ROM original como derivado não é aceito.",
+    "A política comum é provada com fixtures de múltiplas plataformas e sem alterar ROMs durante auditoria ou preview."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_library_management.py",
+      "command": "pytest tests/unit/test_library_management.py -q nesta branch (5e2e8194 + 57bb7171 resolvido): 9 testes, incluindo pastas internas com ownerPath, derived relacionado por manifesto, quarentena do conjunto sem mover a origem, manifesto inválido/symlink/fora da raiz recusado e herança gerada exibida como generated-unlinked sem dono presumido",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_vita_packaging.py",
+      "command": "pytest tests/unit/test_vita_packaging.py tests/unit/test_library_cache_directory_native.py -q: 7 testes passaram, provando sidecar de proveniência com ownerPaths relativos e origem intocada, além do preflight de espaço da release 2.0.0rc1-621a3389db32 e da projeção nativa de diretório Vita3K, ambos preservados após a integração",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/KNOWN-GAPS.md",
+      "command": "Linha G58 reescrita a partir do estado medido: o mecanismo universal existe em código e teste de unidade nesta branch; continua sem merge para main, sem release governada e sem certificação no host. Linha G51 atualizada com o mesmo fato, mantendo as contagens reais do scan do host.",
+      "result": "recorded"
+    }
+  ],
+  "activeWorkstreams": [
+    "WS-2026-09-LIBRARY-DERIVED-CLEANUP"
+  ],
+  "nextAction": "Integrar os jobs de materialização (archive.materialize e multidisc.materialize) ao mesmo registro de proveniência, fechar os gates integrais e o CI remoto, depois promover a release governada e certificar no host auditoria, vínculo e rollback com ZIP Vita, extrações e multidisco reais.",
+  "updatedAt": "2026-09-25",
+  "notes": "O manifesto derivado usa caminhos relativos à raiz e recusa ownership de terceiros: um arquivo que declare outro dono ou caminho fora de .steamzero/derived é tratado como gerado sem vínculo, nunca como derivado do jogo. Pastas vazias podem permanecer após a quarentena; nenhum rmdir fora do journal é executado. A frente ativa WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT continua dona dos caminhos que esta capacidade também toca, por isso eles entram como sharedPaths do workstream."
+}

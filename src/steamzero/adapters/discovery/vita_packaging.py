@@ -15,6 +15,7 @@ from pathlib import Path
 from steamzero.adapters.discovery.vita_sfo import read_vita_metadata
 from steamzero.core import fs
 from steamzero.core.errors import SteamZeroError
+from steamzero.domain.library_derived import DERIVED_MANIFEST, derived_manifest_bytes
 
 _TITLE_ID_RE = re.compile(r"^[A-Z]{4}[0-9]{5}$")
 _FORBIDDEN_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
@@ -26,6 +27,7 @@ _ZIP_MEMBER_OVERHEAD_ESTIMATE = 1024
 class VitaPackagePlan:
     source_app: Path
     destination: Path
+    library_root: Path
     title: str
     title_id: str
     files: int
@@ -67,7 +69,7 @@ def _validate_app(source_app: Path, title_id: str) -> tuple[str, tuple[Path, ...
 
 
 def plan_vita_package(
-    source_app: Path, *, title: str, title_id: str, derived_root: Path
+    source_app: Path, *, title: str, title_id: str, derived_root: Path, library_root: Path
 ) -> VitaPackagePlan:
     """Valida uma app Vita3K e calcula seu destino gerenciado, sem escrever."""
     normalized_id, files, source_bytes = _validate_app(source_app, title_id)
@@ -78,9 +80,13 @@ def plan_vita_package(
         raise SteamZeroError("E-TX-STALE-PLAN", detail="pacote Vita derivado já existe")
     estimated_output_bytes = source_bytes + len(files) * _ZIP_MEMBER_OVERHEAD_ESTIMATE
     required_space_bytes = estimated_output_bytes + _PACKAGE_SPACE_MARGIN
+    sidecar = destination.with_name(destination.name + DERIVED_MANIFEST)
+    if sidecar.is_symlink() or sidecar.exists():
+        raise SteamZeroError("E-TX-STALE-PLAN", detail="manifesto de relação Vita já existe")
     return VitaPackagePlan(
         source_app,
         destination,
+        library_root,
         title,
         normalized_id,
         len(files),
@@ -128,10 +134,26 @@ def package_vita_app(plan: VitaPackagePlan) -> dict[str, object]:
     with zipfile.ZipFile(plan.destination) as archive:
         names = set(archive.namelist())
         if "sce_sys/param.sfo" not in names or "eboot.bin" not in names:
+            fs.remove_file(plan.destination)
             raise SteamZeroError("E-CONTENT-INCOMPLETE", detail="ZIP Vita derivado incompleto")
+    related_manifest = derived_manifest_bytes(
+        plan.library_root,
+        plan.destination,
+        (plan.source_app,),
+        operation="library.vita.package",
+        platform_id="playstation-vita",
+        title=plan.title,
+    )
+    sidecar = plan.destination.with_name(plan.destination.name + DERIVED_MANIFEST)
+    try:
+        fs.write_atomic(sidecar, related_manifest, must_not_exist=True)
+    except Exception:
+        fs.remove_file(plan.destination)
+        raise
     return {
         "status": "materialized",
         "destination": str(plan.destination),
+        "relationshipManifest": str(sidecar),
         "title": plan.title,
         "titleId": plan.title_id,
         "files": plan.files,
@@ -140,6 +162,18 @@ def package_vita_app(plan: VitaPackagePlan) -> dict[str, object]:
 
 def plan_from_app(source_app: Path, *, derived_root: Path) -> VitaPackagePlan:
     """Deriva título e identidade do SFO antes de calcular o pacote."""
+    library_root = next(
+        (
+            parent.parent.parent
+            for parent in (derived_root, *derived_root.parents)
+            if parent.name == "derived" and parent.parent.name == ".steamzero"
+        ),
+        None,
+    )
+    if library_root is None:
+        raise SteamZeroError(
+            "E-CONTENT-UNSAFE-PATH", detail="destino fora da árvore derivada gerenciada"
+        )
     metadata = read_vita_metadata(source_app)
     if metadata.identity is None or not metadata.title:
         raise SteamZeroError("E-CONTENT-INCOMPLETE", detail=metadata.diagnosis)
@@ -148,4 +182,5 @@ def plan_from_app(source_app: Path, *, derived_root: Path) -> VitaPackagePlan:
         title=metadata.title,
         title_id=metadata.identity.value,
         derived_root=derived_root,
+        library_root=library_root,
     )

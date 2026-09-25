@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-09-LIBRARY-DERIVED-CLEANUP",
+  "item": "SZ-LIBRARY-DERIVED-CLEANUP",
+  "branch": "codex/library-derived-cleanup-universal-2026-09-25",
+  "baseRef": "5e2e8194",
+  "owner": "codex-integration-revisao-2026-09-24",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/domain/library_derived.py",
+    "docs/status/items/library-derived-cleanup.json",
+    "docs/status/workstreams/library-derived-cleanup-universal-2026-09-25.json"
+  ],
+  "sharedPaths": [
+    "src/steamzero/domain/library_management.py",
+    "src/steamzero/adapters/discovery/vita_packaging.py",
+    "src/steamzero/adapters/emulation.py",
+    "src/steamzero/ui/qml/Main.qml",
+    "tests/unit/test_library_management.py",
+    "tests/unit/test_vita_packaging.py",
+    "tests/unit/test_emulation_controller.py",
+    "docs/06-api/LOCAL-API-CONTRACT.md",
+    "docs/KNOWN-GAPS.md",
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/WORKLOG.md",
+    "docs/status/COVERAGE.md"
+  ],
+  "nextAction": "Ligar os jobs archive.materialize e multidisc.materialize ao mesmo manifesto de proveniência, rodar os gates integrais e abrir o PR; a certificação física fica com a release governada.",
+  "updatedAt": "2026-09-25"
+}
