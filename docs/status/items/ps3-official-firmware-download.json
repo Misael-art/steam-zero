@@ -51,10 +51,10 @@
       "result": "recorded"
     },
     {
-    "kind": "diagnostic",
-    "reference": "src/steamzero/domain/ps3_firmware.py",
-    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps3-assisted-firmware-download-2026-09-20 5e2e8194` devolve 0 (origin/codex/ps3-assisted-firmware-download-2026-09-20 está em f1ab096a), logo todo o branch registrado no workstream WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD já está contido no main, e os 8 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
-    "result": "recorded"
+      "kind": "diagnostic",
+      "reference": "src/steamzero/domain/ps3_firmware.py",
+      "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps3-assisted-firmware-download-2026-09-20 5e2e8194` devolve 0 (origin/codex/ps3-assisted-firmware-download-2026-09-20 está em f1ab096a), logo todo o branch registrado no workstream WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD já está contido no main, e os 8 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch, instalar uma release governada e executar a prova física do assistente com download oficial, erro controlado, cancelamento/rollback e lançamento posterior do RPCS3.",

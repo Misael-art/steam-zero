@@ -74,10 +74,10 @@
       "result": "passed"
     },
     {
-    "kind": "diagnostic",
-    "reference": "src/steamzero/adapters/desktop_dashboard.py",
-    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/aura-harmonization-clean-2026-09-21 5e2e8194` devolve 0 (origin/codex/aura-harmonization-clean-2026-09-21 está em 40e80e94), logo todo o branch registrado no workstream WS-2026-09-AURA-ESDE-RUNTIME-BRIDGE já está contido no main, e os 7 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
-    "result": "recorded"
+      "kind": "diagnostic",
+      "reference": "src/steamzero/adapters/desktop_dashboard.py",
+      "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/aura-harmonization-clean-2026-09-21 5e2e8194` devolve 0 (origin/codex/aura-harmonization-clean-2026-09-21 está em 40e80e94), logo todo o branch registrado no workstream WS-2026-09-AURA-ESDE-RUNTIME-BRIDGE já está contido no main, e os 7 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [

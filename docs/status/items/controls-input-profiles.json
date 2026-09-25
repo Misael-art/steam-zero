@@ -84,10 +84,10 @@
       "result": "passed"
     },
     {
-    "kind": "diagnostic",
-    "reference": "src/steamzero/domain/input_profiles.py",
-    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor codex/controls-autoconfig-prova-fisica 5e2e8194` devolve 0 (codex/controls-autoconfig-prova-fisica está em dc8e17cc), logo todo o branch registrado no workstream WS-2026-08-CONTROLS-INPUT-PROFILES já está contido no main, e os 13 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
-    "result": "recorded"
+      "kind": "diagnostic",
+      "reference": "src/steamzero/domain/input_profiles.py",
+      "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor codex/controls-autoconfig-prova-fisica 5e2e8194` devolve 0 (codex/controls-autoconfig-prova-fisica está em dc8e17cc), logo todo o branch registrado no workstream WS-2026-08-CONTROLS-INPUT-PROFILES já está contido no main, e os 13 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Duas verificacoes finais do operador, ambas com o host na mao: (1) confirmar o cartao em verde com o botao sumido (central > Emulacao > jogo > cartao de controles); (2) abrir um jogo da plataforma e confirmar a chegada do perfil no lancamento real — argv do flatpak run com --appendconfig e o pad funcionando no RetroArch, com o retroarch.cfg do usuario saindo byte a byte identico. Depois disso o item e completo na release instalada; publicar release nova com as correcoes de main (drift/erros/auditoria) segue dependente de autorizacao.",

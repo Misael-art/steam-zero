@@ -53,10 +53,10 @@
       "result": "passed"
     },
     {
-    "kind": "diagnostic",
-    "reference": "src/steamzero/adapters/lifecycle.py",
-    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps4-aura-physical-closure-2026-09-14 5e2e8194` devolve 0 (origin/codex/ps4-aura-physical-closure-2026-09-14 está em 18b59cc3), logo todo o branch registrado no workstream WS-2026-09-PS4-PHYSICAL-CLOSURE já está contido no main, e os 8 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
-    "result": "recorded"
+      "kind": "diagnostic",
+      "reference": "src/steamzero/adapters/lifecycle.py",
+      "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps4-aura-physical-closure-2026-09-14 5e2e8194` devolve 0 (origin/codex/ps4-aura-physical-closure-2026-09-14 está em 18b59cc3), logo todo o branch registrado no workstream WS-2026-09-PS4-PHYSICAL-CLOSURE já está contido no main, e os 8 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "A correção de XDG/JIT e o bypass explícito do AppImageLauncher estão instalados e verificados em 2.0.0rc1-3c4b563242a9. Obter conteúdo PS4 legítimo e provar jogo real em fullscreen, retorno ao AURA e preservação de foco; não promover antes dessa evidência.",

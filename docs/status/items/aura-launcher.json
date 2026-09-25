@@ -442,10 +442,10 @@
       "result": "partial"
     },
     {
-    "kind": "diagnostic",
-    "reference": "src/steamzero/cli/main.py",
-    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor codex/aura-launcher-evidencia-fisica 5e2e8194` devolve 0 (codex/aura-launcher-evidencia-fisica está em 00459c75), logo todo o branch registrado no workstream WS-2026-08-AURA-LAUNCHER já está contido no main, e os 46 scopePaths do item existem no tip. O eixo integration sobe de isolated para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
-    "result": "recorded"
+      "kind": "diagnostic",
+      "reference": "src/steamzero/cli/main.py",
+      "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor codex/aura-launcher-evidencia-fisica 5e2e8194` devolve 0 (codex/aura-launcher-evidencia-fisica está em 00459c75), logo todo o branch registrado no workstream WS-2026-08-AURA-LAUNCHER já está contido no main, e os 46 scopePaths do item existem no tip. O eixo integration sobe de isolated para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "P0-G48: instalar uma release governada com o filtro Vita corrigido, confirmar que o catálogo válido não aborta e repetir no host a ativação do fixture, home→foco→launch→jogo→retorno e cleanup. Fade-in/out, retorno de foco, OSD/saves/discos e desempenho permanecem gates separados; preservar KDE.",

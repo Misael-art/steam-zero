@@ -165,10 +165,10 @@
       "result": "recorded"
     },
     {
-    "kind": "diagnostic",
-    "reference": "docs/12-roadmap/SHARPEMU-PS5-DEPLOYMENT-PLAN.md",
-    "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps5-param-json-physical 5e2e8194` devolve 0 (origin/codex/ps5-param-json-physical está em deca5d14), logo todo o branch registrado no workstream WS-2026-09-PS5-SHARPEMU já está contido no main, e os 19 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
-    "result": "recorded"
+      "kind": "diagnostic",
+      "reference": "docs/12-roadmap/SHARPEMU-PS5-DEPLOYMENT-PLAN.md",
+      "command": "prova de integração medida em 2026-09-25: `git merge-base --is-ancestor origin/codex/ps5-param-json-physical 5e2e8194` devolve 0 (origin/codex/ps5-param-json-physical está em deca5d14), logo todo o branch registrado no workstream WS-2026-09-PS5-SHARPEMU já está contido no main, e os 19 scopePaths do item existem no tip. O eixo integration sobe de feature-branch para integrated; verificação, operação e distribuição não mudam, porque nenhuma prova física nova foi executada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Manter GAP-SHARPEMU-PHYSICAL-VALIDATION aberto; repetir a prova com SharpEmu compatível ou outro dump e capturar PNG somente quando uma cena real for renderizada.",
