@@ -42,7 +42,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
 | SZ-CAST-LAN | 6 | 3 | 3 | unit |  |
 | SZ-COMPONENT-LIFECYCLE | 24 | 16 | 14 | hw |  |
-| SZ-CONTROLS-INPUT-PROFILES | 16 | 10 | 5 | hw |  |
+| SZ-CONTROLS-INPUT-PROFILES | 16 | 11 | 6 | hw |  |
 | SZ-EMULATION-ENHANCEMENTS | 24 | 9 | 9 | unit |  |
 | SZ-EMULATION-HIGH-END-RUNTIME-READINESS | 5 | 4 | 2 | unit |  |
 | SZ-EMULATION-LONG-OPERATIONS | 28 | 18 | 12 | hw |  |

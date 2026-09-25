@@ -12490,3 +12490,44 @@ plataformas, com preview/consentimento/quarentena/rollback, sem apagar originais
 
 Central fechada; nenhum emulador, tema ou frontend ficou aberto. Nenhuma ROM
 original foi renomeada, movida ou apagada.
+## 2026-09-25 — O estado aplicado do cartão de controles passou a dizer até onde vale
+
+A lacuna era de afirmação, não de mecanismo. No estado aplicado, o cartão dizia
+apenas "O perfil está aplicado e valendo no emulador." O que o código faz é mais
+estreito e mais honesto: o SteamZero lança o RetroArch com `--appendconfig`
+apontando para o overlay gerenciado
+(`src/steamzero/adapters/input_devices.py:461`, consumido em
+`src/steamzero/adapters/emulation.py:1261`), que sobrepõe chaves sem tocar no
+arquivo do usuário. Um RetroArch aberto por fora — pelo atalho da área de
+trabalho, por outro frontend, pela linha de comando — continua lendo a
+configuração própria dele, e a frase antiga prometia o contrário. O texto passou
+a declarar o alcance: "O perfil está aplicado e vale quando o RetroArch é aberto
+pelo SteamZero. Aberto por fora, o emulador usa a configuração própria dele."
+
+O harness ganhou a asserção correspondente
+(`tests/qml/check_controls_profile_card.qml`: a mensagem do estado `applied` precisa
+conter "Aberto por fora") e tem **prova negativa**: devolvendo a frase antiga, o
+mesmo harness reprova com rc=1 e a mensagem
+"o estado aplicado precisa declarar que não vale para o RetroArch aberto fora do
+SteamZero" — a asserção não é decorativa.
+
+Dois itens vizinhos tiveram o `scopeDigest` renovado por causa dessa mudança,
+porque ambos listam QML num escopo amplo: `SZ-THEME-ENGINE` e
+`SZ-UI-DESKTOP-AUDIT`. Cada um recebeu uma evidência `diagnostic` dizendo que a
+renovação vem de frente alheia, que o que foi reexecutado é o harness do cartão,
+e que nada nesses itens foi promovido — sem isso, um digest novo lido semanas
+depois pareceria reatestação de trabalho que continua pendente.
+
+Gate de fechamento (AGENTS.md seção 6) rodado nesta branch:
+`tools/run_tests_isolated.py tests -q` → **6285 passed, 47 skipped em 2214,92 s
+(0:36:54)**, rc=0, estado do host idêntico antes e depois. `STATUS-CHECK: OK`.
+A contagem não se move em relação à base `5e2e8194` porque a asserção extra é
+interna a um harness que já era executado por
+`tests/integration/test_qml_handheld_offscreen.py:462`, não um teste novo.
+
+O que o lote **não** mudou: `verification` continua `hw` e `knownGaps` continua
+vazio, porque o que falta aqui é físico e já está listado no `nextAction` do item
+— confirmar o cartão em verde no host e ver o perfil chegar num lançamento real
+do RetroArch com o `retroarch.cfg` do usuário saindo byte a byte idêntico.
+Nenhuma instalação no host, nenhuma release publicada, nenhuma ref, tag, bundle
+ou espelho removido.

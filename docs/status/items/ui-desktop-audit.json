@@ -366,7 +366,7 @@
     {
       "kind": "diagnostic",
       "reference": "src/steamzero/ui/qml/ControlsProfileCard.qml",
-      "command": "2026-09-25: scopeDigest renovado por mudanca ALHEIA a este item. A frente WS-2026-09-CONTROLS-PROFILE-SCOPE-HONESTY qualificou a frase do estado `applied` em src/steamzero/ui/qml/ControlsProfileCard.qml e acrescentou uma assercao ao harness tests/qml/check_controls_profile_card.qml — os dois arquivos caem no escopo amplo de QML deste item. O que foi reexecutado com a mudanca e o harness do cartao (rc=0, nenhuma linha FAIL); nada neste item foi promovido, e o que esta pendente aqui continua exatamente onde estava. Registrado para que o digest novo nao seja lido como reatestacao das evidencias deste item.",
+      "command": "2026-09-25: scopeDigest renovado por mudança ALHEIA a este item. A frente WS-2026-09-CONTROLS-PROFILE-SCOPE-HONESTY qualificou a frase do estado `applied` em src/steamzero/ui/qml/ControlsProfileCard.qml e acrescentou uma asserção ao harness tests/qml/check_controls_profile_card.qml — os dois arquivos caem no escopo amplo de QML deste item. O que foi reexecutado com a mudança é o harness do cartão (rc=0, nenhuma linha FAIL); nada neste item foi promovido, e o que está pendente aqui continua exatamente onde estava. Registrado para que o digest novo não seja lido como reatestação das evidências deste item.",
       "result": "recorded"
     }
   ],

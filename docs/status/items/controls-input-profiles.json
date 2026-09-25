@@ -92,7 +92,13 @@
     {
       "kind": "test",
       "reference": "tests/qml/check_controls_profile_card.qml",
-      "command": "2026-09-25, cartao corrigido e exercitado no harness visual: `env QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES= QT_QPA_PLATFORM=offscreen QML_DISABLE_DISK_CACHE=1 qml6 tests/qml/check_controls_profile_card.qml` devolve rc=0 e nenhuma linha `FAIL:`. PROVA NEGATIVA, para a assercao nao ser decorativa: devolvendo o estado `applied` a frase antiga (sem qualificar o alcance), o MESMO harness reprova com rc=1 e a mensagem `o estado aplicado precisa declarar que nao vale para o RetroArch aberto fora do SteamZero`.",
+      "command": "2026-09-25, cartão corrigido e exercitado no harness visual: `env QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES= QT_QPA_PLATFORM=offscreen QML_DISABLE_DISK_CACHE=1 qml6 tests/qml/check_controls_profile_card.qml` devolve rc=0 e nenhuma linha `FAIL:`. PROVA NEGATIVA, para a asserção não ser decorativa: devolvendo ao estado `applied` a frase antiga (sem qualificar o alcance), o MESMO harness reprova com rc=1 é a mensagem `o estado aplicado precisa declarar que não vale para o RetroArch aberto fora do SteamZero`.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/qml/check_controls_profile_card.qml",
+      "command": "2026-09-25, gate de fechamento da frente WS-2026-09-CONTROLS-PROFILE-SCOPE-HONESTY: `tools/run_tests_isolated.py tests -q` nesta branch devolve **6285 passed, 47 skipped em 2214,92 s (0:36:54)**, rc=0, com o estado do host idêntico antes e depois (12588 arquivos, 2061 diretórios, 1327036375 bytes, mesmo max_mtime_ns) — o que prova que a suíte não escreveu nada no host. O harness do cartão está dentro dessa contagem: `tests/integration/test_qml_handheld_offscreen.py:462` executa `tests/qml/check_controls_profile_card.qml` e cobra saída limpa, então a frase nova foi exercitada pela suíte integral e não só pelo comando isolado. `tools/project_status.py check` => STATUS-CHECK OK. Nada aqui é prova de host: `verification` continua `hw` porque falta a leitura do cartão na release instalada e o lançamento real com o perfil chegando ao RetroArch.",
       "result": "passed"
     }
   ],

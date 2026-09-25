@@ -19,6 +19,6 @@
     "docs/status/COVERAGE.md",
     "docs/status/items/controls-input-profiles.json"
   ],
-  "nextAction": "Executar a matriz QML focada e os gates integrais, publicar a branch e repetir no host a leitura do cartão no estado aplicado; a prova física continua sendo o que mantém o item em verification: hw.",
+  "nextAction": "Publicar a branch e abrir a PR (gate integral já executado nesta base: 6285 passed, 47 skipped, rc=0). No host continua o que mantém o item em verification: hw — reler o cartão no estado aplicado na release instalada e confirmar o perfil chegando ao RetroArch lançado pelo SteamZero com o retroarch.cfg do usuário byte a byte idêntico.",
   "updatedAt": "2026-09-25"
 }
