@@ -12490,3 +12490,37 @@ plataformas, com preview/consentimento/quarentena/rollback, sem apagar originais
 
 Central fechada; nenhum emulador, tema ou frontend ficou aberto. Nenhuma ROM
 original foi renomeada, movida ou apagada.
+
+## 2026-09-25 — Eixo `integration` do catálogo medido contra o main
+
+A revisão minuciosa do trabalho preservado fora de `main` exigiu responder uma
+pergunta antes de qualquer porte: o que o catálogo afirma sobre o `main` ainda é
+verdade? A checagem foi mecânica e reprodutível. Para cada workstream `active`
+em `5e2e8194` (27 no total), resolveu-se o `branch` registrado e mediu-se
+`git merge-base --is-ancestor <branch> 5e2e8194`. Oito itens declaravam
+`integration: isolated` ou `feature-branch` enquanto o branch do próprio
+workstream já está **inteiro** no main e todos os seus `scopePaths` existem no
+tip: `SZ-AURA-LAUNCHER` (isolated, 46 caminhos), `SZ-AURA-ESDE-RUNTIME-BRIDGE`,
+`SZ-AURA-PLATFORM-MEDIA-SCOPE`, `SZ-CONTROLS-INPUT-PROFILES`,
+`SZ-PLATFORM-PS4-PHYSICAL-INSTALL`, `SZ-PLATFORM-PS5-CATALOG`,
+`SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD` e `SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT`.
+Cada um ganhou uma evidência `diagnostic` com o SHA que fecha a prova
+(`00459c75`, `40e80e94`, `5fae1cad`, `dc8e17cc`, `18b59cc3`, `deca5d14`,
+`f1ab096a`, `f2144559`) e o eixo subiu para `integrated`.
+
+Nada mais mudou de eixo. `verification`, `operation` e `distribution` ficam
+como estavam — nenhuma prova física nova foi executada, então nenhuma
+capacidade passou a estar pronta, instalada ou certificada por esta correção.
+O caso contrário também foi examinado e **não** tratado como defeito: workstreams
+que continuam `active` com o código já integrado (`WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT`,
+`WS-2026-09-EMULATION-REAL-DUMP-VALIDATION`, `WS-2026-09-JOB-RECOVERY-G25`) estão
+corretos, porque neles o que falta é a etapa física no host, que é justamente o
+que os outros três eixos medem. Confundir "está no main" com "está certificado"
+produziria o mesmo erro, na direção oposta.
+
+Consequência prática para a revisão: com o eixo de integração corrigido, a
+triagem de branches pendentes deixa de reabrir trabalho já incorporado. Dos 79
+heads locais que não alcançam `5e2e8194`, apenas seis carregam arquivo de código
+ou teste inexistente no main, e quatro desses já foram tratados nos lotes desta
+revisão. Nenhum branch antigo foi mesclado em massa, nenhuma ref, tag, bundle ou
+espelho foi removido, e nenhuma instalação ou release foi publicada.
