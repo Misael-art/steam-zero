@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-09-UI-CONTROL-MATRIX-RUNTIME",
+  "item": "SZ-UI-CONTROL-MATRIX-RUNTIME",
+  "branch": "codex/ui-control-matrix-parallel-2026-09-25",
+  "baseRef": "5e2e8194",
+  "owner": "codex-integration-revisao-2026-09-24",
+  "state": "active",
+  "exclusivePaths": [
+    "tools/ui_control_inventory.py",
+    "tests/unit/test_ui_control_inventory.py",
+    "tests/integration/test_ui_control_matrix.py",
+    "docs/status/items/ui-control-matrix-runtime.json",
+    "docs/status/workstreams/ui-control-matrix-runtime-2026-09-25.json"
+  ],
+  "sharedPaths": [
+    "docs/status/COVERAGE.md",
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Re-medir serial x paralelo sobre 5e2e8194 (a reducao anterior foi medida na base antiga), rodar a matriz visual e os gates integrais, depois abrir o PR.",
+  "updatedAt": "2026-09-25"
+}
