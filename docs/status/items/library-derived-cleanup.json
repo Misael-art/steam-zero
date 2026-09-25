@@ -15,11 +15,13 @@
     "src/steamzero/domain/library_derived.py",
     "src/steamzero/domain/library_management.py",
     "src/steamzero/adapters/discovery/vita_packaging.py",
+    "src/steamzero/adapters/emulation.py",
     "src/steamzero/ui/qml/Main.qml",
     "tests/unit/test_library_management.py",
-    "tests/unit/test_vita_packaging.py"
+    "tests/unit/test_vita_packaging.py",
+    "tests/unit/test_emulation_controller.py"
   ],
-  "scopeDigest": "a79cbf158b61c391cdd22a7f0bf643e02e1c1baeaa1dd085b8ba5eea496d55a8",
+  "scopeDigest": "e6b4f61bb7b063e3819ef24b911828b556d77d057228d583a92f5401e6ecc4d6",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL"
   ],
@@ -30,6 +32,7 @@
   "acceptanceCriteria": [
     "A auditoria universal apresenta arquivos e pastas internas com o ownerPath em todas as plataformas reconhecidas.",
     "O pacote Vita derivado grava um manifesto de proveniência relativo à raiz junto do ZIP, sem alterar a app de origem.",
+    "Extração de archive e materialização multidisco vinculam a saída a todas as ROMs de origem no mesmo job, e um falhanço no sidecar degrada para relationship=unlinked sem desfazer a materialização.",
     "Saídas legadas sem proveniência permanecem selecionáveis como generated-unlinked, sem associação inferida pelo nome.",
     "A UI mostra categoria, caminho e origem/relação antes da confirmação de quarentena.",
     "Quarentena de uma pasta derivada move seu conteúdo e manifesto em operação reversível, sem incluir os arquivos de origem.",
@@ -50,6 +53,12 @@
       "result": "passed"
     },
     {
+      "kind": "test",
+      "reference": "tests/unit/test_emulation_controller.py",
+      "command": "pytest tests/unit/test_emulation_controller.py -q: 148 testes passaram, incluindo os dois jobs reais archive.materialize e multidisc.materialize executando os handlers do controlador com o materializador isolado; a auditoria devolveu ownerPaths com todas as fontes e as ROMs de origem continuaram presentes depois do vínculo",
+      "result": "passed"
+    },
+    {
       "kind": "diagnostic",
       "reference": "docs/KNOWN-GAPS.md",
       "command": "Linha G58 reescrita a partir do estado medido: o mecanismo universal existe em código e teste de unidade nesta branch; continua sem merge para main, sem release governada e sem certificação no host. Linha G51 atualizada com o mesmo fato, mantendo as contagens reais do scan do host.",
@@ -59,7 +68,7 @@
   "activeWorkstreams": [
     "WS-2026-09-LIBRARY-DERIVED-CLEANUP"
   ],
-  "nextAction": "Integrar os jobs de materialização (archive.materialize e multidisc.materialize) ao mesmo registro de proveniência, fechar os gates integrais e o CI remoto, depois promover a release governada e certificar no host auditoria, vínculo e rollback com ZIP Vita, extrações e multidisco reais.",
+  "nextAction": "Fechar a suíte integral e os gates remotos do PR e só depois promover a release governada: no host, validar auditoria com a categoria derived, vínculo por manifesto e rollback em plataformas reais (ZIP Vita, extrações de archive e multidisco). A linha G58 continua aberta enquanto não houver prova física.",
   "updatedAt": "2026-09-25",
   "notes": "O manifesto derivado usa caminhos relativos à raiz e recusa ownership de terceiros: um arquivo que declare outro dono ou caminho fora de .steamzero/derived é tratado como gerado sem vínculo, nunca como derivado do jogo. Pastas vazias podem permanecer após a quarentena; nenhum rmdir fora do journal é executado. A frente ativa WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT continua dona dos caminhos que esta capacidade também toca, por isso eles entram como sharedPaths do workstream."
 }
