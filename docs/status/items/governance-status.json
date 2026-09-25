@@ -100,7 +100,7 @@
     {
       "kind": "test",
       "reference": "tests/unit/test_project_status.py",
-      "command": "2026-09-25, gate de fechamento do lote que elevou o eixo integration: `tools/run_tests_isolated.py tests -q` nesta branch devolve 6285 passed, 47 skipped em 2299,01 s (0:38:19), rc=0, com o estado do host identico antes e depois; `tools/project_status.py check` => STATUS-CHECK OK. O diff do lote e inteiramente de docs/status: nenhum arquivo de src, tools, tests, Makefile, AGENTS.md ou CI foi tocado, entao os gates de codigo desta branch sao os da propria base 5e2e8194, medidos verdes nesta revisao (ruff check, ruff format --check em 664 arquivos, mypy em 296 arquivos, lint_boundaries com 0 violacoes, check_independence OK).",
+      "command": "2026-09-25, gate de fechamento do lote que elevou o eixo integration: `tools/run_tests_isolated.py tests -q` nesta branch devolve 6285 passed, 47 skipped em 2299,01 s (0:38:19), rc=0, com o estado do host idêntico antes e depois; `tools/project_status.py check` => STATUS-CHECK OK. O diff do lote é inteiramente de docs/status: nenhum arquivo de src, tools, tests, Makefile, AGENTS.md ou CI foi tocado, então os gates de código desta branch são os da própria base 5e2e8194, medidos verdes nesta revisão (ruff check, ruff format --check em 664 arquivos, mypy em 296 arquivos, lint_boundaries com 0 violações, check_independence OK).",
       "result": "passed"
     }
   ],
