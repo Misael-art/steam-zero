@@ -67,12 +67,18 @@
       "reference": "tests/unit/test_ui_control_inventory.py",
       "command": "3 passaram: concorrência limitada e ordem de saída estável; retorno QML não zero e timeout não se tornam inventário parcial.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_ui_control_matrix.py",
+      "command": "2026-09-25, gate de fechamento da seção 6 nesta branch: `tools/run_tests_isolated.py tests -q` => 6288 passed, 47 skipped em 1748,68 s (0:29:08), rc=0, com o estado do host identico antes e depois (12588 arquivos, 1327036375 bytes, mesmo max_mtime_ns). O efeito da mudanca aparece no total do gate, nao so na sonda: no MESMO dia e na MESMA maquina, o lote que roda o codigo serial desta base levou 2299,01 s (0:38:19) para 6285 passed — 550,33 s a mais, do ganho medido na matriz (576 s serial contra 176 s paralelo). Ressalva medida: um processo estrangeiro de alto consumo rodou no host durante as duas corridas, e por isso o pareamento controlado de cobertura esta nas tres execucoes de matriz acima, nao aqui.",
+      "result": "passed"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-UI-CONTROL-MATRIX-RUNTIME"
   ],
-  "nextAction": "Publicar a branch e deixar o CI repetir a matriz nesta base. A medição serial x paralelo que a evidência anterior trazia de uma base mais antiga foi refeita contra 5e2e8194, e o obstáculo que impedia a promoção — 24 scopeDigest obsoletos mantendo o gate global vermelho — não existe mais na base atual: STATUS-CHECK OK aqui.",
+  "nextAction": "Publicar a branch e abrir o PR; a suíte integral desta base já fechou verde (6288 passed, 47 skipped, 0:29:08). O obstáculo que a evidência antiga registrava — 24 scopeDigest obsoletos deixando o gate global vermelho — não existe mais nesta base: STATUS-CHECK OK. Promover `integration` para `integrated` continua sendo ato posterior ao merge, não deste lote.",
   "updatedAt": "2026-09-25",
   "notes": "Frente de infraestrutura de teste independente de validação física; não afrouxar cobertura para reduzir duração. Na base atual o gate ficou 3,27× mais rápido com a mesma lista de 15 cenários, os mesmos 339 controles, as mesmas 12 superfícies e os mesmos vereditos. A única divergência medida para o serial foi a presença de um controle da gaveta de tarefas em um cenário a mais, e a sonda já oscilou ±1 controle entre corridas sem concorrência nenhuma — por isso a variação consta como lacuna conhecida em vez de sumir numa comparação que só mostra igualdade."
 }

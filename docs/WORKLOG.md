@@ -12490,3 +12490,43 @@ plataformas, com preview/consentimento/quarentena/rollback, sem apagar originais
 
 Central fechada; nenhum emulador, tema ou frontend ficou aberto. Nenhuma ROM
 original foi renomeada, movida ou apagada.
+
+## 2026-09-25 — Matriz de controles QML medida serial x paralelo na base atual
+
+A frente que paraleliza a sonda da matriz de controles existia desde
+`14995dfb`, mas a evidência dela media 585,82 s contra 152,55 s numa base que
+já não é o `main`. `tools/ui_control_inventory.py` não mudou na linha principal
+desde então, então o ganho foi re-medido sobre `5e2e8194` antes de promover
+qualquer estado: baseline sem a mudança em 581 s (repetição: 579 s), o MESMO
+código da branch forçado a `SCENARIO_PROBE_WORKERS=1` em 576 s, e a árvore em
+paralelo com quatro trabalhadores em 176 s (repetição: 179,95 s) — 3,27x sobre
+o serial do próprio código e 3,30x sobre o baseline da base.
+
+A identidade da cobertura foi comparada linha a linha nos três dumps, não só
+o total de testes: das 339 linhas, serial da base contra serial do código novo
+não divergiu em nenhuma; contra o paralelo a única diferença foi
+`id:task-error-retry`, visto em 15 cenários de um lado e 14 do outro com o
+mesmo veredito `handled-locally`. Uma corrida anterior nesta base publicou 340
+controles em vez de 339 — um controle a mais, nomeado e tratado localmente — e
+não se repetiu em nenhuma das três execuções do pareamento, com ou sem
+concorrência. Essa oscilação de ±1 controle foi registrada como lacuna
+conhecida (`GAP-UI-CONTROL-PROBE-SCENARIO-PRESENCE-VARIA-MAIS-UM-CONTROLE`) em
+vez de ser escondida dentro de uma comparação que só mostra igualdade.
+
+O fechamento do lote usa o gate da seção 6 na própria branch:
+`tools/run_tests_isolated.py tests -q` => 6288 passed, 47 skipped em 1748,68 s
+(0:29:08), rc=0, com o estado do host identico antes e depois (12588 arquivos,
+1327036375 bytes, mesmo max_mtime_ns). Corroboração de ponta a ponta no mesmo
+dia e na mesma maquina: o lote que executa o codigo serial desta base levou
+2299,01 s (0:38:19) para 6285 passed — 550,33 s a mais, na ordem do ganho
+medido na matriz. Ressalva medida e mantida na evidencia: um processo
+estrangeiro de alto consumo rodou no host durante as duas corridas, por isso o
+pareamento de cobertura esta nas tres execucoes de matriz e nao nesse par de
+totais de suite.
+
+O obstaculo que a evidencia antiga registrava — 24 `scopeDigest` obsoletos
+deixando o gate global vermelho — nao existe mais nesta base: o STATUS-CHECK
+desta branch esta OK. Nenhuma ref, tag, bundle ou espelho de preservacao foi
+removido, nenhum branch antigo foi mesclado em massa, nada foi instalado no
+host e nenhuma release foi publicada. Promover `integration` para `integrated`
+e ato posterior ao merge, nao deste lote.
