@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media-registry-v1.schema.json",
+  "title": "SteamZero MediaHub canonical registry v1",
+  "description": "Read model canônico do MediaHub: masters content-addressed por plataforma, optimized por perfil e views por frontend, com índice de associação por hash e os órfãos identificados por caminho.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "platforms",
+    "entries",
+    "hashIndex",
+    "optimized",
+    "views",
+    "orphans"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "platforms": {
+      "type": "object",
+      "description": "slug -> plataforma declarada. Vem do registry e, quando ausente, é derivada dos entries em disco.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "kinds"],
+        "properties": {
+          "name": {"type": "string"},
+          "kinds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        },
+        "additionalProperties": false
+      }
+    },
+    "entries": {
+      "type": "object",
+      "description": "gameId -> registro canônico de mídia.",
+      "additionalProperties": {
+        "$ref": "#/$defs/entry"
+      }
+    },
+    "hashIndex": {
+      "type": "object",
+      "description": "Associação por conteúdo: sha256 do master -> gameIds que referenciam esse master.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"},
+        "uniqueItems": true
+      }
+    },
+    "optimized": {
+      "type": "object",
+      "description": "gameId -> perfil -> relpaths de optimized. Um perfil com mais de um arquivo é visível aqui, não resolvido por whichever-wins.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "views": {
+      "type": "object",
+      "description": "frontend -> lista de relpaths publicados em views (artwork por frontend).",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"},
+        "uniqueItems": true
+      }
+    },
+    "orphans": {
+      "$ref": "#/$defs/orphans"
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "sourceUrl"],
+      "properties": {
+        "provider": {"type": "string"},
+        "sourceUrl": {"type": "string"},
+        "license": {"type": "string"},
+        "attribution": {"type": "string"},
+        "downloadedAt": {"type": "string"},
+        "hashSha256": {"type": "string"}
+      }
+    },
+    "master": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relPath", "sha256", "extension"],
+      "properties": {
+        "relPath": {
+          "type": "string",
+          "description": "Caminho relativo à raiz de mídia, sempre abaixo de masters/. O emissor rejeita caminho absoluto ou com travessia antes de chegar aqui.",
+          "pattern": "^masters/[^/].*$"
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "extension": {"type": "string"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gameId",
+        "titleId",
+        "fingerprint",
+        "canonicalName",
+        "platformId",
+        "confirmed",
+        "masters"
+      ],
+      "properties": {
+        "gameId": {"type": "string", "minLength": 1},
+        "titleId": {"type": "string"},
+        "fingerprint": {"type": "string"},
+        "canonicalName": {"type": "string"},
+        "platformId": {
+          "type": "string",
+          "description": "slug da plataforma; string vazia significa desconhecida (registry anterior à separação por plataforma)."
+        },
+        "aliases": {"type": "array", "items": {"type": "string"}},
+        "region": {"type": "string"},
+        "language": {"type": "string"},
+        "version": {"type": "string"},
+        "metadataOrigin": {"type": "string"},
+        "confirmed": {"type": "boolean"},
+        "steamAppid": {"type": ["integer", "null"]},
+        "masters": {
+          "type": "object",
+          "description": "kind -> master content-addressed.",
+          "additionalProperties": {"$ref": "#/$defs/master"},
+          "minProperties": 1
+        },
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "orphans": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["masterFiles", "optimizedFiles", "brokenViewLinks"],
+      "properties": {
+        "masterFiles": {
+          "description": "Masters em disco sem referência no registro canônico; é exatamente o conjunto que a limpeza de cache removeria.",
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "optimizedFiles": {
+          "description": "Arquivos optimized que não pertencem a nenhum entry conhecido da plataforma.",
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "brokenViewLinks": {
+          "description": "Links em views cujo alvo não resolve mais.",
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-MEDIA-REGISTRY-CANONICAL",
+  "title": "Contrato público do MediaHub canônico (media-registry-v1)",
+  "domain": "media",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "unit",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/06-api/JSON-SCHEMAS.md",
+    "docs/EXPANSION-LEDGER.md",
+    "src/steamzero/domain/media_pipeline.py",
+    "src/steamzero/domain/switch_media.py",
+    "src/steamzero/schemas/media-registry-v1.schema.json",
+    "tests/golden/test_contracts.py",
+    "tests/integration/test_mediahub_canonical.py"
+  ],
+  "scopeDigest": "bec41f3ae8c4445f32849f627684659f065d02e095ce8a71f9ff48a325f855a6",
+  "dependsOn": [
+    "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "O snapshot do MediaHub valida contra o schema público media-registry-v1 sempre que é emitido pelo pipeline, inclusive com o hub vazio.",
+    "Cada master é reportado por caminho relativo, sha256 e extensão, e o hashIndex associa o mesmo conteúdo a todos os gameIds que o referenciam.",
+    "Um optimized é atribuído ao gameId pelo prefixo mais longo conhecido, de modo que um id contendo underscore não perde o próprio arquivo nem aparece como órfão.",
+    "Views são agrupados por frontend e links cujo alvo não resolve mais aparecem em orphans.brokenViewLinks.",
+    "orphans.masterFiles é exatamente o conjunto que plan_prune_orphan_cache() removeria; as duas contas não podem divergir.",
+    "Entrada legada sem platformId permanece representável: o contrato aceita plataforma desconhecida como string vazia em vez de inferir Switch.",
+    "Nenhum caminho absoluto ou fora da raiz de mídia é emitido no contrato."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_mediahub_canonical.py",
+      "command": "pytest tests/integration/test_mediahub_canonical.py tests/golden/test_contracts.py -q nesta branch (base 5e2e8194): 25 testes passaram, sendo 12 do MediaHub canônico e 13 golden de contratos. Cobrem o fluxo collect→optimize→view validado contra o schema, o hashIndex compartilhado por dois jogos, a atribuição pelo prefixo mais longo, os órfãos reportados por caminho e a igualdade entre orphans.masterFiles e as ações de delete do plano de limpeza.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_media.py",
+      "command": "pytest tests/integration/test_media.py tests/integration/test_media_pipeline_platform_scope.py tests/integration/test_media_audit_platform_scope.py tests/unit -k 'media or prune or orphan' -q: 203 testes passaram e 4.151 foram deselecionados pelo filtro. A extração da varredura de masters para _unreferenced_master_files(), compartilhada pelo plano de limpeza e pelo snapshot, não alterou o plano nem as métricas por plataforma.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/EXPANSION-LEDGER.md",
+      "command": "Linha A7 promovida de pending para verified-dev com a evidência acima. O read model ainda não tem consumidor em execução, então a linha registra essa decisão de produto pendente em vez de alegar entrega física.",
+      "result": "recorded"
+    },
+    {
+    "kind": "test",
+    "reference": "tests/integration/test_mediahub_canonical.py",
+    "command": "suíte integral isolada nesta branch: 6296 passed, 47 skipped em 2154,23 s (0:35:54), sem falha. Gates de fechamento medidos: ruff check → All checks passed; ruff format --check → 665 arquivos já formatados; mypy src → sem issues em 296 arquivos; check_independence → independência de runtime OK; lint_boundaries → 0 violações; project_status check → STATUS-CHECK OK.",
+    "result": "passed"
+    }
+  ],
+  "activeWorkstreams": [
+    "WS-2026-09-MEDIA-REGISTRY-CANONICAL"
+  ],
+  "nextAction": "Decidir onde o snapshot é consumido — diagnóstico de mídia na interface ou artefato próprio do job de auditoria — antes de promover o estado. Embuti-lo no arquivo de auditoria existente não é opção: o leitor em EmulationController só aceita o payload até 1 MiB e acima disso passa a reportar \"nunca auditado\". A suíte integral desta branch está fechada (6296 passed, 47 skipped, zero falhas). Restam os gates remotos do PR, a decisão de produto sobre o consumidor do snapshot, e continua sem release governada e sem certificação no host.",
+  "updatedAt": "2026-09-25",
+  "notes": "O snapshot reporta caminhos; o audit() reporta quantidades, e stats.orphanMasters do audit conta masters sem optimized derivado — outra pergunta, que não é substituída por orphans.masterFiles. Masters e entradas sem plataforma declarada continuam representáveis porque a separação por plataforma é posterior ao registry v1. A plataforma aparece em platforms tanto quando o registry a declara quanto quando os entries a evidenciam; uma slug declarada e uma observada têm suas kinds unidas."
+}

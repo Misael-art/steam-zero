@@ -15,6 +15,7 @@ Schemas JSON (draft 2020-12) versionados em `schemas/` no repositório (Fase 1);
 | `retro-input-profile-v1.schema.json` | perfil semântico versionado de controles | RETRO-INPUT-PROFILE-V1 |
 | `feat-playtime-v1.schema.json` | playtime, recentes e continuar jogando | FEAT-PLAYTIME-V1 |
 | `screen-cast-v1.schema.json` | estado de sessão de compartilhamento de tela | ADR-0022 / WI-S0 |
+| `media-registry-v1.schema.json` | read model canônico do MediaHub: masters content-addressed, optimized por perfil, views por frontend e órfãos por caminho | EXPANSION-LEDGER A7 |
 | `component-lock-v1.schema.json` | lockfile empacotado de componentes | MANIFEST-SCHEMAS §2 |
 | `component-plan-v1.schema.json` | plano Flatpak pinado | MANIFEST-SCHEMAS §4 |
 | `backup-manifest-v1.schema.json` | manifesto de backup | BACKUP-FORMAT |

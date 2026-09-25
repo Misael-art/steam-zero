@@ -5,6 +5,7 @@ import os
 import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
+from datetime import UTC, datetime
 from pathlib import Path
 
 from steamzero.core import fs, paths, transaction
@@ -505,15 +506,117 @@ class MediaPipeline:
         except (OSError, ValueError):
             return False
 
-    def plan_prune_orphan_cache(self) -> transaction.Plan:
-        """Planeja remover somente masters sem referência no registro canônico."""
+    # --- 5. CANONICAL SNAPSHOT (media-registry-v1) ---
+    def registry_snapshot(self) -> dict[str, object]:
+        """Read model canônico do MediaHub, associado por hash de conteúdo.
+
+        O contrato público é ``media-registry-v1.schema.json``. Enquanto o
+        ``audit()`` reporta quantidades, o snapshot reporta caminhos: os masters
+        em ``orphans.masterFiles`` são exatamente os que
+        ``plan_prune_orphan_cache()`` removeria. Não confundir esse campo com
+        ``stats.orphanMasters`` do audit, que conta masters sem optimized
+        derivado e é uma pergunta diferente.
+        """
+        optimized_dir = self._media_root / "optimized"
+        views_dir = self._media_root / "views"
+
+        entries: dict[str, object] = {}
+        hash_index: dict[str, list[str]] = {}
+        kinds_by_platform: dict[str, set[str]] = {}
+        for game_id, entry in sorted(self._registry.entries.items()):
+            masters: dict[str, object] = {}
+            for kind, rel in sorted(entry.masters.items()):
+                rel_path = Path(rel)
+                masters[kind] = {
+                    "relPath": rel_path.as_posix(),
+                    "sha256": rel_path.stem,
+                    "extension": rel_path.suffix,
+                }
+                hash_index.setdefault(rel_path.stem, []).append(game_id)
+                kinds_by_platform.setdefault(entry.platform_id, set()).add(kind)
+            record = entry.to_dict()
+            record["masters"] = masters
+            entries[game_id] = record
+
+        platforms: dict[str, object] = {}
+        for slug, platform in self._registry.platforms.items():
+            platforms[slug] = {
+                "name": platform.name,
+                "kinds": sorted(set(platform.kinds) | kinds_by_platform.get(slug, set())),
+            }
+        for slug, kinds in kinds_by_platform.items():
+            if slug and slug not in platforms:
+                platforms[slug] = {"name": slug, "kinds": sorted(kinds)}
+
+        # O nome de um optimized é ``<gameId>_<perfil>``. Como gameId pode conter
+        # underscore, atribuir pelo prefixo mais longo conhecido; separar no
+        # primeiro underscore chamaria de órfão um arquivo perfeitamente dono.
+        known_ids = sorted(entries, key=len, reverse=True)
+        optimized: dict[str, dict[str, list[str]]] = {}
+        optimized_orphans: list[str] = []
+        if optimized_dir.is_dir():
+            for artifact in sorted(optimized_dir.rglob("*")):
+                if not artifact.is_file() or artifact.is_symlink():
+                    continue
+                parts = artifact.relative_to(optimized_dir).parts
+                rel = artifact.relative_to(self._media_root).as_posix()
+                if len(parts) != 3:
+                    optimized_orphans.append(rel)
+                    continue
+                _platform, profile, filename = parts
+                owner = next((gid for gid in known_ids if filename.startswith(f"{gid}_")), None)
+                if owner is None:
+                    optimized_orphans.append(rel)
+                    continue
+                optimized.setdefault(owner, {}).setdefault(profile, []).append(rel)
+
+        views: dict[str, list[str]] = {}
+        broken_views: list[str] = []
+        if views_dir.is_dir():
+            for link in sorted(views_dir.rglob("*")):
+                if not link.is_symlink():
+                    continue
+                rel = link.relative_to(self._media_root).as_posix()
+                views.setdefault(link.relative_to(views_dir).parts[0], []).append(rel)
+                if not link.exists():
+                    broken_views.append(rel)
+
+        orphan_masters = sorted(
+            found.relative_to(self._media_root).as_posix()
+            for found, _resolved in self._unreferenced_master_files()
+        )
+
+        return {
+            "schemaVersion": 1,
+            "generatedAt": datetime.now(UTC).isoformat(),
+            "platforms": dict(sorted(platforms.items())),
+            "entries": entries,
+            "hashIndex": dict(sorted(hash_index.items())),
+            "optimized": dict(sorted(optimized.items())),
+            "views": dict(sorted(views.items())),
+            "orphans": {
+                "masterFiles": orphan_masters,
+                "optimizedFiles": sorted(optimized_orphans),
+                "brokenViewLinks": sorted(broken_views),
+            },
+        }
+
+    def _unreferenced_master_files(self) -> list[tuple[Path, Path]]:
+        """Masters em disco sem referência no registro canônico.
+
+        Retorna ``(caminho encontrado, caminho resolvido)``. Os dois consumidores
+        precisam da mesma verdade: o plano de limpeza remove o resolvido, e o
+        snapshot canônico reporta o encontrado como relativo à raiz de mídia.
+        Separar as duas contas permitiria que ``orphans.masterFiles`` deixasse
+        de ser exatamente o que a limpeza removeria.
+        """
         masters_dir = self._media_root / "masters"
         referenced = {
             (self._media_root / relpath).resolve(strict=False)
             for entry in self._registry.entries.values()
             for relpath in entry.masters.values()
         }
-        removals: set[Path] = set()
+        unreferenced: list[tuple[Path, Path]] = []
         if masters_dir.is_dir() and not masters_dir.is_symlink():
             for candidate in masters_dir.rglob("*"):
                 if not candidate.is_file() or candidate.is_symlink():
@@ -523,7 +626,12 @@ class MediaPipeline:
                     resolved.is_relative_to(masters_dir.resolve(strict=True))
                     and resolved not in referenced
                 ):
-                    removals.add(resolved)
+                    unreferenced.append((candidate, resolved))
+        return unreferenced
+
+    def plan_prune_orphan_cache(self) -> transaction.Plan:
+        """Planeja remover somente masters sem referência no registro canônico."""
+        removals = {resolved for _found, resolved in self._unreferenced_master_files()}
         return transaction.plan_write_files(
             {},
             removals=removals,

@@ -449,6 +449,9 @@ class GameMediaManager:
     def audit(self, platform_id: str | None = None) -> AuditReport:
         return self._pipeline.audit(platform_id=platform_id)
 
+    def registry_snapshot(self) -> dict[str, object]:
+        return self._pipeline.registry_snapshot()
+
     def plan_prune_orphan_cache(self) -> transaction.Plan:
         return self._pipeline.plan_prune_orphan_cache()
 

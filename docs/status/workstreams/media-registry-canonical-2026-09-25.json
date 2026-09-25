@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-09-MEDIA-REGISTRY-CANONICAL",
+  "item": "SZ-MEDIA-REGISTRY-CANONICAL",
+  "branch": "codex/media-registry-contract-2026-09-25",
+  "baseRef": "5e2e8194",
+  "owner": "codex-integration-revisao-2026-09-24",
+  "state": "active",
+  "exclusivePaths": [
+    "docs/06-api/JSON-SCHEMAS.md",
+    "docs/EXPANSION-LEDGER.md",
+    "docs/status/items/media-registry-canonical.json",
+    "docs/status/workstreams/media-registry-canonical-2026-09-25.json",
+    "src/steamzero/domain/media_pipeline.py",
+    "src/steamzero/domain/switch_media.py",
+    "src/steamzero/schemas/media-registry-v1.schema.json",
+    "tests/integration/test_mediahub_canonical.py"
+  ],
+  "sharedPaths": [
+    "docs/ACTIVE-WORK.md",
+    "docs/STATUS.md",
+    "docs/WORKLOG.md",
+    "tests/golden/test_contracts.py"
+  ],
+  "nextAction": "Fechar a suíte integral isolada nesta base, publicar o commit documental e abrir o PR da branch; a decisão de produto sobre o consumidor do snapshot continua em aberto e não bloqueia o contrato.",
+  "updatedAt": "2026-09-25"
+}
