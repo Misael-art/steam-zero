@@ -52,10 +52,10 @@
       "result": "recorded"
     },
     {
-    "kind": "test",
-    "reference": "tests/integration/test_mediahub_canonical.py",
-    "command": "suíte integral isolada nesta branch: 6296 passed, 47 skipped em 2154,23 s (0:35:54), sem falha. Gates de fechamento medidos: ruff check → All checks passed; ruff format --check → 665 arquivos já formatados; mypy src → sem issues em 296 arquivos; check_independence → independência de runtime OK; lint_boundaries → 0 violações; project_status check → STATUS-CHECK OK.",
-    "result": "passed"
+      "kind": "test",
+      "reference": "tests/integration/test_mediahub_canonical.py",
+      "command": "suíte integral isolada nesta branch: 6296 passed, 47 skipped em 2154,23 s (0:35:54), sem falha. Gates de fechamento medidos: ruff check → All checks passed; ruff format --check → 665 arquivos já formatados; mypy src → sem issues em 296 arquivos; check_independence → independência de runtime OK; lint_boundaries → 0 violações; project_status check → STATUS-CHECK OK.",
+      "result": "passed"
     }
   ],
   "activeWorkstreams": [
