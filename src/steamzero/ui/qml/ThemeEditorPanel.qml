@@ -20,6 +20,7 @@ Rectangle {
     property color amberColor: "#ff9f1a"
     property color redColor: "#ff6b73"
     property real visualScale: 1.0
+    readonly property int minimumInteractiveTarget: 48
     readonly property int titlePixelSize: editorTitle.font.pixelSize
 
     property var requestAction: function(_ida, _payload, _cb, _ecb) {}
@@ -32,6 +33,7 @@ Rectangle {
     }
 
     property bool compactLayout: false
+    property bool journeyMode: false
     // Tema ativo no host (dashboard.theme.activeId). Main.qml deve vincular.
     property string activeThemeId: ""
     // Nome de apresentacao do tema em vigor. Vazio significa "o tema
@@ -54,6 +56,9 @@ Rectangle {
     property alias retrofeImportApplyControl: retrofeImportApplyButton
     property alias esdeImportDialogControl: esdeImportDialog
     property alias esdeImportApplyControl: esdeImportApplyButton
+    property alias applyConfirmControl: applyConfirmButton
+    property alias journeyPanelControl: journeyPanel
+    property var effectColorDialogControl: null
 
     signal applied()
     signal exported(string destination)
@@ -68,7 +73,32 @@ Rectangle {
     property var editorTokens: ({})
     property bool editorReadOnly: false
     property bool editorDirty: false
+    // Histórico de autoria devolvido pelo backend (V3). Nunca é calculado aqui:
+    // undo/redo e `dirty` vêm do documento, para o preview não divergir dele.
+    property var editorHistory: ({canUndo: false, canRedo: false})
+    // Slot de mídia em edição no inspector de enquadramento.
+    property string mediaRecipeRole: "focusedCover"
+    property string effectStackName: "focusedCover"
+    property string motionTimelineName: "entrada"
+    property string motionNewTimelineKind: "sequence"
+    property string motionStateName: "focused"
+    readonly property var motionStateOptions: editorMotionSchema.states || ["normal", "focused",
+        "selected", "pressed", "disabled", "loading", "missing", "error", "offline",
+        "playing", "idle", "menuOpen"]
+    property string bindingLayoutName: ""
+    property string bindingPropName: ""
+    // Declaração do tema (cadeia extends + rascunho), sem negociação por tier ou
+    // acessibilidade: base dos inspetores. O preview pode omitir efeitos; isto não.
+    property var editorDeclared: ({effects: ({}), sceneMotion: null})
+    property var editorEffectSchema: ({})
+    property var editorMotionSchema: ({})
+    property string authoringNotice: ""
+    // Sobe quando uma edição é recusada: os campos reconstroem e voltam ao valor
+    // declarado, em vez de continuar exibindo o texto rejeitado.
+    property int authoringRevision: 0
     property var editorThemeList: []
+    property int effectColorIndex: -1
+    property string effectColorParameter: ""
     property string esdeImportSource: ""
     property var esdeImportSchemes: []
     property int esdeImportSchemeIndex: -1
@@ -552,6 +582,182 @@ Rectangle {
         return copy
     }
 
+    function _applyEditorResult(r) {
+        if (r.preview) {
+            panel.editorPreviewObject = r.preview
+            panel.editorTokens = r.preview.resolved || {}
+        }
+        if (r.manifest)
+            panel.editorManifest = r.manifest
+        if (r.declared)
+            panel.editorDeclared = r.declared
+        if (r.effectSchema)
+            panel.editorEffectSchema = r.effectSchema
+        if (r.motionSchema)
+            panel.editorMotionSchema = r.motionSchema
+        panel.authoringNotice = ""
+        if (r.history) {
+            panel.editorHistory = r.history
+            panel.editorDirty = r.history.dirty === true
+        }
+    }
+
+    function editorUndo() {
+        panel.requestAction("theme.editor.undo", {sessionId: panel.editorSessionId},
+            panel._applyEditorResult)
+    }
+
+    function editorRedo() {
+        panel.requestAction("theme.editor.redo", {sessionId: panel.editorSessionId},
+            panel._applyEditorResult)
+    }
+
+    function setMediaRecipe(field, value) {
+        panel.requestAction("theme.editor.set-media-recipe", {
+            sessionId: panel.editorSessionId,
+            role: panel.mediaRecipeRole,
+            field: field,
+            value: value
+        }, panel._applyEditorResult)
+    }
+
+    function editEffect(op, extra) {
+        if (panel.editorReadOnly || !panel.editorSessionId)
+            return
+        var body = {sessionId: panel.editorSessionId, stack: panel.effectStackName, op: op}
+        for (var k in extra)
+            body[k] = extra[k]
+        panel.requestAction("theme.editor.edit-effect", body, panel._applyEditorResult,
+            function(message) { panel.authoringNotice = String(message); panel.authoringRevision += 1 })
+    }
+
+    function effectParameterSpec(effectType, parameter) {
+        const entry = panel.editorEffectSchema[effectType] || ({})
+        const specified = (entry.parameters || ({}))[parameter]
+        if (specified)
+            return specified
+        return parameter === "color"
+            ? {kind: "color", default: "#000000"}
+            : {kind: "number", minimum: -1000000, maximum: 1000000, step: 1, decimals: 2}
+    }
+
+    function effectFallbackOptions(effectType) {
+        const entry = panel.editorEffectSchema[effectType] || ({})
+        return Array.isArray(entry.fallbacks) && entry.fallbacks.length
+            ? entry.fallbacks : ["omit", "minimal"]
+    }
+
+    function motionKeyframeSpec(field) {
+        const keyframes = panel.editorMotionSchema.keyframes || ({})
+        return keyframes[field] || {minimum: -256, maximum: 256, step: 1, decimals: 2}
+    }
+
+    function rejectEditorNumber(field, minimum, maximum) {
+        panel.authoringNotice = qsTr("%1 precisa ficar entre %2 e %3.")
+            .arg(field).arg(minimum).arg(maximum)
+        panel.authoringRevision += 1
+    }
+
+    function effectColorHex(value) {
+        const raw = String(value || "").toLowerCase()
+        const hex = raw.startsWith("#") ? raw.slice(1) : raw
+        if (/^[0-9a-f]{8}$/.test(hex))
+            return "#" + hex.slice(-6)
+        if (/^[0-9a-f]{6}$/.test(hex))
+            return "#" + hex
+        return "#000000"
+    }
+
+    function formatEffectNumber(value, locale, decimals) {
+        let formatted = Number(value).toLocaleString(locale, "f", decimals)
+        const sample = Number(1.1).toLocaleString(locale, "f", 1)
+        const separator = sample.charAt(1)
+        if (separator && formatted.indexOf(separator) >= 0) {
+            while (formatted.endsWith("0"))
+                formatted = formatted.slice(0, -1)
+            if (formatted.endsWith(separator))
+                formatted = formatted.slice(0, -1)
+        }
+        return formatted
+    }
+
+    function openEffectColor(index, parameter, value) {
+        panel.effectColorIndex = index
+        panel.effectColorParameter = parameter
+        const dialog = colorPickerComponent.createObject(panel, {
+            objectName: "effectColorDialog",
+            initialColor: panel.effectColorHex(value),
+            backgroundColor: panel.backgroundColor,
+            surfaceColor: panel.surfaceColor,
+            raisedColor: panel.raisedColor,
+            borderColor: panel.borderColor,
+            textColor: panel.textColor,
+            mutedColor: panel.mutedColor,
+            cyanColor: panel.cyanColor,
+            cyanDarkColor: panel.cyanDarkColor,
+            visualScale: panel.visualScale
+        })
+        if (!dialog) {
+            panel.authoringNotice = qsTr("Não foi possível abrir o seletor de cor.")
+            panel.authoringRevision += 1
+            return
+        }
+        panel.effectColorDialogControl = dialog
+        dialog.colorPicked.connect(panel.acceptEffectColor)
+        dialog.closed.connect(function() {
+            if (panel.effectColorDialogControl === dialog)
+                panel.effectColorDialogControl = null
+        })
+        dialog.open()
+    }
+
+    function acceptEffectColor(value) {
+        if (panel.effectColorIndex < 0 || panel.effectColorParameter === "")
+            return
+        panel.editEffect("set", {
+            index: panel.effectColorIndex,
+            param: panel.effectColorParameter,
+            value: panel.effectColorHex(value)
+        })
+    }
+
+    function editMotion(op, timeline, extra) {
+        if (panel.editorReadOnly || !panel.editorSessionId)
+            return
+        var body = {sessionId: panel.editorSessionId, op: op, timeline: timeline}
+        for (var k in extra)
+            body[k] = extra[k]
+        panel.requestAction("theme.editor.edit-motion", body, panel._applyEditorResult,
+            function(message) { panel.authoringNotice = String(message); panel.authoringRevision += 1 })
+    }
+
+    function keyframeText(stateName, key) {
+        var st = ((editorDeclared.sceneMotion || {}).states || {})[stateName] || {}
+        var d = {opacity: 1, scale: 1, translateX: 0, translateY: 0}
+        return String(st[key] !== undefined ? st[key] : d[key])
+    }
+
+    function repeatText(timelineName) {
+        var tl = (((editorDeclared.sceneMotion || {}).timelines || {})[timelineName] || {})
+        return String(tl.repeat || 0)
+    }
+
+    function editBinding(binding, fallback) {
+        if (panel.editorReadOnly || !panel.editorSessionId || panel.bindingLayoutName === ""
+                || panel.bindingPropName === "")
+            return
+        var body = {
+            sessionId: panel.editorSessionId,
+            layoutId: panel.bindingLayoutName,
+            prop: panel.bindingPropName,
+            fallback: fallback
+        }
+        if (binding !== null)
+            body.binding = binding
+        panel.requestAction("theme.editor.edit-binding", body, panel._applyEditorResult,
+            function(message) { panel.authoringNotice = String(message); panel.authoringRevision += 1 })
+    }
+
     function setMetadata(field, value) {
         if (panel.editorReadOnly || !panel.editorSessionId)
             return
@@ -566,8 +772,13 @@ Rectangle {
         })
     }
 
-    function _openEditor(sessionId, manifest, preview) {
+    function _openEditor(sessionId, manifest, preview, declared, effectSchema, motionSchema) {
         panel.editorSessionId = sessionId
+        panel.editorDeclared = declared || ({effects: ({}), sceneMotion: null})
+        panel.editorEffectSchema = effectSchema || ({})
+        panel.editorMotionSchema = motionSchema || ({})
+        panel.authoringNotice = ""
+        panel.editorHistory = ({canUndo: false, canRedo: false})
         panel.editorManifest = manifest
         panel.editorPreviewObject = preview
         panel.editorTokens = preview && preview.resolved ? preview.resolved : {}
@@ -584,6 +795,8 @@ Rectangle {
         panel.editorManifest = {}
         panel.editorPreviewObject = null
         panel.editorTokens = {}
+        panel.editorEffectSchema = ({})
+        panel.editorMotionSchema = ({})
         panel.editorDirty = false
         panel.editorReadOnly = false
     }
@@ -599,7 +812,7 @@ Rectangle {
             panel.applyPlan = {
                 "planId": r.planId,
                 "confirmToken": r.confirmToken,
-                "preview": r.preview || "",
+                "preview": ((r.scope ? r.scope + "\n" : "") + (r.preview || "")),
                 "rollbackGuarantee": r.rollbackGuarantee || "",
                 "themeId": themeId
             }
@@ -648,7 +861,8 @@ Rectangle {
         panel.requestAction("theme.editor.create",
             {name: name, extends: sourceId},
             function(r) {
-                panel._openEditor(r.sessionId, r.manifest, r.preview)
+                panel._openEditor(r.sessionId, r.manifest, r.preview, r.declared,
+                                  r.effectSchema, r.motionSchema)
             })
     }
 
@@ -659,7 +873,7 @@ Rectangle {
     // =====================================================================
     ColumnLayout {
         id: listColumn
-        visible: panel.editorSessionId === ""
+        visible: panel.editorSessionId === "" && !panel.journeyMode
         anchors.fill: parent
         spacing: 0
 
@@ -707,6 +921,32 @@ Rectangle {
             Layout.rightMargin: 20
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
+        }
+
+        Button {
+            objectName: "openExperienceJourneys"
+            text: qsTr("Abrir Jornadas")
+            Accessible.name: qsTr("Abrir autoria de Jornadas")
+            Accessible.description: qsTr("Crie menus conectados, filtros públicos e aparências por etapa")
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
+            Layout.fillWidth: true
+            Layout.minimumHeight: panel.minimumInteractiveTarget
+            enabled: panel.editorSessionId === ""
+            onClicked: panel.journeyMode = true
+            background: Rectangle {
+                color: parent.hovered ? panel.cyanDarkColor : panel.surfaceColor
+                radius: 8
+                border.color: parent.activeFocus ? panel.textColor : panel.cyanColor
+                border.width: parent.activeFocus ? 2 : 1
+            }
+            contentItem: Label {
+                text: parent.text
+                color: panel.textColor
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.weight: Font.Medium
+            }
         }
 
         Item { Layout.minimumHeight: 20 }
@@ -966,9 +1206,10 @@ Rectangle {
 
                                 Button {
                                     visible: !themeCard.isActive
+                                    objectName: "themeApplyButton_" + modelData.id
                                     text: qsTr("Aplicar")
                                     implicitWidth: 88
-                                    implicitHeight: 36
+                                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                                     Accessible.name: qsTr("Aplicar tema %1").arg(panel.themeLabel(modelData))
                                     onClicked: panel.beginApply(modelData.id)
                                     background: Rectangle {
@@ -988,20 +1229,23 @@ Rectangle {
                                 }
 
                                 Button {
+                                    objectName: "themeEditButton_" + modelData.id
                                     text: themeCard.isBuiltin
                                         ? qsTr("Ver (somente leitura)")
                                         : qsTr("Editar")
                                     implicitWidth: themeCard.isBuiltin
                                         ? (panel.compactLayout ? 120 : 150)
                                         : 88
-                                    implicitHeight: 36
+                                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                                     Accessible.name: text + " " + (panel.themeLabel(modelData))
                                     onClicked: {
                                         // Via envelope de ações: URL/método vêm do
                                         // contrato do backend, não são montados aqui.
                                         panel.requestAction("theme.editor.load",
                                             {themeId: modelData.id}, function(r) {
-                                                panel._openEditor(r.sessionId, r.manifest, r.preview)
+                                                panel._openEditor(r.sessionId, r.manifest, r.preview,
+                                                                  r.declared, r.effectSchema,
+                                                                  r.motionSchema)
                                             })
                                     }
                                     background: Rectangle {
@@ -1024,7 +1268,7 @@ Rectangle {
                                     visible: themeCard.isBuiltin
                                     text: qsTr("Duplicar e editar")
                                     implicitWidth: panel.compactLayout ? 120 : 140
-                                    implicitHeight: 36
+                                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                                     Accessible.name: qsTr("Duplicar e editar %1").arg(panel.themeLabel(modelData))
                                     onClicked: panel.duplicateAndEdit(modelData.id, modelData.name)
                                     background: Rectangle {
@@ -1052,8 +1296,35 @@ Rectangle {
         }
     }
 
-    Dialog {
+    ExperienceJourneyPanel {
+        id: journeyPanel
+        objectName: "experienceJourneyPanel"
+        anchors.fill: parent
+        visible: panel.editorSessionId === "" && panel.journeyMode
+        requestAction: panel.requestAction
+        backgroundColor: panel.backgroundColor
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        amberColor: panel.amberColor
+        errorColor: panel.redColor
+        visualScale: panel.visualScale
+        compactLayout: panel.compactLayout
+        onCloseRequested: panel.journeyMode = false
+    }
+
+    ThemedDialog {
         id: esdeImportDialog
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
         objectName: "themeImportEsdeDialog"
         modal: true
         closePolicy: Popup.CloseOnEscape
@@ -1169,13 +1440,14 @@ Rectangle {
                             required property var modelData
                             Layout.fillWidth: true
                             Layout.minimumHeight: 48
-                            RadioButton {
-                                text: modelData && modelData.scheme
-                                    ? String(modelData.scheme) : qsTr("Esquema")
-                                checked: panel.esdeImportSchemeIndex === index
-                                Accessible.name: qsTr("Esquema %1").arg(text)
-                                onClicked: panel.esdeImportSchemeIndex = index
-                            }
+                                RadioButton {
+                                    text: modelData && modelData.scheme
+                                        ? String(modelData.scheme) : qsTr("Esquema")
+                                    checked: panel.esdeImportSchemeIndex === index
+                                    Accessible.name: qsTr("Esquema %1").arg(text)
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    onClicked: panel.esdeImportSchemeIndex = index
+                                }
                             Label {
                                 text: modelData && modelData.isMonochrome
                                     ? qsTr("monocromático; derivação limitada")
@@ -1239,8 +1511,15 @@ Rectangle {
         }
     }
 
-    Dialog {
+    ThemedDialog {
         id: retrofeImportDialog
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
         objectName: "themeImportRetrofeDialog"
         modal: true
         closePolicy: Popup.CloseOnEscape
@@ -1305,7 +1584,7 @@ Rectangle {
                         placeholderText: qsTr("Pasta ou layout XML do RetroFE")
                         Accessible.name: qsTr("Pasta ou layout XML do RetroFE")
                         Layout.fillWidth: true
-                        Layout.minimumHeight: 44
+                        Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                         onTextChanged: panel.retrofeImportSource = text
                         /// Enter examina. Num shell operado por controle, os dois
                         /// seletores nativos abaixo são becos: o pad não alcança a
@@ -1333,14 +1612,14 @@ Rectangle {
                         objectName: "themeImportRetrofeBrowseFolder"
                         text: qsTr("Pasta")
                         Accessible.name: text
-                        Layout.minimumHeight: 44
+                        Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                         onClicked: retrofeImportFolderDialog.open()
                     }
                     Button {
                         objectName: "themeImportRetrofeBrowseFile"
                         text: qsTr("XML")
                         Accessible.name: text
-                        Layout.minimumHeight: 44
+                        Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                         onClicked: retrofeImportFileDialog.open()
                     }
                     Button {
@@ -1351,7 +1630,7 @@ Rectangle {
                         Accessible.description: enabled
                             ? qsTr("Compila a prévia sem gravar arquivos")
                             : qsTr("Informe a origem antes de examinar")
-                        Layout.minimumHeight: 44
+                        Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                         onClicked: panel.inspectRetrofeImport()
                     }
                 }
@@ -1383,12 +1662,13 @@ Rectangle {
                             required property int index
                             required property var modelData
                             Layout.fillWidth: true
-                            Layout.minimumHeight: 44
+                            Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                             RadioButton {
                                 text: modelData && modelData.name
                                     ? String(modelData.name) : qsTr("Layout")
                                 checked: panel.retrofeImportLayoutIndex === index
                                 Accessible.name: qsTr("Layout %1").arg(text)
+                                Layout.minimumHeight: panel.minimumInteractiveTarget
                                 onClicked: panel.retrofeImportLayoutIndex = index
                             }
                             Label {
@@ -1495,7 +1775,7 @@ Rectangle {
                 objectName: "themeImportRetrofeCancel"
                 text: qsTr("Cancelar")
                 Accessible.name: text
-                Layout.minimumHeight: 44
+                Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 onClicked: retrofeImportDialog.close()
             }
             Item { Layout.fillWidth: true }
@@ -1513,7 +1793,7 @@ Rectangle {
                 Accessible.description: enabled
                     ? qsTr("Grava a cena e seus assets no armazenamento gerenciado sem ativar")
                     : qsTr("Examine um layout e informe ID, nome, autor e licença")
-                Layout.minimumHeight: 44
+                Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 onClicked: panel.applyRetrofeImport()
             }
         }
@@ -1568,8 +1848,15 @@ Rectangle {
         }
     }
 
-    Dialog {
+    ThemedDialog {
         id: packageImportDialog
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
         objectName: "themeImportPackageDialog"
         modal: true
         closePolicy: Popup.CloseOnEscape
@@ -1748,9 +2035,54 @@ Rectangle {
                 }
 
                 Button {
+                    objectName: "themeEditorUndo"
+                    text: qsTr("Desfazer")
+                    enabled: !panel.editorReadOnly && panel.editorHistory.canUndo === true
+                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                    implicitWidth: 90
+                    Accessible.name: text
+                    onClicked: panel.editorUndo()
+                    background: Rectangle {
+                        color: parent.enabled ? panel.surfaceColor : panel.borderColor
+                        radius: 6
+                        border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
+                        border.width: parent.activeFocus ? 2 : 1
+                    }
+                    contentItem: Label {
+                        text: parent.text
+                        color: parent.enabled ? panel.cyanColor : panel.mutedColor
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+
+                Button {
+                    objectName: "themeEditorRedo"
+                    text: qsTr("Refazer")
+                    enabled: !panel.editorReadOnly && panel.editorHistory.canRedo === true
+                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                    implicitWidth: 90
+                    Accessible.name: text
+                    onClicked: panel.editorRedo()
+                    background: Rectangle {
+                        color: parent.enabled ? panel.surfaceColor : panel.borderColor
+                        radius: 6
+                        border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
+                        border.width: parent.activeFocus ? 2 : 1
+                    }
+                    contentItem: Label {
+                        text: parent.text
+                        color: parent.enabled ? panel.cyanColor : panel.mutedColor
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+
+                Button {
+                    objectName: "themeEditorSave"
                     text: qsTr("Salvar")
                     enabled: !panel.editorReadOnly && panel.editorDirty
-                    implicitHeight: 36
+                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                     implicitWidth: 90
                     onClicked: {
                         panel.requestAction("theme.editor.save",
@@ -1779,7 +2111,7 @@ Rectangle {
                     objectName: "themeEditorExport"
                     text: qsTr("Exportar")
                     enabled: panel.editorSessionId !== ""
-                    implicitHeight: 36
+                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                     implicitWidth: 90
                     Accessible.name: text
                     onClicked: panel.beginExport()
@@ -1798,8 +2130,9 @@ Rectangle {
                 }
 
                 Button {
+                    objectName: "themeEditorClose"
                     text: qsTr("Fechar")
-                    implicitHeight: 36
+                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                     implicitWidth: 80
                     onClicked: panel._closeEditor()
                     background: Rectangle {
@@ -1827,6 +2160,7 @@ Rectangle {
 
             // LEFT: token editor
             ScrollView {
+                id: tokenScroll
                 Layout.fillHeight: true
                 Layout.preferredWidth: panel.compactLayout ? parent.width * 0.5 : 380
                 Layout.minimumWidth: 280
@@ -1834,7 +2168,9 @@ Rectangle {
                 contentWidth: availableWidth
 
                 ColumnLayout {
-                    width: parent.availableWidth
+                    // `parent` aqui é o contentItem (sem availableWidth): a largura caía no
+                    // implícito e a coluna estourava a viewport compacta, escondendo botões.
+                    width: tokenScroll.availableWidth
                     spacing: 0
 
                     Item { Layout.minimumHeight: 8 }
@@ -1884,7 +2220,7 @@ Rectangle {
                                 text: panel.editorManifest[modelData] || ""
                                 enabled: !panel.editorReadOnly
                                 Layout.fillWidth: true
-                                Layout.minimumHeight: 36
+                                Layout.minimumHeight: panel.minimumInteractiveTarget
                                 color: panel.textColor
                                 placeholderText: modelData === "license"
                                     ? qsTr("Ex.: MIT ou GPL-3.0-or-later") : ""
@@ -1919,6 +2255,8 @@ Rectangle {
                             panel.requestAction("theme.editor.set-tokens",
                                 {sessionId: panel.editorSessionId, category: "color", values: newValues},
                                 function(r) {
+                                    if (r.history)
+                                        panel.editorHistory = r.history
                                     if (r.preview && r.preview.resolved) {
                                         panel.editorPreviewObject = r.preview
                                         panel.editorTokens = r.preview.resolved
@@ -1943,6 +2281,8 @@ Rectangle {
                             panel.requestAction("theme.editor.set-tokens",
                                 {sessionId: panel.editorSessionId, category: "geometry", values: newValues},
                                 function(r) {
+                                    if (r.history)
+                                        panel.editorHistory = r.history
                                     if (r.preview && r.preview.resolved) {
                                         panel.editorPreviewObject = r.preview
                                         panel.editorTokens = r.preview.resolved
@@ -1967,6 +2307,8 @@ Rectangle {
                             panel.requestAction("theme.editor.set-tokens",
                                 {sessionId: panel.editorSessionId, category: "typography", values: newValues},
                                 function(r) {
+                                    if (r.history)
+                                        panel.editorHistory = r.history
                                     if (r.preview && r.preview.resolved) {
                                         panel.editorPreviewObject = r.preview
                                         panel.editorTokens = r.preview.resolved
@@ -1991,11 +2333,699 @@ Rectangle {
                             panel.requestAction("theme.editor.set-tokens",
                                 {sessionId: panel.editorSessionId, category: "motion", values: newValues},
                                 function(r) {
+                                    if (r.history)
+                                        panel.editorHistory = r.history
                                     if (r.preview && r.preview.resolved) {
                                         panel.editorPreviewObject = r.preview
                                         panel.editorTokens = r.preview.resolved
                                     }
                                 })
+                        }
+                    }
+
+                    Rectangle {
+                        objectName: "mediaRecipeInspector"
+                        visible: panel.editorSessionId !== "" && !panel.editorReadOnly
+                        color: panel.surfaceColor
+                        radius: 8
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: tokenScroll.availableWidth
+                        implicitHeight: visible ? mediaColumn.implicitHeight + 24 : 0
+                        border.color: panel.borderColor
+                        border.width: 1
+
+                        ColumnLayout {
+                            id: mediaColumn
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            Flow {
+                            id: mediaFlow
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            Layout.preferredWidth: mediaColumn.width
+                            Layout.maximumWidth: mediaColumn.width
+                            Layout.preferredHeight: childrenRect.height
+                            spacing: 10
+                            Label {
+                                text: qsTr("Enquadramento de mídia")
+                                color: panel.mutedColor
+                                font.pixelSize: Math.round(11 * panel.visualScale)
+                            }
+                            AuthCombo {
+                                objectName: "mediaRecipeRole"
+                                requestedImplicitHeight: 40
+                                Accessible.name: qsTr("Slot de mídia")
+                                model: ["focusedCover", "peripheralCover", "contextualBackdrop"]
+                                onActivated: panel.mediaRecipeRole = currentText
+                            }
+                            AuthCombo {
+                                objectName: "mediaRecipeFit"
+                                requestedImplicitHeight: 40
+                                Accessible.name: qsTr("Ajuste")
+                                model: ["crop", "cover", "contain", "fill"]
+                                onActivated: panel.setMediaRecipe("fit", currentText)
+                            }
+                            AuthCombo {
+                                objectName: "mediaRecipeOrientation"
+                                requestedImplicitHeight: 40
+                                Accessible.name: qsTr("Orientação")
+                                model: ["none", "auto", "portrait", "landscape"]
+                                onActivated: panel.setMediaRecipe("orientation", currentText)
+                            }
+                            AuthCombo {
+                                objectName: "mediaRecipeAlignH"
+                                requestedImplicitHeight: 40
+                                Accessible.name: qsTr("Alinhamento horizontal")
+                                model: ["left", "center", "right"]
+                                onActivated: panel.setMediaRecipe("alignH", currentText)
+                            }
+                            AuthCombo {
+                                objectName: "mediaRecipeAlignV"
+                                requestedImplicitHeight: 40
+                                Accessible.name: qsTr("Alinhamento vertical")
+                                model: ["top", "center", "bottom"]
+                                onActivated: panel.setMediaRecipe("alignV", currentText)
+                            }
+                        }
+                        }
+                    }
+
+                    Rectangle {
+                        objectName: "effectStackInspector"
+                        visible: panel.editorSessionId !== "" && !panel.editorReadOnly
+                        color: panel.surfaceColor
+                        radius: 8
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: tokenScroll.availableWidth
+                        implicitHeight: visible ? effectColumn.implicitHeight + 24 : 0
+                        border.color: panel.borderColor
+                        border.width: 1
+
+                        ColumnLayout {
+                            id: effectColumn
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            spacing: 8
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: effectColumn.width
+                                Layout.maximumWidth: effectColumn.width
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Efeitos")
+                                    color: panel.mutedColor
+                                    font.pixelSize: Math.round(11 * panel.visualScale)
+                                }
+                                AuthCombo {
+                                    objectName: "effectStackName"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Pilha de efeitos")
+                                    model: ["focusedCover", "peripheralCover", "contextualBackdrop"]
+                                    onActivated: panel.effectStackName = currentText
+                                }
+                                AuthCombo {
+                                    id: effectTypeCombo
+                                    objectName: "effectTypeToAdd"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Tipo de efeito")
+                                    model: ["blur", "saturation", "brightness", "contrast", "colorize", "opacity", "shadow", "glow", "reflection", "gradientMask", "vignette"]
+                                }
+                                AuthButton {
+                                    objectName: "effectAdd"
+                                    requestedImplicitHeight: 40
+                                    text: qsTr("Adicionar efeito")
+                                    Accessible.name: qsTr("Adicionar efeito à pilha")
+                                    onClicked: panel.editEffect("add", {effectType: effectTypeCombo.currentText})
+                                }
+                            }
+                            Label {
+                                objectName: "effectEmpty"
+                                visible: effectRepeater.count === 0
+                                text: qsTr("Pilha vazia. Escolha um tipo e use Adicionar efeito.")
+                                color: panel.mutedColor
+                                font.pixelSize: Math.round(11 * panel.visualScale)
+                            }
+                            Repeater {
+                                id: effectRepeater
+                                objectName: "effectRepeater"
+                                model: panel.authoringRevision < 0 ? [] : ((panel.editorDeclared.effects || {})[panel.effectStackName] || []).slice()
+                                delegate: Rectangle {
+                                    id: effectRow
+                                    required property var modelData
+                                    required property int index
+                                    Layout.fillWidth: true
+                                    implicitHeight: effectCard.implicitHeight + 16
+                                    color: panel.raisedColor
+                                    radius: 8
+                                    border.color: panel.borderColor
+                                    border.width: 1
+                                    readonly property bool omittedInPreview: {
+                                        var shown = ((panel.editorPreviewObject || {}).effects || {})[panel.effectStackName] || []
+                                        return shown.length < ((panel.editorDeclared.effects || {})[panel.effectStackName] || []).length
+                                    }
+                                    ColumnLayout {
+                                        id: effectCard
+                                        anchors.fill: parent
+                                        anchors.margins: 8
+                                        spacing: 6
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 6
+                                            Label {
+                                                objectName: "effectType"
+                                                Layout.fillWidth: true
+                                                text: effectRow.modelData.type + (effectRow.omittedInPreview ? "  ·  " + qsTr("pode ser omitido neste preview") : "")
+                                                color: panel.textColor
+                                                font.pixelSize: Math.round(13 * panel.visualScale)
+                                                font.bold: true
+                                                elide: Text.ElideRight
+                                            }
+                                            AuthButton {
+                                                objectName: "effectUp_" + effectRow.index
+                                                text: "↑"
+                                                requestedImplicitWidth: 40
+                                                enabled: effectRow.index > 0
+                                                Accessible.name: qsTr("Mover efeito para cima") + " " + effectRow.modelData.type
+                                                onClicked: panel.editEffect("move", {index: effectRow.index, value: effectRow.index - 1})
+                                            }
+                                            AuthButton {
+                                                objectName: "effectDown_" + effectRow.index
+                                                text: "↓"
+                                                requestedImplicitWidth: 40
+                                                enabled: effectRow.index < effectRepeater.count - 1
+                                                Accessible.name: qsTr("Mover efeito para baixo") + " " + effectRow.modelData.type
+                                                onClicked: panel.editEffect("move", {index: effectRow.index, value: effectRow.index + 1})
+                                            }
+                                            AuthButton {
+                                                objectName: "effectRemove_" + effectRow.index
+                                                text: qsTr("Remover")
+                                                Accessible.name: qsTr("Remover efeito") + " " + effectRow.modelData.type
+                                                onClicked: panel.editEffect("remove", {index: effectRow.index})
+                                            }
+                                        }
+                                        Flow {
+                                            Layout.fillWidth: true
+                                            Layout.minimumWidth: 0
+                                            Layout.preferredWidth: effectCard.width
+                                            Layout.maximumWidth: effectCard.width
+                                            Layout.preferredHeight: childrenRect.height
+                                            spacing: 8
+                                            Label {
+                                                text: qsTr("Fallback do efeito")
+                                                color: panel.mutedColor
+                                                font.pixelSize: Math.round(11 * panel.visualScale)
+                                                Accessible.name: text
+                                            }
+                                            AuthCombo {
+                                                objectName: "effectFallback_" + effectRow.index
+                                                Accessible.name: qsTr("Fallback") + " " + effectRow.modelData.type
+                                                model: panel.effectFallbackOptions(effectRow.modelData.type)
+                                                currentIndex: model.indexOf(effectRow.modelData.fallback || "omit")
+                                                onActivated: panel.editEffect("set", {
+                                                    index: effectRow.index,
+                                                    param: "fallback",
+                                                    value: currentText
+                                                })
+                                            }
+                                        }
+                                        Flow {
+                                            Layout.fillWidth: true
+                                            Layout.minimumWidth: 0
+                                            Layout.preferredWidth: effectCard.width
+                                            Layout.maximumWidth: effectCard.width
+                                            Layout.preferredHeight: childrenRect.height
+                                            spacing: 8
+                                            Repeater {
+                                                model: Object.keys(effectRow.modelData).filter(function(k) { return k !== "type" && k !== "fallback" })
+                                                delegate: ColumnLayout {
+                                                    id: paramRow
+                                                    required property string modelData
+                                                    readonly property var specification:
+                                                        panel.effectParameterSpec(effectRow.modelData.type,
+                                                                                  paramRow.modelData)
+                                                    spacing: 2
+                                                    Label {
+                                                        text: paramRow.modelData
+                                                        color: panel.mutedColor
+                                                        font.pixelSize: Math.round(11 * panel.visualScale)
+                                                    }
+                                                    AuthField {
+                                                        visible: paramRow.specification.kind === "color"
+                                                        objectName: "effectColorHex_" + effectRow.index + "_" + paramRow.modelData
+                                                        Accessible.name: effectRow.modelData.type + " " + paramRow.modelData
+                                                        Accessible.description: qsTr("Cor no formato #RRGGBB")
+                                                        requestedImplicitWidth: 84
+                                                        declaredText: String(effectRow.modelData[paramRow.modelData])
+                                                        onEditingFinished: submit(function(t) {
+                                                            panel.editEffect("set", {
+                                                                index: effectRow.index,
+                                                                param: paramRow.modelData,
+                                                                value: t
+                                                            })
+                                                        })
+                                                    }
+                                                    AuthButton {
+                                                        visible: paramRow.specification.kind === "color"
+                                                        objectName: "effectColorOpen_" + effectRow.index + "_" + paramRow.modelData
+                                                        text: qsTr("Escolher cor")
+                                                        implicitWidth: 120
+                                                        Accessible.name: qsTr("Escolher cor para") + " "
+                                                            + effectRow.modelData.type + " " + paramRow.modelData
+                                                        onClicked: panel.openEffectColor(effectRow.index,
+                                                            paramRow.modelData,
+                                                            effectRow.modelData[paramRow.modelData])
+                                                        contentItem: RowLayout {
+                                                            spacing: 6
+                                                            Rectangle {
+                                                                Layout.preferredWidth: 22
+                                                                Layout.preferredHeight: 22
+                                                                radius: 4
+                                                                color: panel.effectColorHex(
+                                                                    effectRow.modelData[paramRow.modelData])
+                                                                border.color: panel.borderColor
+                                                                border.width: 1
+                                                            }
+                                                            Label {
+                                                                Layout.fillWidth: true
+                                                                text: qsTr("Cor…")
+                                                                color: panel.textColor
+                                                                horizontalAlignment: Text.AlignHCenter
+                                                                verticalAlignment: Text.AlignVCenter
+                                                            }
+                                                        }
+                                                    }
+                                                    AuthRangeSpinBox {
+                                                        id: effectNumberEditor
+                                                        visible: paramRow.specification.kind === "number"
+                                                        objectName: "effectParam_" + effectRow.index + "_" + paramRow.modelData
+                                                        Accessible.name: effectRow.modelData.type + " " + paramRow.modelData
+                                                        Accessible.description: qsTr("Permitido de %1 a %2; passo %3")
+                                                            .arg(paramRow.specification.minimum)
+                                                            .arg(paramRow.specification.maximum)
+                                                            .arg(paramRow.specification.step)
+                                                        rangeMinimum: Number(paramRow.specification.minimum)
+                                                        rangeMaximum: Number(paramRow.specification.maximum)
+                                                        rangeStep: Number(paramRow.specification.step)
+                                                        rangeDecimals: Number(paramRow.specification.decimals || 2)
+                                                        declaredValue: Number(effectRow.modelData[paramRow.modelData])
+                                                        fieldName: paramRow.modelData
+                                                        requestedImplicitWidth: 116
+                                                        onValueCommitted: function(nextValue) {
+                                                            panel.editEffect("set", {
+                                                                index: effectRow.index,
+                                                                param: paramRow.modelData,
+                                                                value: nextValue
+                                                            })
+                                                        }
+                                                    }
+                                                    Label {
+                                                        visible: paramRow.specification.kind === "number"
+                                                        text: qsTr("%1–%2")
+                                                            .arg(paramRow.specification.minimum)
+                                                            .arg(paramRow.specification.maximum)
+                                                        color: panel.mutedColor
+                                                        font.pixelSize: Math.round(10 * panel.visualScale)
+                                                        Accessible.name: qsTr("Intervalo permitido") + " " + text
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Label {
+                                objectName: "authoringNotice"
+                                visible: panel.authoringNotice !== ""
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
+                                text: panel.authoringNotice
+                                color: panel.amberColor
+                                font.pixelSize: Math.round(12 * panel.visualScale)
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        objectName: "motionInspector"
+                        visible: panel.editorSessionId !== "" && !panel.editorReadOnly
+                        color: panel.surfaceColor
+                        radius: 8
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: tokenScroll.availableWidth
+                        implicitHeight: visible ? motionColumn.implicitHeight + 24 : 0
+                        border.color: panel.borderColor
+                        border.width: 1
+
+                        ColumnLayout {
+                            id: motionColumn
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            spacing: 8
+                            Label {
+                                text: qsTr("Movimento — keyframes de estado e timelines")
+                                color: panel.mutedColor
+                                font.pixelSize: Math.round(11 * panel.visualScale)
+                            }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: motionColumn.width
+                                Layout.maximumWidth: motionColumn.width
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo {
+                                    id: motionStateCombo
+                                    objectName: "motionStateName"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Estado do keyframe")
+                                    model: panel.motionStateOptions
+                                    currentIndex: model.indexOf(panel.motionStateName)
+                                    onActivated: panel.motionStateName = currentText
+                                }
+                                Repeater {
+                                    model: ["opacity", "scale", "translateX", "translateY"]
+                                    delegate: Row {
+                                        id: keyframeRow
+                                        required property string modelData
+                                        spacing: 4
+                                        Label {
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            text: keyframeRow.modelData
+                                            color: panel.mutedColor
+                                            font.pixelSize: Math.round(11 * panel.visualScale)
+                                        }
+                                        AuthRangeSpinBox {
+                                            objectName: "keyframe_" + keyframeRow.modelData
+                                            Accessible.name: qsTr("Keyframe") + " " + panel.motionStateName + " " + keyframeRow.modelData
+                                            readonly property var specification:
+                                                panel.motionKeyframeSpec(keyframeRow.modelData)
+                                            rangeMinimum: Number(specification.minimum)
+                                            rangeMaximum: Number(specification.maximum)
+                                            rangeStep: Number(specification.step)
+                                            rangeDecimals: Number(specification.decimals || 2)
+                                            fieldName: keyframeRow.modelData
+                                            requestedImplicitWidth: 84
+                                            declaredValue: Number(panel.keyframeText(
+                                                panel.motionStateName, keyframeRow.modelData))
+                                            onValueCommitted: function(nextValue) {
+                                                panel.editMotion("set_state", panel.motionStateName,
+                                                    {field: keyframeRow.modelData, value: nextValue})
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: motionColumn.width
+                                Layout.maximumWidth: motionColumn.width
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                Repeater {
+                                    id: timelineRepeater
+                                    objectName: "motionTimelineList"
+                                    model: Object.keys((panel.editorDeclared.sceneMotion || {}).timelines || {})
+                                    delegate: AuthButton {
+                                        id: timelineButton
+                                        required property string modelData
+                                        objectName: "motionTimeline_" + modelData
+                                        text: modelData
+                                        requestedImplicitHeight: 40
+                                        checkable: true
+                                        checked: panel.motionTimelineName === modelData
+                                        Accessible.name: qsTr("Selecionar timeline") + " " + modelData
+                                        onClicked: panel.motionTimelineName = modelData
+                                    }
+                                }
+                                AuthField {
+                                    id: timelineNameField
+                                    objectName: "motionTimelineName"
+                                    Accessible.name: qsTr("Nome da nova timeline")
+                                    placeholderText: qsTr("nome da timeline")
+                                    requestedImplicitWidth: 140
+                                    requestedImplicitHeight: 40
+                                }
+                                AuthCombo {
+                                    id: timelineKindCombo
+                                    objectName: "motionTimelineKind"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Tipo de timeline")
+                                    model: panel.editorMotionSchema.timelineKinds || ["sequence", "parallel"]
+                                    currentIndex: {
+                                        const timelines = ((panel.editorDeclared.sceneMotion || {}).timelines || ({}))
+                                        const existing = timelines[panel.motionTimelineName]
+                                        return model.indexOf(existing
+                                            ? existing.kind : panel.motionNewTimelineKind)
+                                    }
+                                    onActivated: {
+                                        const timelines = ((panel.editorDeclared.sceneMotion || {}).timelines || ({}))
+                                        if (timelines[panel.motionTimelineName])
+                                            panel.editMotion("set_timeline", panel.motionTimelineName,
+                                                {field: "kind", value: currentText})
+                                        else
+                                            panel.motionNewTimelineKind = currentText
+                                    }
+                                }
+                                AuthButton {
+                                    objectName: "motionTimelineAdd"
+                                    text: qsTr("Criar timeline")
+                                    requestedImplicitHeight: 40
+                                    onClicked: {
+                                        panel.motionTimelineName = timelineNameField.text
+                                        panel.editMotion("add_timeline", timelineNameField.text, {value: timelineKindCombo.currentText})
+                                    }
+                                }
+                                AuthButton {
+                                    objectName: "motionClipAdd"
+                                    text: qsTr("Adicionar clip")
+                                    requestedImplicitHeight: 40
+                                    onClicked: panel.editMotion("add_clip", panel.motionTimelineName, {value: {state: panel.motionStateName, duration: 240}})
+                                }
+                                AuthRangeSpinBox {
+                                    objectName: "motionTimelineRepeat"
+                                    Accessible.name: qsTr("Repetições da timeline")
+                                    rangeMinimum: Number((panel.editorMotionSchema.repeat || {}).minimum || 0)
+                                    rangeMaximum: Number((panel.editorMotionSchema.repeat || {}).maximum || 8)
+                                    rangeStep: Number((panel.editorMotionSchema.repeat || {}).step || 1)
+                                    rangeDecimals: 0
+                                    fieldName: qsTr("Repetições")
+                                    requestedImplicitWidth: 64
+                                    declaredValue: Number(panel.repeatText(panel.motionTimelineName))
+                                    onValueCommitted: function(nextValue) {
+                                        panel.editMotion("set_timeline", panel.motionTimelineName,
+                                            {field: "repeat", value: nextValue})
+                                    }
+                                }
+                                AuthButton {
+                                    objectName: "motionTimelineRemove"
+                                    text: qsTr("Remover timeline")
+                                    requestedImplicitHeight: 40
+                                    onClicked: panel.editMotion("remove_timeline", panel.motionTimelineName, ({}))
+                                }
+                            }
+                            Label {
+                                objectName: "motionEmpty"
+                                visible: motionClipRepeater.count === 0
+                                text: qsTr("Sem clips nesta timeline. Escreva um nome, escolha Criar timeline e depois Adicionar clip.")
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
+                                color: panel.mutedColor
+                                font.pixelSize: Math.round(11 * panel.visualScale)
+                            }
+                            Repeater {
+                                id: motionClipRepeater
+                                objectName: "motionClipRepeater"
+                                model: panel.authoringRevision < 0 ? [] : ((((panel.editorDeclared.sceneMotion || {}).timelines || {})[panel.motionTimelineName] || {}).clips || []).slice()
+                                delegate: Flow {
+                                    id: clipRow
+                                    required property var modelData
+                                    required property int index
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.preferredWidth: motionColumn.width
+                                    Layout.maximumWidth: motionColumn.width
+                                    Layout.preferredHeight: childrenRect.height
+                                    spacing: 8
+                                    AuthCombo {
+                                        visible: clipRow.modelData.state !== undefined
+                                        objectName: "motionClipState_" + clipRow.index
+                                        Accessible.name: qsTr("Estado do clip") + " " + (clipRow.index + 1)
+                                        model: panel.motionStateOptions
+                                        currentIndex: model.indexOf(clipRow.modelData.state || "normal")
+                                        requestedImplicitWidth: 140
+                                        onActivated: panel.editMotion("set_clip", panel.motionTimelineName,
+                                            {index: clipRow.index, field: "state", value: currentText})
+                                    }
+                                    Label {
+                                        visible: clipRow.modelData.transition !== undefined
+                                        text: clipRow.modelData.transition || ""
+                                        color: panel.textColor
+                                        font.pixelSize: Math.round(12 * panel.visualScale)
+                                    }
+                                    AuthRangeSpinBox {
+                                        objectName: "motionClipDuration_" + clipRow.index
+                                        visible: clipRow.modelData.state !== undefined
+                                        Accessible.name: qsTr("Duração do clip") + " " + (clipRow.index + 1)
+                                        rangeMinimum: Number((panel.editorMotionSchema.duration || {}).minimum || 0)
+                                        rangeMaximum: Number((panel.editorMotionSchema.duration || {}).maximum || 2000)
+                                        rangeStep: Number((panel.editorMotionSchema.duration || {}).step || 1)
+                                        rangeDecimals: 0
+                                        fieldName: qsTr("Duração")
+                                        requestedImplicitWidth: 72
+                                        declaredValue: Number(clipRow.modelData.duration)
+                                        onValueCommitted: function(nextValue) {
+                                            panel.editMotion("set_clip", panel.motionTimelineName,
+                                                {index: clipRow.index, field: "duration", value: nextValue})
+                                        }
+                                    }
+                                    AuthButton {
+                                        objectName: "motionClipUp_" + clipRow.index
+                                        text: "↑"
+                                        requestedImplicitWidth: 44
+                                        enabled: clipRow.index > 0
+                                        Accessible.name: qsTr("Mover clip para cima") + " " + (clipRow.index + 1)
+                                        onClicked: panel.editMotion("move_clip", panel.motionTimelineName,
+                                            {index: clipRow.index, value: clipRow.index - 1})
+                                    }
+                                    AuthButton {
+                                        objectName: "motionClipDown_" + clipRow.index
+                                        text: "↓"
+                                        requestedImplicitWidth: 44
+                                        enabled: clipRow.index < motionClipRepeater.count - 1
+                                        Accessible.name: qsTr("Mover clip para baixo") + " " + (clipRow.index + 1)
+                                        onClicked: panel.editMotion("move_clip", panel.motionTimelineName,
+                                            {index: clipRow.index, value: clipRow.index + 1})
+                                    }
+                                    AuthButton {
+                                        objectName: "motionClipRemove_" + clipRow.index
+                                        text: qsTr("Remover")
+                                        requestedImplicitHeight: 40
+                                        Accessible.name: qsTr("Remover clip") + " " + (clipRow.index + 1)
+                                        onClicked: panel.editMotion("remove_clip", panel.motionTimelineName, {index: clipRow.index})
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        objectName: "bindingInspector"
+                        visible: panel.editorSessionId !== "" && !panel.editorReadOnly
+                        color: panel.surfaceColor
+                        radius: 8
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: tokenScroll.availableWidth
+                        implicitHeight: visible ? bindingColumn.implicitHeight + 24 : 0
+                        border.color: panel.borderColor
+                        border.width: 1
+
+                        ColumnLayout {
+                            id: bindingColumn
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            spacing: 8
+                            readonly property var layouts: ((panel.editorDeclared.sceneLayouts || {}).layouts) || ({})
+                            readonly property var layoutNames: Object.keys(layouts)
+                            readonly property var template: (layouts[panel.bindingLayoutName] || {}).template || ({})
+                            readonly property var boundProps: {
+                                var props = template.properties || {}
+                                return Object.keys(props).filter(function(k) {
+                                    return typeof props[k] === "object" && props[k] !== null && props[k].binding !== undefined
+                                })
+                            }
+                            onLayoutNamesChanged: {
+                                if (layoutNames.length > 0 && layoutNames.indexOf(panel.bindingLayoutName) < 0)
+                                    panel.bindingLayoutName = layoutNames[0]
+                            }
+                            Label {
+                                text: qsTr("Bindings de layout — metadados públicos")
+                                color: panel.mutedColor
+                                font.pixelSize: Math.round(11 * panel.visualScale)
+                            }
+                            Label {
+                                objectName: "bindingEmpty"
+                                visible: bindingColumn.layoutNames.length === 0
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
+                                text: qsTr("Este tema não declara layouts. Crie o tema a partir de um que tenha layouts (por exemplo, a demonstração de receitas) para ligar propriedades a metadados.")
+                                color: panel.mutedColor
+                                font.pixelSize: Math.round(11 * panel.visualScale)
+                            }
+                            Flow {
+                                visible: bindingColumn.layoutNames.length > 0
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: bindingColumn.width
+                                Layout.maximumWidth: bindingColumn.width
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo {
+                                    objectName: "bindingLayout"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Layout")
+                                    model: bindingColumn.layoutNames
+                                    currentIndex: bindingColumn.layoutNames.indexOf(panel.bindingLayoutName)
+                                    onActivated: panel.bindingLayoutName = currentText
+                                }
+                                AuthCombo {
+                                    id: bindingPropCombo
+                                    objectName: "bindingProp"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Propriedade")
+                                    model: bindingColumn.boundProps
+                                    onModelChanged: if (count > 0 && panel.bindingPropName === "") panel.bindingPropName = textAt(0)
+                                    onActivated: panel.bindingPropName = currentText
+                                    onCountChanged: if (count > 0 && bindingColumn.boundProps.indexOf(panel.bindingPropName) < 0) panel.bindingPropName = textAt(0)
+                                }
+                                AuthCombo {
+                                    id: bindingFieldCombo
+                                    objectName: "bindingField"
+                                    requestedImplicitHeight: 40
+                                    Accessible.name: qsTr("Metadado")
+                                    model: ["title", "year", "developer", "publisher", "genre", "description", "rating", "players", "region", "language", "series"]
+                                }
+                                AuthField {
+                                    id: bindingFallbackField
+                                    objectName: "bindingFallback"
+                                    requestedImplicitHeight: 40
+                                    requestedImplicitWidth: 140
+                                    placeholderText: qsTr("valor se ausente")
+                                    Accessible.name: qsTr("Valor alternativo")
+                                }
+                                AuthButton {
+                                    objectName: "bindingApply"
+                                    requestedImplicitHeight: 40
+                                    text: qsTr("Ligar")
+                                    Accessible.name: qsTr("Ligar propriedade ao metadado")
+                                    onClicked: panel.editBinding("item." + bindingFieldCombo.currentText, bindingFallbackField.text)
+                                }
+                                AuthButton {
+                                    objectName: "bindingClear"
+                                    requestedImplicitHeight: 40
+                                    text: qsTr("Remover binding")
+                                    Accessible.name: qsTr("Remover binding e usar valor fixo")
+                                    onClicked: panel.editBinding(null, bindingFallbackField.text)
+                                }
+                            }
+                            Repeater {
+                                model: panel.authoringRevision < 0 ? [] : bindingColumn.boundProps
+                                delegate: Label {
+                                    required property string modelData
+                                    objectName: "bindingCurrent_" + modelData
+                                    Layout.fillWidth: true
+                                    wrapMode: Text.WordWrap
+                                    text: modelData + " ← " + bindingColumn.template.properties[modelData].binding
+                                    color: panel.textColor
+                                    font.pixelSize: Math.round(12 * panel.visualScale)
+                                }
+                            }
                         }
                     }
 
@@ -2185,6 +3215,7 @@ Rectangle {
                                         "outlinedGlow", "outlinedShadow"
                                     ]
                                     implicitWidth: 150
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Variante do asset")
                                     onActivated: panel.assetRecipeSelection = model[index]
                                 }
@@ -2415,6 +3446,8 @@ Rectangle {
                                     field: field,
                                     value: value
                                 }, function(r) {
+                                    if (r.history)
+                                        panel.editorHistory = r.history
                                     if (r.preview) {
                                         panel.editorPreviewObject = r.preview
                                         panel.editorTokens = r.preview.resolved || {}
@@ -2499,8 +3532,15 @@ Rectangle {
         }
     }
 
-    Dialog {
+    ThemedDialog {
         id: exportPreviewDialog
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
         title: qsTr("Revisar exportação do tema")
         modal: true
         width: Math.min(panel.width > 0 ? panel.width - 32 : 720, 620)
@@ -2547,7 +3587,7 @@ Rectangle {
                 Button {
                     text: qsTr("Cancelar")
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 44
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     onClicked: {
                         panel.exportPlan = null
                         exportPreviewDialog.close()
@@ -2557,7 +3597,7 @@ Rectangle {
                     text: qsTr("Confirmar exportação")
                     enabled: panel.exportPlan !== null
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 44
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     onClicked: panel.confirmExport()
                 }
             }
@@ -2567,8 +3607,15 @@ Rectangle {
     // =====================================================================
     // APPLY THEME CONFIRMATION
     // =====================================================================
-    Dialog {
+    ThemedDialog {
         id: applyDialog
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
         title: qsTr("Aplicar tema")
         modal: true
         width: Math.min(panel.width > 0 ? panel.width - 32 : 720, 560)
@@ -2629,7 +3676,7 @@ Rectangle {
                 Button {
                     text: qsTr("Cancelar")
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 44
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     Accessible.name: text
                     onClicked: {
                         panel.applyPlan = null
@@ -2649,12 +3696,14 @@ Rectangle {
                     }
                 }
                 Button {
+                    id: applyConfirmButton
+                    objectName: "themeApplyConfirm"
                     text: qsTr("Confirmar aplicação")
                     enabled: panel.applyPlan !== null
                         && panel.applyPlan.planId
                         && panel.applyPlan.confirmToken
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 44
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     Accessible.name: text
                     onClicked: panel.confirmApply()
                     background: Rectangle {
@@ -2678,8 +3727,15 @@ Rectangle {
     // =====================================================================
     // CREATE DIALOG
     // =====================================================================
-    Dialog {
+    ThemedDialog {
         id: createDialog
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
         title: qsTr("Criar Novo Tema")
         modal: true
         width: Math.min(panel.width > 0 ? panel.width : 800, 420)
@@ -2707,7 +3763,7 @@ Rectangle {
                 id: createNameField
                 placeholderText: qsTr("Meu Tema Personalizado")
                 Layout.fillWidth: true
-                Layout.minimumHeight: 44
+                Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 color: panel.textColor
                 background: Rectangle {
                     color: panel.backgroundColor
@@ -2724,7 +3780,7 @@ Rectangle {
                 Item { Layout.fillWidth: true }
                 Button {
                     text: qsTr("Cancelar")
-                    Layout.minimumHeight: 44
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     Layout.preferredWidth: 120
                     onClicked: createDialog.close()
                     background: Rectangle {
@@ -2744,13 +3800,14 @@ Rectangle {
                     id: createConfirmButton
                     text: qsTr("Criar")
                     enabled: createNameField.text.trim().length > 0
-                    Layout.minimumHeight: 44
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     Layout.preferredWidth: 120
                     onClicked: {
                         panel.requestAction("theme.editor.create",
                             {name: createNameField.text.trim()},
                             function(r) {
-                                panel._openEditor(r.sessionId, r.manifest, r.preview)
+                                panel._openEditor(r.sessionId, r.manifest, r.preview, r.declared,
+                                                  r.effectSchema, r.motionSchema)
                                 createDialog.close()
                                 createNameField.text = ""
                             })
@@ -2944,7 +4001,7 @@ Rectangle {
                 required property string modelData
                 spacing: 8
                 Layout.fillWidth: true
-                Layout.minimumHeight: 36
+                Layout.minimumHeight: panel.minimumInteractiveTarget
 
                 Label {
                     text: {
@@ -2956,32 +4013,21 @@ Rectangle {
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
-                SpinBox {
-                    from: 0
-                    to: 120
-                    value: catSection.tokens[modelData] !== undefined
-                        ? Number(catSection.tokens[modelData]) : 0
-                    editable: true
+                AuthRangeSpinBox {
                     enabled: !catSection.readOnly
-                    implicitWidth: 90
-                    implicitHeight: 32
-                    onValueModified: {
+                    Accessible.name: modelData
+                    rangeMinimum: 0
+                    rangeMaximum: 120
+                    rangeStep: 1
+                    rangeDecimals: 0
+                    fieldName: modelData
+                    requestedImplicitWidth: 90
+                    declaredValue: catSection.tokens[modelData] !== undefined
+                        ? Number(catSection.tokens[modelData]) : 0
+                    onValueCommitted: function(nextValue) {
                         var vals = {}
-                        vals[modelData] = value
+                        vals[modelData] = nextValue
                         catSection.tokenChanged(vals)
-                    }
-                    background: Rectangle {
-                        color: catSection.surfaceColor
-                        radius: 6
-                        border.color: catSection.readOnly ? catSection.borderColor : parent.activeFocus ? catSection.cyanColor : catSection.borderColor
-                        border.width: parent.activeFocus ? 2 : 1
-                    }
-                    contentItem: TextInput {
-                        text: parent.text
-                        color: catSection.textColor
-                        font: parent.font
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
                     }
                 }
                 Label {
@@ -3003,7 +4049,7 @@ Rectangle {
                 required property string modelData
                 spacing: 8
                 Layout.fillWidth: true
-                Layout.minimumHeight: 36
+                Layout.minimumHeight: panel.minimumInteractiveTarget
 
                 Label {
                     text: {
@@ -3018,7 +4064,7 @@ Rectangle {
 
                 Loader {
                     Layout.preferredWidth: 120
-                    Layout.minimumHeight: 32
+                    Layout.minimumHeight: panel.minimumInteractiveTarget
                     sourceComponent: {
                         if (modelData === "scale")
                             return TypoScaleEditorComp
@@ -3031,31 +4077,21 @@ Rectangle {
         }
     }
 
-    component TypoScaleEditorComp: SpinBox {
-        from: 50
-        to: 200
-        value: catSection.tokens.scale !== undefined
-            ? Math.round(Number(catSection.tokens.scale) * 100) : 100
-        editable: true
+    component TypoScaleEditorComp: AuthRangeSpinBox {
         enabled: !catSection.readOnly
-        implicitHeight: 32
-        onValueModified: {
+        Accessible.name: qsTr("Escala tipográfica")
+        rangeMinimum: 0.5
+        rangeMaximum: 2
+        rangeStep: 0.01
+        rangeDecimals: 2
+        fieldName: qsTr("Escala tipográfica")
+        requestedImplicitWidth: 90
+        declaredValue: catSection.tokens.scale !== undefined
+            ? Number(catSection.tokens.scale) : 1
+        onValueCommitted: function(nextValue) {
             var vals = {}
-            vals.scale = value / 100.0
+            vals.scale = nextValue
             catSection.tokenChanged(vals)
-        }
-        background: Rectangle {
-            color: catSection.surfaceColor
-            radius: 6
-            border.color: parent.activeFocus ? catSection.cyanColor : catSection.borderColor
-            border.width: parent.activeFocus ? 2 : 1
-        }
-        contentItem: TextInput {
-            text: parent.text
-            color: catSection.textColor
-            font: parent.font
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
         }
         Label {
             anchors.right: parent.right
@@ -3067,11 +4103,235 @@ Rectangle {
         }
     }
 
+    // Controles do editor (chrome do Studio): usam as cores do PAINEL, nunca as do tema
+    // em edição — senão a interface do editor mudaria de aparência com o tema editado.
+    component AuthField: TextField {
+        id: authField
+        property int requestedImplicitWidth: 0
+        property int requestedImplicitHeight: 0
+        // `declaredText` é o valor aceito pelo documento. Enter e perda de foco disparam
+        // editingFinished; `committed` evita enviar a mesma edição duas vezes, e uma edição
+        // recusada (authoringRevision) devolve o campo ao valor declarado.
+        property string declaredText: ""
+        property string committed: declaredText
+        text: declaredText
+        onDeclaredTextChanged: { text = declaredText; committed = declaredText }
+        Connections {
+            target: panel
+            function onAuthoringRevisionChanged() { text = declaredText; committed = declaredText }
+        }
+        function submit(send) {
+            if (text === committed)
+                return
+            committed = text
+            send(text)
+        }
+        implicitWidth: Math.max(panel.minimumInteractiveTarget, requestedImplicitWidth,
+            authField.contentItem
+                ? authField.contentItem.implicitWidth + leftPadding + rightPadding : 0)
+        implicitHeight: Math.max(panel.minimumInteractiveTarget, requestedImplicitHeight,
+            authField.contentItem
+                ? authField.contentItem.implicitHeight + topPadding + bottomPadding : 0)
+        Layout.minimumWidth: panel.minimumInteractiveTarget
+        Layout.minimumHeight: panel.minimumInteractiveTarget
+        color: panel.textColor
+        placeholderTextColor: panel.mutedColor
+        selectedTextColor: "#071019"
+        selectionColor: panel.cyanColor
+        leftPadding: 10
+        rightPadding: 10
+        background: Rectangle {
+            color: panel.surfaceColor
+            radius: 8
+            border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
+            border.width: parent.activeFocus ? 2 : 1
+        }
+    }
+
+    component AuthButton: Button {
+        id: authButton
+        property int requestedImplicitWidth: 0
+        property int requestedImplicitHeight: 0
+        implicitWidth: Math.max(panel.minimumInteractiveTarget, requestedImplicitWidth,
+            authButton.contentItem
+                ? authButton.contentItem.implicitWidth + leftPadding + rightPadding : 0)
+        implicitHeight: Math.max(panel.minimumInteractiveTarget, requestedImplicitHeight,
+            authButton.contentItem
+                ? authButton.contentItem.implicitHeight + topPadding + bottomPadding : 0)
+        Layout.minimumWidth: panel.minimumInteractiveTarget
+        Layout.minimumHeight: panel.minimumInteractiveTarget
+        leftPadding: 12
+        rightPadding: 12
+        Accessible.name: text
+        background: Rectangle {
+            color: !authButton.enabled ? panel.surfaceColor
+                : (authButton.checked ? panel.cyanDarkColor : panel.raisedColor)
+            radius: 8
+            border.color: authButton.activeFocus ? panel.textColor
+                : (authButton.checked ? panel.cyanColor : panel.borderColor)
+            border.width: authButton.activeFocus ? 2 : 1
+        }
+        contentItem: Label {
+            text: authButton.text
+            color: authButton.enabled ? panel.textColor : panel.mutedColor
+            font.pixelSize: Math.round(13 * panel.visualScale)
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
+    component AuthCombo: SteamComboBox {
+        id: authCombo
+        property int requestedImplicitWidth: 0
+        property int requestedImplicitHeight: 0
+        implicitWidth: Math.max(panel.minimumInteractiveTarget, requestedImplicitWidth,
+            authCombo.contentItem
+                ? authCombo.contentItem.implicitWidth + leftPadding + rightPadding : 0)
+        implicitHeight: Math.max(panel.minimumInteractiveTarget, requestedImplicitHeight,
+            authCombo.contentItem
+                ? authCombo.contentItem.implicitHeight + topPadding + bottomPadding : 0)
+        Layout.minimumWidth: panel.minimumInteractiveTarget
+        Layout.minimumHeight: panel.minimumInteractiveTarget
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+    }
+
+    component AuthRangeSpinBox: SpinBox {
+        id: rangeSpin
+        property int requestedImplicitWidth: 0
+        property int requestedImplicitHeight: 0
+        property real rangeMinimum: 0
+        property real rangeMaximum: 100
+        property real rangeStep: 1
+        property int rangeDecimals: 2
+        property real declaredValue: 0
+        property string fieldName: qsTr("Valor")
+        readonly property real precisionFactor: Math.pow(10, rangeDecimals)
+        signal valueCommitted(real value)
+
+        from: Math.ceil(rangeMinimum * precisionFactor - 0.000001)
+        to: Math.floor(rangeMaximum * precisionFactor + 0.000001)
+        value: Math.max(from, Math.min(to, Math.round(Number(declaredValue) * precisionFactor)))
+        stepSize: Math.max(1, Math.round(rangeStep * precisionFactor))
+        editable: true
+        inputMethodHints: Qt.ImhFormattedNumbersOnly
+        implicitWidth: Math.max(
+            panel.minimumInteractiveTarget + leftPadding + rightPadding,
+            requestedImplicitWidth + 2 * panel.minimumInteractiveTarget,
+            rangeSpin.contentItem
+                ? rangeSpin.contentItem.implicitWidth + leftPadding + rightPadding : 0)
+        implicitHeight: Math.max(panel.minimumInteractiveTarget, requestedImplicitHeight,
+            rangeSpin.contentItem
+                ? rangeSpin.contentItem.implicitHeight + topPadding + bottomPadding : 0)
+        Layout.minimumWidth: panel.minimumInteractiveTarget
+        Layout.minimumHeight: panel.minimumInteractiveTarget
+        leftPadding: 8 + panel.minimumInteractiveTarget
+        rightPadding: 8 + panel.minimumInteractiveTarget
+        Accessible.description: qsTr("Permitido de %1 a %2; passo %3")
+            .arg(rangeMinimum).arg(rangeMaximum).arg(rangeStep)
+
+        up.indicator: Rectangle {
+            objectName: rangeSpin.objectName + "_incrementTarget"
+            Accessible.name: qsTr("Incrementar %1").arg(rangeSpin.fieldName)
+            Accessible.role: Accessible.Button
+            x: rangeSpin.mirrored ? 0 : rangeSpin.width - width
+            y: 0
+            implicitWidth: panel.minimumInteractiveTarget
+            implicitHeight: panel.minimumInteractiveTarget
+            width: implicitWidth
+            height: rangeSpin.height
+            color: rangeSpin.up.pressed ? panel.cyanDarkColor : panel.raisedColor
+            border.color: rangeSpin.activeFocus ? panel.cyanColor : panel.borderColor
+            radius: 4
+            Rectangle {
+                anchors.centerIn: parent
+                width: Math.max(14, parent.width / 3)
+                height: 2
+                color: rangeSpin.up.enabled ? panel.textColor : panel.mutedColor
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: 2
+                height: Math.max(14, parent.width / 3)
+                color: rangeSpin.up.enabled ? panel.textColor : panel.mutedColor
+            }
+        }
+
+        down.indicator: Rectangle {
+            objectName: rangeSpin.objectName + "_decrementTarget"
+            Accessible.name: qsTr("Diminuir %1").arg(rangeSpin.fieldName)
+            Accessible.role: Accessible.Button
+            x: rangeSpin.mirrored ? rangeSpin.width - width : 0
+            y: 0
+            implicitWidth: panel.minimumInteractiveTarget
+            implicitHeight: panel.minimumInteractiveTarget
+            width: implicitWidth
+            height: rangeSpin.height
+            color: rangeSpin.down.pressed ? panel.cyanDarkColor : panel.raisedColor
+            border.color: rangeSpin.activeFocus ? panel.cyanColor : panel.borderColor
+            radius: 4
+            Rectangle {
+                anchors.centerIn: parent
+                width: Math.max(14, parent.width / 3)
+                height: 2
+                color: rangeSpin.down.enabled ? panel.textColor : panel.mutedColor
+            }
+        }
+
+        validator: DoubleValidator {
+            bottom: -1000000
+            top: 1000000
+            decimals: rangeSpin.rangeDecimals
+            locale: rangeSpin.locale.name
+        }
+        textFromValue: function(raw, locale) {
+            return panel.formatEffectNumber(raw / rangeSpin.precisionFactor,
+                locale, rangeSpin.rangeDecimals)
+        }
+        valueFromText: function(text, locale) {
+            const parsed = Number.fromLocaleString(locale, text)
+            if (!Number.isFinite(parsed) || parsed < rangeSpin.rangeMinimum
+                    || parsed > rangeSpin.rangeMaximum
+                    || (rangeSpin.rangeDecimals === 0 && !Number.isInteger(parsed))) {
+                panel.rejectEditorNumber(rangeSpin.fieldName,
+                    rangeSpin.rangeMinimum, rangeSpin.rangeMaximum)
+                return rangeSpin.value
+            }
+            return Math.round(parsed * rangeSpin.precisionFactor)
+        }
+        onValueModified: valueCommitted(value / precisionFactor)
+
+        background: Rectangle {
+            color: panel.surfaceColor
+            radius: 8
+            border.color: rangeSpin.activeFocus ? panel.cyanColor : panel.borderColor
+            border.width: rangeSpin.activeFocus ? 2 : 1
+        }
+        contentItem: TextInput {
+            text: rangeSpin.displayText
+            font: rangeSpin.font
+            color: panel.textColor
+            selectionColor: panel.cyanColor
+            selectedTextColor: panel.backgroundColor
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            readOnly: !rangeSpin.editable
+            validator: rangeSpin.validator
+            inputMethodHints: rangeSpin.inputMethodHints
+            selectByMouse: true
+        }
+    }
+
     component TypoFamilyEditorComp: TextField {
         text: catSection.tokens.family || ""
         placeholderText: qsTr("Fonte (ex: Noto Sans)")
         enabled: !catSection.readOnly
-        implicitHeight: 32
+        implicitHeight: panel.minimumInteractiveTarget
+        Layout.minimumHeight: panel.minimumInteractiveTarget
         color: catSection.textColor
         background: Rectangle {
             color: catSection.surfaceColor
@@ -3090,7 +4350,8 @@ Rectangle {
         text: catSection.tokens[modelData] !== undefined
             ? String(catSection.tokens[modelData]) : ""
         enabled: !catSection.readOnly
-        implicitHeight: 32
+        implicitHeight: panel.minimumInteractiveTarget
+        Layout.minimumHeight: panel.minimumInteractiveTarget
         color: catSection.textColor
         background: Rectangle {
             color: catSection.surfaceColor
@@ -3115,7 +4376,7 @@ Rectangle {
                 required property string modelData
                 spacing: 8
                 Layout.fillWidth: true
-                Layout.minimumHeight: 36
+                Layout.minimumHeight: panel.minimumInteractiveTarget
 
                 Label {
                     text: {
@@ -3127,32 +4388,21 @@ Rectangle {
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
-                SpinBox {
-                    from: 0
-                    to: 2000
-                    value: catSection.tokens[modelData] !== undefined
-                        ? Number(catSection.tokens[modelData]) : 0
-                    editable: true
+                AuthRangeSpinBox {
                     enabled: !catSection.readOnly
-                    implicitWidth: 90
-                    implicitHeight: 32
-                    onValueModified: {
+                    Accessible.name: modelData
+                    rangeMinimum: 0
+                    rangeMaximum: 2000
+                    rangeStep: 1
+                    rangeDecimals: 0
+                    fieldName: modelData
+                    requestedImplicitWidth: 90
+                    declaredValue: catSection.tokens[modelData] !== undefined
+                        ? Number(catSection.tokens[modelData]) : 0
+                    onValueCommitted: function(nextValue) {
                         var vals = {}
-                        vals[modelData] = value
+                        vals[modelData] = nextValue
                         catSection.tokenChanged(vals)
-                    }
-                    background: Rectangle {
-                        color: catSection.surfaceColor
-                        radius: 6
-                        border.color: parent.activeFocus ? catSection.cyanColor : catSection.borderColor
-                        border.width: parent.activeFocus ? 2 : 1
-                    }
-                    contentItem: TextInput {
-                        text: parent.text
-                        color: catSection.textColor
-                        font: parent.font
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
                     }
                 }
                 Label {
@@ -3188,7 +4438,12 @@ Rectangle {
     Component {
         id: colorPickerComponent
         ColorPickerDialog {
-            onClosed: destroy()
+            id: effectPicker
+            onClosed: {
+                if (panel.effectColorDialogControl === effectPicker)
+                    panel.effectColorDialogControl = null
+                destroy()
+            }
         }
     }
 }
