@@ -185,6 +185,7 @@ def test_ui_bootstrap_does_not_put_snapshot_in_process_arguments(
 class FakeDashboard:
     def __init__(self) -> None:
         self.calls: list[tuple[str, ...]] = []
+        self.asset_recipe_kwargs: dict[str, object] = {}
 
     def snapshot(self, _status: dict[str, object]) -> dict[str, object]:
         return {
@@ -208,6 +209,7 @@ class FakeDashboard:
     def editor_edit_asset_recipe(
         self, session_id: str, op: str, **kwargs: object
     ) -> dict[str, object]:
+        self.asset_recipe_kwargs = dict(kwargs)
         self.calls.append(
             (
                 "asset-recipe-edit",
@@ -1064,6 +1066,43 @@ def test_theme_asset_recipe_action_reaches_dashboard_with_typed_value(
         "width",
         "6.0",
     )
+
+
+def test_theme_asset_recipe_profile_fields_reach_dashboard_as_typed_values(
+    dashboard_bridge: tuple[str, str, FakeDashboard],
+) -> None:
+    base, token, dashboard = dashboard_bridge
+    request_json(
+        base,
+        token,
+        "/theme/editor/edit-asset-recipe",
+        {
+            "sessionId": "edit-session",
+            "op": "set-breakpoint",
+            "recipe": "outlineThin",
+            "breakpointId": "wide",
+            "priority": 20,
+            "minWidth": 1600,
+        },
+    )
+    assert dashboard.asset_recipe_kwargs == {
+        "recipe": "outlineThin",
+        "source_slot": "",
+        "name": "",
+        "node_type": "",
+        "index": None,
+        "to_index": None,
+        "field_name": "",
+        "value": None,
+        "profile_type": "",
+        "tier": "",
+        "breakpoint_id": "wide",
+        "priority": 20,
+        "min_width": 1600,
+        "max_width": None,
+        "min_height": None,
+        "max_height": None,
+    }
 
 
 def test_bridge_exposes_dashboard_component_and_steam_actions(

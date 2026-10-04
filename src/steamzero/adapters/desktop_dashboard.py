@@ -2219,6 +2219,14 @@ class DesktopDashboard:
         to_index: int | None = None,
         field_name: str = "",
         value: object = None,
+        profile_type: str = "",
+        tier: str = "",
+        breakpoint_id: str = "",
+        priority: int | None = None,
+        min_width: int | None = None,
+        max_width: int | None = None,
+        min_height: int | None = None,
+        max_height: int | None = None,
     ) -> dict[str, object]:
         return self._theme_editor.edit_asset_recipe(
             session_id,
@@ -2231,6 +2239,14 @@ class DesktopDashboard:
             to_index=to_index,
             field_name=field_name,
             value=value,
+            profile_type=profile_type,
+            tier=tier,
+            breakpoint_id=breakpoint_id,
+            priority=priority,
+            min_width=min_width,
+            max_width=max_width,
+            min_height=min_height,
+            max_height=max_height,
         )
 
     def editor_edit_effect(
@@ -2258,6 +2274,9 @@ class DesktopDashboard:
         *,
         high_contrast: bool | None = None,
         reduced_motion: bool | None = None,
+        performance_tier: str | None = None,
+        viewport_width: int | None = None,
+        viewport_height: int | None = None,
         scene_layout_read_model: Mapping[str, Any] | None = None,
     ) -> dict[str, object]:
         if high_contrast is None:
@@ -2270,6 +2289,9 @@ class DesktopDashboard:
             session_id,
             high_contrast=bool(high_contrast),
             reduced_motion=bool(reduced_motion),
+            performance_tier=performance_tier,
+            viewport_width=viewport_width,
+            viewport_height=viewport_height,
             scene_layout_read_model=scene_layout_read_model,
         )
 

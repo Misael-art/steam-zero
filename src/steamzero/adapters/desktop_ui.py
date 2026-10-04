@@ -1176,6 +1176,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 ),
                 field_name=self._optional_string(payload, "field"),
                 value=payload.get("value"),
+                profile_type=self._optional_string(payload, "profileType"),
+                tier=self._optional_string(payload, "tier"),
+                breakpoint_id=self._optional_string(payload, "breakpointId"),
+                priority=self._optional_integer(payload, "priority"),
+                min_width=self._optional_integer(payload, "minWidth"),
+                max_width=self._optional_integer(payload, "maxWidth"),
+                min_height=self._optional_integer(payload, "minHeight"),
+                max_height=self._optional_integer(payload, "maxHeight"),
             )
         if path == "/theme/editor/edit-effect":
             raw_index = payload.get("index")
@@ -1218,7 +1226,17 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             sid = self._required_string(payload, "sessionId")
             hc = bool(payload.get("highContrast", False))
             rm = bool(payload.get("reducedMotion", False))
-            return self._dashboard().editor_preview(sid, high_contrast=hc, reduced_motion=rm)
+            raw_tier = payload.get("performanceTier")
+            if raw_tier is not None and not isinstance(raw_tier, str):
+                raise SteamZeroError("E-API-SCHEMA", detail="performanceTier precisa ser texto")
+            return self._dashboard().editor_preview(
+                sid,
+                high_contrast=hc,
+                reduced_motion=rm,
+                performance_tier=raw_tier or None,
+                viewport_width=self._optional_integer(payload, "viewportWidth"),
+                viewport_height=self._optional_integer(payload, "viewportHeight"),
+            )
         if path == "/theme/editor/save":
             return self._dashboard().editor_save(
                 self._required_string(payload, "sessionId"),
@@ -1955,6 +1973,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
     def _optional_string(self, payload: dict[str, Any], key: str) -> str:
         value = payload.get(key)
         return value if isinstance(value, str) else ""
+
+    def _optional_integer(self, payload: dict[str, Any], key: str) -> int | None:
+        value = payload.get(key)
+        if value is None:
+            return None
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise SteamZeroError("E-API-SCHEMA", detail=f"campo {key} precisa ser inteiro")
+        return value
 
     def _required_exact_strings(self, payload: dict[str, Any], *keys: str) -> tuple[str, ...]:
         """Valida o schema fechado das rotas do lifecycle de componentes."""
