@@ -893,7 +893,33 @@ Item {
                 + JSON.stringify(panel.assetRecipeResolvedSelection) + " · "
                 + JSON.stringify(harness.profilePreviewResponses) + " · "
                 + JSON.stringify(harness.errors))
-            capture("05-studio-perfil-tier-resolucao")
+            capture("05-studio-perfil-tier")
+
+            typeInto("assetRecipePreviewWidth", "1920")
+            typeInto("assetRecipePreviewHeight", "720")
+            click("assetRecipePreviewTargetButton")
+            const renderedAssetPreview = find(panel, "assetRecipePreview")
+            tryVerify(function() {
+                const breakpointResponse = harness.profilePreviewResponses.some(function(response) {
+                    return response.payload.viewportWidth === 1920
+                        && response.payload.viewportHeight === 720
+                        && response.selection
+                        && response.selection.recipe === "outlineThin"
+                        && response.selection.source === "breakpoint:wide"
+                })
+                return breakpointResponse
+                    && panel.assetRecipeResolvedSelection
+                    && panel.assetRecipeResolvedSelection.recipe === "outlineThin"
+                    && panel.assetRecipeResolvedSelection.source === "breakpoint:wide"
+                    && panel.assetRecipePreviewRecipeName === "outlineThin"
+                    && panel.assetRecipePreviewRecipe.nodes[0].parameters.width === 6
+                    && renderedAssetPreview
+                    && renderedAssetPreview.sourceStatus === Image.Ready
+                    && renderedAssetPreview.outlineActive
+                    && renderedAssetPreview.outlineWidth === 6
+                    && !renderedAssetPreview.fallbackActive
+            }, 5000, "o preview não aplicou o breakpoint wide à receita renderizada")
+            captureItem("06-studio-perfil-breakpoint-wide", renderedAssetPreview)
 
             const assetRecipeThemeId = panel.editorManifest.id
             click("themeEditorSave")
