@@ -16,7 +16,6 @@ import subprocess
 import threading
 from collections.abc import Mapping
 from dataclasses import replace
-from functools import lru_cache
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -33,6 +32,7 @@ from steamzero.adapters.desktop_kde import (
     logout_desktop_session,
     toggle_virtual_keyboard,
 )
+from steamzero.adapters.journey_public import game_record_public_field_types
 from steamzero.adapters.journey_studio import (
     MAX_PREVIEW_ROWS,
     MAX_PUBLIC_RECORDS,
@@ -69,33 +69,6 @@ _STATUS_BY_CODE = {
     "E-API-UNKNOWN-ACTION": HTTPStatus.NOT_FOUND,
 }
 
-_PUBLIC_GAME_RECORD_FIELDS = frozenset(
-    {
-        "sortTitle",
-        "aliases",
-        "systemId",
-        "family",
-        "region",
-        "language",
-        "container",
-        "size",
-        "developer",
-        "publisher",
-        "releaseDate",
-        "genres",
-        "series",
-        "franchise",
-        "description",
-        "rating",
-        "ageRating",
-        "players",
-        "features",
-        "runtime",
-        "core",
-        "emulatorId",
-        "availability",
-    }
-)
 _JOURNEY_FIELD_LABELS = {
     "id": "Identificador",
     "gameId": "ID do jogo",
@@ -170,29 +143,9 @@ def _effective_theme_coverage_manifest(loaded: Mapping[str, Any]) -> dict[str, A
     return effective
 
 
-@lru_cache(maxsize=1)
 def _game_record_public_field_types() -> dict[str, str]:
-    """Use tipos do schema canônico, publicando só campos sem paths/segredos."""
-    schema_path = Path(__file__).resolve().parents[1] / "schemas" / "game-record-v1.schema.json"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    properties = schema.get("properties") if isinstance(schema, dict) else None
-    if not isinstance(properties, dict):
-        raise RuntimeError("schema GameRecord sem propriedades públicas")
-    types: dict[str, str] = {}
-    for field_id in sorted(_PUBLIC_GAME_RECORD_FIELDS):
-        definition = properties.get(field_id)
-        if not isinstance(definition, dict):
-            continue
-        field_type = definition.get("type")
-        if field_type in {"string", "integer", "number", "boolean"}:
-            types[field_id] = str(field_type)
-        elif (
-            field_type == "array"
-            and isinstance(definition.get("items"), dict)
-            and definition["items"].get("type") == "string"
-        ):
-            types[field_id] = "string[]"
-    return types
+    """Use the same schema-derived field allowlist as the Launcher consumer."""
+    return game_record_public_field_types()
 
 
 def _journey_field_descriptors(field_types: Mapping[str, str]) -> list[dict[str, str]]:
@@ -598,10 +551,16 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 return
             self._send(HTTPStatus.OK, result)
         elif path == "/journey/studio/list":
-            self._send(
-                HTTPStatus.OK,
-                {"journeys": self._control_server.journey_studio.list()},
-            )
+            try:
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "journeys": self._control_server.journey_studio.list(),
+                        "activeJourneyId": self._control_server.journey_studio.active_id(),
+                    },
+                )
+            except ValueError as exc:
+                self._send(HTTPStatus.CONFLICT, {"error": str(exc)})
         elif path == "/journey/studio/catalog":
             try:
                 models = self._refresh_journey_read_models()
@@ -1303,6 +1262,26 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 raise SteamZeroError("E-API-SCHEMA", detail="overwrite precisa ser booleano")
             return self._control_server.journey_studio.save(
                 self._required_string(payload, "sessionId"), overwrite=overwrite
+            )
+        if path == "/journey/studio/activate":
+            self._require_exact_keys(payload, {"sessionId", "expectedGeneration"})
+            expected_generation = payload.get("expectedGeneration")
+            if (
+                not isinstance(expected_generation, int)
+                or isinstance(expected_generation, bool)
+                or expected_generation < 0
+            ):
+                raise SteamZeroError("E-API-SCHEMA", detail="expectedGeneration inválida")
+            models = self._refresh_journey_read_models()
+            published = {
+                model_id: model["fields"]
+                for model_id, model in models.items()
+                if isinstance(model.get("fields"), Mapping)
+            }
+            return self._control_server.journey_studio.activate(
+                self._required_string(payload, "sessionId"),
+                expected_generation=expected_generation,
+                published_read_models=published,
             )
         if path == "/journey/studio/preview":
             self._require_exact_keys(

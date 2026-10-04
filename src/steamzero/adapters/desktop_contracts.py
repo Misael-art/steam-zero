@@ -1694,6 +1694,21 @@ def handheld_ui_contracts() -> dict[str, Any]:
             ),
         ),
         _action(
+            "journey.studio.activate",
+            "Ativar a jornada salva no Launcher",
+            "/journey/studio/activate",
+            service="journey",
+            screen="system",
+            control="journey-studio-activate",
+            schema=_closed_schema(
+                ("sessionId", "expectedGeneration"),
+                {
+                    "sessionId": {"type": "string", "minLength": 1},
+                    "expectedGeneration": {"type": "integer", "minimum": 0},
+                },
+            ),
+        ),
+        _action(
             "journey.studio.preview",
             "Pré-visualizar menu da jornada",
             "/journey/studio/preview",
