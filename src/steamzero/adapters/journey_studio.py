@@ -320,6 +320,40 @@ class JourneyStudioService:
                 "snapshot": self.snapshot(session_id),
             }
 
+    def activate(
+        self,
+        session_id: str,
+        *,
+        expected_generation: int,
+        published_read_models: Mapping[str, Iterable[str] | Mapping[str, str]],
+    ) -> dict[str, Any]:
+        """Select the exact saved Studio document for the next Launcher start.
+
+        Activation is explicit and refuses dirty drafts or changed files. The
+        active pointer contains only the journey ID; the document remains the
+        canonical sidecar that Studio and Launcher both reopen.
+        """
+        with self._lock:
+            session = self._session(session_id)
+            if session.generation != expected_generation:
+                raise ValueError("a jornada mudou; atualize antes de ativar")
+            payload = self._serialize(session.data)
+            if session.saved_payload is None or payload != session.saved_payload:
+                raise ValueError("salve a jornada antes de ativá-la no Launcher")
+            document = self._document(session_id)
+            document.ensure_activatable(published_read_models)
+            previous = self._store.set_active(document)
+            return {
+                "status": "activated",
+                "journeyId": document.id,
+                "previousJourneyId": previous,
+                "generation": session.generation,
+            }
+
+    def active_id(self) -> str | None:
+        """Read the explicit active pointer without following symbolic links."""
+        return self._store.active_id()
+
     def close(self, session_id: str) -> None:
         with self._lock:
             self._sessions.pop(session_id, None)

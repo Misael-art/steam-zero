@@ -159,6 +159,77 @@ def test_authoring_transactions_history_save_reopen_and_preview(tmp_path: Path) 
         )
 
 
+def test_launcher_activation_requires_the_exact_saved_document_and_public_fields(
+    tmp_path: Path,
+) -> None:
+    service = JourneyStudioService(tmp_path / "journeys")
+    created = service.create(name="Jornada de teste", journey_id="org.steamzero.launcher")
+    session_id = str(created["sessionId"])
+    fields = {
+        "library.games": {
+            "id": "string",
+            "gameId": "string",
+            "title": "string",
+            "name": "string",
+            "platformId": "string",
+        }
+    }
+
+    with pytest.raises(ValueError, match="salve"):
+        service.activate(
+            session_id,
+            expected_generation=int(created["generation"]),
+            published_read_models=fields,
+        )
+
+    service.transact(
+        session_id,
+        "set-filters",
+        {
+            "menuId": "home",
+            "values": [{"fieldId": "year", "operator": "equals", "value": 1992}],
+        },
+        expected_generation=int(created["generation"]),
+    )
+    saved = service.save(session_id)
+    snapshot = saved["snapshot"]
+    with pytest.raises((ValueError, JourneyValidationError)):
+        service.activate(
+            session_id,
+            expected_generation=int(snapshot["generation"]),
+            published_read_models=fields,
+        )
+
+    result = service.activate(
+        session_id,
+        expected_generation=int(snapshot["generation"]),
+        published_read_models={"library.games": {**fields["library.games"], "year": "integer"}},
+    )
+    assert result["status"] == "activated"
+    assert result["journeyId"] == "org.steamzero.launcher"
+    assert result["previousJourneyId"] is None
+    assert service.active_id() == "org.steamzero.launcher"
+
+
+def test_launcher_activation_rejects_a_dirty_saved_session(tmp_path: Path) -> None:
+    service = JourneyStudioService(tmp_path / "journeys")
+    created = service.create(journey_id="org.steamzero.dirty")
+    session_id = str(created["sessionId"])
+    service.save(session_id)
+    edited = service.transact(
+        session_id,
+        "rename-menu",
+        {"menuId": "home", "name": "Alterado depois de salvar"},
+        expected_generation=int(created["generation"]),
+    )
+    with pytest.raises(ValueError, match="salve"):
+        service.activate(
+            session_id,
+            expected_generation=int(edited["generation"]),
+            published_read_models={"library.games": {"id": "string"}},
+        )
+
+
 def test_schema_rejection_is_atomic_and_stale_edits_are_refused(tmp_path: Path) -> None:
     service = JourneyStudioService(tmp_path / "journeys")
     opened = service.create(journey_id="org.steamzero.atomic")

@@ -10,6 +10,7 @@ Item {
     id: surface
 
     property var model: null
+    property var theme: null
     property var accessibility: ({"highContrast": false, "visualScale": 1.0,
         "reducedMotion": false})
     property int selectedIndex: 0
@@ -17,10 +18,26 @@ Item {
     readonly property var bezels: model && Array.isArray(model.bezels) ? model.bezels : []
     readonly property var fade: model && model.fade ? model.fade : ({"phase": "idle",
         "progress": 0.0, "durationMs": 180, "reducedMotion": false})
+    readonly property var themeTokens: theme && theme.resolved ? theme.resolved : ({})
+    readonly property var themeColors: themeTokens.color || ({})
     readonly property bool highContrast: !!(accessibility && accessibility.highContrast)
+        || (theme && theme.highContrast === true)
     readonly property bool reducedMotion: !!(accessibility && accessibility.reducedMotion)
+        || (theme && theme.reducedMotion === true)
     readonly property real visualScale: accessibility && Number(accessibility.visualScale) > 0
         ? Number(accessibility.visualScale) : 1.0
+    readonly property color backgroundColor: highContrast ? "#000000"
+        : _safeColor(themeColors.background, "#071019")
+    readonly property color panelColor: highContrast ? "#000000"
+        : _safeColor(themeColors.surface, "#101c2b")
+    readonly property color accentColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.accent, "#7dd3fc")
+    readonly property color textColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.text, "#f8fafc")
+    readonly property color mutedColor: highContrast ? "#e8e8e8"
+        : _safeColor(themeColors.textMuted, "#a8b8ca")
+    readonly property color borderColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.border, "#2b4963")
     readonly property var selectedDisc: selectedIndex >= 0 && selectedIndex < discs.length
         ? discs[selectedIndex] : null
 
@@ -66,13 +83,21 @@ Item {
         return typeof value === "string" && value.length > 0 ? value : fallback
     }
 
+    function _safeColor(value, fallback) {
+        if (typeof value !== "string")
+            return fallback
+        const candidate = value.trim()
+        return /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/.test(candidate)
+            ? candidate : fallback
+    }
+
     visible: false
     focus: visible
     z: 55
 
     Rectangle {
         anchors.fill: parent
-        color: surface.highContrast ? "#000000" : "#071019f5"
+        color: surface.backgroundColor
     }
 
     Rectangle {
@@ -80,9 +105,9 @@ Item {
         width: Math.min(parent.width - 64, 1080)
         height: Math.min(parent.height - 64, 580)
         radius: 18
-        color: surface.highContrast ? "#000000" : "#101c2bfa"
+        color: surface.panelColor
         border.width: surface.highContrast ? 3 : 1
-        border.color: surface.highContrast ? "#ffffff" : "#2b4963"
+        border.color: surface.borderColor
 
         Column {
             anchors.fill: parent
@@ -95,7 +120,7 @@ Item {
                 Text {
                     width: parent.width - closeButton.width - 16
                     text: qsTr("MÍDIA DA SESSÃO · TROCAR DISCO")
-                    color: surface.highContrast ? "#ffffff" : "#7dd3fc"
+                    color: surface.accentColor
                     font.pixelSize: 18 * surface.visualScale
                     font.bold: true
                     elide: Text.ElideRight
@@ -105,13 +130,13 @@ Item {
                     width: 116
                     height: 44
                     radius: 8
-                    color: surface.highContrast ? "#000000" : "#17283a"
+                    color: surface.panelColor
                     border.width: activeFocus ? 3 : 1
-                    border.color: activeFocus ? "#7dd3fc" : "#68839b"
+                    border.color: activeFocus ? surface.accentColor : surface.borderColor
                     Text {
                         anchors.centerIn: parent
                         text: qsTr("Fechar")
-                        color: "#f8fafc"
+                        color: surface.textColor
                         font.pixelSize: 14 * surface.visualScale
                     }
                     TapHandler { onTapped: surface.closeSurface() }
@@ -124,7 +149,7 @@ Item {
                     ? qsTr("%1 discos declarados · o disco inserido está destacado").arg(discs.length)
                     : _text(surface.model ? surface.model.reason : "",
                             qsTr("Este jogo não declara um conjunto multi-disc."))
-                color: discs.length > 1 ? "#cbd5e1" : "#fbbf24"
+                color: discs.length > 1 ? surface.mutedColor : surface.accentColor
                 font.pixelSize: 14 * surface.visualScale
                 wrapMode: Text.Wrap
             }
@@ -144,11 +169,11 @@ Item {
                     height: 270
                     radius: 12
                     color: modelData.available === true && modelData.compatible === true
-                        ? (index === surface.selectedIndex ? "#164e63" : "#17283a")
+                        ? (index === surface.selectedIndex ? surface.accentColor : surface.panelColor)
                         : "#111b27"
                     opacity: modelData.available === true && modelData.compatible === true ? 1 : 0.62
                     border.width: index === surface.selectedIndex ? 3 : 1
-                    border.color: index === surface.selectedIndex ? "#67e8f9" : "#2b4963"
+                    border.color: index === surface.selectedIndex ? surface.accentColor : surface.borderColor
                     Accessible.name: String(modelData.label || qsTr("Disco %1").arg(index + 1))
                     Accessible.role: Accessible.Button
                     Accessible.description: modelData.inserted === true
@@ -159,14 +184,14 @@ Item {
                         spacing: 12
                         Text {
                             text: modelData.inserted === true ? qsTr("INSERIDO") : qsTr("DISCO %1").arg(index + 1)
-                            color: modelData.inserted === true ? "#67e8f9" : "#a8b8ca"
+                            color: modelData.inserted === true ? surface.accentColor : surface.mutedColor
                             font.pixelSize: 12 * surface.visualScale
                             font.bold: true
                         }
                         Text {
                             width: parent.width
                             text: String(modelData.label || qsTr("Mídia sem nome"))
-                            color: "#f8fafc"
+                            color: surface.textColor
                             font.pixelSize: 17 * surface.visualScale
                             font.bold: true
                             wrapMode: Text.Wrap
@@ -179,7 +204,7 @@ Item {
                                 ? qsTr("Enter para inserir")
                                 : String(modelData.reason || qsTr("Indisponível"))
                             color: modelData.available === true && modelData.compatible === true
-                                ? "#cbd5e1" : "#fbbf24"
+                                ? surface.mutedColor : surface.accentColor
                             font.pixelSize: 13 * surface.visualScale
                             wrapMode: Text.Wrap
                         }
@@ -198,14 +223,14 @@ Item {
                 text: bezels.length > 0
                     ? qsTr("Molduras declaradas: %1 · aplicadas somente quando o adapter confirmar compatibilidade.").arg(bezels.length)
                     : qsTr("Moldura: fallback proporcional sem asset confirmado")
-                color: "#a8b8ca"
+                color: surface.mutedColor
                 font.pixelSize: 12 * surface.visualScale
                 wrapMode: Text.Wrap
             }
             Text {
                 width: parent.width
                 text: qsTr("← → Navegar   Enter Inserir   Esc Fechar")
-                color: surface.highContrast ? "#ffffff" : "#a8b8ca"
+                color: surface.mutedColor
                 font.pixelSize: 13 * surface.visualScale
                 horizontalAlignment: Text.AlignHCenter
             }

@@ -98,14 +98,22 @@ def test_remote_control_uses_owner_transitions_and_never_signals_from_ui(tmp_pat
 
         paused = overlay.dispatch(game_id, session_id, "pause")
         resumed = overlay.dispatch(game_id, session_id, "pause")
+        exit_pending = overlay.dispatch(game_id, session_id, "exit", confirmed=True)
+        duplicate_exit = overlay.dispatch(game_id, session_id, "exit", confirmed=True)
 
         assert paused.accepted is True
         assert paused.state == "suspended"
         assert resumed.accepted is True
         assert resumed.state == "running"
+        assert exit_pending.accepted is True
+        assert exit_pending.confirmed is False
+        assert exit_pending.state == "closing"
+        assert duplicate_exit.accepted is True
+        assert duplicate_exit.state == "closing"
         assert observed_signals == [
             (os.getpid(), signal.SIGSTOP),
             (os.getpid(), signal.SIGCONT),
+            (os.getpid(), signal.SIGTERM),
         ]
     finally:
         server.close()

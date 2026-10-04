@@ -171,6 +171,59 @@ class JourneyStore:
             )
         return JourneyDocument.parse(payload)
 
+    def set_active(self, document: JourneyDocument) -> str | None:
+        """Persist an explicit pointer to an already-saved canonical document."""
+        if self.root.is_symlink() or not self.root.is_dir():
+            raise ValueError("diretório das jornadas indisponível ou inseguro")
+        stored = self.load(document.id)
+        if stored.serialize() != document.serialize():
+            raise ValueError("o sidecar salvo mudou; reabra a jornada antes de ativar")
+        pointer = self.root / "active.json"
+        if pointer.is_symlink():
+            raise ValueError("ponteiro ativo da jornada não pode ser link simbólico")
+        previous = self.active_id()
+        fs.write_atomic(
+            pointer,
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "kind": "steamzero-active-journey-v1",
+                    "journeyId": document.id,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                indent=2,
+            ).encode("utf-8"),
+        )
+        return previous
+
+    def active_id(self) -> str | None:
+        """Read the explicit active pointer without following symbolic links."""
+        if self.root.is_symlink() or not self.root.is_dir():
+            return None
+        pointer = self.root / "active.json"
+        try:
+            descriptor = os.open(pointer, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        except FileNotFoundError:
+            return None
+        except OSError as exc:
+            raise ValueError("ponteiro ativo da jornada não pôde ser aberto") from exc
+        with os.fdopen(descriptor, "rb") as stream:
+            if os.fstat(stream.fileno()).st_size > 4096:
+                raise ValueError("ponteiro ativo da jornada excede o limite")
+            raw = json.loads(stream.read(4097).decode("utf-8"))
+        if (
+            not isinstance(raw, dict)
+            or set(raw) != {"schemaVersion", "kind", "journeyId"}
+            or raw.get("schemaVersion") != 1
+            or raw.get("kind") != "steamzero-active-journey-v1"
+            or not isinstance(raw.get("journeyId"), str)
+        ):
+            raise ValueError("ponteiro ativo da jornada inválido")
+        journey_id = str(raw["journeyId"])
+        self.load(journey_id)
+        return journey_id
+
     @staticmethod
     def export_copy(document: JourneyDocument) -> bytes:
         """Export the journey sidecar; referenced themes remain explicit dependencies."""
@@ -419,6 +472,7 @@ def _organization_cycle(nodes: Sequence[Mapping[str, Any]]) -> bool:
 
 _STAGE_SCENE_SLOTS: dict[str, tuple[str, str]] = {
     "gameplay": ("gameDetail", "gameDetail"),
+    "bezel": ("bezel", "bezel"),
     "pause": ("quickMenu", "osd"),
     "saves": ("saveStates", "saveGallery"),
     "osd": ("osd", "osd"),
@@ -439,9 +493,6 @@ def _missing_scene_elements(stage_id: str, theme: Mapping[str, Any]) -> list[str
     elif stage_id in _STAGE_SCENE_SLOTS:
         slot_id, component_kind = _STAGE_SCENE_SLOTS[stage_id]
         required_slots = [(slot_id, {component_kind})]
-    elif stage_id == "bezel":
-        # The current scene-surfaces contract has no bezel element kind or slot.
-        return ["sceneSurfaces.slot:bezel"]
     else:
         required_slots = []
 
@@ -590,6 +641,7 @@ def validate_journey(
     issues.extend(_unique_ids(session_stages, "stageId", "STAGE"))
     expected_actions = {
         "select": "navigate",
+        "route": "navigate",
         "back": "back",
         "play": "launch",
         "pause": "pause",
@@ -631,7 +683,7 @@ def validate_journey(
             event,
             when,
         )
-        if route_key in route_keys:
+        if event != "route" and route_key in route_keys:
             issues.append(
                 JourneyDiagnostic(
                     "JOURNEY-CONNECTION-AMBIGUOUS",
@@ -1094,6 +1146,10 @@ class JourneyNavigator:
     def generation(self) -> int:
         return self._generation
 
+    @property
+    def can_go_back(self) -> bool:
+        return bool(self._history)
+
     def update_context(
         self,
         *,
@@ -1262,12 +1318,16 @@ class JourneyExecutor:
         read_models: Mapping[str, Sequence[Mapping[str, Any]] | None] | None = None,
         published_read_models: Mapping[str, Iterable[str] | Mapping[str, str]] | None = None,
         pending_return: JourneyReturnContext | None = None,
+        route_connection_id: str | None = None,
     ) -> JourneyExecutionResult:
         source = dict(source_endpoint or {"kind": "menu", "id": self.navigator.context.menu_id})
         candidates = [
             item
             for item in self.document.data["connections"]
-            if item["from"] == source and item["event"] == event and item["when"] == when
+            if item["from"] == source
+            and item["event"] == event
+            and item["when"] == when
+            and (route_connection_id is None or str(item["id"]) == route_connection_id)
         ]
         if not candidates:
             return JourneyExecutionResult(
@@ -1374,7 +1434,6 @@ class JourneyExecutor:
         target_menu_id = str(target["id"])
         target_menu = self._menus[target_menu_id]
         context_filters: dict[str, JsonScalar] = {}
-        binding_filters: list[dict[str, Any]] = []
         source_menu = self._menus.get(str(source.get("id", "")))
         source_fields = {}
         target_read_model_id = str(target_menu["source"]["readModelId"])
@@ -1385,6 +1444,22 @@ class JourneyExecutor:
                     published_read_models.get(str(source_menu["source"]["readModelId"]), {})
                 )
             target_fields = published_read_models.get(target_read_model_id)
+        target_field_types = _field_definitions(target_fields) if target_fields is not None else {}
+        binding_targets = {
+            str(binding["targetFieldId"]) for binding in connection.get("bindings", [])
+        }
+        # Facet context follows navigation only when the destination publishes
+        # the same field with a compatible type. Explicit route bindings take
+        # precedence for their target field.
+        context_filters.update(
+            {
+                field_id: value
+                for field_id, value in self.navigator.context.filters
+                if field_id in target_field_types
+                and field_id not in binding_targets
+                and _value_matches_type(value, target_field_types[field_id])
+            }
+        )
 
         for binding in connection.get("bindings", []):
             source_field = str(binding["sourceFieldId"])
@@ -1438,13 +1513,20 @@ class JourneyExecutor:
                     recovery_action="choose-compatible-fields",
                 )
             context_filters[target_field] = value
-            binding_filters.append({"fieldId": target_field, "operator": "equals", "value": value})
 
         read_model_rows = (read_models or {}).get(target_read_model_id)
-        field_definitions = _field_definitions(target_fields) if target_fields is not None else {}
+        field_definitions = target_field_types
+        carried_and_bound_filters = [
+            {
+                "fieldId": field_id,
+                "operator": "isUnknown" if value is None else "equals",
+                **({} if value is None else {"value": value}),
+            }
+            for field_id, value in sorted(context_filters.items())
+        ]
         query = query_public_records(
             read_model_rows,
-            [*target_menu["filters"], *binding_filters],
+            [*target_menu["filters"], *carried_and_bound_filters],
             published_fields=field_definitions,
             sort=target_menu["sort"],
             group_by=target_menu.get("groupBy", []),

@@ -25,6 +25,7 @@ Rectangle {
     property bool noticeIsError: false
     property int requestGeneration: 0
     property var journeyList: []
+    property string activeJourneyId: ""
     property var catalog: ({readModels: [], themes: []})
     property var session: null
     property string selectedMenuId: ""
@@ -180,6 +181,7 @@ Rectangle {
         invoke("journey.studio.list", {}, function(result) {
             panel.bridgeAvailable = true
             panel.journeyList = result.journeys || []
+            panel.activeJourneyId = String(result.activeJourneyId || "")
             invoke("journey.studio.catalog", {}, function(catalogResult) {
                 panel.catalog = catalogResult || ({readModels: [], themes: []})
             })
@@ -198,6 +200,7 @@ Rectangle {
     function refreshListAfterSave() {
         invoke("journey.studio.list", {}, function(result) {
             panel.journeyList = result.journeys || []
+            panel.activeJourneyId = String(result.activeJourneyId || panel.activeJourneyId)
             const selected = panel.journeyDocument.id
             for (let i = 0; i < journeyList.length; ++i) {
                 if (journeyList[i].id === selected) {
@@ -244,6 +247,20 @@ Rectangle {
             panel.refreshListAfterSave()
             panel.notice = qsTr("Jornada salva. Temas referenciados continuam como dependências separadas.")
         })
+    }
+
+    function activateJourney() {
+        if (!session || session.isNew !== false || session.dirty === true || busy)
+            return false
+        invoke("journey.studio.activate", {
+            sessionId: session.sessionId,
+            expectedGeneration: session.generation
+        }, function(result) {
+            panel.activeJourneyId = String(result.journeyId || "")
+            panel.notice = qsTr("Jornada salva ativada no Launcher. A próxima sessão a abrirá no menu de entrada.")
+            panel.noticeIsError = false
+        })
+        return true
     }
 
     function closeJourney() {
@@ -910,6 +927,17 @@ Rectangle {
                 Accessible.name: text
                 implicitHeight: panel.minimumInteractiveTarget
                 onClicked: panel.saveJourney()
+            }
+            Button {
+                objectName: "journeyActivate"
+                text: panel.activeJourneyId === panel.journeyDocument.id
+                    ? qsTr("Ativa no Launcher") : qsTr("Ativar no Launcher")
+                enabled: !panel.busy && !!panel.session
+                    && panel.session.isNew === false && panel.session.dirty === false
+                Accessible.name: text
+                Accessible.description: qsTr("Seleciona a versão salva desta jornada para o próximo início do AURA Launcher")
+                implicitHeight: panel.minimumInteractiveTarget
+                onClicked: panel.activateJourney()
             }
             Button {
                 objectName: "journeyExport"

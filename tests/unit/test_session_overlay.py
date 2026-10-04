@@ -33,7 +33,7 @@ def test_overlay_exposes_only_bounded_semantic_actions_and_focus() -> None:
     overlay = resolve_session_overlay(_model())
     assert overlay.visible is True
     assert overlay.focused_action == "pause"
-    assert len(overlay.actions) == 13
+    assert len(overlay.actions) == 14
     assert overlay.actions[0].id == "volume"
     assert next(item for item in overlay.actions if item.id == "saveState").enabled is False
     assert "save-state" in next(item for item in overlay.actions if item.id == "saveState").reason
@@ -49,6 +49,24 @@ def test_pause_intent_is_semantic_and_not_an_instruction_to_execute() -> None:
         "actionId": "pause",
         "operation": "pause",
     }
+
+
+def test_exit_intent_is_unavailable_until_adapter_publishes_and_user_confirms_it() -> None:
+    unavailable = request_overlay_action(_model(), "exit")
+    assert unavailable.accepted is False
+    assert unavailable.action is not None
+    assert "não declarou suporte" in unavailable.action.reason
+
+    model = _model()
+    osd = model["osd"]
+    assert isinstance(osd, dict)
+    capabilities = osd["capabilities"]
+    assert isinstance(capabilities, dict)
+    capabilities["exit"] = {"available": True, "reason": ""}
+    requested = request_overlay_action(model, "exit")
+    assert requested.accepted is True
+    assert requested.intent is not None
+    assert requested.intent.to_dict()["operation"] == "exit"
 
 
 def test_suspended_session_changes_pause_label_and_operation_to_resume() -> None:

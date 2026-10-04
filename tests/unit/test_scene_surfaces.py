@@ -12,6 +12,7 @@ import pytest
 
 from steamzero.adapters.theme_catalog import ThemeCatalog
 from steamzero.domain.scene_surfaces import (
+    DIAG_SURFACE_BEZEL,
     DIAG_SURFACE_ERROR,
     DIAG_SURFACE_PROGRESS,
     DIAG_SURFACE_THUMBNAIL,
@@ -97,8 +98,86 @@ def test_all_semantic_slots_resolve_and_saves_keep_fallback_without_capture() ->
     assert [entry["title"] for entry in gallery.entries] == ["Auto", "Slot 2"]
     assert gallery.entries[1]["thumbnailFallback"] is True
     assert gallery.entries[0]["compatible"] is True
-    assert any(item.code == DIAG_SURFACE_THUMBNAIL for item in resolved.diagnostics)
     assert all("/" not in str(entry) for entry in gallery.entries)
+    assert any(item.code == DIAG_SURFACE_THUMBNAIL for item in resolved.diagnostics)
+
+
+def test_additive_bezel_slot_inherits_aura_and_filters_untrusted_assets() -> None:
+    default = ThemeCatalog().resolve(THEME_DEFAULT_ID).scene_surfaces
+    assert default is not None
+    assert default.slots["bezel"].component == "sessionBezel"
+    assert default.to_dict()["schemaVersion"] == 1
+
+    # A legacy v1 package with no bezel slot still parses and gets an honest
+    # empty surface when it is inspected without an inherited AURA theme.
+    legacy = resolve_scene_surfaces(_book(), _read_model())
+    assert legacy.slots["bezel"].kind == "emptyState"
+
+    raw = _book()
+    slots = dict(raw["slots"])
+    slots["bezel"] = {"component": "sessionBezel"}
+    components = dict(raw["components"])
+    components["sessionBezel"] = {
+        "kind": "bezel",
+        "source": "session.peripherals.bezels",
+    }
+    raw["slots"] = slots
+    raw["components"] = components
+    jsonschema.validate(raw, SCHEMA)
+    model = _read_model()
+    model["session"] = {
+        "peripherals": {
+            "bezels": [
+                {
+                    "id": "aura-default",
+                    "label": "AURA",
+                    "assetUrl": "asset://bezels/aura-bezel.svg",
+                    "available": True,
+                    "compatible": True,
+                    "selected": True,
+                },
+                {
+                    "id": "private",
+                    "label": "Private file",
+                    "assetUrl": "file:///home/operator/frame.svg",
+                    "available": True,
+                    "compatible": True,
+                    "selected": False,
+                },
+            ]
+        }
+    }
+    resolved = resolve_scene_surfaces(raw, model)
+    assert list(resolved.slots["bezel"].entries) == [
+        {
+            "id": "aura-default",
+            "label": "AURA",
+            "assetUrl": "asset://bezels/aura-bezel.svg",
+            "selected": True,
+        }
+    ]
+    assert any(item.code == DIAG_SURFACE_BEZEL for item in resolved.diagnostics)
+
+
+def test_bezel_surface_reports_unavailable_capability_without_faking_a_fallback() -> None:
+    raw = _book()
+    slots = dict(raw["slots"])
+    slots["bezel"] = {"component": "sessionBezel"}
+    components = dict(raw["components"])
+    components["sessionBezel"] = {
+        "kind": "bezel",
+        "source": "session.peripherals.bezels",
+    }
+    raw["slots"] = slots
+    raw["components"] = components
+
+    resolved = resolve_scene_surfaces(raw, _read_model())
+
+    assert resolved.slots["bezel"].entries == ()
+    assert any(
+        item.code == DIAG_SURFACE_BEZEL and item.slot == "bezel" and item.fallback == "omit"
+        for item in resolved.diagnostics
+    )
 
 
 def test_osd_cannot_hide_critical_error_or_fake_success() -> None:
@@ -337,4 +416,5 @@ def test_builtin_preview_consumes_surfaces_without_promoting_launcher() -> None:
     assert accessible.high_contrast is True
     fallback = ThemeCatalog().resolve("org.missing.surfaces")
     assert fallback.id == THEME_DEFAULT_ID
-    assert fallback.scene_surfaces is None
+    assert fallback.scene_surfaces is not None
+    assert fallback.scene_surfaces.slots["bezel"].component == "sessionBezel"

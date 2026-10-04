@@ -56,6 +56,7 @@ from steamzero.domain.themes import (
     ThemeMotionTokens,
     ThemeResolver,
     ThemeTypographyTokens,
+    merge_scene_surface_books,
 )
 
 _TOKEN_CATEGORIES = frozenset({"color", "geometry", "typography", "motion"})
@@ -345,7 +346,8 @@ def _declared(manifest: dict[str, object]) -> dict[str, object]:
     except (ValueError, TypeError, KeyError, AttributeError):
         return out
     stacks: dict[str, list[dict[str, Any]]] = {}
-    for item in chain:
+    surface_book = None
+    for layer_index, item in enumerate(chain):
         for name, entries in item.effects.items():
             stacks[name] = [{**effect_defaults(entry.type), **entry.to_dict()} for entry in entries]
         if item.asset_recipes is not None:
@@ -355,8 +357,14 @@ def _declared(manifest: dict[str, object]) -> dict[str, object]:
         if item.scene_layouts is not None:
             out["sceneLayouts"] = item.scene_layouts.to_dict()
         if item.scene_surfaces is not None:
-            out["sceneSurfaces"] = item.scene_surfaces.to_dict()
+            surface_book = merge_scene_surface_books(
+                surface_book,
+                item.scene_surfaces,
+                layer_index=layer_index,
+            )
     out["effects"] = stacks
+    if surface_book is not None:
+        out["sceneSurfaces"] = surface_book.to_dict()
     return out
 
 

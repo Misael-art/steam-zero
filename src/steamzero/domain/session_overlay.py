@@ -27,6 +27,7 @@ OSD_ACTIONS = (
     "fastForward",
     "rewind",
     "pause",
+    "exit",
     "control",
     "achievement",
     "network",
@@ -169,6 +170,9 @@ def _actions(
         if action_id == "pause":
             label = "Retomar" if state == "suspended" else "Pausar"
             operation = "resume" if state == "suspended" else "pause"
+        elif action_id == "exit":
+            label = "Sair do jogo"
+            operation = "exit"
         elif action_id == "saveState":
             label = "Galeria de saves"
         elif action_id == "loadState":

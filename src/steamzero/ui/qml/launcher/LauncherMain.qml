@@ -24,6 +24,8 @@ Window {
     property string failure: ""
     property var cinemaScene: null
     property int cinemaRequest: 0
+    property bool journeyOverlayVisible: true
+    property bool journeyLaunchActive: false
     // A ponte é local; três segundos distinguem indisponibilidade de uma
     // operação normal sem deixar a cena presa se o processo for suspenso.
     readonly property int requestTimeoutMs: 3000
@@ -93,8 +95,11 @@ Window {
             }
             try {
                 const scene = JSON.parse(text)
+                const layoutId = String(scene.layoutId || "covers")
+                const layout = scene.layouts
+                    ? (scene.layouts[layoutId] || scene.layouts.covers) : null
                 root.cinemaScene = scene.focusId === focusId
-                    && scene.layouts && scene.layouts.covers ? scene : null
+                    && layout && Array.isArray(layout.entries) ? scene : null
             } catch (error) {
                 root.cinemaScene = null
             }
@@ -130,7 +135,9 @@ Window {
     property bool sessionOverlayOpen: false
     property bool sessionOverlayPending: false
     property int sessionOverlayGeneration: 0
+    property int sessionActionSequence: 0
     property string sessionOverlayGameId: ""
+    property string sessionAppearanceStage: "osd"
     property var sessionOverlayModel: null
     property string sessionOverlayError: ""
 
@@ -150,14 +157,17 @@ Window {
         return qsTr("AURA-OSD-BRIDGE-ERROR-002\nA sessão não pôde ser consultada (%1).").arg(status)
     }
 
-    function refreshSessionOverlay() {
+    function refreshSessionOverlay(stageId) {
         if (!root.sessionOverlayOpen || root.sessionOverlayPending
                 || root.sessionOverlayGameId === "")
             return false
+        if (typeof stageId === "string" && stageId !== "")
+            root.sessionAppearanceStage = stageId
         const generation = ++root.sessionOverlayGeneration
         root.sessionOverlayPending = true
         root._request("GET", "/session?gameId="
-                      + encodeURIComponent(root.sessionOverlayGameId) + "&overlay=1",
+                      + encodeURIComponent(root.sessionOverlayGameId) + "&overlay=1&stage="
+                      + encodeURIComponent(root.sessionAppearanceStage),
                       null, function(status, text) {
             if (generation !== root.sessionOverlayGeneration)
                 return
@@ -192,7 +202,7 @@ Window {
         root.sessionOverlayOpen = true
         sessionOverlay.forceActiveFocus()
         if (requested !== "")
-            root.refreshSessionOverlay()
+            root.refreshSessionOverlay("osd")
         return requested !== ""
     }
 
@@ -208,7 +218,10 @@ Window {
         sessionOverlay.closeSaveGallery()
         sessionOverlay.closePeripheralSurface()
         const shell = root._activeLauncherShell()
-        if (shell)
+        if (root.model && root.model.journey && root.model.journey.active === true
+                && root.journeyOverlayVisible && journeyLoader.item)
+            journeyLoader.item.forceActiveFocus()
+        else if (shell)
             shell.restoreHomeFocus()
     }
 
@@ -225,7 +238,7 @@ Window {
         return root.openSessionOverlay(shell.sessionGameId)
     }
 
-    function dispatchSessionOverlayAction(actionId, slot, discId) {
+    function dispatchSessionOverlayAction(actionId, slot, discId, confirmed) {
         if (root.sessionOverlayPending || !root.sessionOverlayModel)
             return false
         const model = root.sessionOverlayModel
@@ -236,21 +249,78 @@ Window {
         const request = {
             "gameId": String(model.gameId),
             "sessionId": String(model.sessionId),
-            "actionId": String(actionId)
+            "actionId": String(actionId),
+            "requestId": "session-" + Date.now().toString(36) + "-"
+                + (++root.sessionActionSequence).toString(36)
         }
         if (slot !== undefined && Number(slot) >= 0)
             request.slot = Number(slot)
         if (discId !== undefined && String(discId) !== "")
             request.discId = String(discId)
+        if (actionId === "exit" && confirmed === true)
+            request.confirmed = true
         root._request("POST", "/session/action", request, function(status, text) {
             root.sessionOverlayPending = false
             if (status !== 200) {
                 root.sessionOverlayError = root._overlayErrorText(status, text)
                 return
             }
+            let response
+            try {
+                response = JSON.parse(text)
+            } catch (error) {
+                root.sessionOverlayError = qsTr("AURA-OSD-RESPONSE-007\nA sessão não devolveu uma confirmação legível.")
+                return
+            }
+            if (String(response.requestId || "") !== request.requestId) {
+                root.sessionOverlayError = qsTr("AURA-OSD-RESPONSE-008\nA confirmação pertence a outro pedido; confira o estado antes de tentar novamente.")
+                return
+            }
+            if (response.accepted !== true) {
+                root.sessionOverlayError = root._overlayErrorText(409, text)
+                return
+            }
+            if (String(response.gameId || "") !== String(model.gameId)
+                    || String(response.sessionId || "") !== String(model.sessionId)) {
+                root.sessionOverlayError = qsTr("AURA-OSD-SESSION-011\nA confirmação pertence a outra sessão; confira o estado antes de tentar novamente.")
+                return
+            }
+            if (actionId === "exit") {
+                if (response.operation !== "exit") {
+                    root.sessionOverlayError = qsTr("AURA-OSD-EXIT-RESPONSE-013\nO adapter não confirmou a identidade da operação de saída.")
+                } else if (response.state === "closed" && response.confirmed === true) {
+                    root.sessionOverlayError = ""
+                    root.pollSession()
+                } else if (response.state === "closing" && response.confirmed === false) {
+                    root.sessionOverlayError = qsTr("AURA-OSD-EXIT-PENDING-014\nPedido enviado; aguardando a confirmação real de closed.")
+                    root.refreshSessionOverlay("exitFade")
+                } else {
+                    root.sessionOverlayError = qsTr("AURA-OSD-EXIT-STATE-015\nO processo ainda não confirmou o encerramento. Atualize o estado antes de tentar novamente.")
+                }
+                return
+            }
+            if (actionId === "pause"
+                    && !((response.operation === "pause" && response.state === "suspended")
+                        || (response.operation === "resume" && response.state === "running"))) {
+                root.sessionOverlayError = qsTr("AURA-OSD-STATE-009\nA sessão não confirmou a pausa ou retomada pedida.")
+                return
+            }
+            const expectedOperation = actionId === "saveState" ? "saveState"
+                : actionId === "loadState" ? "loadState"
+                : actionId
+            const expectedState = actionId === "saveState" || actionId === "loadState"
+                ? String(model.state || "unknown")
+                : response.state
+            if ((actionId === "saveState" || actionId === "loadState")
+                    && (response.operation !== expectedOperation
+                        || response.state !== expectedState
+                        || Number(response.slot) !== Number(slot))) {
+                root.sessionOverlayError = qsTr("AURA-OSD-STATE-012\nO adapter não confirmou operação, slot e estado da sessão.")
+                return
+            }
             sessionOverlay.closeSaveGallery()
             sessionOverlay.closePeripheralSurface()
-            root.refreshSessionOverlay()
+            root.refreshSessionOverlay(response.state === "suspended" ? "pause" : "osd")
         })
         return true
     }
@@ -293,8 +363,48 @@ Window {
                 // the restored home after the emulator has closed.
                 if (observation.state === "closed" || observation.state === "failed")
                     root.closeSessionOverlay()
+                if (root.journeyLaunchActive
+                        && (observation.state === "closed" || observation.state === "failed"))
+                    root.restoreJourneyAfterLaunch()
             } catch (error) {}
         })
+    }
+
+    function restoreJourneyAfterLaunch() {
+        root.journeyLaunchActive = false
+        if (root.model && root.model.journey && root.model.journey.active === true) {
+            root.journeyOverlayVisible = true
+            if (journeyLoader.item) {
+                journeyLoader.item.refresh()
+                journeyLoader.item.forceActiveFocus()
+            }
+        }
+    }
+
+    function launchJourneyGame(gameId, focusId) {
+        const shell = root._activeLauncherShell()
+        if (!shell || !gameId || !focusId) {
+            if (journeyLoader.item) {
+                journeyLoader.item.message = qsTr("JOURNEY-LAUNCH-UNAVAILABLE-005\nO jogo não possui uma rota de retorno válida.")
+                journeyLoader.item.messageIsError = true
+            }
+            return false
+        }
+        shell.homeFocus = String(focusId)
+        if (!shell.openGame(String(gameId))) {
+            if (journeyLoader.item) {
+                journeyLoader.item.message = qsTr("JOURNEY-LAUNCH-LOCKED-006\nA sessão anterior ainda não foi confirmada como encerrada.")
+                journeyLoader.item.messageIsError = true
+            }
+            return false
+        }
+        root.journeyLaunchActive = true
+        root.journeyOverlayVisible = false
+        if (!shell.launchFocused()) {
+            root.restoreJourneyAfterLaunch()
+            return false
+        }
+        return true
     }
 
     Timer {
@@ -670,6 +780,8 @@ Window {
         // botão de retry e o painel de busca) para que nenhum roube o do outro.
         focus: root.model !== null && !root.searching
                && root.loadState !== "offline" && root.loadState !== "error"
+               && !(root.model.journey && root.model.journey.active === true
+                    && root.journeyOverlayVisible)
         sourceComponent: Component {
             LauncherShell {
                 id: launcherShell
@@ -707,6 +819,8 @@ Window {
                                       } else {
                                           launcherShell.failLaunch(
                                               root.launchErrorText(status, text))
+                                          if (root.journeyLaunchActive)
+                                              root.restoreJourneyAfterLaunch()
                                       }
                                   })
                 }
@@ -717,6 +831,31 @@ Window {
                 onActionRequested: function(actionId) {
                     if (actionId === "library.add" || actionId === "library.retry")
                         root._retry()
+                }
+            }
+        }
+    }
+
+    Loader {
+        id: journeyLoader
+        objectName: "launcherJourneyLoader"
+        anchors.fill: parent
+        active: root.model !== null && root.model.journey
+            && root.model.journey.active === true
+        visible: active && root.journeyOverlayVisible
+        focus: visible && !root.searching
+        sourceComponent: Component {
+            LauncherJourney {
+                id: journeySurface
+                objectName: "launcherJourney"
+                anchors.fill: parent
+                view: root.model ? root.model.journey : null
+                requestFunction: function(method, path, body, onDone) {
+                    root._request(method, path, body, onDone)
+                }
+                onViewChanged: cinemaRefresh.restart()
+                onLaunchRequested: function(gameId, focusId) {
+                    root.launchJourneyGame(gameId, focusId)
                 }
             }
         }
@@ -735,7 +874,7 @@ Window {
         requestPending: root.sessionOverlayPending
         bridgeError: root.sessionOverlayError
         onActionRequested: function(actionId) {
-            root.dispatchSessionOverlayAction(actionId)
+            root.dispatchSessionOverlayAction(actionId, undefined, undefined, actionId === "exit")
         }
         onSaveStateRequested: function(actionId, slot) {
             root.dispatchSessionOverlayAction(actionId, slot)
@@ -744,5 +883,8 @@ Window {
             root.dispatchSessionOverlayAction("disc", undefined, discId)
         }
         onCloseRequested: root.closeSessionOverlay()
+        onAppearanceStageRequested: function(stageId) {
+            root.refreshSessionOverlay(stageId)
+        }
     }
 }

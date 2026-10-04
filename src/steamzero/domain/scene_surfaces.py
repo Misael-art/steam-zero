@@ -21,6 +21,7 @@ DIAG_SURFACE_THUMBNAIL = "THEME-SURFACE-THUMBNAIL-002"
 DIAG_SURFACE_ERROR = "THEME-SURFACE-ERROR-003"
 DIAG_SURFACE_PROGRESS = "THEME-SURFACE-PROGRESS-004"
 DIAG_SURFACE_WIDGET = "THEME-SURFACE-WIDGET-005"
+DIAG_SURFACE_BEZEL = "THEME-SURFACE-BEZEL-006"
 MAX_COMPONENTS = 16
 MAX_ITEMS = 32
 SEMANTIC_SLOTS = (
@@ -32,6 +33,7 @@ SEMANTIC_SLOTS = (
     "saveStates",
     "quickMenu",
     "osd",
+    "bezel",
     "empty",
     "loading",
     "error",
@@ -44,6 +46,7 @@ COMPONENT_KINDS = frozenset(
         "gameDetail",
         "saveGallery",
         "osd",
+        "bezel",
         "emptyState",
         "loadingState",
         "errorBanner",
@@ -85,6 +88,8 @@ _CLOCK_SOURCE = re.compile(r"^clock\.iso$")
 _STATISTICS_SOURCE = re.compile(r"^stats\.[a-z][a-zA-Z0-9]{0,31}$")
 _CLOCK_FORMAT = re.compile(r"^HH:mm(?::ss)?$")
 _STATISTICS_FORMAT = re.compile(r"^[^{}]{0,16}\{value\}[^{}]{0,16}$")
+_BEZEL_ASSET = re.compile(r"^asset://bezels/[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}\.(?:svg|png|webp)$")
+_BEZEL_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$")
 DEFAULT_CLOCK_FORMAT = "HH:mm"
 DEFAULT_STATISTICS_FORMAT = "{value}"
 _DEFAULT_KIND = {
@@ -187,6 +192,8 @@ class SurfaceComponent:
             unknown = set(self.items) - OSD_ITEMS
             if unknown:
                 raise ValueError(f"item de OSD desconhecido: {sorted(unknown)}")
+        if self.kind == "bezel" and self.source != "session.peripherals.bezels":
+            raise ValueError("bezel exige a fonte pública session.peripherals.bezels")
         if self.progress_binding is not None and not _PROGRESS_BINDING.fullmatch(
             self.progress_binding
         ):
@@ -598,6 +605,72 @@ def _gallery_entries(
     return tuple(entries)
 
 
+def _bezel_entries(
+    component: SurfaceComponent,
+    read_model: Mapping[str, Any],
+    slot: str,
+    diagnostics: list[SurfaceDiagnostic],
+) -> tuple[Mapping[str, Any], ...]:
+    """Project only compatible logical asset URIs published by the session adapter."""
+    source = _read_path(read_model, component.source or "")
+    if not isinstance(source, list):
+        diagnostics.append(
+            SurfaceDiagnostic(
+                code=DIAG_SURFACE_BEZEL,
+                slot=slot,
+                reason="a capability de bezel não foi publicada pela sessão",
+                fallback="omit",
+            )
+        )
+        return ()
+    entries: list[dict[str, Any]] = []
+    for raw in source[:MAX_ITEMS]:
+        if not isinstance(raw, Mapping):
+            continue
+        identity = raw.get("id")
+        label = raw.get("label")
+        asset_url = raw.get("assetUrl")
+        if (
+            not isinstance(identity, str)
+            or not _BEZEL_ID.fullmatch(identity)
+            or not isinstance(label, str)
+            or not label.strip()
+            or raw.get("available") is not True
+            or raw.get("compatible") is not True
+        ):
+            continue
+        if not isinstance(asset_url, str) or not _BEZEL_ASSET.fullmatch(asset_url):
+            diagnostics.append(
+                SurfaceDiagnostic(
+                    code=DIAG_SURFACE_BEZEL,
+                    slot=slot,
+                    reason=f"o bezel '{identity}' não publicou um asset lógico seguro",
+                    fallback="omit",
+                )
+            )
+            continue
+        entries.append(
+            {
+                "id": identity,
+                "label": label.strip()[:128],
+                "assetUrl": asset_url,
+                "selected": raw.get("selected") is True,
+            }
+        )
+    if not entries and not any(
+        item.code == DIAG_SURFACE_BEZEL and item.slot == slot for item in diagnostics
+    ):
+        diagnostics.append(
+            SurfaceDiagnostic(
+                code=DIAG_SURFACE_BEZEL,
+                slot=slot,
+                reason="nenhum bezel compatível está disponível para esta sessão",
+                fallback="omit",
+            )
+        )
+    return tuple(entries)
+
+
 def _default_component(slot: str) -> SurfaceComponent:
     kind = _DEFAULT_KIND.get(slot, "emptyState")
     items = ("volume", "pause") if kind == "osd" else ()
@@ -642,6 +715,8 @@ def resolve_scene_surfaces(
             label = _counter_label(component, read_model, slot_name, diagnostics)
         elif component.kind == "saveGallery":
             entries = _gallery_entries(component, read_model, slot_name, diagnostics)
+        elif component.kind == "bezel":
+            entries = _bezel_entries(component, read_model, slot_name, diagnostics)
         elif component.kind == "osd":
             items = component.items
             progress = _progress_for(component, read_model)
