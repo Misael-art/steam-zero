@@ -254,7 +254,10 @@
                 "uniqueItems": true,
                 "items": { "enum": ["hero", "fanart", "cover", "screenshot", "banner", "platformArt", "geometric"] }
               },
-              "fit": { "enum": ["crop", "contain"] },
+              "fit": { "enum": ["crop", "cover", "contain", "fill"] },
+              "orientation": { "enum": ["none", "auto", "portrait", "landscape"] },
+              "alignH": { "enum": ["left", "center", "right"] },
+              "alignV": { "enum": ["top", "center", "bottom"] },
               "focalX": { "type": "number", "minimum": 0, "maximum": 1 },
               "focalY": { "type": "number", "minimum": 0, "maximum": 1 },
               "effectStack": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]{0,63}$" },
@@ -268,7 +271,10 @@
       "additionalProperties": false
     },
     "assetRecipes": {
-      "$ref": "asset-recipe-v1.schema.json",
+      "oneOf": [
+        { "$ref": "asset-recipe-v1.schema.json" },
+        { "$ref": "asset-recipe-v2.schema.json" }
+      ],
       "description": "Variantes derivadas em runtime de uma única fonte; nunca contém código ou assets pré-editados."
     },
     "sceneLayouts": {

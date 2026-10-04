@@ -57,9 +57,12 @@ def _load_manifest_schema() -> dict[str, Any]:
         loaded: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
     # ``jsonschema.validate`` não recebe o registry multi-arquivo usado pela API.
     # Injetar o schema empacotado preserva a mesma validação sem buscar a rede.
-    asset_ref = schemas.joinpath("asset-recipe-v1.schema.json")
-    with importlib.resources.as_file(asset_ref) as path:
-        loaded["properties"]["assetRecipes"] = json.loads(path.read_text(encoding="utf-8"))
+    asset_schemas = []
+    for name in ("asset-recipe-v1.schema.json", "asset-recipe-v2.schema.json"):
+        asset_ref = schemas.joinpath(name)
+        with importlib.resources.as_file(asset_ref) as path:
+            asset_schemas.append(json.loads(path.read_text(encoding="utf-8")))
+    loaded["properties"]["assetRecipes"] = {"oneOf": asset_schemas}
     layout_ref = schemas.joinpath("scene-layout-v1.schema.json")
     with importlib.resources.as_file(layout_ref) as path:
         loaded["properties"]["sceneLayouts"] = json.loads(path.read_text(encoding="utf-8"))

@@ -14519,3 +14519,125 @@ seletor nativo de diretório (a rota por Enter não promove a rota não testada)
 a autorização específica de instalação com token. O plano está em
 `125-preparacao-do-host-no-sha-consolidado.md` — pré-condição 1 satisfeita por medição, 2/3/4 ainda
 do operador. Nenhuma instalação foi executada ou presumida.
+
+
+## 2026-10-01 — Roadmap após diagnóstico físico B_VISUAL 133/134
+
+- `SZ-ROADMAP-CONTINUATION` / `WS-2026-10-VISUAL-DIAGNOSTIC-ROADMAP`: revisão documental na base 5715d7962691efedef0f1b63e71adff1ad5ba801, branch codex/visual-diagnostic-roadmap-2026-10-01, usando o mesmo checkout.
+- Roadmap, prompt raiz, handoff e milestones atualizados nos arquivos existentes. V1 corrige componentes/jornadas; V2 fecha importação até execução; V3 autoria básica completa; V4 efeitos/timeline e desempenho. AC-134-01 a AC-134-11 rastreados.
+- Evidências da rodada 134 ampliam a 133: importadores, prontidão e unidades com ressalvas; capturas do modal e catálogo inspecionadas. Limites de input, round-trip Studio e Launcher permanecem explícitos. Divergência do quadro sobre seletor registrada para reconciliação, sem atribuição de causa.
+- Nenhuma alteração de src/tools/tests, nenhum build, instalação, push ou merge nesta revisão. Estados das capacidades de produto não promovidos. Integral histórica não verde preservada; validação desta entrega é documental e de status.
+
+Validação desta revisão: 13 testes de status aprovados em 5.13s, guard de estado idêntico na janela; status-check e diff --check aprovados; links locais, 11/11 AC-134 e preservação append-only conferidos.
+
+
+## 2026-10-01 — V1–V3: autoria, enquadramento e preview sintético
+
+- `SZ-ROADMAP-CONTINUATION` / `WS-2026-10-V1-V3-THEME-JOURNEY`, branch codex/v1-v3-theme-journey-2026-10-01 sobre b9d01b60.
+- V1 `c36edbc3`; V3 `1e3a17ef` (undo/redo, receita de mídia, importar como cópia, resolver único Python/QML); V2 `ee9431e2` e seguinte (preview sintético isolado; aplicar nomeia consumidor).
+- Gates locais: suíte integral 6541 passed/47 skipped; as 2 falhas eram governança (matriz e 15 scopeDigest, renovados sem alterar critérios); ruff, mypy, independence, boundaries, capability-matrix e status-check ok.
+- Fora de escopo/pendente: UI real e física, fixtures ES-DE/RetroFE, AURA Cinema, Launcher, V4. Sem push, build, instalação ou merge.
+
+## 2026-10-01 — V4 recortes 1–2: efeitos, keyframes/timelines e baseline de desempenho
+
+- `SZ-ROADMAP-CONTINUATION` / `WS-2026-10-V1-V3-THEME-JOURNEY`, mesma branch, push do PR #249 autorizado pelo operador ("prossiga"); sem merge, release ou instalação.
+- Recorte 1 (efeitos): `edit_effect_stack` + ação `theme.editor.edit-effect` + inspetor QML; add/set/move/remove com undo/redo, round-trip e resolver. Recorte 2 (movimento): `edit_motion` + ação `theme.editor.edit-motion` + inspetor QML sobre `sceneMotion`. Prova: `tests/unit/test_theme_effect_authoring.py` (4 testes).
+- Desempenho (`tools/theme_perf_probe.py`, checkout, ensaio): p95 14,499 ms, VRAM 58 MB, startup 174 ms; não é release nem FPS apresentado (`docs/09-operations/evidence/2026-10-01-v4-perf`).
+- Gates: suíte integral 6548 passed/47 skipped; a única falha era governança (evidência sem item dono), corrigida. Também corrigido o harness da matriz de locale (LANGUAGE do host).
+- Pendente: input real dos inspetores, variantes de logo por asset único, bindings/states, perfil por tier/resolução, medição na release; efeitos avançados da spec.
+
+## 2026-10-01 — Continuidade do PR #249: inspetores sincronizados, runtime de cenas e bindings
+
+- Mesma branch/PR #249. Antes: integral anterior `1 failed, 6548 passed` (falha de governança, corrigida); CI do SHA `0a2d3133` com 9 jobs success e Sourcery skipped.
+- Corrigido: modelo desatualizado dos inspetores (`manifest`+`declared` em todo resultado); herança de `sceneMotion`/`sceneLayouts`/efeitos na primeira edição; inspetores dependiam do tema demo e ficavam num painel cortado/oculto no compacto; coluna esquerda sem largura; Enter+foco duplicavam edição; RetroFE importado sem normalização de coordenadas; fixtures PNG falsos.
+- Novo: mover efeito, keyframes por estado, bindings por allowlist (`edit_layout_binding`), chrome do editor com cores do painel. Provas por eventos Qt na bridge real: `tests/integration/test_theme_authoring_e2e.py`, `test_theme_scene_runtime_e2e.py`; domínio: `test_theme_effect_authoring.py`.
+- Desempenho (ensaio de checkout, 3 corridas): p95 ~14,4 ms, VRAM ≤ 74 MB; não é release nem FPS apresentado.
+- Gates no SHA `3e3c809e`: integral 6557 passed/47 skipped; ruff, format, mypy, independence, boundaries, status-check, matriz verdes.
+- Pendente: input físico/teclado/gamepad, Launcher/AURA Cinema (não consomem cenas importadas), logo por asset único, tier/resolução, medição na release, merge/release (sem autorização).
+
+## 2026-10-02 — PR #249: viewport compacto e gates do checkpoint
+
+- Continuação na branch existente `codex/v1-v3-theme-journey-2026-10-01`; correção funcional commitada em `57d18663f63f25fb655cce1b6dee40e56b592dc4`. O run visual `36952440268` havia falhado em `keyframe_scale` sem foco e `motionClipAdd` sem clique. A causa reproduzida no container Qt pinado foi overflow horizontal dos `Flow` dentro do `ScrollView`. Cartões e colunas agora respeitam a largura disponível; o harness recusa input quando o alvo inteiro não cabe na viewport e captura o inspetor compacto.
+- Regressão QML de autoria passou no container pinado e no host; jornada de efeitos/movimento/binding, undo/redo, salvar/reabrir e cena runtime exercitada por eventos Qt sobre a bridge real. Captura compacta em `docs/09-operations/evidence/2026-10-01-v4-authoring-ui/04-studio-compact-movimento.png`; hashes conferidos. 140 testes focados passaram antes da integral.
+- Gates na árvore com o mesmo conteúdo funcional de `57d18663`: `.venv/bin/python tools/run_tests_isolated.py tests -q` — **6557 passed, 47 skipped**, 2599,72 s; guard do state home igual antes/depois (`files=12818`, `directories=2068`, `bytes=1372818509`). `ruff check` aprovado; `ruff format --check` (689 arquivos) aprovado; `mypy src` (299 arquivos) sem erros; `make independence boundaries` aprovado.
+- Primeiro `make status-check` apontou seis digests obsoletos porque o QML compartilhado e a evidência nova pertencem a vários escopos. O delta ficou registrado nos itens Studio, Engine, importadores e UI audit; os digests/views foram renovados e o `make status-check` final retornou `STATUS-CHECK: OK`. A suíte não alterou o state home real.
+- PR #249 continua aberto. Push da branch existente autorizado nesta continuidade; este commit documental fecha o checkpoint e será enviado sem force-push. O CI do novo SHA só começa após o push. Nenhum merge, release, build de distribuição ou instalação foi executado. Ativo continua `2.0.0rc1-5715d7962691`, rollback `2.0.0rc1-e2af2562ebba`.
+- Pendências: B_VISUAL com teclado/gamepad/portal e consumidor Engine na release candidata; edição persistida de `assetRecipes` e configuração por tier/resolução; Launcher/AURA Cinema não consomem cenas importadas; medição de cena editada na release. O Studio, Engine e Launcher permanecem parciais e nenhum eixo foi promovido por este checkpoint.
+
+## 2026-10-02 — Tema editado executado na central; checkpoint final do PR #249
+
+- Branch `codex/v1-v3-theme-journey-2026-10-01`, continuada do SHA `909df05ab5ea52db19c65a3638e0d2e6f65627ff`. Commits funcionais: `b44fdfd` (schemas e controles tipados de efeitos/movimento, jornada QML) e `6ec114c` (alvo estável para localizar a mídia da EditorialLibrary no harness).
+- Pela UI QML com eventos Qt, a jornada cria/edita efeitos e movimento, reordena/remove efeitos e clips, rejeita valores inválidos sem alterar histórico/seleção, desfaz/refaz, salva, fecha/reabre e aplica explicitamente. O tema reaberto altera pixels em `EditorialLibrary` → `MediaEffectLayer` com fixture sintética isolada; Qt 6.11.2 offscreen/software. Não é sessão gráfica, input físico, Theme Engine/SceneEsdeView, Launcher, Cinema ou release instalada.
+- Focados: 10 testes de schemas/autoria, 68 do domínio relacionado, 1 jornada QML e 2 cenas ES-DE/RetroFE separadas. Integral congelada: `.venv/bin/python tools/run_tests_isolated.py tests -q` — **6560 passed, 47 skipped em 2302.24s**. Guard real idêntico antes/depois: `files=12818`, `directories=2068`, `bytes=1372818509`, `max_mtime_ns=1790888510663329431`. Ruff check, format (689 arquivos), mypy (299), independence, boundaries, status-check e diff-check aprovados.
+- Nove capturas e SHA-256 estão em `docs/09-operations/evidence/2026-10-01-v4-authoring-ui/`; roteiro B_VISUAL registra sucesso, erro/recuperação e a condição de pacote/release autorizada. Digests e views de status foram renovados; alterações compartilhadas de QML foram reconciliadas nos itens de importação, auditoria UI e firmware sem promover seus critérios.
+- Verificação somente leitura: `/opt/steamzero/current` aponta para `2.0.0rc1-5715d7962691`; `2.0.0rc1-e2af2562ebba` permanece no diretório de releases. A branch não foi instalada, empacotada nem integrada em `main`. PR #249 continua aberto; este registro é do fechamento local anterior ao push deste checkpoint, autorizado nesta conversa. Sem merge/release/instalação.
+- Ficam pendentes input físico e B_VISUAL na sessão/release autorizada; executar o tema editado pelo renderer Theme Engine/`SceneEsdeView`; autoria persistida de `assetRecipes` e perfis tier/resolução; consumidores de cenas no Launcher/Cinema; medição da cena editada na release. Studio, Engine e Launcher permanecem parciais.
+
+## 2026-10-02 — Jornada experience-journey-v1 e alvo acessível do Studio
+
+- Mesma branch `codex/v1-v3-theme-journey-2026-10-01`, sem push, merge, release ou instalação nesta etapa. O trabalho avançou até um checkpoint local revisável; a entrega de produto pedida ainda não está completa porque `Main.qml`, `desktop_contracts.py` e os caminhos do Launcher/Cinema estão reservados por workstreams ativos e precisam de integração serial.
+- Adicionado `experience-journey-v1` como sidecar versionado de domínio: schema estrito, menus reutilizáveis, filtros tipados sobre read models públicos, organização/contexto, pilha de navegação, detecção de ciclos/referências, cobertura de aparência por menu/estágio, persistência local via `core.fs`, export/import como cópia e limites publicados. Prova focada: `tests/unit/test_experience_journey.py` — 11 passed.
+- A autoria QML do Studio manteve os alvos efetivos em pelo menos 48x48 px no harness offscreen: 44 controles medidos nas escalas 1,0 e 1,5, incluindo viewport compacto. `tests/integration/test_theme_authoring_e2e.py` passou após o ajuste ASCII do log (`48x48`). As capturas e checksums de `docs/09-operations/evidence/2026-10-01-v4-authoring-ui/` foram atualizados e conferidos.
+- Correção de arquitetura durante os gates: a primeira integral falhou porque `JourneyStore.save()` escrevia diretamente no domínio; a persistência passou a usar `steamzero.core.fs.write_atomic`. A segunda integral falhou apenas por digests de status obsoletos; os itens e views foram regenerados.
+- Gate final local: `.venv/bin/python tools/run_tests_isolated.py tests -q` — **6571 passed, 47 skipped em 2325,64 s**; state home real idêntico antes/depois (`files=12818`, `directories=2068`, `bytes=1372818509`, `max_mtime_ns=1790888510663329431`). Também passaram `ruff check`, `ruff format --check`, `mypy src`, `make independence boundaries` e `make status-check`.
+- O sidecar ainda não é criado pela UI, não alimenta Preview/Theme Engine/Launcher/AURA Cinema e não foi validado por input físico ou release instalada. AURA herdado/capability operacional existe como contrato de domínio testado, não como experiência runtime. Nenhum eixo de produto foi promovido por este checkpoint.
+
+## 2026-10-03 — Gate terminal local da Jornada v2
+
+- A integral `.venv/bin/python tools/run_tests_isolated.py tests -q` terminou em 2763,12 s: **6588 passed, 47 skipped, 1 failed**. A única falha foi `tests/integration/test_qml_handheld_offscreen.py::test_central_loading_phases_are_observable_offscreen`: recebeu seis GETs `/status` quando a expectativa era cinco. A repetição isolada passou (`1 passed`, 5,58 s), então o caso não se reproduziu; a integral continua registrada como falha. O arquivo pertence ao workstream ativo de gestão de biblioteca e não foi editado.
+- O runner confirmou o guard do estado real idêntico antes e depois: `files=12818`, `directories=2068`, `bytes=1372818509`, `max_mtime_ns=1790888510663329431`. `ruff check`, `ruff format --check`, os gates focados e `project_status.py check` haviam passado; os digests e a visão de status foram atualizados para este fechamento.
+- Theme Studio mantém a rota para Jornadas, schema v2 e serviço transacional local; a escrita continua desativada sem a bridge de produção. A edição de efeitos/movimento segue provada na AURA UI central sintética, mas Theme Engine, Launcher/Cinema e sessão real não consomem a Jornada v2. B_VISUAL, input físico, instalação desta branch, release, push e merge não foram executados.
+- Próximo passo serial: `codex-continuation` em `WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT` publica as ações allowlisted `journey.studio.*` em `desktop_contracts.py`/`Main.qml`; depois reservar/integrar Engine, Launcher/Cinema e sessão sobre o mesmo documento salvo. A branch fica local, parcial e não promovida.
+
+## 2026-10-03 — Preview da Jornada e prontidão B_VISUAL
+
+- Na mesma árvore local, o painel agora escolhe o renderer por cobertura: reutiliza `ThemeStudioCanvas` para `sceneLayouts` e fornece as linhas públicas filtradas ao `ThemeScenePreview`/`SceneEsdeView` para XML. A sessão temporária de `theme.editor.load` é cancelada. O renderer native ainda usa o read model sintético do Theme Studio; a escrita da Jornada segue desabilitada sem `journey.studio.*` em produção.
+- Harnesses QML: painel de Jornada 10 casos e `ThemeScenePreview` 11 casos. Gate focado após a última alteração funcional: `rtk .venv/bin/python tools/run_tests_isolated.py tests/integration/test_experience_journey_e2e.py tests/integration/test_scene_esde_view.py tests/integration/test_theme_authoring_e2e.py -q --tb=short` — **8 passed em 16,53 s**; guard real idêntico (`files=12818`, `directories=2068`, `bytes=1372818509`, `max_mtime_ns=1790888510663329431`).
+- O ponteiro instalado foi lido como `/opt/steamzero/releases/2.0.0rc1-5715d7962691`; HEAD `09033bd5919f25317ff4449b8426f0223e21cecd` não está instalado, continua local e sem commit/push. A inspeção Computer Use read-only encontrou outra aplicação em primeiro plano e nenhuma janela SteamZero identificada. Input físico foi pausado; nenhum cenário RC-01 A–H ou B_VISUAL da Jornada foi declarado executado, e nenhuma captura do desktop foi guardada.
+- A evidência `docs/09-operations/evidence/2026-10-03-journey-engine-preview/README.md` registra hashes dos fontes/harnesses, distinção branch/main/release, matriz etapa→AURA/tema/capability, roteiro B_VISUAL e os gaps. Não localizei o log bruto da integral 6588/47/1 no acervo consultado; o resumo terminal anterior permanece registrado acima sem ser reconstruído como log bruto.
+- `project_status.py render --write` inicialmente apontou três `scopeDigest` obsoletos devido à ampliação do README; foram renovados por `project_status.py digest --write` nos itens Roadmap Continuation, Theme Engine e Theme Studio, sem promover critérios. O status-check e `git diff --check` finais serão registrados no checkpoint documental após esta apuração.
+- Entrega continua parcial. Handoff serial exato: `codex-continuation` publica a allowlist/rota em `desktop_contracts.py` e `Main.qml`; depois conciliar o resolver native e registrar Launcher/Cinema/sessão com os owners ativos. B_VISUAL só retoma quando a janela SteamZero instalada estiver identificada e a mesa sem atividade simultânea.
+
+## 2026-10-03 — Adendo de governança do preview
+
+- Correção ao bullet anterior: `project_status.py digest --item ... --write` apenas calcula e imprime o hash; os três valores impressos foram então aplicados aos campos `scopeDigest` correspondentes. `project_status.py render --write` seguido de `project_status.py check` retornou `STATUS-CHECK: OK`; `git diff --check` passou.
+- Os cinco SHA-256 registrados no README do preview foram recalculados e conferidos nesta árvore. Nenhum teste adicional foi executado após a alteração exclusivamente documental.
+
+## 2026-10-03 — Gate final local: Journey Studio e preview native do Theme Engine
+
+- Commit funcional local `461499d43322f6b8e3d68a2cddaa5bf98ef8e583`: bridge allowlisted `journey.studio.*`, autoria/round-trip de Jornada v2 e preview native com o tema filho salvo/reaberto; herança `sceneSurfaces` e limite `maxItems` exercitados. O diff permaneceu no checkout autorizado, sem editar `Main.qml` ou QML do Launcher.
+- A primeira integral posterior à bridge passou 6593 testes, ignorou 47 e falhou apenas em `test_committed_matrix_matches_the_code`: a matriz gerada tinha 137 ações e o código publicava 151. `make update-capability-matrix` regenerou o documento para incluir as 14 ações da bridge; o teste focal passou 7/7. Ambas as saídas brutas ficaram na evidência `2026-10-03-journey-engine-preview/`.
+- Integral final `.venv/bin/python tools/run_tests_isolated.py tests -q`: **6594 passed, 47 skipped, 0 failed em 2420,39 s (40:20)**, exit 0. Log: `full-tests-2026-10-03.log`. Guard do state home real idêntico na janela final: `files=12818`, `directories=2068`, `bytes=1372834633`, `max_mtime_ns=1791031942518989555`. Na tentativa anterior, o guard identificou escrita externa do daemon já ativo da release em `logs/core.jsonl` e `state.db`; não atribuiu a mudança à suíte. Nenhum processo de produção foi parado.
+- Gates finais: Ruff check, Ruff format check (695 arquivos), mypy (301 fontes), independence, boundaries, capability matrix, status-check e `git diff --check` passaram.
+- Limites: a prova é do checkout/loopback/offscreen. Launcher/Cinema e capabilities de sessão continuam dependentes dos owners seriais; editor `assetRecipes`/tier permanece aberto. B_VISUAL, input físico, instalação, push e merge não foram executados. A release observada continua sendo a base anterior e a janela SteamZero não foi identificada na inspeção read-only.
+
+## 2026-10-04 — Perfis de receita por tier e resolução
+
+- O Theme Studio passou a editar `assetRecipes` v2 com leitura compatível de v1: fallback, receita por tier, breakpoints de largura/altura e prioridade. O resolver escolhe breakpoint correspondente de maior prioridade, depois tier e fallback; preview recebe tier e resolução. A edição continua allowlisted, validada antes da gravação e serializada na fila QML.
+- O harness pela bridge HTTP real de teste editou `balanced -> studioRecolor`, criou breakpoint `wide` e executou preview em 1280×720. Seleção em 1920×720 passou em domínio/bridge. O harness QML faz uma requisição de preview nesta jornada; o segundo XHR não retornou no cenário observado, então não há claim de seleção de breakpoint executada visualmente no QML. Nenhuma evidência física foi produzida.
+- Focados: 133 passaram (receitas, editor, contratos, bridge e autoria QML); `tests/integration/test_qml_handheld_offscreen.py`: 58 passaram. Ruff, formato (695 arquivos), mypy (301 fontes), boundaries, independence, component lock, matriz de capacidades e `git diff --check` passaram.
+- Integral isolada: 6614 passed, 47 skipped, 1 failed em 2595,78 s. A única falha foi `test_committed_catalog_and_generated_views_are_consistent`: o log integral recém-criado envelheceu três digests que incluem o acervo e a view `COVERAGE.md`. O runner manteve o estado real isolado, XDG temporário ausente antes e depois. Log, rc e a tentativa interrompida em 25% estão em `docs/09-operations/evidence/2026-10-03-journey-engine-preview/`.
+- Após o registro final do log, os digests Roadmap/Engine/Studio foram recalculados com `project_status.py digest --item`, as views regeneradas e a validação final passou: `project_status.py check` → `STATUS-CHECK: OK`; `tests/unit/test_project_status.py` → 13 passed; novamente Ruff, formato, mypy, fronteiras, independência, lock, matriz e diff-check passaram.
+- Este é um checkpoint do checkout, sem instalação. Launcher/Cinema e capabilities reais de sessão continuam para handoff serial; pixel/tempo do pacote na Engine instalada e B_VISUAL continuam pendentes. O checkpoint funcional, desktop compartilhado e documental será commitado e enviado ao PR #249 conforme autorização anterior; merge não faz parte desta etapa.
+
+## 2026-10-04 — Revalidação QML do breakpoint assetRecipes
+
+- A jornada de autoria passou a executar um segundo preview pelos controles reais do Studio: `balanced` em 1280×720 e breakpoint `wide` em 1920×720. O callback de bridge atualiza `AssetRecipePreview` para `outlineThin`; o renderer reporta fonte pronta, contorno ativo, largura 6 e nenhum fallback. `tests/integration/test_theme_authoring_e2e.py` passou com **1 teste em 18,91 s**, XDG temporário ausente antes/depois.
+- A investigação retifica a hipótese anterior de XHR travado: o segundo pedido retornou HTTP 200 e o callback QML aplicou `breakpoint:wide`. A falha intermediária vinha da nova asserção lendo o `id` interno do componente pela propriedade do painel; a versão final consulta o modelo e estado públicos do renderer.
+- Capturas `05-studio-perfil-tier.png` e `06-studio-perfil-breakpoint-wide.png` foram geradas em Qt/offscreen no harness 1100×900. As dimensões 1280×720 e 1920×720 são alvos simulados, não resoluções físicas capturadas. Sem release instalada, pixels de sessão ou B_VISUAL.
+- Commit de teste local `86dc1a9` cobre tier, breakpoint e entrega ao renderer. Seguem pendentes o commit documental/push deste ajuste, CI terminal do novo HEAD e os handoffs seriais de Launcher/Cinema e capabilities de sessão.
+
+## 2026-10-04 — Correção do gate visual QML
+
+- A imagem Qt 6.11.2 do gate visual executou `tests/integration/test_experience_journey_e2e.py` e `tests/integration/test_theme_authoring_e2e.py`: **2 passed em 16,81 s**. Corrigi a largura do conteúdo rolável da Jornada, limitei o diálogo de remoção à viewport e tornei o painel de preview ao vivo do Theme Studio rolável, com controles de receita limitados e agrupados para caber no espaço disponível.
+- A interação de filtro e confirmação da Jornada agora é validada por eventos press/release e os dois testes confirmam alvos visíveis e acionáveis. O teste de autoria percorre tier e breakpoint e confirma a entrega ao `AssetRecipePreview`.
+- O guard temporário de `XDG_STATE_HOME` continuou ausente antes/depois. As capturas são offscreen do checkout; a aplicação instalada, a sessão real, B_VISUAL e a medição de desempenho continuam sem prova. A atualização documental, o push e o CI terminal do novo HEAD ainda estão pendentes.
+
+## 2026-10-04 — Limite do modo de captura
+
+- O gate comportamental final sem captura explícita passou 2/2 em 16,81 s na imagem Qt 6.11.2. Uma execução auxiliar com `SZ_CAPTURE_DIR` na mesma imagem passou no teste de autoria, mas os PNGs renderizaram texto como glifos ausentes; esses arquivos não são usados como evidência.
+- A repetição auxiliar com captura pelo runner do host regenerou os quadros legíveis do teste principal, mas terminou com 2 falhas nos métodos de viewport compacto e binding: o `XMLHttpRequest` síncrono de `readConfig()` recebeu conteúdo que não pôde ser analisado como JSON. Isso não ocorreu no gate normal do container; não altera o resultado 2/2 e permanece uma limitação do modo de captura host.
+
+## 2026-10-04 — Revalidação do catálogo de status
+
+- Depois de corrigir as referências de teste, atualizar seis `scopeDigest` e regenerar as views, `make status-check` passou. `tests/unit/test_project_status.py` passou com **13 testes em 5,16 s**; o estado persistente padrão da conta ficou idêntico antes/depois. O XDG temporário do gate visual também permaneceu ausente.

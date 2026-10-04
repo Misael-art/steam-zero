@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from steamzero.adapters.theme_catalog import ThemeCatalog
+from steamzero.adapters.theme_catalog import ThemeCatalog, _manifest_validator
 from steamzero.domain.asset_recipes import (
     DEFAULT_ASSET_CAPABILITIES,
     AssetRecipeBook,
@@ -78,6 +78,125 @@ def test_outline_uses_alpha_and_thin_and_thick_are_distinct() -> None:
     assert thin.parameters["mask"] == "alpha"
     assert thick.parameters["mask"] == "alpha"
     assert float(thin.parameters["width"]) < float(thick.parameters["width"])
+
+
+def test_v1_books_keep_legacy_selection_and_v2_profiles_round_trip() -> None:
+    legacy = _book()
+    assert legacy.schema_version == 1
+    assert legacy.profiles is None
+    assert legacy.select_profile(PerformanceTier.BALANCED).to_dict() == {
+        "recipe": "original",
+        "source": "legacy-default",
+        "tier": "balanced",
+    }
+
+    payload = _raw_book()
+    payload["schemaVersion"] = 2
+    payload["profiles"] = {
+        "fallback": "original",
+        "tiers": {"balanced": "colored"},
+        "breakpoints": [
+            {"id": "hd", "recipe": "grayscale", "priority": 10, "minWidth": 1280},
+            {"id": "uhd", "recipe": "outlineThin", "priority": 20, "minWidth": 1600},
+        ],
+    }
+    book = AssetRecipeBook.from_dict(payload)
+    normalized = book.to_dict()
+    assert normalized["schemaVersion"] == 2
+    assert normalized["profiles"] == payload["profiles"]
+    assert AssetRecipeBook.from_dict(normalized).to_dict() == normalized
+
+    assert book.select_profile(PerformanceTier.BALANCED, (1024, 768)).to_dict() == {
+        "recipe": "colored",
+        "source": "tier:balanced",
+        "tier": "balanced",
+    }
+    assert book.select_profile(PerformanceTier.BALANCED, (1366, 768)).to_dict() == {
+        "recipe": "grayscale",
+        "source": "breakpoint:hd",
+        "tier": "balanced",
+        "width": 1366,
+        "height": 768,
+    }
+    assert book.select_profile(PerformanceTier.BALANCED, (1920, 1080)).recipe == "outlineThin"
+    assert book.select_profile(PerformanceTier.ACCESSIBLE, (640, 480)).recipe == "original"
+
+
+@pytest.mark.parametrize(
+    "change, message",
+    [
+        ({"schemaVersion": 2.0}, "schemaVersion"),
+        ({"schemaVersion": True}, "schemaVersion"),
+        ({"profiles": {"fallback": "missing"}}, "fallback"),
+        (
+            {
+                "profiles": {
+                    "fallback": "original",
+                    "breakpoints": [
+                        {"id": "first", "recipe": "original", "priority": 1, "minWidth": 1},
+                        {"id": "second", "recipe": "colored", "priority": 1, "minWidth": 2},
+                    ],
+                }
+            },
+            "priority.*duplicada",
+        ),
+        (
+            {
+                "profiles": {
+                    "fallback": "original",
+                    "breakpoints": [{"id": "wide", "recipe": "original", "priority": 2}],
+                }
+            },
+            "ao menos um limite",
+        ),
+        (
+            {
+                "profiles": {
+                    "fallback": "original",
+                    "breakpoints": [
+                        {
+                            "id": "wide",
+                            "recipe": "original",
+                            "priority": 2,
+                            "minWidth": 1920,
+                            "maxWidth": 1280,
+                        }
+                    ],
+                }
+            },
+            "excede",
+        ),
+        (
+            {
+                "profiles": {
+                    "fallback": "original",
+                    "breakpoints": [
+                        {"id": "wide", "recipe": "original", "priority": 2, "minWidth": True}
+                    ],
+                }
+            },
+            "inteiro",
+        ),
+    ],
+)
+def test_profile_contract_rejects_ambiguous_or_invalid_values(
+    change: dict[str, object], message: str
+) -> None:
+    payload = _raw_book()
+    payload["schemaVersion"] = 2
+    payload["profiles"] = {"fallback": "original"}
+    payload.update(change)
+    with pytest.raises(ValueError, match=message):
+        AssetRecipeBook.from_dict(payload)
+
+
+def test_manifest_json_schema_accepts_asset_recipe_v2_profiles() -> None:
+    manifest = json.loads((PACKAGE / "theme.json").read_text(encoding="utf-8"))
+    payload = _raw_book()
+    payload["schemaVersion"] = 2
+    payload["profiles"] = {"fallback": "original", "tiers": {"balanced": "colored"}}
+    manifest["assetRecipes"] = payload
+    _manifest_validator().validate(manifest)
 
 
 def test_recipe_nodes_are_allowlisted_and_reject_code() -> None:

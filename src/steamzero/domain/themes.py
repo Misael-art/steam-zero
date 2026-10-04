@@ -7,6 +7,7 @@ from typing import Any
 from steamzero.domain.asset_recipes import (
     AssetRecipeBook,
     AssetRecipeDiagnostic,
+    AssetRecipeSelection,
     ResolvedAssetRecipe,
     resolve_asset_recipes,
 )
@@ -443,6 +444,7 @@ class ResolvedTheme:
     effects: dict[str, tuple[ResolvedEffect, ...]] = field(default_factory=dict)
     media_recipes: dict[str, MediaRecipe] = field(default_factory=dict)
     asset_recipes: dict[str, ResolvedAssetRecipe] = field(default_factory=dict)
+    asset_recipe_selection: AssetRecipeSelection | None = None
     scene_layouts: LayoutRecipeBook | None = None
     dynamic_palette: PaletteRecipe | None = None
     glass: GlassBook | None = None
@@ -514,6 +516,7 @@ class ResolvedTheme:
             },
             media_recipes=self.media_recipes,
             asset_recipes=self.asset_recipes,
+            asset_recipe_selection=self.asset_recipe_selection,
             scene_layouts=self.scene_layouts,
             dynamic_palette=self.dynamic_palette,
             glass=self.glass,
@@ -553,6 +556,9 @@ class ResolvedTheme:
             },
             "mediaRecipes": {role: recipe.to_dict() for role, recipe in self.media_recipes.items()},
             "assetRecipes": {name: recipe.to_dict() for name, recipe in self.asset_recipes.items()},
+            "assetRecipeSelection": (
+                self.asset_recipe_selection.to_dict() if self.asset_recipe_selection else None
+            ),
             "sceneLayouts": self.scene_layouts.to_dict() if self.scene_layouts else None,
             "dynamicPalette": self.dynamic_palette.to_dict() if self.dynamic_palette else None,
             "glass": self.glass.to_dict() if self.glass else None,
@@ -579,6 +585,9 @@ class ResolvedTheme:
             },
             "mediaRecipes": {role: recipe.to_dict() for role, recipe in self.media_recipes.items()},
             "assetRecipes": {name: recipe.to_dict() for name, recipe in self.asset_recipes.items()},
+            "assetRecipeSelection": (
+                self.asset_recipe_selection.to_dict() if self.asset_recipe_selection else None
+            ),
             "sceneLayouts": self.scene_layouts.to_dict() if self.scene_layouts else None,
             "dynamicPalette": self.dynamic_palette.to_dict() if self.dynamic_palette else None,
             "glass": self.glass.to_dict() if self.glass else None,
@@ -603,6 +612,7 @@ class ThemeResolver:
         effect_capabilities: frozenset[str] | None = None,
         asset_capabilities: frozenset[str] | None = None,
         performance_tier: PerformanceTier | None = None,
+        viewport_size: tuple[int, int] | None = None,
         high_contrast: bool = False,
         reduced_motion: bool = False,
     ) -> ResolvedTheme:
@@ -615,6 +625,7 @@ class ThemeResolver:
             effect_capabilities=effect_capabilities,
             asset_capabilities=asset_capabilities,
             performance_tier=performance_tier,
+            viewport_size=viewport_size,
             high_contrast=high_contrast,
             reduced_motion=reduced_motion,
         )
@@ -645,6 +656,7 @@ class ThemeResolver:
         effect_capabilities: frozenset[str] | None,
         asset_capabilities: frozenset[str] | None,
         performance_tier: PerformanceTier | None,
+        viewport_size: tuple[int, int] | None,
         high_contrast: bool,
         reduced_motion: bool,
     ) -> ResolvedTheme:
@@ -745,14 +757,17 @@ class ThemeResolver:
             effect_kwargs["capabilities"] = effect_capabilities
         resolved_effects, effect_diagnostics = resolve_effect_stacks(effects, **effect_kwargs)
         resolved_asset_recipes: dict[str, ResolvedAssetRecipe] = {}
+        asset_recipe_selection: AssetRecipeSelection | None = None
         asset_recipe_diagnostics: tuple[AssetRecipeDiagnostic, ...] = ()
         if asset_recipe_book is not None:
             if asset_recipe_book.source_slot not in assets:
                 raise ValueError(
                     f"assetRecipes referencia slot ausente: {asset_recipe_book.source_slot}"
                 )
+            resolved_tier = performance_tier or performance.defaultTier
+            asset_recipe_selection = asset_recipe_book.select_profile(resolved_tier, viewport_size)
             asset_kwargs: dict[str, Any] = {
-                "tier": performance_tier or performance.defaultTier,
+                "tier": resolved_tier,
                 "reduced_motion": reduced_motion,
             }
             if asset_capabilities is not None:
@@ -780,6 +795,7 @@ class ThemeResolver:
             effects=resolved_effects,
             media_recipes=media_recipes,
             asset_recipes=resolved_asset_recipes,
+            asset_recipe_selection=asset_recipe_selection,
             scene_layouts=scene_layout_book,
             dynamic_palette=dynamic_palette,
             glass=glass_book,

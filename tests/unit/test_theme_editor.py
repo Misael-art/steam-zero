@@ -198,6 +198,45 @@ class TestEditorSetLayout:
         preview = mgr.preview(sid)["preview"]
         assert preview["sceneLayoutPreview"]["layouts"]["main"]["columns"] == 2
 
+    def test_preview_consumes_the_callers_public_scene_layout_read_model(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+        manifest = dict(_VALID_MANIFEST)
+        manifest["sceneLayouts"] = {
+            "schemaVersion": 1,
+            "layouts": {
+                "previewTitles": {
+                    "source": "preview.items",
+                    "kind": "grid",
+                    "item": {"width": 120, "height": 64},
+                    "template": {
+                        "kind": "text",
+                        "id": "title",
+                        "properties": {"text": {"binding": "item.title", "fallback": "Sem título"}},
+                    },
+                    "gap": 8,
+                    "maxItems": 16,
+                    "columns": 2,
+                }
+            },
+        }
+        _write_theme(tmp_path / "steamzero" / "themes", manifest)
+        manager = ThemeEditorManager()
+        session_id = manager.load("org.test.editme")["sessionId"]
+
+        result = manager.preview(
+            session_id,
+            high_contrast=True,
+            reduced_motion=True,
+            scene_layout_read_model={"preview": {"items": [{"title": "Jogo filtrado da Jornada"}]}},
+        )
+        entries = result["preview"]["sceneLayoutPreview"]["layouts"]["previewTitles"]["entries"]
+        assert [entry["text"] for entry in entries] == ["Jogo filtrado da Jornada"]
+        assert "Axiom Verge" not in [entry["text"] for entry in entries]
+        assert result["preview"]["highContrast"] is True
+        assert result["preview"]["reducedMotion"] is True
+
     def test_layout_edit_requires_allowlisted_field(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -206,6 +245,216 @@ class TestEditorSetLayout:
         sid = mgr.create("Test")["sessionId"]
         with pytest.raises(SteamZeroError, match=r"E-API-SCHEMA"):
             mgr.set_layout(sid, "main", "qml", "evil")
+
+
+class TestEditorAssetRecipes:
+    def test_inherited_asset_recipe_edits_preview_history_and_round_trips(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+        manager = ThemeEditorManager()
+        created = manager.create("Receitas", extends="org.steamzero.asset-recipes-demo")
+        session_id = str(created["sessionId"])
+
+        schema = created["assetRecipeSchema"]
+        assert isinstance(schema, dict)
+        assert "outline" in schema["nodeTypes"]
+        assert schema["nodes"]["outline"]["fields"]["width"]["maximum"] == 32.0
+        assert created["preview"]["assetUris"]["logo"].endswith("assets/source.svg")
+
+        changed = manager.edit_asset_recipe(
+            session_id,
+            "set",
+            recipe="outlineThin",
+            index=0,
+            field_name="width",
+            value=6,
+        )
+        assert (
+            changed["declared"]["assetRecipes"]["recipes"]["outlineThin"]["nodes"][0]["width"]
+            == 6.0
+        )
+        assert (
+            changed["preview"]["assetRecipes"]["outlineThin"]["nodes"][0]["parameters"]["width"]
+            == 6.0
+        )
+        assert changed["history"]["dirty"] is True
+
+        history_before_invalid = manager.history(session_id)["history"]
+        with pytest.raises(SteamZeroError, match=r"E-API-SCHEMA"):
+            manager.edit_asset_recipe(
+                session_id,
+                "set",
+                recipe="outlineThin",
+                index=0,
+                field_name="width",
+                value=40,
+            )
+        assert manager.history(session_id)["history"] == history_before_invalid
+        assert (
+            manager.preview(session_id)["preview"]["assetRecipes"]["outlineThin"]["nodes"][0][
+                "parameters"
+            ]["width"]
+            == 6.0
+        )
+
+        undone = manager.undo(session_id)
+        assert (
+            undone["declared"]["assetRecipes"]["recipes"]["outlineThin"]["nodes"][0]["width"] == 2.0
+        )
+        redone = manager.redo(session_id)
+        assert (
+            redone["declared"]["assetRecipes"]["recipes"]["outlineThin"]["nodes"][0]["width"] == 6.0
+        )
+
+        manager.edit_asset_recipe(session_id, "create-recipe", name="silhouetteWhite")
+        manager.edit_asset_recipe(
+            session_id, "add", recipe="silhouetteWhite", node_type="silhouette"
+        )
+        manager.edit_asset_recipe(
+            session_id,
+            "set",
+            recipe="silhouetteWhite",
+            index=0,
+            field_name="color",
+            value="#ffffff",
+        )
+        saved = manager.save(session_id)
+        reopened = ThemeEditorManager().load(saved["themeId"])
+        manifest = reopened["manifest"]
+        assert isinstance(manifest, dict)
+        assert manifest["assetRecipes"]["recipes"]["silhouetteWhite"]["nodes"][0]["color"] == (
+            "#ffffff"
+        )
+        assert (
+            reopened["preview"]["assetRecipes"]["silhouetteWhite"]["nodes"][0]["parameters"][
+                "color"
+            ]
+            == "#ffffff"
+        )
+
+    def test_asset_recipe_initialize_requires_an_existing_source_slot(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+        manager = ThemeEditorManager()
+        session_id = str(manager.create("Sem arte")["sessionId"])
+        before = manager._sessions[session_id].manifest.copy()
+        with pytest.raises(SteamZeroError, match=r"E-API-SCHEMA"):
+            manager.edit_asset_recipe(session_id, "initialize", source_slot="missing")
+        assert manager._sessions[session_id].manifest == before
+        assert manager.history(session_id)["history"]["undoDepth"] == 0
+
+    def test_asset_recipe_profiles_resolve_by_tier_then_breakpoint_and_round_trip(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+        manager = ThemeEditorManager()
+        created = manager.create("Perfis", extends="org.steamzero.asset-recipes-demo")
+        session_id = str(created["sessionId"])
+
+        manager.edit_asset_recipe(session_id, "create-recipe", name="balancedMark")
+        manager.edit_asset_recipe(
+            session_id,
+            "set-profile",
+            profile_type="tier",
+            tier="balanced",
+            recipe="balancedMark",
+        )
+        manager.edit_asset_recipe(
+            session_id,
+            "set-breakpoint",
+            breakpoint_id="wide",
+            recipe="outlineThin",
+            priority=20,
+            min_width=1600,
+        )
+
+        tier_preview = manager.preview(
+            session_id,
+            performance_tier="balanced",
+            viewport_width=1280,
+            viewport_height=720,
+        )["preview"]
+        assert tier_preview["assetRecipeSelection"] == {
+            "recipe": "balancedMark",
+            "source": "tier:balanced",
+            "tier": "balanced",
+        }
+        breakpoint_preview = manager.preview(
+            session_id,
+            performance_tier="balanced",
+            viewport_width=1920,
+            viewport_height=1080,
+        )["preview"]
+        assert breakpoint_preview["assetRecipeSelection"] == {
+            "recipe": "outlineThin",
+            "source": "breakpoint:wide",
+            "tier": "balanced",
+            "width": 1920,
+            "height": 1080,
+        }
+
+        history_before_invalid = manager.history(session_id)["history"]
+        declared_before_invalid = manager._sessions[session_id].manifest["assetRecipes"]
+        with pytest.raises(SteamZeroError, match=r"E-API-SCHEMA"):
+            manager.edit_asset_recipe(
+                session_id,
+                "set-breakpoint",
+                breakpoint_id="portrait",
+                recipe="black",
+                priority=20,
+                max_height=900,
+            )
+        assert manager.history(session_id)["history"] == history_before_invalid
+        assert manager._sessions[session_id].manifest["assetRecipes"] == declared_before_invalid
+
+        manager.undo(session_id)
+        undone = manager.preview(
+            session_id,
+            performance_tier="balanced",
+            viewport_width=1920,
+            viewport_height=1080,
+        )["preview"]
+        assert undone["assetRecipeSelection"]["source"] == "tier:balanced"
+        manager.redo(session_id)
+        saved = manager.save(session_id)
+        reopened = ThemeEditorManager().load(saved["themeId"])
+        assert reopened["manifest"]["assetRecipes"]["schemaVersion"] == 2
+        assert reopened["manifest"]["assetRecipes"]["profiles"] == {
+            "fallback": "original",
+            "tiers": {"balanced": "balancedMark"},
+            "breakpoints": [
+                {"id": "wide", "recipe": "outlineThin", "priority": 20, "minWidth": 1600}
+            ],
+        }
+        assert reopened["preview"]["assetRecipeSelection"]["recipe"] == "original"
+
+    @pytest.mark.parametrize(
+        "kwargs, message",
+        [
+            ({"performance_tier": "turbo"}, "tier de preview inválido"),
+            ({"viewport_width": 1280}, "largura e altura"),
+            ({"viewport_width": True, "viewport_height": 720}, "resolução do preview"),
+            ({"viewport_width": 8193, "viewport_height": 720}, "resolução do preview"),
+        ],
+    )
+    def test_profile_preview_rejects_invalid_context(
+        self,
+        kwargs: dict[str, object],
+        message: str,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+        manager = ThemeEditorManager()
+        session_id = str(
+            manager.create("Perfil inválido", extends="org.steamzero.asset-recipes-demo")[
+                "sessionId"
+            ]
+        )
+        with pytest.raises(SteamZeroError, match=message):
+            manager.preview(session_id, **kwargs)
 
 
 class TestEditorSave:
@@ -225,7 +474,7 @@ class TestEditorSave:
         mgr = ThemeEditorManager()
         sid = mgr.create("Dup")["sessionId"]
         mgr.save(sid)
-        with pytest.raises(SteamZeroError, match=r"E-THEME-DOWNLOAD-FAILED"):
+        with pytest.raises(SteamZeroError, match=r"E-THEME-ID-EXISTS"):
             mgr.save(sid)
 
     def test_save_overwrite(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
