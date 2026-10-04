@@ -21,10 +21,12 @@ from typing import Any
 
 from steamzero.domain.theme_effects import EffectCost, PerformanceTier
 
-ASSET_RECIPE_SCHEMA_VERSION = 1
+ASSET_RECIPE_SCHEMA_VERSION = 2
 MAX_ASSET_RECIPES = 32
 MAX_ASSET_NODES = 12
+MAX_ASSET_RECIPE_BREAKPOINTS = 32
 MAX_OUTLINE_WIDTH = 32.0
+MAX_PROFILE_DIMENSION = 8192
 DEFAULT_CACHE_MAX_BYTES = 512 * 1024 * 1024
 _RECIPE_NAME = re.compile(r"^[a-z][a-zA-Z0-9]{0,63}$")
 
@@ -164,6 +166,25 @@ _TIER_BUDGETS = {
 }
 
 
+def _validate_profile_target(tier: PerformanceTier, viewport: tuple[int, int] | None) -> None:
+    if not isinstance(tier, PerformanceTier):
+        raise ValueError("tier do perfil inválido")
+    if viewport is None:
+        return
+    if not isinstance(viewport, tuple) or len(viewport) != 2:
+        raise ValueError("resolução do perfil precisa ser um par largura/altura")
+    width, height = viewport
+    if not (
+        isinstance(width, int)
+        and not isinstance(width, bool)
+        and isinstance(height, int)
+        and not isinstance(height, bool)
+        and 1 <= width <= MAX_PROFILE_DIMENSION
+        and 1 <= height <= MAX_PROFILE_DIMENSION
+    ):
+        raise ValueError("resolução do perfil fora dos limites suportados")
+
+
 def asset_recipe_editor_schema() -> dict[str, Any]:
     """Public, typed controls for the Studio's allowlisted recipe inspector.
 
@@ -203,6 +224,8 @@ def asset_recipe_editor_schema() -> dict[str, Any]:
         "nodeTypes": [node_type.value for node_type in AssetRecipeNodeType],
         "maxRecipes": MAX_ASSET_RECIPES,
         "maxNodes": MAX_ASSET_NODES,
+        "maxBreakpoints": MAX_ASSET_RECIPE_BREAKPOINTS,
+        "performanceTiers": [tier.value for tier in PerformanceTier],
         "nodes": nodes,
     }
 
@@ -291,18 +314,213 @@ class AssetRecipe:
 
 
 @dataclass(frozen=True)
+class AssetRecipeBreakpoint:
+    id: str
+    recipe: str
+    priority: int
+    min_width: int | None = None
+    max_width: int | None = None
+    min_height: int | None = None
+    max_height: int | None = None
+
+    @classmethod
+    def from_dict(
+        cls, payload: Mapping[str, Any], recipe_names: frozenset[str]
+    ) -> AssetRecipeBreakpoint:
+        allowed = {
+            "id",
+            "recipe",
+            "priority",
+            "minWidth",
+            "maxWidth",
+            "minHeight",
+            "maxHeight",
+        }
+        unknown = set(payload) - allowed
+        if unknown:
+            raise ValueError(f"campos não permitidos no breakpoint: {sorted(unknown)}")
+        breakpoint_id = payload.get("id")
+        recipe = payload.get("recipe")
+        priority = payload.get("priority")
+        if not isinstance(breakpoint_id, str) or not _RECIPE_NAME.fullmatch(breakpoint_id):
+            raise ValueError("id de breakpoint inválido")
+        if not isinstance(recipe, str) or recipe not in recipe_names:
+            raise ValueError(f"breakpoint referencia receita inexistente: {recipe}")
+        if (
+            isinstance(priority, bool)
+            or not isinstance(priority, int)
+            or not -1000 <= priority <= 1000
+        ):
+            raise ValueError("priority de breakpoint precisa ser inteiro entre -1000 e 1000")
+
+        dimensions: dict[str, int | None] = {}
+        for key in ("minWidth", "maxWidth", "minHeight", "maxHeight"):
+            raw = payload.get(key)
+            if raw is None:
+                dimensions[key] = None
+                continue
+            if (
+                isinstance(raw, bool)
+                or not isinstance(raw, int)
+                or not 1 <= raw <= MAX_PROFILE_DIMENSION
+            ):
+                raise ValueError(f"{key} precisa ser inteiro entre 1 e {MAX_PROFILE_DIMENSION}")
+            dimensions[key] = raw
+        if not any(value is not None for value in dimensions.values()):
+            raise ValueError("breakpoint precisa declarar ao menos um limite de resolução")
+        for minimum, maximum in (("minWidth", "maxWidth"), ("minHeight", "maxHeight")):
+            low = dimensions[minimum]
+            high = dimensions[maximum]
+            if low is not None and high is not None and low > high:
+                raise ValueError(f"{minimum} excede {maximum}")
+        return cls(
+            id=breakpoint_id,
+            recipe=recipe,
+            priority=priority,
+            min_width=dimensions["minWidth"],
+            max_width=dimensions["maxWidth"],
+            min_height=dimensions["minHeight"],
+            max_height=dimensions["maxHeight"],
+        )
+
+    def matches(self, width: int, height: int) -> bool:
+        return (
+            (self.min_width is None or width >= self.min_width)
+            and (self.max_width is None or width <= self.max_width)
+            and (self.min_height is None or height >= self.min_height)
+            and (self.max_height is None or height <= self.max_height)
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        result: dict[str, Any] = {"id": self.id, "recipe": self.recipe, "priority": self.priority}
+        for name, value in (
+            ("minWidth", self.min_width),
+            ("maxWidth", self.max_width),
+            ("minHeight", self.min_height),
+            ("maxHeight", self.max_height),
+        ):
+            if value is not None:
+                result[name] = value
+        return result
+
+
+@dataclass(frozen=True)
+class AssetRecipeSelection:
+    recipe: str
+    source: str
+    tier: PerformanceTier
+    width: int | None = None
+    height: int | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "recipe": self.recipe,
+            "source": self.source,
+            "tier": self.tier.value,
+        }
+        if self.width is not None and self.height is not None:
+            result["width"] = self.width
+            result["height"] = self.height
+        return result
+
+
+@dataclass(frozen=True)
+class AssetRecipeProfiles:
+    fallback: str
+    tiers: Mapping[PerformanceTier, str] = field(default_factory=dict)
+    breakpoints: tuple[AssetRecipeBreakpoint, ...] = ()
+
+    @classmethod
+    def from_dict(
+        cls, payload: Mapping[str, Any], recipe_names: frozenset[str]
+    ) -> AssetRecipeProfiles:
+        unknown = set(payload) - {"fallback", "tiers", "breakpoints"}
+        if unknown:
+            raise ValueError(f"campos não permitidos em perfis assetRecipes: {sorted(unknown)}")
+        fallback = payload.get("fallback")
+        if not isinstance(fallback, str) or fallback not in recipe_names:
+            raise ValueError("fallback de perfil referencia receita inexistente")
+        raw_tiers = payload.get("tiers", {})
+        if not isinstance(raw_tiers, Mapping):
+            raise ValueError("tiers de perfil precisa ser objeto")
+        tiers: dict[PerformanceTier, str] = {}
+        for raw_tier, recipe in raw_tiers.items():
+            try:
+                tier = PerformanceTier(raw_tier)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"tier de perfil inválido: {raw_tier}") from exc
+            if not isinstance(recipe, str) or recipe not in recipe_names:
+                raise ValueError(f"tier {tier.value} referencia receita inexistente: {recipe}")
+            tiers[tier] = recipe
+        raw_breakpoints = payload.get("breakpoints", [])
+        if not isinstance(raw_breakpoints, list):
+            raise ValueError("breakpoints de perfil precisa ser array")
+        if len(raw_breakpoints) > MAX_ASSET_RECIPE_BREAKPOINTS:
+            raise ValueError(f"perfil excede {MAX_ASSET_RECIPE_BREAKPOINTS} breakpoints")
+        breakpoints = tuple(
+            AssetRecipeBreakpoint.from_dict(item, recipe_names)
+            for item in raw_breakpoints
+            if isinstance(item, Mapping)
+        )
+        if len(breakpoints) != len(raw_breakpoints):
+            raise ValueError("cada breakpoint precisa ser objeto")
+        ids = [item.id for item in breakpoints]
+        priorities = [item.priority for item in breakpoints]
+        if len(ids) != len(set(ids)):
+            raise ValueError("id de breakpoint duplicado")
+        if len(priorities) != len(set(priorities)):
+            raise ValueError("priority de breakpoint duplicada; precedência ambígua")
+        return cls(fallback=fallback, tiers=tiers, breakpoints=breakpoints)
+
+    def select(
+        self,
+        tier: PerformanceTier,
+        viewport: tuple[int, int] | None,
+    ) -> AssetRecipeSelection:
+        _validate_profile_target(tier, viewport)
+        if viewport is not None:
+            width, height = viewport
+            matching = [item for item in self.breakpoints if item.matches(width, height)]
+            if matching:
+                selected = max(matching, key=lambda item: item.priority)
+                return AssetRecipeSelection(
+                    selected.recipe, f"breakpoint:{selected.id}", tier, width, height
+                )
+        if tier in self.tiers:
+            return AssetRecipeSelection(self.tiers[tier], f"tier:{tier.value}", tier)
+        return AssetRecipeSelection(self.fallback, "fallback", tier)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "fallback": self.fallback,
+            "tiers": {tier.value: recipe for tier, recipe in self.tiers.items()},
+            "breakpoints": [item.to_dict() for item in self.breakpoints],
+        }
+
+
+@dataclass(frozen=True)
 class AssetRecipeBook:
     source_slot: str
     recipes: Mapping[str, AssetRecipe]
     schema_version: int = ASSET_RECIPE_SCHEMA_VERSION
+    profiles: AssetRecipeProfiles | None = None
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> AssetRecipeBook:
-        unknown = set(payload) - {"schemaVersion", "sourceSlot", "recipes"}
+        unknown = set(payload) - {"schemaVersion", "sourceSlot", "recipes", "profiles"}
         if unknown:
             raise ValueError(f"campos não permitidos em assetRecipes: {sorted(unknown)}")
-        if payload.get("schemaVersion") != ASSET_RECIPE_SCHEMA_VERSION:
+        schema_version = payload.get("schemaVersion")
+        if (
+            isinstance(schema_version, bool)
+            or not isinstance(schema_version, int)
+            or schema_version not in {1, 2}
+        ):
             raise ValueError("schemaVersion de assetRecipes incompatível")
+        if schema_version == 1 and "profiles" in payload:
+            raise ValueError("profiles exige schemaVersion 2 de assetRecipes")
+        if schema_version == 2 and not isinstance(payload.get("profiles"), Mapping):
+            raise ValueError("schemaVersion 2 de assetRecipes exige profiles")
         source_slot = payload.get("sourceSlot")
         if not isinstance(source_slot, str) or not _RECIPE_NAME.fullmatch(source_slot):
             raise ValueError("sourceSlot de assetRecipes inválido")
@@ -337,14 +555,39 @@ class AssetRecipeBook:
                 raise ValueError(f"node da receita {name} precisa ser objeto")
             _validate_composition(name, nodes)
             recipes[name] = AssetRecipe(name=name, source_slot=source_slot, nodes=nodes)
-        return cls(source_slot=source_slot, recipes=recipes)
+        raw_profiles = payload.get("profiles")
+        profiles = (
+            AssetRecipeProfiles.from_dict(raw_profiles, frozenset(recipes))
+            if isinstance(raw_profiles, Mapping)
+            else None
+        )
+        return cls(
+            source_slot=source_slot,
+            recipes=recipes,
+            schema_version=int(schema_version),
+            profiles=profiles,
+        )
+
+    def select_profile(
+        self,
+        tier: PerformanceTier,
+        viewport: tuple[int, int] | None = None,
+    ) -> AssetRecipeSelection:
+        _validate_profile_target(tier, viewport)
+        if self.profiles is not None:
+            return self.profiles.select(tier, viewport)
+        default_recipe = "original" if "original" in self.recipes else next(iter(self.recipes))
+        return AssetRecipeSelection(default_recipe, "legacy-default", tier)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "schemaVersion": self.schema_version,
+        result: dict[str, Any] = {
+            "schemaVersion": 2 if self.profiles is not None else self.schema_version,
             "sourceSlot": self.source_slot,
             "recipes": {name: recipe.to_dict() for name, recipe in self.recipes.items()},
         }
+        if self.profiles is not None:
+            result["profiles"] = self.profiles.to_dict()
+        return result
 
 
 def _validate_composition(name: str, nodes: tuple[AssetRecipeNode, ...]) -> None:
@@ -757,11 +1000,14 @@ __all__ = [
     "MAX_OUTLINE_WIDTH",
     "AssetRecipe",
     "AssetRecipeBook",
+    "AssetRecipeBreakpoint",
     "AssetRecipeCache",
     "AssetRecipeDiagnostic",
     "AssetRecipeFallback",
     "AssetRecipeNode",
     "AssetRecipeNodeType",
+    "AssetRecipeProfiles",
+    "AssetRecipeSelection",
     "CachePressure",
     "PreparedAssetVariant",
     "ResolvedAssetNode",

@@ -48,6 +48,9 @@ QtObject {
         ? resolved.assetRecipes : ({})
     readonly property var assetRecipeDiagnostics: resolved && resolved.assetRecipeDiagnostics
         ? resolved.assetRecipeDiagnostics : ([])
+    // Variante escolhida pelo resolver para o tier e a resolução ativos.
+    readonly property var assetRecipeSelection: resolved && resolved.assetRecipeSelection
+        ? resolved.assetRecipeSelection : null
     // Contrato declarativo do tema e modelo final opcional fornecido pelo shell.
     // QML nunca consulta o catálogo nem resolve `item.*` por conta própria.
     readonly property var sceneLayouts: resolved && resolved.sceneLayouts

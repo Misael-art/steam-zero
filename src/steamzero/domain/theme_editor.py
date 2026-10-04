@@ -39,6 +39,7 @@ from steamzero.domain.studio_graph import build_studio_graph
 from steamzero.domain.theme_effects import (
     EFFECT_STACK_SCHEMA_VERSION,
     EffectType,
+    PerformanceTier,
     effect_defaults,
     effect_editor_schema,
     effect_stacks_to_dict,
@@ -236,6 +237,8 @@ def _make_resolved(
     assets: dict[str, str],
     high_contrast: bool = False,
     reduced_motion: bool = False,
+    performance_tier: PerformanceTier | None = None,
+    viewport_size: tuple[int, int] | None = None,
 ) -> tuple[ResolvedTheme, tuple[dict[str, str], ...]]:
     """Resolve o preview da sessão percorrendo a cadeia ``extends``.
 
@@ -263,6 +266,8 @@ def _make_resolved(
         return (
             ThemeResolver(available).resolve(
                 draft.id,
+                performance_tier=performance_tier,
+                viewport_size=viewport_size,
                 high_contrast=high_contrast,
                 reduced_motion=reduced_motion,
             ),
@@ -373,6 +378,8 @@ def _resolved_preview(
     *,
     high_contrast: bool = False,
     reduced_motion: bool = False,
+    performance_tier: PerformanceTier | None = None,
+    viewport_size: tuple[int, int] | None = None,
     scene_layout_read_model: Mapping[str, Any] | None = None,
 ) -> dict[str, object]:
     resolved, diagnostics = _make_resolved(
@@ -381,6 +388,8 @@ def _resolved_preview(
         assets,
         high_contrast=high_contrast,
         reduced_motion=reduced_motion,
+        performance_tier=performance_tier,
+        viewport_size=viewport_size,
     )
     return _to_preview_object(
         resolved,
@@ -800,6 +809,14 @@ class ThemeEditorManager:
         to_index: int | None = None,
         field_name: str = "",
         value: object = None,
+        profile_type: str = "",
+        tier: str = "",
+        breakpoint_id: str = "",
+        priority: int | None = None,
+        min_width: int | None = None,
+        max_width: int | None = None,
+        min_height: int | None = None,
+        max_height: int | None = None,
     ) -> dict[str, object]:
         """Edita o livro allowlisted de receitas de um único asset-fonte.
 
@@ -823,6 +840,7 @@ class ThemeEditorManager:
                 "schemaVersion": ASSET_RECIPE_SCHEMA_VERSION,
                 "sourceSlot": source_slot,
                 "recipes": {"original": {"source": source_slot, "nodes": []}},
+                "profiles": {"fallback": "original"},
             }
         else:
             if raw_book is None:
@@ -849,6 +867,82 @@ class ThemeEditorManager:
                 if len(recipes) <= 1:
                     raise ValueError("o livro precisa manter ao menos uma receita")
                 del recipes[recipe]
+            elif op in {"set-profile", "clear-tier-profile", "set-breakpoint", "remove-breakpoint"}:
+                recipes = candidate.get("recipes")
+                if not isinstance(recipes, dict):
+                    raise ValueError("assetRecipes inválido")
+                profiles = candidate.get("profiles")
+                if not isinstance(profiles, dict):
+                    fallback = "original" if "original" in recipes else next(iter(recipes))
+                    profiles = {"fallback": fallback, "tiers": {}, "breakpoints": []}
+                    candidate["profiles"] = profiles
+                candidate["schemaVersion"] = ASSET_RECIPE_SCHEMA_VERSION
+                profiles.setdefault("tiers", {})
+                profiles.setdefault("breakpoints", [])
+                if op == "set-profile":
+                    if recipe not in recipes:
+                        raise ValueError(f"receita não encontrada: {recipe}")
+                    if profile_type == "fallback":
+                        profiles["fallback"] = recipe
+                    elif profile_type == "tier":
+                        try:
+                            selected_tier = PerformanceTier(tier)
+                        except ValueError as exc:
+                            raise ValueError(f"tier de perfil inválido: {tier}") from exc
+                        if not isinstance(profiles["tiers"], dict):
+                            raise ValueError("tiers de perfil precisa ser objeto")
+                        profiles["tiers"][selected_tier.value] = recipe
+                    else:
+                        raise ValueError(f"tipo de perfil inválido: {profile_type}")
+                elif op == "clear-tier-profile":
+                    try:
+                        selected_tier = PerformanceTier(tier)
+                    except ValueError as exc:
+                        raise ValueError(f"tier de perfil inválido: {tier}") from exc
+                    if not isinstance(profiles["tiers"], dict):
+                        raise ValueError("tiers de perfil precisa ser objeto")
+                    profiles["tiers"].pop(selected_tier.value, None)
+                elif op == "set-breakpoint":
+                    if recipe not in recipes:
+                        raise ValueError(f"receita não encontrada: {recipe}")
+                    if priority is None:
+                        raise ValueError("priority de breakpoint é obrigatório")
+                    breakpoint: dict[str, object] = {
+                        "id": breakpoint_id,
+                        "recipe": recipe,
+                        "priority": priority,
+                    }
+                    for key, bound in (
+                        ("minWidth", min_width),
+                        ("maxWidth", max_width),
+                        ("minHeight", min_height),
+                        ("maxHeight", max_height),
+                    ):
+                        if bound is not None:
+                            breakpoint[key] = bound
+                    raw_breakpoints: object = profiles["breakpoints"]
+                    if not isinstance(raw_breakpoints, list):
+                        raise ValueError("breakpoints de perfil precisa ser array")
+                    replaced = False
+                    for position, existing in enumerate(raw_breakpoints):
+                        if isinstance(existing, dict) and existing.get("id") == breakpoint_id:
+                            raw_breakpoints[position] = breakpoint
+                            replaced = True
+                            break
+                    if not replaced:
+                        raw_breakpoints.append(breakpoint)
+                else:
+                    raw_breakpoints_for_remove: object = profiles["breakpoints"]
+                    if not isinstance(raw_breakpoints_for_remove, list):
+                        raise ValueError("breakpoints de perfil precisa ser array")
+                    retained = [
+                        entry
+                        for entry in raw_breakpoints_for_remove
+                        if not isinstance(entry, dict) or entry.get("id") != breakpoint_id
+                    ]
+                    if len(retained) == len(raw_breakpoints_for_remove):
+                        raise ValueError(f"breakpoint não encontrado: {breakpoint_id}")
+                    profiles["breakpoints"] = retained
             else:
                 recipes = candidate.get("recipes")
                 if not isinstance(recipes, dict) or recipe not in recipes:
@@ -1114,14 +1208,43 @@ class ThemeEditorManager:
         *,
         high_contrast: bool = False,
         reduced_motion: bool = False,
+        performance_tier: str | None = None,
+        viewport_width: int | None = None,
+        viewport_height: int | None = None,
         scene_layout_read_model: Mapping[str, Any] | None = None,
     ) -> dict[str, object]:
         session = self._get_session(session_id)
+        try:
+            selected_tier = (
+                PerformanceTier(performance_tier) if performance_tier is not None else None
+            )
+        except (TypeError, ValueError) as exc:
+            raise SteamZeroError(
+                "E-API-SCHEMA", detail=f"tier de preview inválido: {performance_tier}"
+            ) from exc
+        if (viewport_width is None) != (viewport_height is None):
+            raise SteamZeroError(
+                "E-API-SCHEMA", detail="largura e altura do preview precisam ser informadas juntas"
+            )
+        viewport_size = (
+            (viewport_width, viewport_height)
+            if viewport_width is not None and viewport_height is not None
+            else None
+        )
+        if viewport_size is not None and not all(
+            isinstance(value, int) and not isinstance(value, bool) and 1 <= value <= 8192
+            for value in viewport_size
+        ):
+            raise SteamZeroError(
+                "E-API-SCHEMA", detail="resolução do preview precisa estar entre 1 e 8192"
+            )
         return {
             "preview": self._preview(
                 session,
                 high_contrast,
                 reduced_motion,
+                performance_tier=selected_tier,
+                viewport_size=viewport_size,
                 scene_layout_read_model=scene_layout_read_model,
             )
         }
@@ -1256,6 +1379,8 @@ class ThemeEditorManager:
         high_contrast: bool = False,
         reduced_motion: bool = False,
         *,
+        performance_tier: PerformanceTier | None = None,
+        viewport_size: tuple[int, int] | None = None,
         scene_layout_read_model: Mapping[str, Any] | None = None,
     ) -> dict[str, object]:
         preview = _resolved_preview(
@@ -1264,6 +1389,8 @@ class ThemeEditorManager:
             session.assets,
             high_contrast=high_contrast,
             reduced_motion=reduced_motion,
+            performance_tier=performance_tier,
+            viewport_size=viewport_size,
             scene_layout_read_model=scene_layout_read_model,
         )
         preview["assetUris"] = self._asset_preview_uris(session)

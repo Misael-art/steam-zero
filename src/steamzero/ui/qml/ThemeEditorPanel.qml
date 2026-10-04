@@ -77,6 +77,7 @@ Rectangle {
     property bool editorMutationInFlight: false
     property int editorMutationGeneration: 0
     property int editorLoadGeneration: 0
+    property int editorPreviewRequestGeneration: 0
     // Histórico de autoria devolvido pelo backend (V3). Nunca é calculado aqui:
     // undo/redo e `dirty` vêm do documento, para o preview não divergir dele.
     property var editorHistory: ({canUndo: false, canRedo: false})
@@ -152,11 +153,30 @@ Rectangle {
     property string assetRecipeNewName: ""
     property string assetRecipeNewSourceSlot: ""
     property string assetRecipeNewNodeType: "recolor"
+    property string assetRecipeProfileTier: "cinematic"
+    property string assetRecipePreviewTier: "cinematic"
+    property string assetRecipePreviewWidth: "1280"
+    property string assetRecipePreviewHeight: "720"
+    property bool assetRecipeProfilePreviewActive: false
+    property int assetRecipeBreakpointIndex: -1
+    property string assetRecipeBreakpointId: ""
+    property string assetRecipeBreakpointRecipe: ""
+    property string assetRecipeBreakpointPriority: "10"
+    property string assetRecipeBreakpointMinWidth: "1280"
+    property string assetRecipeBreakpointMaxWidth: ""
+    property string assetRecipeBreakpointMinHeight: ""
+    property string assetRecipeBreakpointMaxHeight: ""
     readonly property bool assetRecipeDemoActive:
         editorManifest.id === "org.steamzero.asset-recipes-demo"
         && Object.keys(_previewBridge.assetRecipes).length > 0
     readonly property var assetRecipeBook: editorDeclared.assetRecipes || ({})
     readonly property var assetRecipeRecipes: assetRecipeBook.recipes || ({})
+    readonly property var assetRecipeProfiles: assetRecipeBook.profiles || ({})
+    readonly property var assetRecipeBreakpoints: Array.isArray(assetRecipeProfiles.breakpoints)
+        ? assetRecipeProfiles.breakpoints : []
+    readonly property var assetRecipeCurrentBreakpoint:
+        assetRecipeBreakpointIndex >= 0 && assetRecipeBreakpointIndex < assetRecipeBreakpoints.length
+            ? assetRecipeBreakpoints[assetRecipeBreakpointIndex] : null
     readonly property bool assetRecipeEditorActive:
         Object.keys(assetRecipeRecipes).length > 0
         && Object.keys(_previewBridge.assetRecipes).length > 0
@@ -192,6 +212,14 @@ Rectangle {
     readonly property bool assetRecipePreviewReady:
         assetRecipePreviewActive && assetRecipePreview.sourceStatus === Image.Ready
     readonly property int assetRecipePreviewDecodeCount: assetRecipePreview.sourceDecodeCount
+    readonly property var assetRecipeResolvedSelection: _previewBridge.assetRecipeSelection
+    readonly property string assetRecipePreviewRecipeName:
+        assetRecipeProfilePreviewActive && assetRecipeResolvedSelection
+            && assetRecipeRecipes[assetRecipeResolvedSelection.recipe]
+            ? String(assetRecipeResolvedSelection.recipe) : assetRecipeSelection
+    readonly property var assetRecipePreviewRecipe:
+        _previewBridge.assetRecipes[assetRecipePreviewRecipeName]
+            || _previewBridge.assetRecipes[assetRecipeSelection] || null
     readonly property var sceneLayoutPreview: _previewBridge.sceneLayoutPreview.layouts
         ? _previewBridge.sceneLayoutPreview.layouts.previewTitles : null
     readonly property bool sceneLayoutPreviewActive:
@@ -638,9 +666,151 @@ Rectangle {
         const fieldNames = Object.keys(fields)
         if (fieldNames.indexOf(panel.assetRecipeFieldSelection) < 0)
             panel.assetRecipeFieldSelection = fieldNames.length ? fieldNames[0] : ""
+        if (panel.assetRecipeBreakpointIndex >= panel.assetRecipeBreakpoints.length)
+            panel.assetRecipeBreakpointIndex = panel.assetRecipeBreakpoints.length - 1
+        if (panel.assetRecipeBreakpointIndex < 0)
+            panel.assetRecipeBreakpointIndex = -1
+    }
+
+    function selectAssetRecipeBreakpoint(index) {
+        panel.assetRecipeBreakpointIndex = index
+        const entry = index >= 0 && index < panel.assetRecipeBreakpoints.length
+            ? panel.assetRecipeBreakpoints[index] : null
+        panel.assetRecipeBreakpointId = entry ? String(entry.id || "") : ""
+        panel.assetRecipeBreakpointRecipe = entry
+            ? String(entry.recipe || "") : Object.keys(panel.assetRecipeRecipes)[0] || ""
+        panel.assetRecipeBreakpointPriority = entry ? String(entry.priority) : "10"
+        panel.assetRecipeBreakpointMinWidth = entry && entry.minWidth !== undefined
+            ? String(entry.minWidth) : ""
+        panel.assetRecipeBreakpointMaxWidth = entry && entry.maxWidth !== undefined
+            ? String(entry.maxWidth) : ""
+        panel.assetRecipeBreakpointMinHeight = entry && entry.minHeight !== undefined
+            ? String(entry.minHeight) : ""
+        panel.assetRecipeBreakpointMaxHeight = entry && entry.maxHeight !== undefined
+            ? String(entry.maxHeight) : ""
+    }
+
+    function saveAssetRecipeBreakpoint() {
+        const id = panel.assetRecipeBreakpointId.trim()
+        const recipe = panel.assetRecipeBreakpointRecipe
+        const priorityText = panel.assetRecipeBreakpointPriority.trim()
+        if (!/^[a-z][a-zA-Z0-9]{0,63}$/.test(id)) {
+            panel.authoringNotice = qsTr("Use um ID iniciado por letra, sem espaços.")
+            panel.authoringRevision += 1
+            return
+        }
+        if (!panel.assetRecipeRecipes[recipe]) {
+            panel.authoringNotice = qsTr("Escolha uma variante existente para o breakpoint.")
+            panel.authoringRevision += 1
+            return
+        }
+        if (!/^-?\d+$/.test(priorityText)) {
+            panel.authoringNotice = qsTr("A prioridade precisa ser um número inteiro.")
+            panel.authoringRevision += 1
+            return
+        }
+        const priority = Number(priorityText)
+        if (!Number.isSafeInteger(priority) || priority < -1000 || priority > 1000) {
+            panel.authoringNotice = qsTr("A prioridade aceita valores entre -1000 e 1000.")
+            panel.authoringRevision += 1
+            return
+        }
+        const fields = [
+            ["minWidth", panel.assetRecipeBreakpointMinWidth],
+            ["maxWidth", panel.assetRecipeBreakpointMaxWidth],
+            ["minHeight", panel.assetRecipeBreakpointMinHeight],
+            ["maxHeight", panel.assetRecipeBreakpointMaxHeight]
+        ]
+        const bounds = {}
+        for (let i = 0; i < fields.length; ++i) {
+            const raw = String(fields[i][1]).trim()
+            if (!raw)
+                continue
+            if (!/^\d+$/.test(raw)) {
+                panel.authoringNotice = qsTr("Os limites de resolução precisam ser inteiros.")
+                panel.authoringRevision += 1
+                return
+            }
+            const value = Number(raw)
+            if (!Number.isSafeInteger(value) || value < 1 || value > 8192) {
+                panel.authoringNotice = qsTr("A resolução aceita valores entre 1 e 8192 pixels.")
+                panel.authoringRevision += 1
+                return
+            }
+            bounds[fields[i][0]] = value
+        }
+        if (Object.keys(bounds).length === 0
+                || (bounds.minWidth !== undefined && bounds.maxWidth !== undefined
+                    && bounds.minWidth > bounds.maxWidth)
+                || (bounds.minHeight !== undefined && bounds.maxHeight !== undefined
+                    && bounds.minHeight > bounds.maxHeight)) {
+            panel.authoringNotice = qsTr("Informe ao menos um limite e confira mínimo/máximo.")
+            panel.authoringRevision += 1
+            return
+        }
+        const payload = {breakpointId: id, recipe: recipe, priority: priority}
+        for (const key in bounds)
+            payload[key] = bounds[key]
+        panel.editAssetRecipe("set-breakpoint", payload)
+    }
+
+    function requestAssetRecipeProfilePreview(enabled) {
+        if (!panel.editorSessionId)
+            return
+        const payload = {sessionId: panel.editorSessionId}
+        if (enabled) {
+            const widthText = panel.assetRecipePreviewWidth.trim()
+            const heightText = panel.assetRecipePreviewHeight.trim()
+            if (!/^\d+$/.test(widthText) || !/^\d+$/.test(heightText)) {
+                panel.authoringNotice = qsTr("Informe largura e altura inteiras para o preview.")
+                panel.authoringRevision += 1
+                return
+            }
+            const width = Number(widthText)
+            const height = Number(heightText)
+            if (width < 1 || width > 8192 || height < 1 || height > 8192) {
+                panel.authoringNotice = qsTr("A resolução aceita valores entre 1 e 8192 pixels.")
+                panel.authoringRevision += 1
+                return
+            }
+            payload.performanceTier = panel.assetRecipePreviewTier
+            payload.viewportWidth = width
+            payload.viewportHeight = height
+        }
+        panel.assetRecipeProfilePreviewActive = enabled
+        const requestGeneration = ++panel.editorPreviewRequestGeneration
+        const editorGeneration = panel.editorMutationGeneration
+        const sessionId = panel.editorSessionId
+        let settled = false
+        function fail(message) {
+            if (settled)
+                return
+            settled = true
+            if (requestGeneration !== panel.editorPreviewRequestGeneration
+                    || editorGeneration !== panel.editorMutationGeneration
+                    || sessionId !== panel.editorSessionId)
+                return
+            panel.assetRecipeProfilePreviewActive = false
+            panel.authoringNotice = String(message)
+            panel.authoringRevision += 1
+        }
+        const dispatched = panel.requestAction("theme.editor.preview", payload, function(result) {
+            if (settled)
+                return
+            settled = true
+            if (requestGeneration !== panel.editorPreviewRequestGeneration
+                    || editorGeneration !== panel.editorMutationGeneration
+                    || sessionId !== panel.editorSessionId)
+                return
+            panel._applyEditorResult(result || ({}))
+            panel.authoringNotice = ""
+        }, fail)
+        if (dispatched === false && !settled)
+            fail(qsTr("O preview já está em andamento; tente novamente."))
     }
 
     function _applyEditorResult(r) {
+        panel.editorPreviewRequestGeneration += 1
         if (r.preview) {
             panel.editorPreviewObject = r.preview
             panel.editorTokens = r.preview.resolved || {}
@@ -752,6 +922,18 @@ Rectangle {
                 panel.assetRecipeNodeIndex = Number(extra.index)
             panel._syncAssetRecipeSelection()
             panel.authoringNotice = ""
+            if (op === "set-breakpoint") {
+                for (var i = 0; i < panel.assetRecipeBreakpoints.length; ++i) {
+                    if (panel.assetRecipeBreakpoints[i].id === extra.breakpointId) {
+                        panel.selectAssetRecipeBreakpoint(i)
+                        break
+                    }
+                }
+            } else if (op === "remove-breakpoint") {
+                panel.selectAssetRecipeBreakpoint(-1)
+            }
+            if (panel.assetRecipeProfilePreviewActive)
+                panel.requestAssetRecipeProfilePreview(true)
         }, function(message) {
             panel.authoringNotice = String(message)
             panel.authoringRevision += 1
@@ -972,7 +1154,15 @@ Rectangle {
         panel.assetRecipeSelection = "original"
         panel.assetRecipeNodeIndex = 0
         panel.assetRecipeFieldSelection = ""
+        panel.assetRecipeProfilePreviewActive = false
+        panel.assetRecipeBreakpointIndex = -1
+        panel.assetRecipeBreakpointId = ""
+        panel.assetRecipeProfileTier = "cinematic"
+        panel.assetRecipePreviewTier = "cinematic"
+        panel.assetRecipePreviewWidth = "1280"
+        panel.assetRecipePreviewHeight = "720"
         panel._syncAssetRecipeSelection()
+        panel.selectAssetRecipeBreakpoint(-1)
         panel.editorDirty = false
         panel.editorReadOnly = readOnly === true || manifest.readOnly === true
     }
@@ -984,8 +1174,12 @@ Rectangle {
                 || panel.editorMutationQueue.length > 0)
         panel.editorLoadGeneration += 1
         panel.editorMutationGeneration += 1
+        panel.editorPreviewRequestGeneration += 1
         panel.editorMutationQueue = []
         panel.editorSessionId = ""
+        panel.assetRecipeProfilePreviewActive = false
+        panel.assetRecipeBreakpointIndex = -1
+        panel.assetRecipeBreakpointId = ""
         panel.editorManifest = {}
         panel.editorPreviewObject = null
         panel.editorTokens = {}
@@ -3373,11 +3567,12 @@ Rectangle {
                         color: panel._previewBridge.surface
                         radius: panel._previewBridge.radiusMedium
                         Layout.fillWidth: true
-                        implicitHeight: visible ? 470 : 0
+                        implicitHeight: visible ? assetRecipeColumn.implicitHeight + 28 : 0
                         border.color: panel._previewBridge.border
                         border.width: 1
 
                         ColumnLayout {
+                            id: assetRecipeColumn
                             anchors.fill: parent
                             anchors.margins: 14
                             spacing: 8
@@ -3479,6 +3674,284 @@ Rectangle {
                                         recipe: panel.assetRecipeSelection
                                     })
                                 }
+                            }
+
+                            RowLayout {
+                                visible: panel.assetRecipeEditorActive
+                                Layout.fillWidth: true
+                                Label {
+                                    text: qsTr("Fallback")
+                                    color: panel._previewBridge.textMuted
+                                }
+                                ComboBox {
+                                    objectName: "assetRecipeFallbackProfilePicker"
+                                    model: Object.keys(panel.assetRecipeRecipes)
+                                    currentIndex: Math.max(0, model.indexOf(
+                                        panel.assetRecipeProfiles.fallback
+                                            || (panel.assetRecipeRecipes.original
+                                                ? "original" : model[0])))
+                                    Layout.fillWidth: true
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    enabled: !panel.editorReadOnly
+                                    Accessible.name: qsTr("Variante fallback do perfil")
+                                    onActivated: function(index) {
+                                        panel.editAssetRecipe("set-profile", {
+                                            profileType: "fallback", recipe: model[index]
+                                        })
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                visible: panel.assetRecipeEditorActive
+                                Layout.fillWidth: true
+                                Label {
+                                    text: qsTr("Tier")
+                                    color: panel._previewBridge.textMuted
+                                }
+                                ComboBox {
+                                    objectName: "assetRecipeTierProfilePicker"
+                                    model: panel.editorAssetRecipeSchema.performanceTiers || []
+                                    currentIndex: Math.max(0, model.indexOf(panel.assetRecipeProfileTier))
+                                    Layout.minimumWidth: 132
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    enabled: !panel.editorReadOnly
+                                    Accessible.name: qsTr("Tier de desempenho para editar")
+                                    onActivated: function(index) {
+                                        panel.assetRecipeProfileTier = model[index]
+                                    }
+                                }
+                                ComboBox {
+                                    objectName: "assetRecipeTierVariantPicker"
+                                    model: [qsTr("Herdar fallback")]
+                                        .concat(Object.keys(panel.assetRecipeRecipes))
+                                    currentIndex: {
+                                        const assigned = panel.assetRecipeProfiles.tiers
+                                            ? panel.assetRecipeProfiles.tiers[panel.assetRecipeProfileTier]
+                                            : ""
+                                        return assigned ? Math.max(1, model.indexOf(assigned)) : 0
+                                    }
+                                    Layout.fillWidth: true
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    enabled: !panel.editorReadOnly
+                                    Accessible.name: qsTr("Variante do tier selecionado")
+                                    onActivated: function(index) {
+                                        if (index === 0) {
+                                            panel.editAssetRecipe("clear-tier-profile", {
+                                                tier: panel.assetRecipeProfileTier
+                                            })
+                                        } else {
+                                            panel.editAssetRecipe("set-profile", {
+                                                profileType: "tier",
+                                                tier: panel.assetRecipeProfileTier,
+                                                recipe: Object.keys(panel.assetRecipeRecipes)[index - 1]
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+
+                            ColumnLayout {
+                                visible: panel.assetRecipeEditorActive
+                                Layout.fillWidth: true
+                                spacing: 6
+                                Label {
+                                    text: qsTr("Breakpoints de resolução · prioridade maior vence")
+                                    color: panel._previewBridge.textMuted
+                                    Layout.fillWidth: true
+                                    wrapMode: Text.WordWrap
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    ComboBox {
+                                        objectName: "assetRecipeBreakpointPicker"
+                                        model: [qsTr("Novo breakpoint")].concat(
+                                            panel.assetRecipeBreakpoints.map(function(entry) {
+                                                return String(entry.id)
+                                            }))
+                                        currentIndex: panel.assetRecipeBreakpointIndex + 1
+                                        Layout.fillWidth: true
+                                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("Breakpoint de resolução")
+                                        onActivated: function(index) {
+                                            panel.selectAssetRecipeBreakpoint(index - 1)
+                                        }
+                                    }
+                                    TextField {
+                                        objectName: "assetRecipeBreakpointId"
+                                        text: panel.assetRecipeBreakpointId
+                                        enabled: !panel.editorReadOnly
+                                        placeholderText: qsTr("id do breakpoint")
+                                        Layout.minimumWidth: 148
+                                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("ID do breakpoint")
+                                        onTextChanged: panel.assetRecipeBreakpointId = text.trim()
+                                    }
+                                    ComboBox {
+                                        objectName: "assetRecipeBreakpointRecipePicker"
+                                        model: Object.keys(panel.assetRecipeRecipes)
+                                        currentIndex: Math.max(0, model.indexOf(
+                                            panel.assetRecipeBreakpointRecipe))
+                                        Layout.fillWidth: true
+                                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                                        enabled: !panel.editorReadOnly
+                                        Accessible.name: qsTr("Variante para este breakpoint")
+                                        onActivated: function(index) {
+                                            panel.assetRecipeBreakpointRecipe = model[index]
+                                        }
+                                    }
+                                    TextField {
+                                        objectName: "assetRecipeBreakpointPriority"
+                                        text: panel.assetRecipeBreakpointPriority
+                                        enabled: !panel.editorReadOnly
+                                        placeholderText: qsTr("prioridade")
+                                        Layout.minimumWidth: 104
+                                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("Prioridade do breakpoint")
+                                        validator: IntValidator { bottom: -1000; top: 1000 }
+                                        onTextChanged: panel.assetRecipeBreakpointPriority = text
+                                    }
+                                }
+                                Flow {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+                                    TextField {
+                                        objectName: "assetRecipeBreakpointMinWidth"
+                                        text: panel.assetRecipeBreakpointMinWidth
+                                        enabled: !panel.editorReadOnly
+                                        placeholderText: qsTr("largura mínima")
+                                        width: 130
+                                        height: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("Largura mínima em pixels")
+                                        validator: IntValidator { bottom: 1; top: 8192 }
+                                        onTextChanged: panel.assetRecipeBreakpointMinWidth = text
+                                    }
+                                    TextField {
+                                        objectName: "assetRecipeBreakpointMaxWidth"
+                                        text: panel.assetRecipeBreakpointMaxWidth
+                                        enabled: !panel.editorReadOnly
+                                        placeholderText: qsTr("largura máxima")
+                                        width: 130
+                                        height: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("Largura máxima em pixels")
+                                        validator: IntValidator { bottom: 1; top: 8192 }
+                                        onTextChanged: panel.assetRecipeBreakpointMaxWidth = text
+                                    }
+                                    TextField {
+                                        objectName: "assetRecipeBreakpointMinHeight"
+                                        text: panel.assetRecipeBreakpointMinHeight
+                                        enabled: !panel.editorReadOnly
+                                        placeholderText: qsTr("altura mínima")
+                                        width: 130
+                                        height: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("Altura mínima em pixels")
+                                        validator: IntValidator { bottom: 1; top: 8192 }
+                                        onTextChanged: panel.assetRecipeBreakpointMinHeight = text
+                                    }
+                                    TextField {
+                                        objectName: "assetRecipeBreakpointMaxHeight"
+                                        text: panel.assetRecipeBreakpointMaxHeight
+                                        enabled: !panel.editorReadOnly
+                                        placeholderText: qsTr("altura máxima")
+                                        width: 130
+                                        height: panel.minimumInteractiveTarget
+                                        Accessible.name: qsTr("Altura máxima em pixels")
+                                        validator: IntValidator { bottom: 1; top: 8192 }
+                                        onTextChanged: panel.assetRecipeBreakpointMaxHeight = text
+                                    }
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Button {
+                                        objectName: "assetRecipeBreakpointSaveButton"
+                                        text: qsTr("Salvar breakpoint")
+                                        enabled: !panel.editorReadOnly
+                                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                                        Accessible.name: text
+                                        onClicked: panel.saveAssetRecipeBreakpoint()
+                                    }
+                                    Button {
+                                        objectName: "assetRecipeBreakpointRemoveButton"
+                                        text: qsTr("Remover breakpoint")
+                                        enabled: !panel.editorReadOnly
+                                            && panel.assetRecipeBreakpointIndex >= 0
+                                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                                        Accessible.name: text
+                                        onClicked: panel.editAssetRecipe("remove-breakpoint", {
+                                            breakpointId: panel.assetRecipeBreakpointId
+                                        })
+                                    }
+                                    Item { Layout.fillWidth: true }
+                                }
+                            }
+
+                            RowLayout {
+                                visible: panel.assetRecipeEditorActive
+                                Layout.fillWidth: true
+                                CheckBox {
+                                    objectName: "assetRecipeProfilePreviewToggle"
+                                    text: qsTr("Testar perfil")
+                                    checked: panel.assetRecipeProfilePreviewActive
+                                    enabled: !panel.editorReadOnly
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    Accessible.name: qsTr("Usar tier e resolução escolhidos no preview")
+                                    onToggled: panel.requestAssetRecipeProfilePreview(checked)
+                                }
+                                ComboBox {
+                                    objectName: "assetRecipePreviewTier"
+                                    model: panel.editorAssetRecipeSchema.performanceTiers || []
+                                    currentIndex: Math.max(0, model.indexOf(panel.assetRecipePreviewTier))
+                                    Layout.minimumWidth: 132
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    enabled: !panel.editorReadOnly
+                                    Accessible.name: qsTr("Tier do preview")
+                                    onActivated: function(index) {
+                                        panel.assetRecipePreviewTier = model[index]
+                                    }
+                                }
+                                TextField {
+                                    objectName: "assetRecipePreviewWidth"
+                                    text: panel.assetRecipePreviewWidth
+                                    enabled: !panel.editorReadOnly
+                                    Layout.minimumWidth: 112
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    Accessible.name: qsTr("Largura do preview em pixels")
+                                    validator: IntValidator { bottom: 1; top: 8192 }
+                                    onTextChanged: panel.assetRecipePreviewWidth = text
+                                }
+                                TextField {
+                                    objectName: "assetRecipePreviewHeight"
+                                    text: panel.assetRecipePreviewHeight
+                                    enabled: !panel.editorReadOnly
+                                    Layout.minimumWidth: 112
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    Accessible.name: qsTr("Altura do preview em pixels")
+                                    validator: IntValidator { bottom: 1; top: 8192 }
+                                    onTextChanged: panel.assetRecipePreviewHeight = text
+                                }
+                                Button {
+                                    objectName: "assetRecipePreviewTargetButton"
+                                    text: qsTr("Atualizar alvo")
+                                    enabled: !panel.editorReadOnly
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    Accessible.name: text
+                                    onClicked: panel.requestAssetRecipeProfilePreview(true)
+                                }
+                            }
+
+                            Label {
+                                objectName: "assetRecipeProfileSelection"
+                                visible: panel.assetRecipeProfilePreviewActive
+                                text: panel.assetRecipeResolvedSelection
+                                    ? qsTr("Selecionado: %1 · %2 · %3×%4")
+                                        .arg(panel.assetRecipeResolvedSelection.recipe)
+                                        .arg(panel.assetRecipeResolvedSelection.source)
+                                        .arg(panel.assetRecipeResolvedSelection.width || "—")
+                                        .arg(panel.assetRecipeResolvedSelection.height || "—")
+                                    : qsTr("Nenhum perfil de receita resolvido")
+                                color: panel._previewBridge.textMuted
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
                             }
 
                             RowLayout {
@@ -3646,8 +4119,7 @@ Rectangle {
                                 Layout.preferredHeight: visible ? 112 : 0
                                 Layout.margins: 4
                                 source: panel.assetRecipeSource
-                                recipe: panel._previewBridge.assetRecipes[
-                                    panel.assetRecipeSelection] || ({
+                                recipe: panel.assetRecipePreviewRecipe || ({
                                         "source": panel.assetRecipeBook.sourceSlot || "logo",
                                         "nodes": [], "fallback": "source"
                                     })
@@ -3659,7 +4131,14 @@ Rectangle {
                                     ? qsTr("Fonte indisponível para preview; receita permanece declarada.")
                                     : assetRecipePreview.fallbackActive
                                         ? qsTr("Efeito indisponível; fonte segura exibida")
-                                        : qsTr("Fonte real · cache por hash e tier")
+                                        : panel.assetRecipeProfilePreviewActive
+                                            ? qsTr("Perfil %1 · fonte %2 · %3×%4")
+                                                .arg(panel.assetRecipePreviewRecipeName)
+                                                .arg(panel.assetRecipeResolvedSelection
+                                                    ? panel.assetRecipeResolvedSelection.source : "—")
+                                                .arg(panel.assetRecipePreviewWidth)
+                                                .arg(panel.assetRecipePreviewHeight)
+                                            : qsTr("Fonte real · cache por hash e tier")
                                 color: assetRecipePreview.fallbackActive
                                     ? panel.amberColor : panel._previewBridge.textMuted
                                 font.pixelSize: Math.round(11 * panel.visualScale)

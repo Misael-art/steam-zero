@@ -22,6 +22,7 @@ Item {
     property bool runtimeThemeRefreshed: false
     property bool runtimeCaptureComplete: false
     property bool runtimeCaptureSucceeded: false
+    property var profilePreviewResponses: []
     property bool deferEditorMutations: false
     property var deferredEditorMutations: []
     readonly property url runtimeFixture: Qt.resolvedUrl(
@@ -58,7 +59,19 @@ Item {
         const isLoad = actionId === "theme.editor.load"
         const path = "/" + actionId.split(".").join("/")
             + (isLoad ? "?themeId=" + encodeURIComponent(payload.themeId) : "")
-        xhr(isLoad ? "GET" : "POST", path, payload, callback, function(message) {
+        xhr(isLoad ? "GET" : "POST", path, payload, function(result) {
+            if (actionId === "theme.editor.preview") {
+                const selection = result && result.preview
+                    ? result.preview.assetRecipeSelection : null
+                const responses = harness.profilePreviewResponses.slice()
+                responses.push({
+                    payload: JSON.parse(JSON.stringify(payload || ({}))),
+                    selection: selection
+                })
+                harness.profilePreviewResponses = responses
+            }
+            callback(result)
+        }, function(message) {
             errors.push(actionId + ": " + message + " " + JSON.stringify(payload))
             if (errorCallback)
                 errorCallback(message)
@@ -841,6 +854,47 @@ Item {
                 return declared.color === "#33aaff"
                     && resolved.parameters.color === "#33aaff"
             }, 3000, "a cor editada não chegou à Engine preview")
+
+            chooseCombo("assetRecipeTierProfilePicker", "balanced")
+            chooseCombo("assetRecipeTierVariantPicker", "studioRecolor")
+            tryVerify(function() {
+                const profiles = panel.assetRecipeBook.profiles || ({})
+                return (profiles.tiers || ({})).balanced === "studioRecolor"
+            }, 3000, "o perfil por tier não chegou ao documento: "
+                + JSON.stringify(harness.errors) + " · "
+                + JSON.stringify(panel.assetRecipeBook))
+            typeInto("assetRecipeBreakpointId", "wide")
+            chooseCombo("assetRecipeBreakpointRecipePicker", "outlineThin")
+            typeInto("assetRecipeBreakpointPriority", "20")
+            typeInto("assetRecipeBreakpointMinWidth", "1600")
+            click("assetRecipeBreakpointSaveButton")
+            tryVerify(function() {
+                const entries = panel.assetRecipeBook.profiles.breakpoints || []
+                return entries.length === 1 && entries[0].id === "wide"
+                    && entries[0].recipe === "outlineThin" && entries[0].priority === 20
+            }, 3000, "o breakpoint de resolução não foi persistido pelo inspector")
+
+            chooseCombo("assetRecipePreviewTier", "balanced")
+            typeInto("assetRecipePreviewWidth", "1280")
+            typeInto("assetRecipePreviewHeight", "720")
+            click("assetRecipeProfilePreviewToggle")
+            tryVerify(function() {
+                const tierResponse = harness.profilePreviewResponses.some(function(response) {
+                    return response.payload.viewportWidth === 1280
+                        && response.payload.viewportHeight === 720
+                        && response.selection.recipe === "studioRecolor"
+                        && response.selection.source === "tier:balanced"
+                })
+                return panel.assetRecipeProfilePreviewActive
+                    && tierResponse
+                    && panel.assetRecipeResolvedSelection.recipe === "studioRecolor"
+                    && panel.assetRecipeResolvedSelection.source === "tier:balanced"
+            }, 5000, "o preview não executou o perfil do tier em 1280×720: "
+                + JSON.stringify(panel.assetRecipeResolvedSelection) + " · "
+                + JSON.stringify(harness.profilePreviewResponses) + " · "
+                + JSON.stringify(harness.errors))
+            capture("05-studio-perfil-tier-resolucao")
+
             const assetRecipeThemeId = panel.editorManifest.id
             click("themeEditorSave")
             tryCompare(panel, "editorDirty", false, 5000)

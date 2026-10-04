@@ -44,12 +44,13 @@ def test_autoria_pela_ui_real_persiste_e_resolve(
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     monkeypatch.setattr(Path, "home", classmethod(lambda _cls: tmp_path))
     ready: queue.Queue[DesktopControlServer] = queue.Queue()
+    dashboard = DesktopDashboard()
 
     def run_server() -> None:
         store = StateStore(tmp_path / "state.db")
         store.migrate()
         server = DesktopControlServer(
-            ExperienceCoordinator(Context(), (), store), "authoring-token", DesktopDashboard()
+            ExperienceCoordinator(Context(), (), store), "authoring-token", dashboard
         )
         ready.put(server)
         server.serve_forever()
