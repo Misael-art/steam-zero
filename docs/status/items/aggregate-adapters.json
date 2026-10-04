@@ -18,10 +18,23 @@
     "Todo arquivo do escopo tem custodia declarada e aparece no catalogo.",
     "Nenhuma alegacao de verificacao e feita por este item."
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
+    }
+  ],
   "nextAction": "Promover a itens proprios os adapters com ciclo transacional e evidencia dedicada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-08-11",
+  "updatedAt": "2026-10-04",
   "notes": "Item AGREGADOR: existe para que nenhum arquivo de codigo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto do diretorio. Promover um recorte deste escopo a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.",
-  "scopeDigest": "12f7947bac39ab0bff330c97e931a94494450f3dad8c4ca71a08dc51ee889b86"
+  "scopeDigest": "95b6ef8c9503650633b1fb40ffde34c044a9170fc353b30df2ccd5fbf8463993"
 }

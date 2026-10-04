@@ -16,8 +16,10 @@
     "tests/unit/test_catalog_search.py",
     "tests/integration/test_launcher_search_contract.py"
   ],
-  "scopeDigest": "6046d4ad26724db837f7cf29fe9deefc3a7774832c38981398ab544c67061080",
-  "dependsOn": ["SZ-AURA-METADATA"],
+  "scopeDigest": "f5771fb00a3bfc73918cbf3f7990238ebd5926998d9213cf65cd004092a656a5",
+  "dependsOn": [
+    "SZ-AURA-METADATA"
+  ],
   "knownGaps": [
     "GAP-AURA-SEARCH-PHYSICAL-PROOF"
   ],
@@ -58,10 +60,24 @@
       "reference": "tests/integration/test_library_organize.py",
       "command": "run_tests_isolated.py tests -x --maxfail=10; Launcher concluído até 17%, depois o teste de organização fica sem saída após 11 passes; reprodução isolada mantém o mesmo ponto",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch integrada e, após a release governada, provar busca por nome/filtro na janela real; conteúdo PS4 legítimo ainda é necessário para a prova de jogo.",
-  "activeWorkstreams": ["WS-2026-09-AURA-SEARCH-CONTRACT"],
-  "updatedAt": "2026-09-16",
+  "activeWorkstreams": [
+    "WS-2026-09-AURA-SEARCH-CONTRACT"
+  ],
+  "updatedAt": "2026-10-04",
   "notes": "CatalogSearchQuery agora é consumido pelo LauncherBridge e pela rota /search usada pelo QML. Filtros de plataforma, sistema e papel de mídia são independentes; sem filtro não há default Switch. A prova física segue aberta por depender de instalação e interação real."
 }

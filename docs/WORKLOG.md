@@ -14641,3 +14641,12 @@ Validação desta revisão: 13 testes de status aprovados em 5.13s, guard de est
 ## 2026-10-04 — Revalidação do catálogo de status
 
 - Depois de corrigir as referências de teste, atualizar seis `scopeDigest` e regenerar as views, `make status-check` passou. `tests/unit/test_project_status.py` passou com **13 testes em 5,16 s**; o estado persistente padrão da conta ficou idêntico antes/depois. O XDG temporário do gate visual também permaneceu ausente.
+
+
+## 2026-10-04 — Launcher/Cinema: Jornada executável e sessão idempotente
+
+- Branch `codex/journey-launcher-session-2026-10-04`, baseada em `b12e5f799498b92995a581c941735a21f27ef546`. Jornada ativa do Studio chega ao Launcher/Cinema pela bridge loopback autenticada, aplica menus/facetas/metadados, layout e cena ES-DE compilada, e restaura o contexto depois da sessão. A saída exige confirmação; request ids não podem trocar de ação e `closing` não envia SIGTERM duplicado.
+- A única suíte integral desta árvore ocorreu antes das correções: **5 failed, 6634 passed, 47 skipped em 2494,35 s (41:34)**. O log integral está em `docs/09-operations/evidence/2026-10-04-journey-launcher-session/full-tests.log`. Guard real idêntico antes/depois: `files=12818`, `directories=2068`, `bytes=1372874354`, `max_mtime_ns=1791129499230539182`. Falhas históricas preservadas; a integral não foi repetida após os fixes.
+- Reproduções pós-integral: harness do Cinema 1 passed (as quatro viewports); entry point isolado 31 passed; lint de fronteiras de produção 1 passed; Studio Graph 12 passed; matriz 7 passed com 153 ações; status unitário 13 passed; `JourneyRuntime`/bridge/session 48 passed. O caso do Cinema era `Array.isArray()` rejeitando `QVariantList`; `app.py` passou a criar diretórios pela porta `core.fs`; a matriz foi regenerada; o binding Studio agora é testado pelo id materializado herdado.
+- Gates finais locais: `ruff check src tools tests` OK; `ruff format --check src tools tests` — 699 arquivos; `mypy src` — 303 fontes sem erros; `make independence boundaries` OK; `make status-check` → `STATUS-CHECK: OK`. Digests e views reconciliados, sem promover estado físico.
+- Verificação sintética/offscreen e XDG isolado somente. Nenhuma instalação, escrita em host, gameplay, input físico, B_VISUAL ou release/certificação. O bezel personalizado segue indisponível; o perfil suportado aplica apenas o bezel AURA gerenciado. Próximo passo: commit e push/PR, aguardar CI terminal verde no SHA exato antes do merge.

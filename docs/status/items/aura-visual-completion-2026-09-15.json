@@ -28,7 +28,7 @@
     "tests/unit/test_component_jobs.py",
     "tests/unit/test_launcher_ui_backend.py"
   ],
-  "scopeDigest": "abcc1934a005850c1d60f1f2f5afcada712ef33e5a0830f6a0c3454a940c6b6f",
+  "scopeDigest": "d5c28c6a1496d1a22d33cd69b32f939309d02fc5224eaa917be79e808d1277ea",
   "dependsOn": [
     "SZ-AURA-CINEMA-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -133,12 +133,24 @@
       "reference": "docs/09-operations/evidence/2026-09-16-aura-release-89c-install/01-install-attempt.json",
       "command": "release_host.py install da candidata 2.0.0rc1-89c237308fb6 com rollback 2.0.0rc1-3c4b563242a9: aguardou polkit e foi interrompido sem ativação; inspeção confirmou estado limpo.",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-VISUAL-COMPLETION"
   ],
   "nextAction": "A release 2.0.0rc1-d70a80f83aae foi instalada e o ciclo AURA físico foi mapeado em Switch/Eden e NES/RetroArch. Promover ecf26d1 em nova release para repetir a captura do retorno com foco restaurado; depois obter adapter/conteúdo legítimo para troca de disco, bezel/fade isolados e prova PS4.",
-  "updatedAt": "2026-09-16",
+  "updatedAt": "2026-10-04",
   "notes": "A prova visual foi feita na release ativa sem reiniciar o KDE. A ponte de nomes e mídia rica está integrada e o OSD agora possui entrada F1/Menu guardada por sessão canônica, com teste QML real. O apply do shadPS4 falhava no host por duas fronteiras distintas: FUSE/AppImageLauncher no launch direto e JIT bloqueado pelo MemoryDenyWriteExecute do core; a correção entrega o componente em unidade transitória endurecida, usa extract-and-run quando o manifesto prova extração e passa a flag -b para Big Picture, com APPIMAGELAUNCHER_DISABLE. A release ativa 2.0.0rc1-3c4b563242a9 está reparada e verificada; a candidata pós-PR #189 2.0.0rc1-89c237308fb6 foi preparada e verificada, mas a instalação aguardou autenticação do polkit e não foi ativada. O host não possui conteúdo de jogo PS4, logo não há alegação de lançamento real nem captura fabricada. O objetivo não é marcado como pronto porque a prova pós-release e as capturas físicas de jogo, OSD/save-state, troca de disco, bezel e fade ainda faltam."
 }

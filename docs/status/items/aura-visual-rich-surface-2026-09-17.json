@@ -16,7 +16,7 @@
     "tests/qml/launcher/check_launcher_focus_bootstrap.qml",
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed"
   ],
-  "scopeDigest": "42fe72ce56d653728094c2965aa923c21531ef5586a04a99c36f959903c392a6",
+  "scopeDigest": "8fe6f49f59b6992c38556ab15e51d586019ace07456c9540af75fdced8604029",
   "dependsOn": [
     "SZ-AURA-VISUAL-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -88,12 +88,18 @@
       "reference": "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed/PHYSICAL-VALIDATION.json",
       "command": "Launcher instalado em 2.0.0rc1-3acc2104dd5a: jogo real, OSD de sessão, galeria de saves e retorno ao contexto",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-VISUAL-RICH-SURFACE"
   ],
   "nextAction": "Repetir a troca de disco pelo Launcher instalado com um jogo multi-disc legítimo; OSD e galeria já estão capturados na release atual.",
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-10-04",
   "notes": "A release instalada prova a superfície Cinema rica, ingestão de fanart/capa, medição física dentro do orçamento, OSD e galeria de saves sobre jogo real. A sessão real comprovou save-state, pausa/retomada, bezel e fade pelo contrato; o ciclo multidisco foi comprovado fora da release. Troca de disco pelo Launcher instalado permanece aberta."
 }

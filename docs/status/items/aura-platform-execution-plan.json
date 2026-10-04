@@ -49,11 +49,35 @@
       "reference": "docs/01-product/AURA-SURFACES.md",
       "command": "2026-10-02: O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma. Nenhum eixo/capability foi promovido.",
       "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/01-product/AURA-SURFACES.md",
+      "command": "2026-10-04: taxonomia e superfícies reconciliadas com o workstream local da Jornada. Registro documental; sem promoção de capacidade.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [final-gate plan scope reconciliation]: digest atualizado após fechar plano de gates e próximo passo do workstream. Registro administrativo sem novo resultado de produto e sem promoção de estágio.",
+      "result": "recorded"
     }
   ],
   "nextAction": "A0 fechado (contratos game-record-v1/enhancement-entry-v1, ADR 0028, fixtures e matriz em SZ-AURA-CONTRACTS); abrir as frentes A1 (metadados canônicos) e A2 (pipeline de imagem) com workstreams próprios; nenhum agente edita o shell compartilhado sem workstream registrado.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-08",
+  "updatedAt": "2026-10-04",
   "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.",
-  "scopeDigest": "fe43948bff6ebbe85dbc6229b7293c45c927da4ff6fe1a05677231174ff9cf95"
+  "scopeDigest": "f5c89002fdcea18bc010fbedcf396f5e1aab293d05468f9657c5ba98437a8c69"
 }

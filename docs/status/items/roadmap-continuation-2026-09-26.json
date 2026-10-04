@@ -5,7 +5,7 @@
   "title": "Roadmap de continuidade após auditoria integral",
   "domain": "governance",
   "implementation": "complete",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "dev",
   "operation": "ready",
   "distribution": "not-packaged",
@@ -36,7 +36,7 @@
     "tests/qml/check_experience_journey_bridge_e2e.qml",
     "tests/unit/test_theme_editor.py"
   ],
-  "scopeDigest": "52712176ec65be6aafb60f293844be5b81446e2e5d001de926e0ab8131645b70",
+  "scopeDigest": "c975b6b8bfde0d42d41ee6d1b5c978cbbea15eace2e211bead84e493c9f71a43",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -180,12 +180,16 @@
       "result": "recorded",
       "reference": "docs/status/workstreams/v1-v3-theme-journey-2026-10-01.json",
       "command": "2026-10-03: scope digest renovado após declarar caminhos compartilhados para a matriz de capacidades e os itens de governança/Vita; reconciliação de ownership documental, sem reteste de aceitação nem promoção de estágio."
+    },
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04: handoff/roadmap e evidência descrevem a integração sintética da Jornada, a execução XML local e as lacunas físicas/custom bezel. O aceite V4 permanece parcial.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "A bridge journey.studio.* e o preview native estão verificados por loopback. A autoria assetRecipes v2 executa balanced/1280×720 e wide/1920×720, entregando outlineThin largura 6 ao AssetRecipePreview. Os E2E QML de Jornada e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2; isso valida checkout/offscreen, não release ou sessão. A integral anterior registrou 6614 passed, 47 skipped e uma falha documental por digests/views envelhecidos; após renová-los, STATUS-CHECK e test_project_status passaram (13/13). Follow-up local 86dc1a9, commits funcionais 3aeb3b4/c839f64 e checkpoint documental fa4ff88. Enviar a árvore atualizada e conferir CI terminal; depois, seguir Launcher/Cinema e capabilities reais de sessão. B_VISUAL, pixels/tempo da release e instalação aguardam candidata autorizada e janela SteamZero disponível.",
-  "activeWorkstreams": [
-    "WS-2026-10-V1-V3-THEME-JOURNEY"
-  ],
+  "nextAction": "V1-V3 e a autoria de Jornada/Engine do PR #249 estão integradas em main b12e5f799498b92995a581c941735a21f27ef546, com CI terminal verde. O consumo da mesma Jornada por Launcher/Cinema e a operação por capabilities reais seguem no item SZ-AURA-LAUNCHER e no workstream WS-2026-10-JOURNEY-LAUNCHER-SESSION; B_VISUAL e prova de release permanecem pendentes.",
+  "activeWorkstreams": [],
   "updatedAt": "2026-10-04",
   "notes": "Planejamento e continuidade no PR #249 permanecem locais à feature branch; nenhum merge, release, instalação ou certificação física foi promovido. Um checkout confirmado. Roadmap, marcos, handoff e prompt preservam os limites de autorização. RC-00 executado em 2026-09-26: base/release/worktree conferidos; 21 claims obsoletos encerrados com evidência de integração e 5 mantidos abertos; a suíte integral da auditoria permanece registrada como não verde (1 falha documental histórica). 2026-10-01: revisão das rodadas B_VISUAL 133/134. 2026-10-02: continuação da autoria Theme Studio; o overflow horizontal dos inspetores foi reproduzido no Qt pinado, corrigido com controles de largura e coberto por verificação geométrica antes de cada evento Qt. A jornada passou no container e no host, e 140 testes focados passaram. A continuação atual acrescenta controle tipado, estado loading/keyframe, edição e reordenação de timeline/clips e prova pixelizada no consumidor da AURA UI em biblioteca sintética isolada. Focados 10+68+1+2 passaram; a integral atual terminou 6560/47 em 2302.24s e todos os gates locais passaram. B_VISUAL continua necessário para input físico e a release instalada continua anterior a esta branch. Launcher/AURA Cinema não consomem cenas importadas. A Engine tem demo de asset de fonte única, mas editar assetRecipes no documento e configurar tier/resolução ainda exige uma fatia própria de editor e runtime; cena editada ainda não foi consumida por SceneEsdeView. A revisão de 2026-10-02 incorporou o sidecar journey v1 ao contrato de Theme Engine/Studio e ao V4. Os testes atuais cobrem domínio/persistência local, não autoria UI, render Engine, Launcher/Cinema ou sessão física. O diff de README.md pertence ao commit documental upstream de main que foi reconciliado no início desta continuidade; ele foi registrado como escopo sem associar ou promover capacidade de produto. 2026-10-03: novo registro de preview da Jornada demonstra o uso local dos renderizadores e mantém sem promoção a integração de runtime. 2026-10-03: bridge de loopback e preview native da Journey foram conectados; o teste de UI cria menus/facetas compartilhadas, round-trips o documento e comprova binding no resolver. O gate integral final da árvore será registrado no fechamento; Launcher, adapters de sessão, Main instalada e B_VISUAL continuam pendentes. 2026-10-03: teste da jornada edita maxItems em tema filho de asset-recipes-demo, salva/reabre o tema e confirma a lista limitada no preview native. A cobertura usa sceneSurfaces herdado por extends; 132 testes focados passaram. Prova do checkout, sem promoção física, Launcher/Cinema ou sessão real."
 }
