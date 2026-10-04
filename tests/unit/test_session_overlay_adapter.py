@@ -6,6 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+import pytest
+
 from steamzero.adapters.session_overlay import (
     DIAG_SESSION_MISMATCH,
     SessionOverlayAdapter,
@@ -36,6 +38,22 @@ class FakeControl:
         self.calls.append("resume")
         self.current.state = "running"
         return self.current
+
+    def request_exit(self, *, confirmed: bool) -> FakeSession:
+        self.calls.append(f"exit:{confirmed}")
+        if confirmed:
+            self.current.state = "closing"
+        return self.current
+
+
+class WrongStateControl(FakeControl):
+    def suspend(self) -> FakeSession:
+        self.calls.append("suspend")
+        return FakeSession(state="running")
+
+    def resume(self) -> FakeSession:
+        self.calls.append("resume")
+        return FakeSession(state="suspended")
 
 
 class SaveStateControl(FakeControl):
@@ -132,6 +150,7 @@ def test_read_model_declares_real_pause_and_explicit_unsupported_actions() -> No
         "state": "running",
     }
     assert capabilities["pause"] == {"available": True, "reason": ""}
+    assert capabilities["exit"] == {"available": True, "reason": ""}
     assert capabilities["saveState"]["available"] is False
     assert capabilities["saveState"]["reason"]
 
@@ -152,6 +171,23 @@ def test_dispatch_pause_and_resume_use_the_same_canonical_control() -> None:
     assert control.calls == ["suspend", "resume"]
 
 
+@pytest.mark.parametrize(
+    ("initial_state", "expected_state", "expected_operation"),
+    [("running", "running", "suspend"), ("suspended", "suspended", "resume")],
+)
+def test_dispatch_never_accepts_an_unconfirmed_pause_state(
+    initial_state: str, expected_state: str, expected_operation: str
+) -> None:
+    control = WrongStateControl(FakeSession(state=initial_state))
+
+    result = make_adapter(control).dispatch("game-1", "session-1", "pause")
+
+    assert result.accepted is False
+    assert result.state == expected_state
+    assert result.diagnostic == "AURA-SESSION-ADAPTER-003"
+    assert control.calls == [expected_operation]
+
+
 def test_dispatch_rejects_stale_session_before_calling_control() -> None:
     control = FakeControl(FakeSession())
     result = make_adapter(control).dispatch("game-1", "old-session", "pause")
@@ -159,6 +195,25 @@ def test_dispatch_rejects_stale_session_before_calling_control() -> None:
     assert result.accepted is False
     assert result.diagnostic == DIAG_SESSION_MISMATCH
     assert control.calls == []
+
+
+def test_exit_requires_explicit_confirmation_and_reports_closing_as_pending() -> None:
+    control = FakeControl(FakeSession())
+    adapter = make_adapter(control)
+
+    rejected = adapter.dispatch("game-1", "session-1", "exit")
+    assert rejected.accepted is False
+    assert rejected.confirmed is False
+    assert rejected.diagnostic == "AURA-SESSION-ADAPTER-005"
+    assert control.calls == []
+
+    requested = adapter.dispatch("game-1", "session-1", "exit", confirmed=True)
+    assert requested.accepted is True
+    assert requested.confirmed is False
+    assert requested.operation == "exit"
+    assert requested.state == "closing"
+    assert requested.diagnostic == "AURA-SESSION-ADAPTER-006"
+    assert control.calls == ["exit:True"]
 
 
 def test_dispatch_keeps_unsupported_action_visible_without_side_effect() -> None:

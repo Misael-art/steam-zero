@@ -494,9 +494,7 @@ O resolver native materializa os `sceneLayouts` declarados, e o QML reutiliza
 tema `org.steamzero.asset-recipes-demo` produz somente o título filtrado da
 Jornada, sem a amostra estática Axiom Verge. Referência de tema ausente ou slot
 incompatível cai explicitamente em AURA e devolve a causa; high contrast e
-reduced motion usam os probes do dashboard na execução normal. A cena XML
-continua usando o renderer ES-DE já existente e recebe a projeção filtrada do
-componente, mas não foi exercitada nesse round-trip da bridge.
+reduced motion usam os probes do dashboard na execução normal.
 
 Outro teste edita `maxItems` no tema filho de `asset-recipes-demo`, salva e
 reabre o pacote, e confirma que o Theme Engine mantém a edição na prévia da
@@ -505,10 +503,27 @@ cobertura também usa `sceneSurfaces` herdado da cadeia `extends`, sem declarar
 incompatibilidade falsa. Isso verifica o consumo nativo do documento salvo no
 Theme Engine neste checkout, com fixtures e registros sintéticos isolados.
 
-O resultado não prova a janela Main instalada, pixels/tempo de uma release, nem
-consumo pelo AURA Launcher/Cinema. A cena XML ainda não foi exercitada nesse
-round-trip. Capabilities de launch, pause/resume, saves, bezel e exit continuam
+Na continuação de 2026-10-04, uma Jornada salva no Studio foi exportada e
+reaberta como cópia ativa pelo `JourneyStore` consumido pelo Launcher. O teste
+de integração percorre quatro menus, filtros tipados por plataforma/gênero/ano
+e desenvolvedor, destino compartilhado, tema e retorno contextual; `/journey/current` e
+`/cinema` recebem a mesma seleção. Para o tema XML de fixture, o Launcher usa o
+compilador e o blob store ES-DE existentes, publica a cena compilada na resposta
+do Cinema e a QML `SceneEsdeView` desenha o elemento. O caminho foi exercitado
+com fixtures/licenças sintéticas; não certifica uma release instalada nem o
+acervo real.
+
+No perfil RetroArch Flatpak, a configuração gerenciada aplica o bezel AURA e o
+read model publica as capabilities de pause/resume, save-state, disco e saída
+de acordo com a sessão. Saída exige confirmação e request/session ID; `closing`
+é pendente até o watcher confirmar `closed`. Outros perfis não herdam essas
+capabilities por aparência. Ainda não há operação segura de escolher/aplicar um
+bezel personalizado, nem prova física de gameplay com esse tema. O resultado
+não prova a janela Main instalada, pixels/tempo de uma release ou input físico.
+Capabilities de launch, pause/resume, saves, bezel customizado e exit continuam
 `unknown` quando o adapter da sessão não as publica; a aparência resolvida
-nunca as habilita. Não houve integração de sessão ou input físico nesta etapa.
+nunca as habilita. O caminho de sessão local acima usa mocks/sessão sintética
+mais os testes do adapter; integração física, input, captura e operação na
+release instalada seguem pendentes.
 Theme Studio, Theme Engine, AURA UI, AURA Launcher e os adapters de sessão
 continuam com critérios e provas independentes.

@@ -143,7 +143,7 @@
       "properties": {
         "id": {"$ref": "#/$defs/id"},
         "from": {"$ref": "#/$defs/endpoint"},
-        "event": {"enum": ["select", "back", "play", "pause", "resume", "open-saves", "save", "load", "exit", "retry"]},
+        "event": {"enum": ["select", "route", "back", "play", "pause", "resume", "open-saves", "save", "load", "exit", "retry"]},
         "when": {"enum": ["user-input", "operation-success", "operation-failure", "timeout"]},
         "action": {"enum": ["navigate", "back", "launch", "pause", "resume", "open-saves", "save", "load", "exit", "retry"]},
         "to": {"$ref": "#/$defs/endpoint"},

@@ -122,5 +122,17 @@
       }
     }
   },
+  "sceneSurfaces": {
+    "schemaVersion": 1,
+    "slots": {
+      "bezel": { "component": "sessionBezel" }
+    },
+    "components": {
+      "sessionBezel": {
+        "kind": "bezel",
+        "source": "session.peripherals.bezels"
+      }
+    }
+  },
   "assets": {}
 }

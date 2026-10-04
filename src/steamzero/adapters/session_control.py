@@ -82,7 +82,7 @@ def _read_line(connection: socket.socket) -> bytes:
 
 
 class SessionControlOwner:
-    """Implementa pause/retomada dentro do processo que lançou o jogo."""
+    """Implementa pause/retomada/saída dentro do processo que lançou o jogo."""
 
     def __init__(
         self,
@@ -124,6 +124,41 @@ class SessionControlOwner:
 
     def resume(self) -> SessionControlRecord:
         return self._transition_with_signal("resuming", signal.SIGCONT, "running")
+
+    def request_exit(self, *, confirmed: bool) -> SessionControlRecord:
+        """Ask the exact owned session to stop; never escalate to SIGKILL."""
+        if confirmed is not True:
+            raise RuntimeError("o encerramento da sessão exige confirmação explícita")
+        with self._lock:
+            current = self.current
+            if current is None or current.state not in {"running", "suspended", "closing"}:
+                raise RuntimeError("a sessão não está disponível para encerramento")
+            if self.start_ticks is None or self._read_start_ticks(self.pid) != self.start_ticks:
+                raise RuntimeError("a identidade do processo da sessão não pôde ser confirmada")
+            with self._store_factory() as store:
+                store.migrate()
+                row = store.get_game_session(self.session_id)
+                if row is None or row.get("game_id") != self.game_id:
+                    raise RuntimeError("a sessão mudou antes do encerramento")
+                state = str(row.get("state") or "unknown")
+                if state in {"running", "suspended"}:
+                    store.transition_game_session(self.session_id, "closing")
+                    request_signal = True
+                elif state != "closing":
+                    raise RuntimeError("a sessão já não está em um estado encerrável")
+                else:
+                    request_signal = False
+                if request_signal:
+                    try:
+                        self._signal_process(self.pid, signal.SIGTERM)
+                    except OSError as exc:
+                        raise RuntimeError(
+                            "o processo da sessão recusou o pedido de encerramento"
+                        ) from exc
+            updated = self.current
+        if updated is None:
+            raise RuntimeError("a sessão desapareceu após o pedido de encerramento")
+        return updated
 
     def list_save_states(self) -> Mapping[str, Any]:
         if self._peripheral_control is None:
@@ -265,7 +300,7 @@ class SessionControlServer:
                     connection.sendall(payload[:MAX_CONTROL_RESPONSE].encode("utf-8") + b"\n")
 
     def _dispatch(self, request: Any) -> dict[str, Any]:
-        allowed = {"sessionId", "gameId", "action", "slot", "discId"}
+        allowed = {"sessionId", "gameId", "action", "slot", "discId", "confirmed"}
         if not isinstance(request, dict) or not set(request).issubset(allowed):
             raise ValueError("schema inválido")
         if not {"sessionId", "gameId", "action"}.issubset(request):
@@ -281,9 +316,20 @@ class SessionControlServer:
                 "detail": "A sessão não corresponde ao processo controlado.",
             }
         action = _bounded_text(request.get("action"), limit=16)
+        confirmed = request.get("confirmed")
+        if (action == "exit" and confirmed is not True) or (
+            action != "exit" and "confirmed" in request
+        ):
+            return {
+                "accepted": False,
+                "state": "unknown",
+                "diagnostic": DIAG_CONTROL_REQUEST,
+                "detail": "A confirmação só é aceita para o encerramento explícito da sessão.",
+            }
         if action not in {
             "pause",
             "resume",
+            "exit",
             "listSaveStates",
             "saveState",
             "loadState",
@@ -302,6 +348,8 @@ class SessionControlServer:
                 record = self.owner.suspend()
             elif action == "resume":
                 record = self.owner.resume()
+            elif action == "exit":
+                record = self.owner.request_exit(confirmed=True)
             elif action == "listSaveStates":
                 current = self.owner.current
                 if current is None:
@@ -379,6 +427,11 @@ class RemoteSessionControl:
 
     def resume(self) -> SessionControlRecord:
         return self._request("resume")
+
+    def request_exit(self, *, confirmed: bool) -> SessionControlRecord:
+        if confirmed is not True:
+            raise RuntimeError("o encerramento da sessão exige confirmação explícita")
+        return self._request("exit", confirmed=True)
 
     def _request(self, action: str, **extra: Any) -> SessionControlRecord:
         request: dict[str, Any] = {

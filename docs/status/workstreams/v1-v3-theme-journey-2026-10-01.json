@@ -6,7 +6,7 @@
   "branch": "codex/v1-v3-theme-journey-2026-10-01",
   "baseRef": "b9d01b60",
   "owner": "codex-a-codigo",
-  "state": "active",
+  "state": "closed",
   "exclusivePaths": [
     "src/steamzero/ui/qml/ThemedDialog.qml",
     "src/steamzero/ui/qml/CtaButton.qml",
@@ -88,6 +88,6 @@
     "docs/status/items/governance-status.json",
     "docs/status/items/platform-vita-catalog.json"
   ],
-  "nextAction": "O E2E QML pela bridge seleciona balanced/1280×720 e wide/1920×720 e entrega outlineThin largura 6 ao AssetRecipePreview. Journey e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2; capturas offscreen estão em evidence/.../qml-captures. A integral anterior registrou 6614 passed/47 skipped/1 falha documental por digests/views envelhecidos; depois da renovação, STATUS-CHECK ficou OK e test_project_status passou 13/13. Follow-up 86dc1a95, commits funcionais 3aeb3b4/c839f64 e checkpoint fa4ff88. Falta enviar as alterações atuais e acompanhar CI terminal. Depois seguir handoffs seriais de Launcher/Cinema e sessão. B_VISUAL, pixels/tempo de release e instalação continuam pendentes.",
+  "nextAction": "Fechado: PR #249 integrado por merge commit em main b12e5f799498b92995a581c941735a21f27ef546; CI do SHA da PR e do push de main terminou verde. A continuidade de Jornada no Launcher/Cinema e capabilities de sessão foi transferida para WS-2026-10-JOURNEY-LAUNCHER-SESSION; B_VISUAL e release física permanecem pendentes.",
   "updatedAt": "2026-10-04"
 }

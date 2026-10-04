@@ -30,6 +30,8 @@ DIAG_SESSION_MISMATCH = "AURA-SESSION-ADAPTER-001"
 DIAG_SESSION_UNAVAILABLE = "AURA-SESSION-ADAPTER-002"
 DIAG_ACTION_FAILED = "AURA-SESSION-ADAPTER-003"
 DIAG_INVALID_INTENT = "AURA-SESSION-ADAPTER-004"
+DIAG_EXIT_CONFIRMATION_REQUIRED = "AURA-SESSION-ADAPTER-005"
+DIAG_EXIT_PENDING = "AURA-SESSION-ADAPTER-006"
 MAX_DETAIL_LENGTH = 240
 
 
@@ -48,6 +50,8 @@ class SessionControl(Protocol):
     def suspend(self) -> SessionRecord: ...
 
     def resume(self) -> SessionRecord: ...
+
+    def request_exit(self, *, confirmed: bool) -> SessionRecord: ...
 
 
 class SaveStateControl(Protocol):
@@ -73,6 +77,7 @@ class SessionActionDispatch:
     disc_id: str | None = None
     diagnostic: str | None = None
     detail: str = ""
+    confirmed: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {
@@ -83,6 +88,7 @@ class SessionActionDispatch:
             "state": self.state,
             "diagnostic": self.diagnostic,
             "detail": self.detail,
+            "confirmed": self.confirmed,
         }
         if self.slot is not None:
             result["slot"] = self.slot
@@ -129,13 +135,25 @@ class SessionOverlayAdapter:
         consistent = session_game_id == game_id and bool(session_id)
         control = self._matching_control(session_id, game_id) if consistent else None
         pause_available = control is not None and state in {"running", "suspended"}
+        exit_method = getattr(control, "request_exit", None)
+        exit_available = callable(exit_method) and state in {"running", "suspended", "closing"}
         gallery, save_available, load_available = self._save_state_surface(control, state)
         peripherals, disc_available = self._peripheral_surface(control, state)
         capabilities: dict[str, dict[str, Any]] = {
             action_id: {
-                "available": action_id in SESSION_ACTIONS and pause_available,
+                "available": (
+                    (action_id in SESSION_ACTIONS and pause_available)
+                    or (action_id == "exit" and exit_available)
+                ),
                 "reason": (
-                    "" if action_id in SESSION_ACTIONS and pause_available else UNSUPPORTED_REASON
+                    ""
+                    if (action_id in SESSION_ACTIONS and pause_available)
+                    or (action_id == "exit" and exit_available)
+                    else (
+                        "A saída exige uma sessão controlável e confirmação explícita."
+                        if action_id == "exit"
+                        else UNSUPPORTED_REASON
+                    )
                 ),
             }
             for action_id in OSD_ACTIONS
@@ -195,6 +213,7 @@ class SessionOverlayAdapter:
         action_id: str,
         slot: int | None = None,
         disc_id: str | None = None,
+        confirmed: bool = False,
     ) -> SessionActionDispatch:
         """Valida correlação/capacidade e encaminha pause ou resume ao dono."""
 
@@ -209,6 +228,18 @@ class SessionOverlayAdapter:
                 disc_id=disc_id,
                 diagnostic=DIAG_INVALID_INTENT,
                 detail="gameId e sessionId são obrigatórios.",
+            )
+        if action_id == "exit" and confirmed is not True:
+            return SessionActionDispatch(
+                accepted=False,
+                game_id=game_id,
+                session_id=session_id,
+                operation="exit",
+                state="unknown",
+                slot=slot,
+                disc_id=disc_id,
+                diagnostic=DIAG_EXIT_CONFIRMATION_REQUIRED,
+                detail="Confirme que o jogo não tem progresso pendente antes de sair.",
             )
         model = self.read_model(game_id, visible=True)
         session = model["session"]
@@ -256,7 +287,9 @@ class SessionOverlayAdapter:
                 detail="O gerenciador canônico da sessão não está disponível.",
             )
         try:
-            updated = self._execute(intent, control, slot=slot, disc_id=disc_id)
+            updated = self._execute(
+                intent, control, slot=slot, disc_id=disc_id, confirmed=confirmed
+            )
         except Exception as exc:  # boundary: transforma falha de adapter em estado recuperável
             return SessionActionDispatch(
                 accepted=False,
@@ -274,6 +307,42 @@ class SessionOverlayAdapter:
                 detail=_text(str(exc), fallback="A operação da sessão falhou."),
             )
         state = _text(getattr(updated, "state", None), fallback=observed_state, limit=32)
+        if intent.operation == "exit" and state not in {"closing", "closed"}:
+            return SessionActionDispatch(
+                accepted=False,
+                game_id=game_id,
+                session_id=session_id,
+                operation=intent.operation,
+                state=state,
+                slot=slot,
+                disc_id=disc_id,
+                diagnostic=DIAG_ACTION_FAILED,
+                detail="O adapter não confirmou o estado de encerramento.",
+            )
+        if intent.operation == "pause" and state != "suspended":
+            return SessionActionDispatch(
+                accepted=False,
+                game_id=game_id,
+                session_id=session_id,
+                operation=intent.operation,
+                state=state,
+                slot=slot,
+                disc_id=disc_id,
+                diagnostic=DIAG_ACTION_FAILED,
+                detail="O adapter não confirmou o estado pausado.",
+            )
+        if intent.operation == "resume" and state != "running":
+            return SessionActionDispatch(
+                accepted=False,
+                game_id=game_id,
+                session_id=session_id,
+                operation=intent.operation,
+                state=state,
+                slot=slot,
+                disc_id=disc_id,
+                diagnostic=DIAG_ACTION_FAILED,
+                detail="O adapter não confirmou o estado em execução.",
+            )
         return SessionActionDispatch(
             accepted=True,
             game_id=game_id,
@@ -282,6 +351,15 @@ class SessionOverlayAdapter:
             state=state,
             slot=slot,
             disc_id=disc_id,
+            diagnostic=(
+                DIAG_EXIT_PENDING if intent.operation == "exit" and state != "closed" else None
+            ),
+            detail=(
+                "Pedido de encerramento enviado; aguardando o observer confirmar closed."
+                if intent.operation == "exit" and state != "closed"
+                else ""
+            ),
+            confirmed=(state == "closed" if intent.operation == "exit" else True),
         )
 
     @staticmethod
@@ -352,7 +430,18 @@ class SessionOverlayAdapter:
         *,
         slot: int | None,
         disc_id: str | None,
+        confirmed: bool,
     ) -> SessionRecord:
+        if intent.action_id == "exit":
+            if confirmed is not True:
+                raise ValueError("o encerramento da sessão exige confirmação explícita")
+            current = control.current
+            if current is None or current.state not in {"running", "suspended", "closing"}:
+                raise ValueError("a sessão não está disponível para encerramento")
+            method = getattr(control, "request_exit", None)
+            if not callable(method):
+                raise RuntimeError("O adapter desta sessão não oferece encerramento.")
+            return cast(Callable[..., SessionRecord], method)(confirmed=True)
         if intent.action_id in {"saveState", "loadState"}:
             if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot <= 999:
                 raise ValueError("slot de save-state inválido")

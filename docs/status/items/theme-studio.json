@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "790f3db2935623094a200bacfac3a2a8189f0accb82191ce4e4133e589acff22",
+  "scopeDigest": "78c54e12a58bbba35a62dfe1caf959390d93d000d1bc74fb4b28516376cad8cc",
   "scopePaths": [
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun",
     "docs/09-operations/evidence/2026-09-07-theme-studio-contrast",
@@ -489,6 +489,24 @@
       "reference": "tests/integration/test_theme_authoring_e2e.py",
       "command": "2026-10-04, imagem Qt 6.11.2 ghcr.io/misael-art/steamzero-qml-visual@sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd; tests/integration/test_experience_journey_e2e.py e tests/integration/test_theme_authoring_e2e.py: 2 passed em 16.81 s. Viewport/diálogo da Jornada e preview rolável do Theme Studio corrigidos; tier/breakpoint executados e AssetRecipePreview atualizado para outlineThin, largura 6. XDG_STATE_HOME temporário ausente antes/depois. Checkout/offscreen; sem aplicação instalada, pixels físicos, B_VISUAL ou medição de release.",
       "result": "passed"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-04: escopo documental alinhado à prova local da Jornada no Launcher/Cinema e aos limites de sessão/bezel. A atualização preserva a verificação física pendente e não promove o Theme Studio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_studio_graph.py",
+      "command": "rtk .venv/bin/python -m pytest tests/unit/test_studio_graph.py -q --tb=short; 12 passed em 0.54s. O binding é localizado pelo id materializado da camada herdada; sem evidência física, sem promoção de estágio.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado com a árvore atual; a suíte integral única registrou a falha pré-correção detalhada no README. Este registro não substitui a prova física do Studio nem promove estágio.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Perfis assetRecipes v2 editam fallback, tiers e breakpoints; o preview QML/bridge entrega outlineThin largura 6 ao renderer. Os E2E de Jornada e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2, sem provar release instalada. Enviar follow-up e documentos atualizados e conferir CI terminal. Launcher/Cinema, sessão, B_VISUAL e medição física continuam abertos.",

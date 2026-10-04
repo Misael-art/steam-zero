@@ -258,7 +258,14 @@ def test_assisted_bindings_expose_allowlisted_paths_without_eval() -> None:
     assert tint is not None
     assert tint.properties["path"] == "palette.accent"
     assert isinstance(tint.properties["resolved"], str)
-    progress = graph.select("binding.surface.quickOsd.progress")
+    scene_surfaces = preview["sceneSurfaces"]
+    assert isinstance(scene_surfaces, dict)
+    components = scene_surfaces["components"]
+    assert isinstance(components, dict)
+    osd_component = next(
+        name for name, component in components.items() if component.get("kind") == "osd"
+    )
+    progress = graph.select(f"binding.surface.{osd_component}.progress")
     assert progress is not None
     assert progress.properties["path"] == "osd.volume"
     assert progress.properties["resolved"] == 0.4

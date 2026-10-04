@@ -6,6 +6,7 @@
 // ação semântica escolhida para a ponte.
 
 import QtQuick
+import QtQuick.Controls
 
 Item {
     id: overlay
@@ -22,31 +23,86 @@ Item {
     property bool requestPending: false
     property int selectedIndex: _initialIndex()
     readonly property var actions: overlayModel && Array.isArray(overlayModel.actions)
-        ? overlayModel.actions : []
+        ? _visibleActions(overlayModel.actions) : []
     readonly property var saveStates: overlayModel && overlayModel.saveStates
         ? overlayModel.saveStates : null
     readonly property var peripherals: overlayModel && overlayModel.peripherals
         ? overlayModel.peripherals : null
     readonly property var criticalError: overlayModel
         ? overlayModel.criticalError : null
+    readonly property var journeyAppearance: overlayModel && overlayModel.journeyAppearance
+        ? overlayModel.journeyAppearance : ({})
+    readonly property var journeyTheme: journeyAppearance.theme || ({})
+    readonly property var themeTokens: journeyTheme.resolved || ({})
+    readonly property var themeColors: themeTokens.color || ({})
+    readonly property var sceneSurfaceBook: journeyTheme.sceneSurfaces || ({})
+    readonly property var sceneSurfaceSlots: sceneSurfaceBook.slots || ({})
+    readonly property var sceneSurfaceComponents: sceneSurfaceBook.components || ({})
     readonly property bool highContrast: !!(accessibility && accessibility.highContrast)
+        || journeyTheme.highContrast === true
     readonly property bool reducedMotion: !!(accessibility && accessibility.reducedMotion)
+        || journeyTheme.reducedMotion === true
     readonly property real visualScale: accessibility && Number(accessibility.visualScale) > 0
         ? Number(accessibility.visualScale) : 1.0
+    readonly property string activeSurfaceSlot: journeyAppearance.stageId === "saves"
+        ? "saveStates" : journeyAppearance.stageId === "bezel" ? "bezel" : "osd"
+    readonly property var activeSurface: _surfaceComponent(activeSurfaceSlot)
+    readonly property color backgroundColor: highContrast ? "#000000"
+        : _safeColor(themeColors.background, "#071019")
+    readonly property color panelColor: highContrast ? "#000000"
+        : _safeColor(themeColors.surface, "#101c2b")
+    readonly property color accentColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.accent, "#7dd3fc")
+    readonly property color primaryTextColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.text, "#f8fafc")
+    readonly property color mutedTextColor: highContrast ? "#e8e8e8"
+        : _safeColor(themeColors.textMuted, "#a8b8ca")
+    readonly property color borderColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.border, "#2b4963")
+    readonly property int motionDuration: reducedMotion ? 0
+        : Math.max(0, Math.min(1000, Number(themeTokens.motion
+            && themeTokens.motion.durationNormal || 160)))
     readonly property string currentActionId: selectedIndex >= 0 && selectedIndex < actions.length
         ? String(actions[selectedIndex].id || "") : ""
 
     signal actionRequested(string actionId)
     signal saveStateRequested(string actionId, int slot)
     signal discRequested(string discId)
+    signal appearanceStageRequested(string stageId)
     signal closeRequested()
 
+    function _safeColor(value, fallback) {
+        if (typeof value !== "string")
+            return fallback
+        const candidate = value.trim()
+        return /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/.test(candidate)
+            ? candidate : fallback
+    }
+
+    function _surfaceComponent(slotId) {
+        const slot = sceneSurfaceSlots[String(slotId)]
+        return slot && typeof slot.component === "string"
+            ? sceneSurfaceComponents[slot.component] || null : null
+    }
+
+    function _visibleActions(source) {
+        let result = source
+        if (activeSurface && Array.isArray(activeSurface.items) && activeSurface.items.length > 0) {
+            result = source.filter(function(action) {
+                return activeSurface.items.indexOf(String(action.id || "")) >= 0
+            })
+        }
+        if (activeSurface && Number(activeSurface.maxItems) > 0)
+            result = result.slice(0, Number(activeSurface.maxItems))
+        return result
+    }
+
     function _initialIndex() {
-        if (!overlayModel || !Array.isArray(overlayModel.actions))
+        if (!actions.length)
             return 0
         const requested = String(overlayModel.focusedAction || "")
-        for (let i = 0; i < overlayModel.actions.length; ++i)
-            if (String(overlayModel.actions[i].id || "") === requested)
+        for (let i = 0; i < actions.length; ++i)
+            if (String(actions[i].id || "") === requested)
                 return i
         return 0
     }
@@ -80,6 +136,7 @@ Item {
         overlay.peripheralOpen = false
         saveGallery.visible = false
         peripheralSurface.visible = false
+        exitConfirmation.close()
         overlay.localError = ""
         overlay.closeRequested()
         return true
@@ -127,6 +184,7 @@ Item {
             overlay.saveGalleryOpen = true
             saveGallery.setModel(overlay.saveStates)
             saveGallery.openGallery(String(action.id))
+            overlay.appearanceStageRequested("saves")
             return true
         }
         if (String(action.id) === "disc" && overlay.peripherals
@@ -134,6 +192,10 @@ Item {
             overlay.peripheralOpen = true
             peripheralSurface.setModel(overlay.peripherals)
             peripheralSurface.openSurface()
+            return true
+        }
+        if (String(action.id) === "exit") {
+            exitConfirmation.open()
             return true
         }
         overlay.localError = ""
@@ -147,6 +209,8 @@ Item {
         overlay.saveGalleryOpen = false
         saveGallery.visible = false
         overlay.forceActiveFocus()
+        overlay.appearanceStageRequested(
+            overlay.overlayModel && overlay.overlayModel.state === "suspended" ? "pause" : "osd")
         return true
     }
 
@@ -179,11 +243,11 @@ Item {
         // O OSD precisa ser uma superfície legível sobre a página e sobre
         // qualquer janela de retorno. Opacidade total impede vazamento de
         // títulos/metadados por trás do contraste cinematográfico.
-        color: overlay.highContrast ? "#000000" : "#071019"
+        color: overlay.backgroundColor
         opacity: overlay.overlayOpen ? 1 : 0
         visible: overlay.overlayOpen && !overlay.saveGalleryOpen && !overlay.peripheralOpen
         Behavior on opacity {
-            NumberAnimation { duration: overlay.reducedMotion ? 0 : 160 }
+            NumberAnimation { duration: overlay.motionDuration }
         }
     }
 
@@ -194,9 +258,9 @@ Item {
         width: Math.min(parent.width - 64, 900)
         height: Math.min(parent.height - 64, 650)
         radius: 18
-        color: overlay.highContrast ? "#000000" : "#101c2bfa"
+        color: overlay.panelColor
         border.width: overlay.highContrast ? 3 : 1
-        border.color: overlay.highContrast ? "#ffffff" : "#2b4963"
+        border.color: overlay.borderColor
         visible: overlay.overlayOpen && !overlay.saveGalleryOpen && !overlay.peripheralOpen
         z: 1
         opacity: 1
@@ -215,7 +279,7 @@ Item {
                     spacing: 4
                     Text {
                         text: qsTr("CONTROLE DA SESSÃO")
-                        color: overlay.highContrast ? "#ffffff" : "#7dd3fc"
+                        color: overlay.accentColor
                         font.pixelSize: 13 * overlay.visualScale
                         font.bold: true
                     }
@@ -223,7 +287,7 @@ Item {
                         text: overlay.gameTitle !== "" ? overlay.gameTitle
                             : _text(overlay.overlayModel ? overlay.overlayModel.gameId : "",
                                     qsTr("Jogo em execução"))
-                        color: "#f8fafc"
+                        color: overlay.primaryTextColor
                         font.pixelSize: 26 * overlay.visualScale
                         font.bold: true
                         elide: Text.ElideRight
@@ -236,15 +300,15 @@ Item {
                     width: 116
                     height: 44
                     radius: 8
-                    color: overlay.highContrast ? "#000000" : "#17283a"
+                    color: overlay.panelColor
                     border.width: activeFocus ? 3 : 1
-                    border.color: activeFocus ? "#7dd3fc" : "#68839b"
+                    border.color: activeFocus ? overlay.accentColor : overlay.borderColor
                     Accessible.name: qsTr("Fechar controle da sessão")
                     Accessible.role: Accessible.Button
                     Text {
                         anchors.centerIn: parent
                         text: qsTr("Fechar")
-                        color: "#f8fafc"
+                        color: overlay.primaryTextColor
                         font.pixelSize: 14 * overlay.visualScale
                     }
                     TapHandler { onTapped: overlay.closeOverlay() }
@@ -256,13 +320,13 @@ Item {
                 Text {
                     text: qsTr("Estado: %1").arg(_text(overlay.overlayModel
                         ? overlay.overlayModel.state : "", qsTr("indisponível")))
-                    color: "#cbd5e1"
+                    color: overlay.mutedTextColor
                     font.pixelSize: 14 * overlay.visualScale
                 }
                 Text {
                     visible: overlay.requestPending
                     text: qsTr("Atualizando…")
-                    color: "#fbbf24"
+                    color: overlay.accentColor
                     font.pixelSize: 14 * overlay.visualScale
                 }
             }
@@ -283,13 +347,13 @@ Item {
                         height: 58
                         radius: 8
                         color: modelData.enabled === true
-                            ? (index === overlay.selectedIndex ? "#164e63" : "#17283a")
-                            : (index === overlay.selectedIndex ? "#3b2f20" : "#111b27")
+                            ? (index === overlay.selectedIndex ? overlay.accentColor : overlay.panelColor)
+                            : (index === overlay.selectedIndex ? "#3b2f20" : overlay.backgroundColor)
                         opacity: modelData.enabled === true ? 1 : 0.62
                         border.width: index === overlay.selectedIndex ? 3 : 1
                         border.color: index === overlay.selectedIndex
-                            ? (modelData.enabled === true ? "#67e8f9" : "#fbbf24")
-                            : "#2b4963"
+                            ? (modelData.enabled === true ? overlay.accentColor : "#fbbf24")
+                            : overlay.borderColor
                         Accessible.name: String(modelData.label || modelData.id || "")
                         Accessible.role: Accessible.Button
                         Accessible.description: modelData.enabled === true
@@ -299,7 +363,8 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 8
                             text: String(modelData.label || modelData.id || "")
-                            color: modelData.enabled === true ? "#f8fafc" : "#b7c1ce"
+                            color: modelData.enabled === true
+                                ? overlay.primaryTextColor : overlay.mutedTextColor
                             font.pixelSize: 13 * overlay.visualScale
                             font.bold: index === overlay.selectedIndex
                             horizontalAlignment: Text.AlignHCenter
@@ -323,9 +388,9 @@ Item {
                 visible: overlay.bridgeError !== "" || overlay.localError !== ""
                     || (overlay.overlayModel && overlay.overlayModel.diagnostic)
                     || overlay.criticalError !== null
-                color: overlay.highContrast ? "#000000" : "#241a1e"
+                color: overlay.highContrast ? "#000000" : _safeColor(themeColors.error, "#241a1e")
                 border.width: 1
-                border.color: "#fb7185"
+                border.color: _safeColor(themeColors.error, "#fb7185")
                 Text {
                     id: errorText
                     anchors.fill: parent
@@ -343,7 +408,7 @@ Item {
                             .filter(function(value) { return value !== "" }).join("\n")
                         : _text(overlay.overlayModel ? overlay.overlayModel.diagnostic : "",
                                 qsTr("A sessão ainda não está disponível para controle."))
-                    color: "#fecdd3"
+                    color: overlay.primaryTextColor
                     font.pixelSize: 14 * overlay.visualScale
                     wrapMode: Text.Wrap
                     maximumLineCount: 5
@@ -356,18 +421,44 @@ Item {
             Text {
                 width: parent.width
                 text: qsTr("← ↑ ↓ → Navegar   Enter Selecionar   Esc Fechar")
-                color: overlay.highContrast ? "#ffffff" : "#a8b8ca"
+                color: overlay.mutedTextColor
                 font.pixelSize: 13 * overlay.visualScale
                 horizontalAlignment: Text.AlignHCenter
             }
         }
     }
 
+    Dialog {
+        id: exitConfirmation
+        objectName: "launcherSessionExitConfirmation"
+        modal: true
+        focus: true
+        width: Math.max(280, Math.min(520, overlay.width - 32))
+        implicitHeight: Math.max(176, Math.min(220, overlay.height - 32))
+        title: qsTr("Sair do jogo?")
+        standardButtons: Dialog.Yes | Dialog.Cancel
+        parent: Overlay.overlay
+        onAccepted: {
+            overlay.localError = ""
+            overlay.actionRequested("exit")
+            overlay.forceActiveFocus()
+        }
+        onRejected: overlay.forceActiveFocus()
+        contentItem: Text {
+            width: exitConfirmation.availableWidth
+            text: qsTr("Confirme que não há progresso pendente. O SteamZero enviará um pedido de encerramento e aguardará a confirmação real da sessão; não forçará o fechamento.")
+            color: overlay.primaryTextColor
+            wrapMode: Text.WordWrap
+        }
+    }
+
     LauncherSaveStateGallery {
         id: saveGallery
+        objectName: "launcherSessionSaveStateGallery"
         anchors.fill: parent
         model: overlay.saveStates
         accessibility: overlay.accessibility
+        theme: overlay.journeyTheme
         onSlotRequested: function(actionId, slot) {
             overlay.saveStateRequested(actionId, slot)
         }
@@ -379,6 +470,7 @@ Item {
         anchors.fill: parent
         model: overlay.peripherals
         accessibility: overlay.accessibility
+        theme: overlay.journeyTheme
         onDiscRequested: function(discId) {
             overlay.discRequested(discId)
         }

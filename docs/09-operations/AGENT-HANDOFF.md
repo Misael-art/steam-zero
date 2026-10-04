@@ -1,4 +1,38 @@
-# Handoff do agente — revisão de 01/10/2026
+# Handoff do agente — atualização de 04/10/2026
+
+## Continuidade vigente
+
+Checkout único: `/home/misael/Projects/Steam Zero/Canonical/2026-09-21`.
+Branch de trabalho: `codex/journey-launcher-session-2026-10-04`, baseada no
+`main` `b12e5f799498b92995a581c941735a21f27ef546`. A árvore está em andamento e
+contém a implementação da Jornada no Launcher/Cinema, contratos de sessão,
+provas focadas e atualização documental; preserve-a e não troque de branch.
+
+Workstream ativo: `WS-2026-10-JOURNEY-LAUNCHER-SESSION`. A prova de integração
+mais recente passou com 207 testes focados; a prova inclui a cópia ativa da
+Jornada, facetas tipadas, retorno, ação de sessão e cena XML compilada no
+Cinema/`SceneEsdeView`. O contrato de bezel publica o slot e o perfil RetroArch
+aplica apenas o AURA gerenciado; bezel personalizado ainda não é executável.
+Após tornar repetição da saída idempotente enquanto `closing`, os 16 testes de
+controle/adapter de sessão também passaram.
+Consulte `docs/09-operations/evidence/2026-10-04-journey-launcher-session`
+quando os resultados integrais e o SHA candidato forem registrados.
+
+Próximo checkpoint: estabilizar implementação e documentos, executar uma vez os
+seis gates integrais de `AGENTS.md`, promover os logs necessários, separar
+commits funcionais/documentais e o commit de integração compartilhada, fazer
+push/PR e aguardar CI terminal verde no SHA final. A autorização da tarefa cobre
+essas operações no branch próprio e o merge autorizado. Não instalar, publicar,
+reverter ou capturar a release no host nesta etapa: isso exige autorização e
+token próprios. B_VISUAL ainda precisa de janela/captura/input seguros e do ciclo
+na candidata instalada.
+
+O perfil RetroArch Flatpak é o único ciclo de sessão apoiado por esta fatia.
+Pause/resume, save-state, disco e saída são publicados pelo adapter; saída pede
+confirmação e espera `closed` real. Outros perfis deixam a capability ausente
+com razão legível. Nenhuma fixture sintética promove operação ou consumo físico.
+
+## Registro de 01/10/2026 (histórico)
 
 ## Onde continuar
 

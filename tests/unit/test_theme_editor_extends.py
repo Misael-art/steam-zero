@@ -28,7 +28,7 @@ import pytest
 
 from steamzero.core import paths
 from steamzero.core.errors import SteamZeroError
-from steamzero.domain.theme_editor import ThemeEditorManager
+from steamzero.domain.theme_editor import ThemeEditorManager, _declared
 
 DEFAULT_ID = "org.steamzero.default"
 AURA_ID = "org.steamzero.aura"
@@ -107,6 +107,30 @@ class TestThePreviewInheritsFromTheChosenBase:
         assert colors["accent"] == "#ff00ff"
         # E o que NÃO foi editado continua vindo da base.
         assert colors["background"] == "#0b1020"
+
+    def test_partial_surface_book_keeps_inherited_bezel_for_stage_coverage(self) -> None:
+        manifest = {
+            "schemaVersion": 1,
+            "kind": "steamzero-theme-v1",
+            "id": "org.teste.partial-surfaces",
+            "name": "Superfícies parciais",
+            "version": "1.0.0",
+            "author": "teste",
+            "license": "MIT",
+            "extends": DEFAULT_ID,
+            "sceneSurfaces": {
+                "schemaVersion": 1,
+                "slots": {"library": {"component": "customGrid"}},
+                "components": {"customGrid": {"kind": "gameGrid", "source": "library.items"}},
+            },
+        }
+
+        declared = _declared(manifest)["sceneSurfaces"]
+
+        assert isinstance(declared, dict)
+        assert set(declared["slots"]) >= {"library", "bezel"}
+        bezel_component_id = declared["slots"]["bezel"]["component"]
+        assert declared["components"][bezel_component_id]["kind"] == "bezel"
 
 
 class TestChainsAndTheirLimits:

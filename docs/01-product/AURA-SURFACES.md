@@ -52,10 +52,23 @@ a cobertura inclui `sceneSurfaces` herdado. Essas provas não substituem release
 instalada ou pixels/tempo no hardware. Sem bridge disponível, a UI continua
 preservando o rascunho e desabilitando gravação.
 
-O mesmo documento ainda não é consumido pelo AURA Launcher/Cinema nem ligado a
-capabilities reais da sessão. AURA UI instalada, Theme Engine e Theme Studio
-continuam capacidades independentes; os resultados desta branch não promovem
-nenhuma delas a `installed` ou `certified`.
+O workstream de continuidade conecta uma cópia ativada da Jornada salva no
+Studio à ponte do Launcher e ao Cinema. O caso sintético de ponta a ponta cobre
+quatro menus, facetas de plataforma/gênero/ano/desenvolvedor, um destino
+compartilhado, metadados públicos, aparência por menu, retorno contextual e a mesma cena XML
+ES-DE compilada e renderizada pela QML do Cinema. Os caminhos de tema nativo e
+cena XML continuam sendo consumidores distintos e estão registrados
+separadamente.
+
+O perfil de sessão suportado nesta fatia é RetroArch Flatpak: seu adapter
+publica pause/resume, save-state, disco e saída conforme a sessão observada;
+operações não suportadas continuam indisponíveis com a razão. O bezel AURA
+gerenciado é aplicado na configuração de sessão do RetroArch. Escolha de bezel
+personalizado ainda não é aplicada por adapter ou renderer de gameplay; declarar
+a fonte `session.peripherals.bezels` não prova essa operação. Input físico,
+comportamento na release instalada e o ciclo completo do Launcher/Cinema seguem
+sem verificação. Testes de checkout não promovem capacidades a `installed` ou
+`certified`.
 
 ## Linguagem permitida em reportes
 

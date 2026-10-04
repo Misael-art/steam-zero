@@ -10,17 +10,42 @@ Item {
     id: gallery
 
     property var model: null
+    property var theme: null
     property var accessibility: ({"highContrast": false, "visualScale": 1.0,
         "reducedMotion": false})
     property string mode: "loadState"
     property int selectedIndex: 0
     readonly property var entries: model && Array.isArray(model.entries) ? model.entries : []
+    readonly property var themeTokens: theme && theme.resolved ? theme.resolved : ({})
+    readonly property var themeColors: themeTokens.color || ({})
+    readonly property var surfaces: theme && theme.sceneSurfaces ? theme.sceneSurfaces : ({})
+    readonly property var surfaceSlots: surfaces.slots || ({})
+    readonly property var surfaceComponents: surfaces.components || ({})
+    readonly property var gallerySlot: surfaceSlots.saveStates || null
+    readonly property var galleryComponent: gallerySlot
+        ? surfaceComponents[gallerySlot.component] || null : null
+    readonly property var visibleEntries: galleryComponent && Number(galleryComponent.maxItems) > 0
+        ? entries.slice(0, Number(galleryComponent.maxItems)) : entries
     readonly property bool highContrast: !!(accessibility && accessibility.highContrast)
+        || (theme && theme.highContrast === true)
     readonly property bool reducedMotion: !!(accessibility && accessibility.reducedMotion)
+        || (theme && theme.reducedMotion === true)
     readonly property real visualScale: accessibility && Number(accessibility.visualScale) > 0
         ? Number(accessibility.visualScale) : 1.0
-    readonly property var selectedEntry: selectedIndex >= 0 && selectedIndex < entries.length
-        ? entries[selectedIndex] : null
+    readonly property color backgroundColor: highContrast ? "#000000"
+        : _safeColor(themeColors.background, "#071019")
+    readonly property color panelColor: highContrast ? "#000000"
+        : _safeColor(themeColors.surface, "#101c2b")
+    readonly property color accentColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.accent, "#7dd3fc")
+    readonly property color textColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.text, "#f8fafc")
+    readonly property color mutedColor: highContrast ? "#e8e8e8"
+        : _safeColor(themeColors.textMuted, "#a8b8ca")
+    readonly property color borderColor: highContrast ? "#ffffff"
+        : _safeColor(themeColors.border, "#2b4963")
+    readonly property var selectedEntry: selectedIndex >= 0 && selectedIndex < visibleEntries.length
+        ? visibleEntries[selectedIndex] : null
 
     signal slotRequested(string actionId, int slot)
     signal closeRequested()
@@ -46,10 +71,10 @@ Item {
     }
 
     function move(direction) {
-        if (entries.length === 0)
+        if (visibleEntries.length === 0)
             return false
         let step = direction === "left" || direction === "up" ? -1 : 1
-        gallery.selectedIndex = (gallery.selectedIndex + step + entries.length) % entries.length
+        gallery.selectedIndex = (gallery.selectedIndex + step + visibleEntries.length) % visibleEntries.length
         return true
     }
 
@@ -66,6 +91,14 @@ Item {
         return typeof value === "string" && value.length > 0 ? value : fallback
     }
 
+    function _safeColor(value, fallback) {
+        if (typeof value !== "string")
+            return fallback
+        const candidate = value.trim()
+        return /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/.test(candidate)
+            ? candidate : fallback
+    }
+
     visible: false
     focus: visible
     z: 50
@@ -74,7 +107,7 @@ Item {
         anchors.fill: parent
         // A galeria é uma superfície modal exclusiva. Deixá-la translúcida
         // sobre o OSD base duplica títulos, ações e rodapés durante um save.
-        color: gallery.highContrast ? "#000000" : "#071019"
+        color: gallery.backgroundColor
     }
 
     Rectangle {
@@ -82,9 +115,9 @@ Item {
         width: Math.min(parent.width - 64, 1080)
         height: Math.min(parent.height - 64, 560)
         radius: 18
-        color: gallery.highContrast ? "#000000" : "#101c2bfa"
+        color: gallery.panelColor
         border.width: gallery.highContrast ? 3 : 1
-        border.color: gallery.highContrast ? "#ffffff" : "#2b4963"
+        border.color: gallery.borderColor
 
         Column {
             anchors.fill: parent
@@ -99,7 +132,7 @@ Item {
                     text: gallery.mode === "saveState"
                         ? qsTr("SAVE-STATE · ESCOLHER SLOT")
                         : qsTr("SAVE-STATE · CARREGAR")
-                    color: gallery.highContrast ? "#ffffff" : "#7dd3fc"
+                    color: gallery.accentColor
                     font.pixelSize: 18 * gallery.visualScale
                     font.bold: true
                     elide: Text.ElideRight
@@ -109,13 +142,13 @@ Item {
                     width: 116
                     height: 44
                     radius: 8
-                    color: gallery.highContrast ? "#000000" : "#17283a"
+                    color: gallery.panelColor
                     border.width: activeFocus ? 3 : 1
-                    border.color: activeFocus ? "#7dd3fc" : "#68839b"
+                    border.color: activeFocus ? gallery.accentColor : gallery.borderColor
                     Text {
                         anchors.centerIn: parent
                         text: qsTr("Fechar")
-                        color: "#f8fafc"
+                        color: gallery.textColor
                         font.pixelSize: 14 * gallery.visualScale
                     }
                     TapHandler { onTapped: gallery.closeGallery() }
@@ -127,7 +160,7 @@ Item {
                 text: entries.length > 0
                     ? qsTr("%1 slot(s) · selecione um estado compatível").arg(entries.length)
                     : _text(model ? model.reason : "", qsTr("Nenhum save-state disponível."))
-                color: entries.length > 0 ? "#cbd5e1" : "#fbbf24"
+                color: entries.length > 0 ? gallery.mutedColor : gallery.accentColor
                 font.pixelSize: 14 * gallery.visualScale
                 wrapMode: Text.Wrap
             }
@@ -139,7 +172,7 @@ Item {
                 orientation: ListView.Horizontal
                 spacing: 14
                 clip: true
-                model: gallery.entries
+                model: gallery.visibleEntries
                 delegate: Rectangle {
                     required property var modelData
                     required property int index
@@ -147,11 +180,11 @@ Item {
                     height: 270
                     radius: 12
                     color: modelData.available === true
-                        ? (index === gallery.selectedIndex ? "#164e63" : "#17283a")
+                        ? (index === gallery.selectedIndex ? gallery.accentColor : gallery.panelColor)
                         : "#111b27"
                     opacity: modelData.available === true ? 1 : 0.62
                     border.width: index === gallery.selectedIndex ? 3 : 1
-                    border.color: index === gallery.selectedIndex ? "#67e8f9" : "#2b4963"
+                    border.color: index === gallery.selectedIndex ? gallery.accentColor : gallery.borderColor
                     Accessible.name: qsTr("Slot %1").arg(modelData.slot)
                     Accessible.role: Accessible.Button
                     Accessible.description: modelData.available === true
@@ -178,11 +211,11 @@ Item {
                         width: 166
                         height: 132
                         visible: modelData.thumbnailFallback === true || !thumbnail.visible
-                        color: gallery.highContrast ? "#000000" : "#26384a"
+                        color: gallery.panelColor
                         Text {
                             anchors.centerIn: parent
                             text: qsTr("SEM CAPTURA")
-                            color: "#cbd5e1"
+                            color: gallery.mutedColor
                             font.pixelSize: 12 * gallery.visualScale
                             font.bold: true
                         }
@@ -195,13 +228,13 @@ Item {
                         spacing: 4
                         Text {
                             text: qsTr("Slot %1").arg(modelData.slot)
-                            color: "#f8fafc"
+                            color: gallery.textColor
                             font.pixelSize: 15 * gallery.visualScale
                             font.bold: true
                         }
                         Text {
                             text: _text(modelData.timestamp, qsTr("Data indisponível"))
-                            color: "#cbd5e1"
+                            color: gallery.mutedColor
                             font.pixelSize: 11 * gallery.visualScale
                             elide: Text.ElideRight
                             width: parent.width
@@ -209,7 +242,7 @@ Item {
                         Text {
                             text: qsTr("%1 min · %2").arg(Math.floor(Number(modelData.playtimeSeconds || 0) / 60))
                                 .arg(_text(modelData.compatibility, "unknown"))
-                            color: "#a8b8ca"
+                            color: gallery.mutedColor
                             font.pixelSize: 11 * gallery.visualScale
                         }
                     }
@@ -226,7 +259,7 @@ Item {
             Text {
                 width: parent.width
                 text: qsTr("← → Navegar   Enter Selecionar   Esc Fechar")
-                color: gallery.highContrast ? "#ffffff" : "#a8b8ca"
+                color: gallery.mutedColor
                 font.pixelSize: 13 * gallery.visualScale
                 horizontalAlignment: Text.AlignHCenter
             }

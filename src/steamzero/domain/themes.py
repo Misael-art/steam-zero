@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -22,7 +23,7 @@ from steamzero.domain.media_recipes import (
 from steamzero.domain.scene_containers import ContainerBook
 from steamzero.domain.scene_layout import LayoutRecipeBook
 from steamzero.domain.scene_motion import MotionBook
-from steamzero.domain.scene_surfaces import SurfaceBook
+from steamzero.domain.scene_surfaces import SurfaceBook, SurfaceComponent, SurfaceSlot
 from steamzero.domain.theme_effects import (
     EffectDiagnostic,
     EffectSpec,
@@ -39,6 +40,33 @@ THEME_DEFAULT_ID = "org.steamzero.default"
 MAX_EXTENDS_DEPTH = 2
 MAX_THEMES = 100
 ASSET_SLOTS_ALLOWED = frozenset({"background", "logo", "sidebar"})
+
+
+def merge_scene_surface_books(
+    inherited: SurfaceBook | None,
+    declared: SurfaceBook,
+    *,
+    layer_index: int,
+) -> SurfaceBook:
+    """Merge semantic slots by declaration so a child keeps AURA fallbacks."""
+    if inherited is None:
+        return declared
+    slots = dict(inherited.slots)
+    components = dict(inherited.components)
+    renamed: dict[str, str] = {}
+    for component_id, component in declared.components.items():
+        prefix = f"l{layer_index}"
+        digest = hashlib.blake2s(component_id.encode("utf-8"), digest_size=4).hexdigest()
+        unique_id = f"{prefix}{component_id[: 63 - len(prefix) - len(digest)]}{digest}"
+        renamed[component_id] = unique_id
+        components[unique_id] = SurfaceComponent.from_dict(unique_id, component.to_dict())
+    for slot_id, slot in declared.slots.items():
+        slots[slot_id] = SurfaceSlot(slot=slot_id, component=renamed[slot.component])
+    referenced = {slot.component for slot in slots.values()}
+    return SurfaceBook(
+        slots=slots,
+        components={key: value for key, value in components.items() if key in referenced},
+    )
 
 
 @dataclass(frozen=True)
@@ -683,7 +711,7 @@ class ThemeResolver:
         author = ""
         license_val = ""
         description = ""
-        for manifest in chain:
+        for layer_index, manifest in enumerate(chain):
             name = manifest.name or name
             version = manifest.version or version
             author = manifest.author or author
@@ -741,7 +769,11 @@ class ThemeResolver:
             if manifest.scene_motion is not None:
                 scene_motion_book = manifest.scene_motion
             if manifest.scene_surfaces is not None:
-                scene_surface_book = manifest.scene_surfaces
+                scene_surface_book = merge_scene_surface_books(
+                    scene_surface_book,
+                    manifest.scene_surfaces,
+                    layer_index=layer_index,
+                )
             if manifest.scene_containers is not None:
                 scene_container_book = manifest.scene_containers
 

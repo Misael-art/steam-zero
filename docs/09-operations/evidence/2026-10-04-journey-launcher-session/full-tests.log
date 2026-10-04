@@ -1,0 +1,217 @@
+........................................................................ [  1%]
+........................................................................ [  2%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+...........................................ss.s..s.................sssss [ 11%]
+....s........sssssssssssssssss..................sssssssssssssssss....... [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+.......................F................................................ [ 16%]
+............................................s........................... [ 17%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+...........F.................................................F.......... [ 35%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+.............ss......................................................... [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+....................................F................................... [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+.........................F.............................................. [ 88%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 94%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+..............................................................           [100%]
+=================================== FAILURES ===================================
+_________ test_the_first_key_after_opening_navigates_without_a_pointer _________
+
+    @pytest.mark.visual
+    def test_the_first_key_after_opening_navigates_without_a_pointer() -> None:
+        runner = _require_runner()
+        environment = dict(os.environ)
+        environment["QT_QPA_PLATFORM"] = "offscreen"
+        completed = subprocess.run(
+            [runner, "-input", str(HARNESS)],
+            capture_output=True,
+            text=True,
+            timeout=180,
+            env=environment,
+            cwd=str(ROOT),
+        )
+>       assert completed.returncode == 0, (
+            "o Launcher abriu sem foco de teclado; só um clique de mouse o "
+            f"destravaria:\n{completed.stdout}\n{completed.stderr}"
+        )
+E       AssertionError: o Launcher abriu sem foco de teclado; só um clique de mouse o destravaria:
+E         ********* Start testing of qmltestrunner *********
+E         Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), biglinux unknown
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::initTestCase()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_bridge_disconnect_has_actionable_recovery()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_cinema_keeps_keyboard_navigation_and_activation()
+E         FAIL!  : qmltestrunner::LauncherFocusBootstrap::test_cinema_text_does_not_overlap_cover(deck) 'verify()' returned FALSE. ()
+E            Loc: [/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/qml/launcher/check_launcher_focus_bootstrap.qml(107)]
+E         FAIL!  : qmltestrunner::LauncherFocusBootstrap::test_cinema_text_does_not_overlap_cover(deck-large-text) 'verify()' returned FALSE. ()
+E            Loc: [/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/qml/launcher/check_launcher_focus_bootstrap.qml(107)]
+E         FAIL!  : qmltestrunner::LauncherFocusBootstrap::test_cinema_text_does_not_overlap_cover(full-hd) 'verify()' returned FALSE. ()
+E            Loc: [/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/qml/launcher/check_launcher_focus_bootstrap.qml(107)]
+E         FAIL!  : qmltestrunner::LauncherFocusBootstrap::test_cinema_text_does_not_overlap_cover(ultrawide) 'verify()' returned FALSE. ()
+E            Loc: [/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/qml/launcher/check_launcher_focus_bootstrap.qml(107)]
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_cinema_visual_contract_exposes_context_and_accessibility()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_cinematic_media_uses_palette_and_degrades_video_to_fanart()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_first_key_navigates_without_any_pointer_interaction()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_launch_error_prefers_actionable_allowlisted_detail()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_search_is_above_home_and_escape_restores_navigation()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_search_launch_uses_shell_error_and_real_return_context()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::test_the_active_focus_lands_inside_the_loaded_shell()
+E         PASS   : qmltestrunner::LauncherFocusBootstrap::cleanupTestCase()
+E         Totals: 11 passed, 4 failed, 0 skipped, 0 blacklisted, 711ms
+E         ********* Finished testing of qmltestrunner *********
+E         
+E         Failed to open VDPAU backend libvdpau_nvidia.so: cannot open shared object file: No such file or directory
+E         
+E       assert 4 == 0
+E        +  where 4 = CompletedProcess(args=['/usr/lib/qt6/bin/qmltestrunner', '-input', '/home/misael/Projects/Steam Zero/Canonical/2026-09... stderr='Failed to open VDPAU backend libvdpau_nvidia.so: cannot open shared object file: No such file or directory\n').returncode
+
+tests/integration/test_launcher_focus_bootstrap.py:92: AssertionError
+_______________________ test_production_source_is_clean ________________________
+
+>   ???
+E   AssertionError: /home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/launcher/app.py:247: BND-WRITE-PORT [steamzero.launcher.app] .mkdir() (escrita FS) fora de core.fs
+E     /home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/launcher/app.py:265: BND-WRITE-PORT [steamzero.launcher.app] .mkdir() (escrita FS) fora de core.fs
+E   assert [Violation(co... de core.fs')] == []
+E     
+E     Left contains 2 more items, first extra item: Violation(code='BND-WRITE-PORT', module='steamzero.launcher.app', file='/home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/launcher/app.py', line=247, message='.mkdir() (escrita FS) fora de core.fs')
+E     Use -v to get more diff
+
+/mnt/sdcard/Projects/Port_Steam/tests/unit/test_boundaries_lint.py:27: AssertionError
+____________________ test_committed_matrix_matches_the_code ____________________
+
+>   ???
+E   AssertionError: a matriz de capacidades divergiu do código; rode `make update-capability-matrix` e revise o diff
+E   assert '<!-- GERADO ... Desktop. |\n' == '<!-- GERADO ... Desktop. |\n'
+E     
+E     Skipping 929 identical leading characters in diff, use -v to show
+E     Skipping 11728 identical trailing characters in diff, use -v to show
+E     - cadas | 153 |
+E     ?           ^
+E     + cadas | 152 |
+E     ?           ^
+E       | açõe
+
+/mnt/sdcard/Projects/Port_Steam/tests/unit/test_capability_matrix.py:19: AssertionError
+__________ test_committed_catalog_and_generated_views_are_consistent ___________
+
+    def test_committed_catalog_and_generated_views_are_consistent() -> None:
+>       assert project_status.check_catalog() == []
+E       AssertionError: assert ['SZ-AURA-CIN...709de7f', ...] == []
+E         
+E         Left contains 13 more items, first extra item: 'SZ-AURA-CINEMA-COMPLETION: evidencia obsoleta; scopeDigest esperado 3749609031c2cf352ae0552e49b712239b495ab50d99b8058ad4a80881990ea6, atual 3912737d7980b2dc4ad3c907c7379cc6754690dc58a67a8d4c0cf7448cd525e7'
+E         Use -v to get more diff
+
+tests/unit/test_project_status.py:15: AssertionError
+_________ test_assisted_bindings_expose_allowlisted_paths_without_eval _________
+
+>   ???
+E   assert None is not None
+
+/mnt/sdcard/Projects/Port_Steam/tests/unit/test_studio_graph.py:262: AssertionError
+=========================== short test summary info ============================
+SKIPPED [10] tests/integration/test_emulator_conformance.py:487: Flatpak fixa commit; o checksum é garantia do executor portátil
+SKIPPED [17] tests/integration/test_emulator_conformance.py:507: core não lança sozinho; quem lança é o RetroArch
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-bluemsx nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-fbneo nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-freeintv nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-fuse nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-genesis-plus-gx nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-ngp nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-pce nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-vb nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-wswan nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mesen nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mgba nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mupen64plus-next nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-opera nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-puae nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-snes9x nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-stella nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-vice-x64 nao declara capability `configure`
+SKIPPED [1] ../../../../../../mnt/sdcard/Projects/Port_Steam/tests/integration/test_metadata_to_catalog_pipeline.py:173: reference/ não versionado; checkout sem pesquisa
+SKIPPED [1] ../../../../../../mnt/sdcard/Projects/Port_Steam/tests/unit/test_metadata_import_pegasus.py:187: reference/ não versionado; checkout sem pesquisa
+SKIPPED [1] ../../../../../../mnt/sdcard/Projects/Port_Steam/tests/unit/test_metadata_import_pegasus.py:199: reference/ não versionado; checkout sem pesquisa
+FAILED tests/integration/test_launcher_focus_bootstrap.py::test_the_first_key_after_opening_navigates_without_a_pointer
+FAILED tests/unit/test_boundaries_lint.py::test_production_source_is_clean - ...
+FAILED tests/unit/test_capability_matrix.py::test_committed_matrix_matches_the_code
+FAILED tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent
+FAILED tests/unit/test_studio_graph.py::test_assisted_bindings_expose_allowlisted_paths_without_eval
+5 failed, 6634 passed, 47 skipped in 2494.35s (0:41:34)
+real-state before: exists=True files=12818 directories=2068 bytes=1372874354 max_mtime_ns=1791129499230539182 source=HOME-default
+real-state after:  exists=True files=12818 directories=2068 bytes=1372874354 max_mtime_ns=1791129499230539182 source=HOME-default

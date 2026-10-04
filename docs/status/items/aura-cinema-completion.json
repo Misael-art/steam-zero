@@ -42,7 +42,7 @@
     "tests/unit/test_session_overlay.py",
     "tests/unit/test_session_overlay_adapter.py"
   ],
-  "scopeDigest": "3749609031c2cf352ae0552e49b712239b495ab50d99b8058ad4a80881990ea6",
+  "scopeDigest": "2237d0400033751d1a7368485f435e121854a3d648bcec430a1e458988eb0fc5",
   "dependsOn": [
     "SZ-AURA-SAVE-STATE-GALLERY",
     "SZ-AURA-SESSION-OSD",
@@ -246,12 +246,24 @@
       "reference": "docs/09-operations/evidence/2026-09-26-rc01-central-loading/09-refresh-coercido.log",
       "command": "2026-09-27 renovacao de escopo pela frente WS-2026-09-RC01-CENTRAL-LOADING (fatia UX-01/UX-02 de RC-01). Arquivos deste escopo alterados: tests/integration/test_qml_handheld_offscreen.py: o gate offscreen compartilhado ganhou a ponte de tres cenas do refresh coerado (leituras com atraso controlado, POST /emulation/library/scan e a sequencia bruta de chamadas como prova). Nada aqui e arquivo deste item alterado por comportamento deste item; e o invólucro de teste comum. O digest foi regenerado pela ferramenta porque o escopo mudou; as capacidades deste item NAO foram reatestadas, nenhuma evidencia deste item foi carimbada, e nenhum eixo dele mudou de estado neste lote.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Bezel e performance foram revalidados na release a71; manter aberto o orçamento na superfície de referência 1280x800, a troca de disco com jogo multi-disc legítimo, fade físico e a prova física PS4.",
   "activeWorkstreams": [
     "WS-2026-09-AURA-CINEMA-COMPLETION"
   ],
-  "updatedAt": "2026-09-26",
+  "updatedAt": "2026-10-04",
   "notes": "Frente de continuação do AURA Launcher/Theme Engine. A release 2.0.0rc1-a71c2b5e17cd foi instalada pelo fluxo governado, o daemon convergiu e a captura de jogo real confirmou o bezel AURA após a declaração de overlays do RetroArch. A nova medição Wayland/OpenGL passou startup, p95 e VRAM na superfície real 948x593; a referência 1280x800 continua sem prova. A medição e a captura visual não promovem AURA UI ou Theme Studio; cobrem apenas a cadeia de sessão e a composição fullscreen especificadas no plano."
 }

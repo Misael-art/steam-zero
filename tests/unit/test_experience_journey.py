@@ -717,3 +717,30 @@ def test_theme_coverage_explains_aura_omissions_references_and_capabilities() ->
     assert summary["missingReferenceStages"] == ["entryFade"]
     assert summary["incompatibleStages"] == ["exitFade"]
     assert summary["unavailableOperationStages"] == ["pause", "saves"]
+
+
+def test_third_party_theme_without_the_additive_bezel_slot_reports_missing_element() -> None:
+    raw = _document()
+    raw["sessionStages"].append(
+        {
+            "stageId": "bezel",
+            "appearance": {"mode": "custom", "themeId": "org.steamzero.nebula"},
+        }
+    )
+    coverage = resolve_theme_coverage(
+        JourneyDocument.parse(raw),
+        used_stages=["bezel"],
+        themes={
+            "org.steamzero.nebula": {
+                "version": "1.2.0",
+                "sceneSurfaces": {
+                    "slots": {"library": {"component": "platform-list"}},
+                    "components": {"platform-list": {"kind": "gameGrid"}},
+                },
+            }
+        },
+        aura_version="2.0.0rc1",
+    )
+
+    assert coverage[0]["appearance"] == "incompatible"
+    assert coverage[0]["missingSceneElements"] == ["sceneSurfaces.slot:bezel"]

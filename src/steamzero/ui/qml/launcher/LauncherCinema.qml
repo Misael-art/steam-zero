@@ -9,20 +9,61 @@ Item {
     readonly property bool selectionReady: scene !== null && scene.focusId === currentFocus
     readonly property var selectedGame: scene && scene.items ? scene.items[Number(scene.selected || 0)] || ({}) : ({})
     property var accessibility: ({})
-    readonly property var entries: scene && scene.layouts && scene.layouts.covers ? scene.layouts.covers.entries : []
+    readonly property var activeLayout: scene && scene.layouts
+        ? scene.layouts[String(scene.layoutId || "covers")] || scene.layouts.covers || ({})
+        : ({})
+    readonly property var entries: activeLayout && activeLayout.entries
+        && typeof activeLayout.entries.length === "number" ? activeLayout.entries : []
     readonly property real textScale: Math.max(1, Number(accessibility.visualScale || 1))
+    readonly property var activeTheme: scene && scene.theme ? scene.theme : ({})
+    readonly property var compiledThemeScene: activeTheme && activeTheme.compiledScene
+        ? activeTheme.compiledScene : null
+    readonly property var externalViewData: _externalView(compiledThemeScene)
+    readonly property bool externalSceneAvailable: externalViewData !== null
+        && Array.isArray(externalViewData.elements)
+    readonly property var themeTokens: activeTheme && activeTheme.resolved
+        ? activeTheme.resolved : ({})
+    readonly property var themeColors: themeTokens.color || ({})
+    readonly property var themeEffects: activeTheme && activeTheme.effects
+        ? activeTheme.effects : ({})
     readonly property bool highContrast: !!accessibility.highContrast
+        || activeTheme.highContrast === true
     readonly property bool reducedMotion: !!accessibility.reducedMotion
+        || activeTheme.reducedMotion === true
     // A cena pode publicar o tier escolhido pelo Theme Engine. Até que o
     // contrato do catálogo publique a preferência, balanced é o fallback
     // seguro: mantém profundidade sem depender de vídeo ou shader externo.
     readonly property string performanceTier: scene && scene.performanceTier
-        ? String(scene.performanceTier) : "balanced"
+        ? String(scene.performanceTier) : String(themeTokens.performance
+            && themeTokens.performance.defaultTier || "balanced")
     readonly property bool backdropEffects: !highContrast && performanceTier !== "low"
     readonly property var selectedPalette: selectedGame && selectedGame.palette
         && typeof selectedGame.palette === "object" ? selectedGame.palette : ({})
     readonly property color accentColor: highContrast ? "#55d8ff"
-        : _safeColor(selectedPalette.accent || selectedPalette.vibrant, "#22d3ee")
+        : _safeColor(String(themeColors.accent || selectedPalette.accent
+                            || selectedPalette.vibrant || ""), "#22d3ee")
+    readonly property color primaryTextColor: highContrast ? "#ffffff"
+        : _safeColor(String(themeColors.text || ""), "#f2f6fb")
+    readonly property color mutedTextColor: highContrast ? "#e8e8e8"
+        : _safeColor(String(themeColors.textMuted || ""), "#c3ced7")
+    readonly property int motionDuration: reducedMotion ? 0
+        : Math.max(0, Math.min(1000, Number(themeTokens.motion
+            && themeTokens.motion.durationNormal || 180)))
+    readonly property var contextualEffectStack: {
+        if (highContrast || reducedMotion)
+            return []
+        const declared = themeEffects.contextualBackdrop
+        if (Array.isArray(declared))
+            return declared
+        return performanceTier === "cinematic" ? [
+            {"type": "blur", "parameters": {"radius": 28}},
+            {"type": "vignette", "parameters": {"color": "#02060b", "strength": 0.72}}
+        ] : []
+    }
+    readonly property var focusedCoverEffectStack: highContrast ? []
+        : (Array.isArray(themeEffects.focusedCover) ? themeEffects.focusedCover : [])
+    readonly property var peripheralCoverEffectStack: highContrast ? []
+        : (Array.isArray(themeEffects.peripheralCover) ? themeEffects.peripheralCover : [])
     readonly property string videoSource: performanceTier === "cinematic"
         ? String(selectedGame.videoUrl || "") : ""
     readonly property string connectionState: scene && scene.connectionState
@@ -59,6 +100,25 @@ Item {
         const candidate = value.trim()
         return /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/.test(candidate)
             ? candidate : fallback
+    }
+
+    function _externalView(compiledScene) {
+        const views = compiledScene && Array.isArray(compiledScene.views)
+            ? compiledScene.views : []
+        if (views.length === 0)
+            return null
+        const preferred = String(scene && scene.menuId || "") === "platforms"
+            ? "system" : "gamelist"
+        for (let i = 0; i < views.length; ++i)
+            if (String(views[i].id || "") === preferred)
+                return views[i]
+        for (let i = 0; i < views.length; ++i)
+            if (String(views[i].id || "") === "gamelist")
+                return views[i]
+        for (let i = 0; i < views.length; ++i)
+            if (String(views[i].id || "") === "system")
+                return views[i]
+        return views[0]
     }
 
     function _destroyVideo() {
@@ -129,6 +189,46 @@ Item {
         anchors.fill: parent
         color: cinema.highContrast ? "#000000" : "#071019"
     }
+
+    SceneEsdeView {
+        objectName: "launcherCinemaXmlScene"
+        anchors.fill: parent
+        z: 50
+        visible: cinema.externalSceneAvailable
+        viewData: cinema.externalViewData || ({"id": "", "elements": []})
+        runtimeModel: ({
+            "items": cinema.scene && Array.isArray(cinema.scene.items) ? cinema.scene.items : [],
+            "selectedIndex": Number(cinema.scene && cinema.scene.selected || 0)
+        })
+        highContrast: cinema.highContrast
+        reducedMotion: cinema.reducedMotion
+        Accessible.name: qsTr("Cena XML do tema")
+    }
+
+    Rectangle {
+        visible: cinema.activeTheme.sceneResolutionState === "degraded"
+            || cinema.activeTheme.sceneResolutionState === "failed"
+        z: 60
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 16
+        height: Math.max(72, Math.min(parent.height * 0.25, 160))
+        color: cinema.highContrast ? "#000000" : "#182735"
+        border.color: cinema.highContrast ? "#ffffff" : cinema.accentColor
+        border.width: 2
+        radius: 8
+        Text {
+            id: xmlSceneDiagnostic
+            anchors.fill: parent
+            anchors.margins: 10
+            text: qsTr("A cena XML está incompleta. O Cinema mantém o fallback AURA. %1")
+                .arg(String(cinema.activeTheme.sceneDiagnostic || "Revise o tema no Studio."))
+            color: cinema.primaryTextColor
+            wrapMode: Text.WordWrap
+            font.pixelSize: 14 * cinema.textScale
+        }
+    }
     // O tier balanced mantém a arte como backdrop nativo e reserva o FBO/blur
     // para cinematic. A base e os véus continuam legíveis mesmo sem fanart.
     MediaEffectLayer {
@@ -139,10 +239,7 @@ Item {
         decodeSize: Qt.size(Math.ceil(width), Math.ceil(height))
         fillMode: Image.PreserveAspectCrop
         opacity: 0.34
-        effects: cinema.performanceTier === "cinematic" ? [
-            {"type": "blur", "parameters": {"radius": 28}},
-            {"type": "vignette", "parameters": {"color": "#02060b", "strength": 0.72}}
-        ] : []
+        effects: cinema.contextualEffectStack
     }
     Item {
         id: videoBackdrop
@@ -232,7 +329,8 @@ Item {
                 model: cinema.entries
                 delegate: Rectangle {
                     id: card
-                    objectName: modelData.highlighted ? "cinemaSelectedCover" : "cinemaNeighbourCover"
+                    objectName: card.modelData.highlighted
+                        ? "cinemaSelectedCover" : "cinemaNeighbourCover"
                     required property var modelData
                     required property int index
                     readonly property var game: cinema.scene.items[index] || ({})
@@ -249,11 +347,11 @@ Item {
                     border.color: modelData.highlighted ? cinema.accentColor : "#667789"
                     Behavior on scale {
                         enabled: !cinema.reducedMotion
-                        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+                        NumberAnimation { duration: cinema.motionDuration; easing.type: Easing.OutCubic }
                     }
                     Behavior on opacity {
                         enabled: !cinema.reducedMotion
-                        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+                        NumberAnimation { duration: cinema.motionDuration; easing.type: Easing.OutCubic }
                     }
                     Accessible.name: String(game.title || "")
                     Accessible.role: Accessible.Button
@@ -265,8 +363,8 @@ Item {
                         source: card.modelData.source || ""
                         decodeSize: Qt.size(Math.ceil(width), Math.ceil(height))
                         fillMode: Image.PreserveAspectFit
-                        effects: !card.modelData.highlighted && cinema.performanceTier === "cinematic"
-                            ? [{"type": "blur", "parameters": {"radius": 12}}] : []
+                        effects: card.modelData.highlighted
+                            ? cinema.focusedCoverEffectStack : cinema.peripheralCoverEffectStack
                     }
                     Image {
                         anchors.centerIn: parent
@@ -311,7 +409,7 @@ Item {
         textFormat: Text.PlainText
         width: parent.width - 48
         elide: Text.ElideRight
-        color: "#ffffff"
+        color: cinema.primaryTextColor
         font.pixelSize: 18 * cinema.textScale
     }
     Row {
@@ -329,7 +427,7 @@ Item {
         Text {
             objectName: "cinemaClock"
             text: cinema.clockLabel
-            color: "#ffffff"
+            color: cinema.primaryTextColor
             font.pixelSize: 18 * cinema.textScale
             font.bold: true
             Accessible.name: qsTr("Hora atual %1").arg(text)
@@ -344,7 +442,7 @@ Item {
         width: parent.width - 48
         text: cinema.selectionReady ? String(cinema.selectedGame.title || "") : qsTr("Atualizando seleção…")
         textFormat: Text.PlainText
-        color: "#ffffff"
+        color: cinema.primaryTextColor
         font.pixelSize: 24 * cinema.textScale
         font.bold: true
         horizontalAlignment: Text.AlignHCenter
@@ -385,7 +483,7 @@ Item {
                         id: metadataLabel
                         anchors.centerIn: parent
                         text: modelData
-                        color: "#ffffff"
+                        color: cinema.primaryTextColor
                         font.pixelSize: 12 * cinema.textScale
                     }
                 }
@@ -402,7 +500,7 @@ Item {
         width: parent.width - 48
         wrapMode: Text.WordWrap
         horizontalAlignment: Text.AlignHCenter
-        color: "#ffffff"
+        color: cinema.primaryTextColor
         font.pixelSize: 16 * cinema.textScale
     }
 }

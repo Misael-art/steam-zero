@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "8aa70ea16ac48dcdabd6e96cdf7cc4e8cd4fc233cebdc5908b5d7ac05d10cf90",
+  "scopeDigest": "2280daa9822fcf274dd4c37e56ca8ee5cdd8847cc83583c1aaa6aba58effd811",
   "scopePaths": [
     "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
     "src/steamzero/domain/asset_recipes.py",
@@ -585,6 +585,12 @@
       "reference": "tests/integration/test_experience_journey_e2e.py",
       "command": "2026-10-04, imagem Qt 6.11.2 ghcr.io/misael-art/steamzero-qml-visual@sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd; tests/integration/test_experience_journey_e2e.py e tests/integration/test_theme_authoring_e2e.py: 2 passed em 16.81 s. Viewport/diálogo da Jornada e preview rolável do Theme Studio corrigidos; tier/breakpoint executados e AssetRecipePreview atualizado para outlineThin, largura 6. XDG_STATE_HOME temporário ausente antes/depois. Checkout/offscreen; sem aplicação instalada, pixels físicos, B_VISUAL ou medição de release.",
       "result": "passed"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-04: escopo documental alinhado à prova local de consumo no Launcher/Cinema e à distinção entre tema nativo/XML e capability operacional. Nenhum estado físico foi promovido.",
+      "result": "recorded"
     }
   ],
   "nextAction": "O resolver e a UI/bridge executam assetRecipes v2 por tier e breakpoint; os E2E QML de Jornada e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2. Segue checkout/offscreen, sem pixels ou desempenho de release. Enviar o follow-up e os documentos atualizados, conferir CI terminal e continuar handoffs seriais de Launcher/Cinema e capabilities reais de sessão. B_VISUAL, instalação e execução física aguardam candidata e janela SteamZero disponíveis.",

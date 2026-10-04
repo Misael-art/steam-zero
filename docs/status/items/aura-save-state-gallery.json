@@ -26,7 +26,7 @@
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed",
     "tests/qml/launcher/check_launcher_save_state_gallery.qml"
   ],
-  "scopeDigest": "a970929c76fefdc1c0ac5235733f7bcc05e9ee506e5a8ae25f654b42452b574c",
+  "scopeDigest": "b05fd0b3f4c2d2aeb02e8f1b942b545eef9b00081163a978e0032b098c902f8a",
   "dependsOn": [
     "SZ-AURA-SESSION-OSD",
     "SZ-AURA-LAUNCHER"
@@ -105,12 +105,24 @@
       "reference": "docs/09-operations/evidence/2026-09-26-rc01-central-loading/09-refresh-coercido.log",
       "command": "2026-09-27 renovacao de escopo pela frente WS-2026-09-RC01-CENTRAL-LOADING (fatia UX-01/UX-02 de RC-01). Arquivos deste escopo alterados: tests/integration/test_qml_handheld_offscreen.py: o gate offscreen compartilhado ganhou a ponte de tres cenas do refresh coerado (leituras com atraso controlado, POST /emulation/library/scan e a sequencia bruta de chamadas como prova). Nada aqui e arquivo deste item alterado por comportamento deste item; e o invólucro de teste comum. O digest foi regenerado pela ferramenta porque o escopo mudou; as capacidades deste item NAO foram reatestadas, nenhuma evidencia deste item foi carimbada, e nenhum eixo dele mudou de estado neste lote.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
+      "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Preservar save/load como capacidade instalada; fechar a troca de disco somente com um jogo multi-disc real e adapter comprovado.",
   "activeWorkstreams": [
     "WS-2026-09-AURA-SAVE-STATE-GALLERY"
   ],
-  "updatedAt": "2026-09-26",
+  "updatedAt": "2026-10-04",
   "notes": "O adapter RetroArch alinha o cursor ao state_slot persistido pelo conteúdo e à hierarquia states/<core>/<content>. A galeria, save/load e pausa foram exercitados em jogo real nas releases d70 e b396; a release 3acc adiciona captura pelo Launcher instalado com fallback vazio legível. A ausência de thumbnail permanece fallback explícito, não erro."
 }

@@ -8,11 +8,6 @@
   "owner": "codex-aura-launcher-exit",
   "state": "active",
   "exclusivePaths": [
-    "src/steamzero/ui/qml/launcher/LauncherShell.qml",
-    "src/steamzero/ui/qml/launcher/LauncherMain.qml",
-    "src/steamzero/ui/qml/launcher/LauncherHome.qml",
-    "tests/qml/launcher/check_launcher_shell.qml",
-    "tests/qml/launcher/check_launcher_gestures.qml",
     "docs/status/items/aura-launcher-exit.json",
     "docs/status/workstreams/aura-launcher-exit-2026-09-18.json"
   ],
@@ -22,6 +17,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Executar gates, abrir PR e instalar uma release governada para repetir a prova física de Escape com foco real.",
-  "updatedAt": "2026-09-18"
+  "nextAction": "Manter GAP-AURA-LAUNCHER-EXIT-PHYSICAL. Os caminhos de codigo/testes foram transferidos serialmente para WS-2026-10-JOURNEY-LAUNCHER-SESSION; repetir Escape com foco real somente em candidata instalada pelo fluxo governado.",
+  "updatedAt": "2026-10-04"
 }

@@ -440,6 +440,101 @@ def test_main_reports_the_missing_runtime_instead_of_crashing(
     assert code != 0
 
 
+def test_isolated_launcher_uses_synthetic_xdg_and_never_reads_host_catalog_or_session(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from steamzero.core.errors import SteamZeroError
+    from steamzero.launcher import app
+
+    synthetic_home = tmp_path / "synthetic-home"
+    host_context = synthetic_home / ".local" / "state" / "steamzero" / "launcher" / "return.json"
+    host_context.parent.mkdir(parents=True)
+    host_context.write_text('{"focusId":"must-not-be-consumed"}', encoding="utf-8")
+    monkeypatch.setattr(Path, "home", lambda: synthetic_home)
+
+    fixture = tmp_path / "licensed-fixture.json"
+    fixture.write_text(
+        json.dumps({"games": [{"id": "safe-game", "name": "Synthetic Game", "platform": "nes"}]}),
+        encoding="utf-8",
+    )
+    isolated_root = tmp_path / "isolated-session"
+    captured: dict[str, object] = {}
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("isolated launcher attempted to consult host state")
+
+    def capture(bridge):
+        captured["bridge"] = bridge
+        return 0
+
+    monkeypatch.setattr(app, "_steam_catalog", forbidden)
+    monkeypatch.setattr(app, "_host_accessibility", forbidden)
+    monkeypatch.setattr("steamzero.adapters.launcher_ui.launch_launcher_ui", capture)
+
+    assert (
+        main(
+            [
+                "--library",
+                str(fixture),
+                "--isolated-library",
+                "--isolated-root",
+                str(isolated_root),
+            ]
+        )
+        == 0
+    )
+
+    bridge = captured["bridge"]
+    assert bridge.model()["sections"][0]["items"][0]["id"] == "safe-game"
+    assert bridge._session_observer is None
+    assert bridge._session_overlay is None
+    assert host_context.read_text(encoding="utf-8") == '{"focusId":"must-not-be-consumed"}'
+    assert (
+        bridge._context_path == isolated_root / "state" / "steamzero" / "launcher" / "return.json"
+    )
+    with pytest.raises(SteamZeroError, match="lançamento não publicado"):
+        bridge.launch("safe-game", "nes:safe-game")
+
+
+def test_isolated_launcher_refuses_a_root_inside_home_before_creating_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+
+    fake_home = tmp_path / "home"
+    monkeypatch.setattr(Path, "home", lambda: fake_home)
+    fixture = tmp_path / "library.json"
+    fixture.write_text("[]", encoding="utf-8")
+    unsafe_root = fake_home / "isolated"
+
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "--library",
+                str(fixture),
+                "--isolated-library",
+                "--isolated-root",
+                str(unsafe_root),
+            ]
+        )
+    assert not unsafe_root.exists()
+
+
+def test_library_reader_rejects_symlinks_and_keeps_a_valid_empty_list_available(
+    tmp_path: Path,
+) -> None:
+    from steamzero.launcher.app import _read_library_payload
+
+    empty = tmp_path / "empty.json"
+    empty.write_text("[]", encoding="utf-8")
+    assert _read_library_payload(empty) == ([], {})
+
+    target = tmp_path / "private.json"
+    target.write_text('[{"id":"private","name":"Private"}]', encoding="utf-8")
+    link = tmp_path / "library-link.json"
+    link.symlink_to(target)
+    assert _read_library_payload(link) == ([], None)
+
+
 def test_launcher_reads_the_canonical_library_without_being_told_where(
     monkeypatch, tmp_path
 ) -> None:
@@ -774,20 +869,53 @@ def test_session_route_exposes_overlay_and_allowlisted_action(tmp_path: Path) ->
         assert next(item for item in model["overlay"]["actions"] if item["id"] == "pause")[
             "enabled"
         ]
-        assert (
+        with pytest.raises(urllib.error.HTTPError) as missing_request_id:
             _post(
                 f"{base}/session/action",
                 bridge.token,
                 {"gameId": "game", "sessionId": "session-1", "actionId": "pause"},
             )
+        assert missing_request_id.value.code == 400
+        missing_request_id.value.close()
+        assert control.current.state == "running"
+        assert (
+            _post(
+                f"{base}/session/action",
+                bridge.token,
+                {
+                    "gameId": "game",
+                    "sessionId": "session-1",
+                    "actionId": "pause",
+                    "requestId": "session-pause-1",
+                },
+            )
             == 200
         )
+        assert control.current.state == "suspended"
+        with pytest.raises(urllib.error.HTTPError) as reused_request_id:
+            _post(
+                f"{base}/session/action",
+                bridge.token,
+                {
+                    "gameId": "game",
+                    "sessionId": "session-1",
+                    "actionId": "resume",
+                    "requestId": "session-pause-1",
+                },
+            )
+        assert reused_request_id.value.code == 409
+        reused_request_id.value.close()
         assert control.current.state == "suspended"
         with pytest.raises(urllib.error.HTTPError) as rejected:
             _post(
                 f"{base}/session/action",
                 bridge.token,
-                {"gameId": "game", "sessionId": "stale", "actionId": "pause"},
+                {
+                    "gameId": "game",
+                    "sessionId": "stale",
+                    "actionId": "pause",
+                    "requestId": "session-pause-stale",
+                },
             )
         assert rejected.value.code == 409
         rejected.value.close()
@@ -830,6 +958,7 @@ def test_session_route_accepts_a_bounded_save_state_slot(tmp_path: Path) -> None
                         "gameId": "game",
                         "sessionId": "session-1",
                         "actionId": "loadState",
+                        "requestId": "session-load-4",
                         "slot": 4,
                     }
                 ).encode(),

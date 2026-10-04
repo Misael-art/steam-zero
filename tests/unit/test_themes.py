@@ -18,6 +18,7 @@ from steamzero.adapters.theme_catalog import (
     validate_theme_directory,
 )
 from steamzero.core.errors import SteamZeroError
+from steamzero.domain.scene_surfaces import SurfaceBook
 from steamzero.domain.theme_effects import EffectSpec, EffectType
 from steamzero.domain.themes import (
     MAX_EXTENDS_DEPTH,
@@ -302,6 +303,54 @@ class TestResolution:
         r = ThemeResolver(m).resolve("org.t.child")
         assert r.color.accent == "#ff0000"
         assert r.color.background == "#e7eceb"
+
+    def test_child_surface_declarations_keep_inherited_slots_without_id_collisions(self) -> None:
+        base_surfaces = SurfaceBook.from_dict(
+            {
+                "schemaVersion": 1,
+                "slots": {"bezel": {"component": "sessionBezel"}},
+                "components": {
+                    "sessionBezel": {
+                        "kind": "bezel",
+                        "source": "session.peripherals.bezels",
+                    }
+                },
+            }
+        )
+        child_surfaces = SurfaceBook.from_dict(
+            {
+                "schemaVersion": 1,
+                "slots": {"library": {"component": "sessionBezel"}},
+                "components": {"sessionBezel": {"kind": "gameGrid", "source": "library.items"}},
+            }
+        )
+        base = ThemeManifest(
+            id=THEME_DEFAULT_ID,
+            name="Default",
+            version="1.0.0",
+            author="SZ",
+            license="GPL-3.0-or-later",
+            scene_surfaces=base_surfaces,
+        )
+        child = ThemeManifest(
+            id="org.t.partial",
+            name="Partial",
+            version="1.0.0",
+            author="T",
+            license="MIT",
+            extends=THEME_DEFAULT_ID,
+            scene_surfaces=child_surfaces,
+        )
+
+        resolved = ThemeResolver({THEME_DEFAULT_ID: base, child.id: child}).resolve(child.id)
+
+        assert resolved.scene_surfaces is not None
+        assert set(resolved.scene_surfaces.slots) == {"bezel", "library"}
+        bezel_id = resolved.scene_surfaces.slots["bezel"].component
+        library_id = resolved.scene_surfaces.slots["library"].component
+        assert bezel_id != library_id
+        assert resolved.scene_surfaces.components[bezel_id].kind == "bezel"
+        assert resolved.scene_surfaces.components[library_id].kind == "gameGrid"
 
     def test_cycle_detected(self) -> None:
         m = {
