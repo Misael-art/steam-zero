@@ -15,7 +15,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-JOBS | 3 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-PLATFORM-MANIFESTS | 65 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-SCHEMAS | 55 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-SCHEMAS | 56 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TESTS | 553 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
@@ -86,18 +86,18 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 6 | 1 | unit |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
-| SZ-ROADMAP-CONTINUATION | 47 | 22 | 10 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 50 | 22 | 10 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 8 | 3 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 4 | 4 | dev |  |
-| SZ-THEME-ENGINE | 161 | 68 | 55 | hw |  |
+| SZ-THEME-ENGINE | 165 | 71 | 57 | hw |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 14 | 8 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 16 | 10 | hw |  |
 | SZ-THEME-IMPORT-RETROFE | 15 | 23 | 13 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 18 | 10 | unit |  |
-| SZ-THEME-STUDIO | 145 | 61 | 48 | hw |  |
+| SZ-THEME-STUDIO | 149 | 65 | 51 | hw |  |
 | SZ-UI-DESKTOP-AUDIT | 834 | 190 | 111 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
-Arquivos em `src/`: **628**. Sob agregador apenas, sem item de capacidade: **269** (42%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.
+Arquivos em `src/`: **629**. Sob agregador apenas, sem item de capacidade: **269** (42%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.

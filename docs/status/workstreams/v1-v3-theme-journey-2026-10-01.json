@@ -23,6 +23,7 @@
     "src/steamzero/adapters/journey_studio.py",
     "src/steamzero/schemas/experience-journey-v1.schema.json",
     "src/steamzero/schemas/experience-journey-v2.schema.json",
+    "src/steamzero/schemas/asset-recipe-v2.schema.json",
     "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
     "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
     "docs/01-product/AURA-SURFACES.md",
@@ -87,6 +88,6 @@
     "docs/status/items/governance-status.json",
     "docs/status/items/platform-vita-catalog.json"
   ],
-  "nextAction": "Checkpoint local fechado: integral 6599 passed/47 skipped/0 failed em 2338.63 s, guard real idêntico; ruff, formatação, mypy, independence, boundaries e status-check passaram. Revisar diff/artefatos, sincronizar digests/views, separar commits funcional, desktop compartilhado e documental, push autorizado e aguardar CI terminal. Em seguida continuar a Engine do pacote editado, perfis tier/resolução, Launcher/Cinema e integração de capabilities de sessão. B_VISUAL está bloqueado por falta de janela SteamZero e backend de captura enquanto a sessão mostra atividade do operador; nenhum input foi enviado. Nenhum código foi instalado. O aviso de provenance desconhecida de release_host.inspect permanece e bloqueia publicação governada.",
-  "updatedAt": "2026-10-03"
+  "nextAction": "Perfis assetRecipes v2 estão verificados por 133 testes focados e 58 QML. A integral registrou 6614 passed, 47 skipped e uma falha documental por digests/views envelhecidos quando o log foi gravado; a renovação posterior passou STATUS-CHECK e test_project_status (13/13). Os commits funcionais locais são 3aeb3b4 e c839f64. Fechar o commit documental, fazer push autorizado e acompanhar CI terminal; depois seguir os handoffs de Launcher/Cinema, sessão real e B_VISUAL com release identificada. Nenhuma instalação foi feita.",
+  "updatedAt": "2026-10-04"
 }

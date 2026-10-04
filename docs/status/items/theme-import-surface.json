@@ -17,7 +17,7 @@
     "tests/integration/test_esde_import_dialog_compact.py",
     "tests/qml/golden/import-dialogs/esde"
   ],
-  "scopeDigest": "c17f2fd972c396cf96f47b646cd8029167642f5fa5e91049da3724db60c5ac59",
+  "scopeDigest": "c04599d91c40995255a9eaaf2b5af01344c92a6605a195f9f1293a329874848d",
   "dependsOn": [
     "SZ-THEME-STUDIO"
   ],

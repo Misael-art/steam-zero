@@ -263,3 +263,63 @@ acima são provas não executadas ou integração ainda inexistente, não aprova
 Classificação de achados físicos: nenhum achado de produto confirmado. O único
 resultado é ambiental: havia outra aplicação em primeiro plano e a listagem de
 janelas não identificou SteamZero; por segurança, não houve input.
+
+## Atualização — perfis de assetRecipes
+
+Em 2026-10-03, o Theme Studio ganhou schema `assetRecipes` v2 mantendo leitura
+de v1. A autoria permite escolher fallback, uma receita por tier, e breakpoints
+de largura/altura com prioridade. O resolver usa breakpoint correspondente de
+maior prioridade, depois perfil do tier e por fim fallback. Edição passa pelo
+bridge allowlisted e validação transacional; salvar/reabrir conserva o livro.
+
+O preview QML enviou `balanced`, 1280×720 à bridge HTTP real de teste e recebeu
+`studioRecolor` com origem `tier:balanced`. A UI também salvou um breakpoint
+`wide` (largura mínima 1600). A seleção efetiva em 1920×720 está coberta no
+domínio e na bridge; a jornada QML atual executa um único request de preview por
+limitação observada no segundo XHR do harness. Não contamos essa limitação como
+prova física nem como falha de produto.
+
+Verificação após o ajuste final de tipos: os módulos focados de receita,
+ThemeEditor, contratos e bridge mais a autoria QML passaram com **133 testes**.
+`tests/integration/test_qml_handheld_offscreen.py` passou com **58 testes**.
+Ruff, formato, mypy, fronteiras, independência e `git diff --check` passaram;
+os testes usaram `XDG_STATE_HOME=/tmp/steamzero-codex-isolated-state`, ausente
+antes e depois.
+
+O resultado é do checkout/offscreen: não instala nem identifica o pacote da
+Engine na release, não mede pixels ou desempenho na sessão e não integra
+Launcher/Cinema ou capabilities de sessão. Esses itens e B_VISUAL seguem
+pendentes.
+
+## Integral da fatia de perfis — 2026-10-04
+
+`rtk env XDG_STATE_HOME=/tmp/steamzero-codex-isolated-state .venv/bin/python
+tools/run_tests_isolated.py tests -q` terminou em **2595,78 s (43:15)**:
+**6614 passed, 47 skipped, 1 failed**. O runner confirmou que o estado
+temporário não existia antes nem depois. Log completo:
+[`full-tests-2026-10-04-profile-v2.log`](full-tests-2026-10-04-profile-v2.log).
+
+A única falha foi
+`tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent`.
+O teste encontrou três `scopeDigest` e a view `COVERAGE.md` desatualizados
+porque o próprio log integral recém-criado está dentro do diretório de
+evidência coberto pelos escopos Roadmap, Theme Engine e Theme Studio. Nenhum
+teste de produto falhou. A tentativa anterior foi interrompida em 25% e está
+preservada em
+[`full-tests-2026-10-04-profile-v2-interrupted-25pct.log`](full-tests-2026-10-04-profile-v2-interrupted-25pct.log).
+Os digests foram renovados depois deste registro e a governança foi reexecutada.
+
+### Revalidação da governança
+
+Após o registro, os digests Roadmap, Theme Engine e Theme Studio foram
+recalculados pelo comando `tools/project_status.py digest --item`, as três
+views foram regeneradas e `tools/project_status.py check` retornou
+`STATUS-CHECK: OK`. `tests/unit/test_project_status.py` passou com **13 testes**
+e guard XDG ausente antes/depois. `git diff --check` também passou. A falha da
+integral permanece preservada como ocorrência de ordenação documental: o
+teste de catálogo foi executado antes da renovação dos hashes do log novo.
+
+Commits funcionais locais deste recorte: `3aeb3b4f0f42ade22aadb1a531576427ed958151`
+(schema, editor e resolver) e `c839f64c3257ccb4d318ecf4357b37a052cf8f28`
+(bridge compartilhada). Ainda falta o commit documental e o push autorizado;
+estes commits não foram verificados por CI remoto.
