@@ -14619,3 +14619,25 @@ Validação desta revisão: 13 testes de status aprovados em 5.13s, guard de est
 - Integral isolada: 6614 passed, 47 skipped, 1 failed em 2595,78 s. A única falha foi `test_committed_catalog_and_generated_views_are_consistent`: o log integral recém-criado envelheceu três digests que incluem o acervo e a view `COVERAGE.md`. O runner manteve o estado real isolado, XDG temporário ausente antes e depois. Log, rc e a tentativa interrompida em 25% estão em `docs/09-operations/evidence/2026-10-03-journey-engine-preview/`.
 - Após o registro final do log, os digests Roadmap/Engine/Studio foram recalculados com `project_status.py digest --item`, as views regeneradas e a validação final passou: `project_status.py check` → `STATUS-CHECK: OK`; `tests/unit/test_project_status.py` → 13 passed; novamente Ruff, formato, mypy, fronteiras, independência, lock, matriz e diff-check passaram.
 - Este é um checkpoint do checkout, sem instalação. Launcher/Cinema e capabilities reais de sessão continuam para handoff serial; pixel/tempo do pacote na Engine instalada e B_VISUAL continuam pendentes. O checkpoint funcional, desktop compartilhado e documental será commitado e enviado ao PR #249 conforme autorização anterior; merge não faz parte desta etapa.
+
+## 2026-10-04 — Revalidação QML do breakpoint assetRecipes
+
+- A jornada de autoria passou a executar um segundo preview pelos controles reais do Studio: `balanced` em 1280×720 e breakpoint `wide` em 1920×720. O callback de bridge atualiza `AssetRecipePreview` para `outlineThin`; o renderer reporta fonte pronta, contorno ativo, largura 6 e nenhum fallback. `tests/integration/test_theme_authoring_e2e.py` passou com **1 teste em 18,91 s**, XDG temporário ausente antes/depois.
+- A investigação retifica a hipótese anterior de XHR travado: o segundo pedido retornou HTTP 200 e o callback QML aplicou `breakpoint:wide`. A falha intermediária vinha da nova asserção lendo o `id` interno do componente pela propriedade do painel; a versão final consulta o modelo e estado públicos do renderer.
+- Capturas `05-studio-perfil-tier.png` e `06-studio-perfil-breakpoint-wide.png` foram geradas em Qt/offscreen no harness 1100×900. As dimensões 1280×720 e 1920×720 são alvos simulados, não resoluções físicas capturadas. Sem release instalada, pixels de sessão ou B_VISUAL.
+- Commit de teste local `86dc1a9` cobre tier, breakpoint e entrega ao renderer. Seguem pendentes o commit documental/push deste ajuste, CI terminal do novo HEAD e os handoffs seriais de Launcher/Cinema e capabilities de sessão.
+
+## 2026-10-04 — Correção do gate visual QML
+
+- A imagem Qt 6.11.2 do gate visual executou `tests/integration/test_experience_journey_e2e.py` e `tests/integration/test_theme_authoring_e2e.py`: **2 passed em 16,81 s**. Corrigi a largura do conteúdo rolável da Jornada, limitei o diálogo de remoção à viewport e tornei o painel de preview ao vivo do Theme Studio rolável, com controles de receita limitados e agrupados para caber no espaço disponível.
+- A interação de filtro e confirmação da Jornada agora é validada por eventos press/release e os dois testes confirmam alvos visíveis e acionáveis. O teste de autoria percorre tier e breakpoint e confirma a entrega ao `AssetRecipePreview`.
+- O guard temporário de `XDG_STATE_HOME` continuou ausente antes/depois. As capturas são offscreen do checkout; a aplicação instalada, a sessão real, B_VISUAL e a medição de desempenho continuam sem prova. A atualização documental, o push e o CI terminal do novo HEAD ainda estão pendentes.
+
+## 2026-10-04 — Limite do modo de captura
+
+- O gate comportamental final sem captura explícita passou 2/2 em 16,81 s na imagem Qt 6.11.2. Uma execução auxiliar com `SZ_CAPTURE_DIR` na mesma imagem passou no teste de autoria, mas os PNGs renderizaram texto como glifos ausentes; esses arquivos não são usados como evidência.
+- A repetição auxiliar com captura pelo runner do host regenerou os quadros legíveis do teste principal, mas terminou com 2 falhas nos métodos de viewport compacto e binding: o `XMLHttpRequest` síncrono de `readConfig()` recebeu conteúdo que não pôde ser analisado como JSON. Isso não ocorreu no gate normal do container; não altera o resultado 2/2 e permanece uma limitação do modo de captura host.
+
+## 2026-10-04 — Revalidação do catálogo de status
+
+- Depois de corrigir as referências de teste, atualizar seis `scopeDigest` e regenerar as views, `make status-check` passou. `tests/unit/test_project_status.py` passou com **13 testes em 5,16 s**; o estado persistente padrão da conta ficou idêntico antes/depois. O XDG temporário do gate visual também permaneceu ausente.

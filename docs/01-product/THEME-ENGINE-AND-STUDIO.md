@@ -265,12 +265,19 @@ parametrizar, reordenar e remover nodes allowlisted; temas com assets sem livro
 de receitas podem escolher a fonte e inicializá-lo. A primeira alteração de um
 tema derivado materializa a declaração herdada no filho. Cada candidato passa
 pelo `AssetRecipeBook` e pelo `ThemeResolver` antes de entrar no histórico; uma
-rejeição mantém documento e histórico intactos. O preview usa o renderer nativo
-`AssetRecipePreview` e a origem resolvida pela cadeia de herança, com paths
-confinados à raiz do tema. A prova atual combina autoria, salvar/reabrir e desenho
-no harness QML com exportar/importar o manifesto de receitas em XDG temporário;
-isso não certifica a execução da Jornada no Launcher/Cinema. Perfis por
-tier/resolução e validação na release instalada continuam pendentes.
+rejeição mantém documento e histórico intactos. `assetRecipes` v2 acrescenta
+fallback, escolha por tier e breakpoints de resolução com prioridade. O Studio
+envia tier e dimensões do alvo à bridge, e o preview usa o renderer nativo
+`AssetRecipePreview` com a origem resolvida pela cadeia de herança, confinada à
+raiz do tema. O E2E QML pela bridge de loopback comprovou `balanced` em
+1280×720 e o breakpoint `wide` em 1920×720; a receita `outlineThin` (largura 6)
+chega ao componente do renderer. Isso é uma prévia de alvo simulada no harness
+Qt/offscreen de 1100×900, não uma tela física de 1920×720 nem a release instalada.
+A autoria/salvar/reabrir e exportar/importar continua coberta em XDG temporário;
+nada disso certifica a Jornada no Launcher/Cinema ou o pacote da Engine instalado.
+Na imagem Qt 6.11.2 do gate visual, os E2E QML de Jornada e Theme Studio passaram
+após ajustes de rolagem e largura dos controles; ainda são provas do checkout,
+não de aplicação instalada, sessão física ou desempenho da release.
 
 As mutações do editor são enviadas em sequência por sessão. A resposta só
 atualiza o documento se a geração e a sessão ainda forem as atuais; respostas de

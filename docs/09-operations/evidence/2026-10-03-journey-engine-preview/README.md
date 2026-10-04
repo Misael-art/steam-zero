@@ -274,10 +274,9 @@ bridge allowlisted e validação transacional; salvar/reabrir conserva o livro.
 
 O preview QML enviou `balanced`, 1280×720 à bridge HTTP real de teste e recebeu
 `studioRecolor` com origem `tier:balanced`. A UI também salvou um breakpoint
-`wide` (largura mínima 1600). A seleção efetiva em 1920×720 está coberta no
-domínio e na bridge; a jornada QML atual executa um único request de preview por
-limitação observada no segundo XHR do harness. Não contamos essa limitação como
-prova física nem como falha de produto.
+`wide` (largura mínima 1600). Naquele checkpoint, a jornada QML havia exercitado
+apenas o alvo por tier; a revalidação abaixo acrescenta o segundo alvo por
+breakpoint.
 
 Verificação após o ajuste final de tipos: os módulos focados de receita,
 ThemeEditor, contratos e bridge mais a autoria QML passaram com **133 testes**.
@@ -323,3 +322,33 @@ Commits funcionais locais deste recorte: `3aeb3b4f0f42ade22aadb1a531576427ed9581
 (schema, editor e resolver) e `c839f64c3257ccb4d318ecf4357b37a052cf8f28`
 (bridge compartilhada). Ainda falta o commit documental e o push autorizado;
 estes commits não foram verificados por CI remoto.
+
+## Revalidação QML de breakpoint — 2026-10-04
+
+`tests/integration/test_theme_authoring_e2e.py` agora envia dois previews pelos
+controles QML e pela bridge HTTP real do `DesktopControlServer`: `balanced` em
+1280×720 resolve `studioRecolor`; `wide` em 1920×720 resolve `outlineThin`.
+O segundo callback atualiza o `AssetRecipePreview`, cujo componente confirma
+fonte pronta, contorno ativo, largura 6 e ausência de fallback. O teste passou
+isolado com **1 passed em 18,91 s**, usando XDG temporário ausente antes/depois.
+
+A investigação corrigiu a observação anterior sobre o segundo XHR: nesta jornada
+ele retorna HTTP 200 e o callback QML aplica a seleção. A falha intermediária era
+da asserção do teste, que tentava consultar um `id` QML como propriedade do
+painel; a prova agora inspeciona as propriedades públicas do renderer.
+
+Capturas da jornada no checkout/offscreen:
+
+![Studio configurado para testar o perfil por tier](qml-captures/05-studio-perfil-tier.png)
+
+![Imagem entregue pelo AssetRecipePreview para o breakpoint wide](qml-captures/06-studio-perfil-breakpoint-wide.png)
+
+O harness continua em 1100×900; 1920×720 é o alvo enviado ao resolver, não a
+resolução física da janela. As capturas não identificam nem validam a release
+instalada, não medem pixels de uma sessão SteamZero e não substituem B_VISUAL.
+
+## Gate visual na imagem do CI — 2026-10-04
+
+Após os ajustes de viewport e controles, a imagem `ghcr.io/misael-art/steamzero-qml-visual@sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd` executou `tests/integration/test_experience_journey_e2e.py` e `tests/integration/test_theme_authoring_e2e.py`: **2 passed em 16,81 s**. A correção usa a largura do `contentItem` da jornada, mantém o diálogo de remoção dentro do painel e deixa o preview ao vivo do Studio rolável; os controles de edição se ajustam ao viewport compacto. O teste percorre os dois alvos de receita e a interação da Jornada.
+
+O guard de `XDG_STATE_HOME=/tmp/steamzero-codex-isolated-state` reportou `exists=False` antes e depois. A imagem confirma QML/bridge do checkout em Qt 6.11.2. Não executa a aplicação instalada, não captura uma janela SteamZero física e não fecha B_VISUAL nem o desempenho da release.

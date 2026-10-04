@@ -88,6 +88,6 @@
     "docs/status/items/governance-status.json",
     "docs/status/items/platform-vita-catalog.json"
   ],
-  "nextAction": "Perfis assetRecipes v2 estão verificados por 133 testes focados e 58 QML. A integral registrou 6614 passed, 47 skipped e uma falha documental por digests/views envelhecidos quando o log foi gravado; a renovação posterior passou STATUS-CHECK e test_project_status (13/13). Os commits funcionais locais são 3aeb3b4 e c839f64. Fechar o commit documental, fazer push autorizado e acompanhar CI terminal; depois seguir os handoffs de Launcher/Cinema, sessão real e B_VISUAL com release identificada. Nenhuma instalação foi feita.",
+  "nextAction": "O E2E QML pela bridge seleciona balanced/1280×720 e wide/1920×720 e entrega outlineThin largura 6 ao AssetRecipePreview. Journey e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2; capturas offscreen estão em evidence/.../qml-captures. A integral anterior registrou 6614 passed/47 skipped/1 falha documental por digests/views envelhecidos; depois da renovação, STATUS-CHECK ficou OK e test_project_status passou 13/13. Follow-up 86dc1a95, commits funcionais 3aeb3b4/c839f64 e checkpoint fa4ff88. Falta enviar as alterações atuais e acompanhar CI terminal. Depois seguir handoffs seriais de Launcher/Cinema e sessão. B_VISUAL, pixels/tempo de release e instalação continuam pendentes.",
   "updatedAt": "2026-10-04"
 }

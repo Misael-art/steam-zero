@@ -36,7 +36,7 @@
     "tests/qml/check_experience_journey_bridge_e2e.qml",
     "tests/unit/test_theme_editor.py"
   ],
-  "scopeDigest": "ac5f6d8d1cd662ed331796e2b2858e3042995528c0380b441eb5716a2dcf4bfc",
+  "scopeDigest": "52712176ec65be6aafb60f293844be5b81446e2e5d001de926e0ab8131645b70",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -182,7 +182,7 @@
       "command": "2026-10-03: scope digest renovado após declarar caminhos compartilhados para a matriz de capacidades e os itens de governança/Vita; reconciliação de ownership documental, sem reteste de aceitação nem promoção de estágio."
     }
   ],
-  "nextAction": "A bridge journey.studio.* e o preview native de Engine estão verificados por loopback. A autoria assetRecipes v2 escolhe fallback, tier e breakpoint; a jornada QML comprovou preview pelo tier. A integral registrou 6614 passed, 47 skipped e uma falha documental porque o log novo envelheceu digests/views; após recalculá-los, STATUS-CHECK ficou OK e test_project_status passou 13/13. Os commits funcionais locais são 3aeb3b4 e c839f64; falta o commit documental, push autorizado e CI remoto. Depois, continuar os handoffs seriais de Launcher/Cinema e capabilities reais de sessão. B_VISUAL, pixels/tempo na release e instalação aguardam candidata autorizada e janela SteamZero disponível.",
+  "nextAction": "A bridge journey.studio.* e o preview native estão verificados por loopback. A autoria assetRecipes v2 executa balanced/1280×720 e wide/1920×720, entregando outlineThin largura 6 ao AssetRecipePreview. Os E2E QML de Jornada e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2; isso valida checkout/offscreen, não release ou sessão. A integral anterior registrou 6614 passed, 47 skipped e uma falha documental por digests/views envelhecidos; após renová-los, STATUS-CHECK e test_project_status passaram (13/13). Follow-up local 86dc1a9, commits funcionais 3aeb3b4/c839f64 e checkpoint documental fa4ff88. Enviar a árvore atualizada e conferir CI terminal; depois, seguir Launcher/Cinema e capabilities reais de sessão. B_VISUAL, pixels/tempo da release e instalação aguardam candidata autorizada e janela SteamZero disponível.",
   "activeWorkstreams": [
     "WS-2026-10-V1-V3-THEME-JOURNEY"
   ],

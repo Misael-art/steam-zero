@@ -1175,7 +1175,9 @@ Rectangle {
                     clip: true
                     contentWidth: availableWidth
                     ColumnLayout {
-                        width: parent.availableWidth
+                        // O pai visual é o conteúdo do Flickable. Sua largura já
+                        // acompanha contentWidth, limitado a availableWidth acima.
+                        width: parent.width
                         spacing: 10
 
                         ColumnLayout {
@@ -1968,6 +1970,7 @@ Rectangle {
         objectName: "journeyDeleteMenuDialog"
         title: qsTr("Excluir menu e revisar destinos")
         modal: true
+        width: Math.max(0, Math.min(560, panel.width - 32))
         standardButtons: Dialog.NoButton
         contentItem: ColumnLayout {
             Label {

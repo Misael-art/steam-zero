@@ -221,6 +221,14 @@ Item {
             return point.y >= 0 && point.y + item.height <= flickable.height
         }
 
+        function clickTarget(item, message) {
+            const x = item.width / 2
+            const y = item.height / 2
+            mousePress(item, x, y)
+            verify(item.pressed, message + " não recebeu o pressionamento")
+            mouseRelease(item, x, y)
+        }
+
         function test_bridge_absence_is_visible_and_writes_are_disabled() {
             tryVerify(function() { return harness.actionCalls.length > 0 })
             compare(harness.actionCalls[0], "journey.studio.list")
@@ -399,7 +407,12 @@ Item {
             journey.filterOperator = "oneOf"
             value.text = ""
             const beforeEmptyFilter = harness.lastAction
-            mouseClick(add)
+            const addPoint = add.mapToItem(flickable, 0, 0)
+            verify(addPoint.x >= 0 && addPoint.x + add.width <= flickable.width,
+                "botão de filtro cortado horizontalmente: x=" + addPoint.x
+                    + " width=" + add.width + " viewport=" + flickable.width
+                    + " content=" + flickable.contentWidth)
+            clickTarget(add, "botão de filtro")
             verify(journey.notice.indexOf("oneOf") >= 0,
                 "click sem validar: notice=" + journey.notice + " field="
                     + journey.filterField + " operator=" + journey.filterOperator
@@ -451,8 +464,9 @@ Item {
             replacement.currentIndex = 0
             journey.pendingReplacementMenuId = replacement.model[0].id
             verify(confirm.enabled)
-            mouseClick(confirm)
-            tryVerify(function() { return harness.lastAction === "journey.studio.transact" })
+            clickTarget(confirm, "confirmação de substituição")
+            tryVerify(function() { return harness.lastAction === "journey.studio.transact" },
+                3000, "confirmação da substituição não transacionou")
             compare(harness.lastPayload.operation, "remove-menu")
             compare(harness.lastPayload.payload.replacementMenuId, "platforms")
             compare(journey.session.document.menus.length, 2,

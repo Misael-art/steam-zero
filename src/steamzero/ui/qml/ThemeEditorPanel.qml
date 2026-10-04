@@ -2835,6 +2835,10 @@ Rectangle {
                                 AuthButton {
                                     objectName: "effectAdd"
                                     requestedImplicitHeight: 40
+                                    width: Math.min(implicitWidth,
+                                        Math.max(panel.minimumInteractiveTarget,
+                                            tokenScroll.availableWidth - 24))
+                                    wrapText: true
                                     text: qsTr("Adicionar efeito")
                                     Accessible.name: qsTr("Adicionar efeito à pilha")
                                     onClicked: panel.editEffect("add", {effectType: effectTypeCombo.currentText})
@@ -3172,6 +3176,10 @@ Rectangle {
                                 }
                                 AuthButton {
                                     objectName: "motionTimelineAdd"
+                                    width: Math.min(implicitWidth,
+                                        Math.max(panel.minimumInteractiveTarget,
+                                            tokenScroll.availableWidth - 24))
+                                    wrapText: true
                                     text: qsTr("Criar timeline")
                                     requestedImplicitHeight: 40
                                     onClicked: {
@@ -3181,6 +3189,10 @@ Rectangle {
                                 }
                                 AuthButton {
                                     objectName: "motionClipAdd"
+                                    width: Math.min(implicitWidth,
+                                        Math.max(panel.minimumInteractiveTarget,
+                                            tokenScroll.availableWidth - 24))
+                                    wrapText: true
                                     text: qsTr("Adicionar clip")
                                     requestedImplicitHeight: 40
                                     onClicked: panel.editMotion("add_clip", panel.motionTimelineName, {value: {state: panel.motionStateName, duration: 240}})
@@ -3202,6 +3214,10 @@ Rectangle {
                                 }
                                 AuthButton {
                                     objectName: "motionTimelineRemove"
+                                    width: Math.min(implicitWidth,
+                                        Math.max(panel.minimumInteractiveTarget,
+                                            tokenScroll.availableWidth - 24))
+                                    wrapText: true
                                     text: qsTr("Remover timeline")
                                     requestedImplicitHeight: 40
                                     onClicked: panel.editMotion("remove_timeline", panel.motionTimelineName, ({}))
@@ -3412,16 +3428,27 @@ Rectangle {
             }
 
             // RIGHT: live preview
-            Rectangle {
+            ScrollView {
+                id: livePreviewScroll
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                color: panel._previewBridge.background
+                Layout.minimumWidth: 0
+                Layout.maximumWidth: Math.max(0,
+                    panel.width - parent.x - x - 16)
                 visible: !panel.compactLayout
                 clip: true
+                contentWidth: availableWidth
+                contentHeight: livePreviewContent.implicitHeight + 48
+
+                background: Rectangle {
+                    color: panel._previewBridge.background
+                }
 
                 ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 24
+                    id: livePreviewContent
+                    x: 24
+                    y: 24
+                    width: Math.max(0, livePreviewScroll.availableWidth - 48)
                     spacing: 12
 
                     Label {
@@ -3567,6 +3594,8 @@ Rectangle {
                         color: panel._previewBridge.surface
                         radius: panel._previewBridge.radiusMedium
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: parent.width
                         implicitHeight: visible ? assetRecipeColumn.implicitHeight + 28 : 0
                         border.color: panel._previewBridge.border
                         border.width: 1
@@ -3577,14 +3606,17 @@ Rectangle {
                             anchors.margins: 14
                             spacing: 8
 
-                            RowLayout {
+                            ColumnLayout {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 Label {
                                     text: qsTr("Receitas de asset · variantes declarativas")
                                     color: panel._previewBridge.text
                                     font.pixelSize: Math.round(14 * panel.visualScale)
                                     font.weight: Font.Medium
                                     Layout.fillWidth: true
+                                    wrapMode: Text.WordWrap
                                 }
                                 ComboBox {
                                     id: assetRecipePicker
@@ -3593,6 +3625,8 @@ Rectangle {
                                     model: Object.keys(panel.assetRecipeRecipes)
                                     currentIndex: Math.max(0, model.indexOf(panel.assetRecipeSelection))
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.maximumWidth: parent.width
                                     Layout.minimumHeight: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Variante do asset")
                                     onActivated: function(index) {
@@ -3613,6 +3647,8 @@ Rectangle {
                             RowLayout {
                                 visible: panel.assetRecipeCanInitialize
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 ComboBox {
                                     objectName: "assetRecipeSourceSlotPicker"
                                     model: panel.assetRecipeAvailableSlots
@@ -3643,6 +3679,8 @@ Rectangle {
                             RowLayout {
                                 visible: panel.assetRecipeEditorActive
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 TextField {
                                     objectName: "assetRecipeNewNameField"
                                     text: panel.assetRecipeNewName
@@ -3679,6 +3717,8 @@ Rectangle {
                             RowLayout {
                                 visible: panel.assetRecipeEditorActive
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 Label {
                                     text: qsTr("Fallback")
                                     color: panel._previewBridge.textMuted
@@ -3705,6 +3745,8 @@ Rectangle {
                             RowLayout {
                                 visible: panel.assetRecipeEditorActive
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 Label {
                                     text: qsTr("Tier")
                                     color: panel._previewBridge.textMuted
@@ -3754,6 +3796,8 @@ Rectangle {
                             ColumnLayout {
                                 visible: panel.assetRecipeEditorActive
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 spacing: 6
                                 Label {
                                     text: qsTr("Breakpoints de resolução · prioridade maior vence")
@@ -3763,6 +3807,8 @@ Rectangle {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.maximumWidth: assetRecipeColumn.width
                                     ComboBox {
                                         objectName: "assetRecipeBreakpointPicker"
                                         model: [qsTr("Novo breakpoint")].concat(
@@ -3814,6 +3860,9 @@ Rectangle {
                                 }
                                 Flow {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.maximumWidth: assetRecipeColumn.width
+                                    Layout.preferredWidth: assetRecipeColumn.width
                                     spacing: 8
                                     TextField {
                                         objectName: "assetRecipeBreakpointMinWidth"
@@ -3862,6 +3911,8 @@ Rectangle {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.maximumWidth: assetRecipeColumn.width
                                     Button {
                                         objectName: "assetRecipeBreakpointSaveButton"
                                         text: qsTr("Salvar breakpoint")
@@ -3885,15 +3936,20 @@ Rectangle {
                                 }
                             }
 
-                            RowLayout {
+                            Flow {
                                 visible: panel.assetRecipeEditorActive
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
+                                Layout.preferredWidth: assetRecipeColumn.width
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
                                 CheckBox {
                                     objectName: "assetRecipeProfilePreviewToggle"
                                     text: qsTr("Testar perfil")
                                     checked: panel.assetRecipeProfilePreviewActive
                                     enabled: !panel.editorReadOnly
-                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    height: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Usar tier e resolução escolhidos no preview")
                                     onToggled: panel.requestAssetRecipeProfilePreview(checked)
                                 }
@@ -3901,8 +3957,8 @@ Rectangle {
                                     objectName: "assetRecipePreviewTier"
                                     model: panel.editorAssetRecipeSchema.performanceTiers || []
                                     currentIndex: Math.max(0, model.indexOf(panel.assetRecipePreviewTier))
-                                    Layout.minimumWidth: 132
-                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    width: 132
+                                    height: panel.minimumInteractiveTarget
                                     enabled: !panel.editorReadOnly
                                     Accessible.name: qsTr("Tier do preview")
                                     onActivated: function(index) {
@@ -3913,8 +3969,8 @@ Rectangle {
                                     objectName: "assetRecipePreviewWidth"
                                     text: panel.assetRecipePreviewWidth
                                     enabled: !panel.editorReadOnly
-                                    Layout.minimumWidth: 112
-                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    width: 112
+                                    height: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Largura do preview em pixels")
                                     validator: IntValidator { bottom: 1; top: 8192 }
                                     onTextChanged: panel.assetRecipePreviewWidth = text
@@ -3923,8 +3979,8 @@ Rectangle {
                                     objectName: "assetRecipePreviewHeight"
                                     text: panel.assetRecipePreviewHeight
                                     enabled: !panel.editorReadOnly
-                                    Layout.minimumWidth: 112
-                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    width: 112
+                                    height: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Altura do preview em pixels")
                                     validator: IntValidator { bottom: 1; top: 8192 }
                                     onTextChanged: panel.assetRecipePreviewHeight = text
@@ -3933,7 +3989,7 @@ Rectangle {
                                     objectName: "assetRecipePreviewTargetButton"
                                     text: qsTr("Atualizar alvo")
                                     enabled: !panel.editorReadOnly
-                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    height: panel.minimumInteractiveTarget
                                     Accessible.name: text
                                     onClicked: panel.requestAssetRecipeProfilePreview(true)
                                 }
@@ -3957,6 +4013,8 @@ Rectangle {
                             RowLayout {
                                 visible: panel.assetRecipeEditorActive
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 ComboBox {
                                     objectName: "assetRecipeNodePicker"
                                     model: panel.assetRecipeNodes.map(function(node, index) {
@@ -4013,6 +4071,8 @@ Rectangle {
                             RowLayout {
                                 visible: panel.assetRecipeEditorActive && panel.assetRecipeCurrentNode !== null
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.maximumWidth: assetRecipeColumn.width
                                 Button {
                                     text: qsTr("Subir")
                                     enabled: !panel.editorReadOnly && panel.assetRecipeNodeIndex > 0
@@ -5060,6 +5120,7 @@ Rectangle {
         id: authButton
         property int requestedImplicitWidth: 0
         property int requestedImplicitHeight: 0
+        property bool wrapText: false
         implicitWidth: Math.max(panel.minimumInteractiveTarget, requestedImplicitWidth,
             authButton.contentItem
                 ? authButton.contentItem.implicitWidth + leftPadding + rightPadding : 0)
@@ -5085,6 +5146,7 @@ Rectangle {
             font.pixelSize: Math.round(13 * panel.visualScale)
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            wrapMode: authButton.wrapText ? Text.WordWrap : Text.NoWrap
         }
     }
 

@@ -372,8 +372,12 @@ Item {
             const index = combo.model.indexOf(value)
             verify(index >= 0, "opção ausente em " + name + ": " + value)
             const previousIndex = combo.currentIndex
-            mouseClick(combo, combo.width / 2, combo.height / 2)
-            tryVerify(function() { return combo.popup.visible }, 3000, name + " não abriu")
+            const clickX = combo.width / 2
+            const clickY = combo.height / 2
+            mousePress(combo, clickX, clickY)
+            mouseRelease(combo, clickX, clickY)
+            tryVerify(function() { return combo.popup.visible }, 3000,
+                name + " não abriu")
             const direction = index >= previousIndex ? Qt.Key_Down : Qt.Key_Up
             for (let step = 0; step < Math.abs(index - previousIndex); ++step)
                 keyClick(direction)
