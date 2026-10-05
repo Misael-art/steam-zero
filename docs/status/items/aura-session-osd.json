@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "f82a622fd1445d9269ff2abf4c69c57f15ef61412ff42e8eb3ffbc9065d163cf",
+  "scopeDigest": "910b4c28c9c8613ee391c9dc090eb32cbc4f63c9af85ddc21fdadd801dc1883c",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",
@@ -164,10 +164,16 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only revalidation after archiving the initial integral stdout byte-for-byte as gzip and recording its decompressed SHA-256. No acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/03-host-preflight-2026-10-05.md",
+      "command": "2026-10-05 read-only follow-up after PR #251: installed and daemon identities agree at 2.0.0rc1-5715d7962691; schema 22, pendingOperations 0, managed activation ownership, rollback manifest/smoke, daemon convergence and units pass. Doctor warns about 9 orphan backups/journals, bootDirect unknown and Deck keys false. No install, cleanup, gameplay, capture or product maturity promotion.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Exit confirmado durante pausa agora destrava somente o grupo validado e espera closed observado; bezel custom escreve config privada apenas para próximo launch. Manter gaps de gameplay/pixels e exit físico até B_VISUAL autorizado.",
+  "nextAction": "Exit confirmado a partir de pausa continua validado somente por processo descartável. Depois da release candidata autorizada, executar a jornada real e o retorno; preservação de saves, captura e input físico continuam pendentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-05",
   "notes": "A10 da execução AURA. O contrato semântico continua impedindo que o tema invente pausa, volume ou saves. A release 2.0.0rc1-3acc2104dd5a adiciona prova física do OSD e da galeria de saves pelo Launcher instalado sobre jogo real; ações sem adapter permanecem visíveis e desabilitadas. Troca de disco segue dependente de um jogo multi-disc legítimo."
 }

@@ -26,7 +26,7 @@
     "tools/release_host.py",
     "docs/09-operations/evidence/2026-08-26-host-update-preflight"
   ],
-  "scopeDigest": "f09aaa28fa4ca55b735fa06df370b2cf1bb9ea5d7df7e29fbc6842d696850126",
+  "scopeDigest": "f737ff661ca323705c31f7eb1b2770b490574b95d50913b34b02a9ca936d824c",
   "dependsOn": [],
   "knownGaps": [
     "GAP-HOST-UPDATE-VM-CYCLE"
@@ -114,6 +114,12 @@
       "kind": "hardware",
       "reference": "docs/09-operations/evidence/2026-08-26-host-update-preflight",
       "command": "2026-08-27, secao 6. CAMINHO DE SUCESSO com autorizacao explicita do operador: release_host.py update --to origin/main no commit 3b296a949316 (CI verde, 8 jobs, run 33053047178). PRESERVACAO DE BANCO PROVADA NA FORMA FORTE: state.db sha256 03a52f5e488b7d5b861d42dad046ea748aa9ba640878e64013e2305b349c8d5c IDENTICO antes e depois, 2494464 bytes, 37 tabelas, 9639 linhas, integrity_check ok — enquanto a release ativa mudou de 2.0.0rc1-720928250e1a para 2.0.0rc1-3b296a949316. JOURNAL em phase=committed com deploymentHealthy=True; doctor confirma recovery.pending 0 nao-terminais e service.generation na release ativada. ROLLBACK DISPONIVEL DEPOIS da ativacao: as quatro releases coexistem em /opt/steamzero/releases, incluindo a anterior. Verificado no codigo antes de prosseguir que deploymentHealthy=false e physicalCertification=false no --plan NAO sao avisos (o primeiro so vira true apos commit, release_host.py:2044). NAO PROVADO: quarentena de candidata invalida durante a ativacao, que exigiria fabricar uma release deliberadamente quebrada.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_release_host.py",
+      "command": "2026-10-05 preflight hardening: 75 passed. `release_host` strips checkout PYTHONPATH for installed steamzero probes, requires doctor runtime.provenance to match the active manifest and full daemon sourceCommit to match; unknown or divergent identity stops before activation. Read-only host preflight passed with active release 2.0.0rc1-5715d7962691 and zero pending operations; no host mutation.",
       "result": "passed"
     }
   ],

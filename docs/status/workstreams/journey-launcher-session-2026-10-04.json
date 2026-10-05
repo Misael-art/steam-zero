@@ -3,9 +3,9 @@
   "kind": "workstream",
   "id": "WS-2026-10-JOURNEY-LAUNCHER-SESSION",
   "item": "SZ-AURA-LAUNCHER",
-  "branch": "codex/session-exit-wayland-bezel-2026-10-04",
-  "baseRef": "5e94e50810deac5bde22645fb3e015d62426baf2",
-  "owner": "codex-session-exit-wayland-bezel",
+  "branch": "codex/session-provenance-checkpoint-2026-10-05",
+  "baseRef": "31564383ac90b53e0ae8ed6696eaa7ca32f8d5ef",
+  "owner": "codex-session-provenance-checkpoint",
   "state": "active",
   "exclusivePaths": [
     "src/steamzero/domain/experience_journey.py",
@@ -87,6 +87,8 @@
     "tests/qml/launcher/check_launcher_journey.qml",
     "tests/qml/launcher/check_launcher_session_overlay_trigger.qml",
     "tests/qml/check_experience_journey.qml",
+    "tests/qml/check_central_loading.qml",
+    "docs/status/items/aura-ui.json",
     "docs/status/items/aura-launcher.json",
     "docs/status/items/theme-engine.json",
     "docs/status/items/theme-studio.json",
@@ -96,7 +98,10 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-journey-launcher-session",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel",
-    "tests/integration/test_cli_emulation.py"
+    "tests/integration/test_cli_emulation.py",
+    "tests/integration/test_qml_handheld_offscreen.py",
+    "tools/release_host.py",
+    "tests/unit/test_release_host.py"
   ],
   "sharedPaths": [
     "src/steamzero/adapters/desktop_contracts.py",
@@ -112,6 +117,6 @@
     "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
     "docs/09-operations/AGENT-HANDOFF.md"
   ],
-  "nextAction": "Integral corrigida concluída: 6666 passed, 47 skipped, 0 failed em 2708,15 s; log 02-integral-final.log preservado e state home real idêntico antes/depois. As correções focadas, Ruff/format/mypy, independência e matriz passaram. Renovar digests/views após promover esta evidência, executar status-check, revisar diff e commits, abrir PR e aguardar CI verde no SHA exato antes do merge commit. P0 físicos continuam sem execução: instalação, B_VISUAL e janela Wayland real requerem autorização própria.",
-  "updatedAt": "2026-10-04"
+  "nextAction": "Checkpoint integral autorizado e concluído na árvore corrigida: 6675 passed, 47 skipped, 0 failed em 2669.43 s, exit 0; HEAD-base 31564383ac90b53e0ae8ed6696eaa7ca32f8d5ef e hashes src/tests/tools inalterados antes/depois. O log 08 preserva o resultado; guard detectou escrita do daemon externo já ativo e declarou atribuição do state home degradada. Static gates passaram na mesma fonte antes da edição documental; renovar/renderizar status-check. Revisar diff e separar commits funcionais de proveniência e handoff/harness, commits documentais e shared final; um push, PR e CI terminal no SHA exato antes do merge commit. Após merge, devolver serialmente o teste à Biblioteca. Preservar o gap histórico 6-vs-5 sem causa e não iniciar instalação, rollback ou B_VISUAL sem nova autorização/token.",
+  "updatedAt": "2026-10-05"
 }

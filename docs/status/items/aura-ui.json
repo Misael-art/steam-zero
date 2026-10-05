@@ -9,7 +9,7 @@
   "verification": "unit",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "ba4e9d2edc91390888f71c1e80c7c70f6641801ca94a524ab8c977c11709de7f",
+  "scopeDigest": "09009dd060b3d59045942122f78170efeb7ae55cf5b03e63845eff67a8c1ea94",
   "scopePaths": [
     "src/steamzero/domain/default_theme.py",
     "src/steamzero/domain/theme_preferences.py",
@@ -25,7 +25,9 @@
   "dependsOn": [
     "SZ-THEME-ENGINE"
   ],
-  "knownGaps": [],
+  "knownGaps": [
+    "GAP-AURA-UI-CENTRAL-LOADING-6-VS-5"
+  ],
   "acceptanceCriteria": [
     "Identidade, tokens e manifest do sistema visual AURA UI sao versionados no projeto.",
     "AURA UI tem testes de carregamento e preferencia na central de gerenciamento.",
@@ -79,10 +81,40 @@
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/05-central-loading-counter-probe.json",
+      "command": "2026-10-05 handoff serial WS-2026-10-JOURNEY-LAUNCHER-SESSION. Probe 137 copiado byte a byte (SHA-256 2f9d42cb724486feb0f2b963a6592fa055cce55f37854936cf6ef8d24930bc7c); demonstra contagem global compartilhada entre duas instâncias descartáveis, sem reproduzir nem determinar a causa dos seis GET /status históricos.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/06-central-loading-trace.json",
+      "command": "2026-10-05 teste/harness QML instrumentados por instância: 10 casos focados passaram e o módulo completo passou 62 testes; trace sintético registrou cinco GET /status, qml6 returncode 0, nenhum erro de transporte e cleanup próprio completo. Asserção valida subprocesso antes da contagem; captura loading/stale/ready; teste de timeout preserva stdout/stderr. Resultado não reproduz a sexta leitura histórica; nenhum eixo de maturidade AURA UI ou de produto foi promovido.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/07-central-loading-structured-trace.json",
+      "command": "2026-10-05 revalidação após parse estruturado da cena: 10 focados passaram em 29,51 s; 44 eventos QML parseados sem erro; qmlLogicalAttemptMax=5 e cinco GET /status na instância; returncode 0, sem erro de transporte e cleanup completo. Ainda não reproduz a sexta leitura histórica; não promove AURA UI nem outros eixos.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-05, com a regressão de timeout final: o módulo inteiro tests/integration/test_qml_handheld_offscreen.py passou 62 testes em 96,33 s, state home real idêntico. Teste Python SHA-256 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707. Mantém sem causa a falha histórica de seis pedidos; nenhum estágio AURA UI ou de outros produtos foi promovido.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/08-integral-corrected-tree-2026-10-05.log",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests -q; exit 0; 6675 passed, 47 skipped, 0 failed em 2669.43 s. O log antigo permanece failed; o runner observou escrita do daemon externo ativo e marcou atribuição do state home como degradada.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Manter a validação AURA UI no escopo nativo; a auditoria física confirmou a Central, mas não promove AURA Launcher, Theme Engine ou Theme Studio.",
+  "nextAction": "A nova árvore corrigida passou na integral instrumentada de 2026-10-05 (6675 passed, 47 skipped, 0 failed); a atribuição do state guard ficou degradada devido a escritor externo pré-existente. Manter GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 aberto e o log 04 como vermelho histórico sem causa. O passe não promove AURA Launcher, Theme Engine ou Theme Studio nem substitui validação física.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-05",
   "notes": "Renomeado de SZ-THEME-AURA para eliminar ambiguidade. AURA UI e o tema/sistema visual instalado na central; nao e a experiencia fullscreen de biblioteca. O digest foi renovado porque o escopo compartilhado de temas recebeu a fixture de layouts; testes AURA e QML permaneceram verdes, sem promocao de estado. Nao ha certificacao visual/hardware deste item. Digest renovado porque o harness QML compartilhado passou a exercitar o caminho avancado de midia (--steamzero-qtquick-effects); nenhum estado do AURA UI foi promovido. Digest renovado por mudança compartilhada de reconciliação do catálogo; nenhuma capacidade visual foi promovida. Ativação do tema já ativo agora é no-op informativo, sem plano, confirmação ou emissão de E-THEME-ACTIVE. A prova física do editor e do ciclo alternativo pertence ao SZ-UI-DESKTOP-AUDIT; ela não certifica AURA UI, AURA Launcher, Theme Engine ou Theme Studio."
 }

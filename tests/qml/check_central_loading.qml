@@ -58,8 +58,49 @@ Main {
     property bool exitPending: false
     property bool staleChecked: false
     property int ticks: 0
+    property int traceSequence: 0
+    property bool initialResponseReleaseRequested: false
+    property bool loadingObservationLogged: false
     /// Contador de tentativas na fase em que a sondagem de sobreposição começou.
     property int probeBaseAttempt: 0
+
+    readonly property string testBridgeUrl: {
+        const args = Qt.application.arguments
+        const marker = args.indexOf("--steamzero-api")
+        return marker >= 0 && marker + 1 < args.length ? String(args[marker + 1]) : ""
+    }
+
+    function trace(eventName) {
+        traceSequence += 1
+        console.log("CENTRAL-TRACE " + JSON.stringify({
+            sequence: traceSequence,
+            event: eventName,
+            ticks: ticks,
+            phase: phase,
+            statusPhase: window.statusPhase,
+            statusAttempt: window.statusAttempt,
+            statusInFlight: window.statusInFlight,
+            statusRefreshQueued: window.statusRefreshQueued,
+            pendingRequests: window.pendingRequests
+        }))
+    }
+
+    function releaseInitialResponse() {
+        if (initialResponseReleaseRequested)
+            return
+        initialResponseReleaseRequested = true
+        trace("harness-release-initial-response")
+        const release = new XMLHttpRequest()
+        release.onreadystatechange = function() {
+            if (release.readyState !== XMLHttpRequest.DONE)
+                return
+            window.trace("release-initial-response-result-" + release.status)
+            window.check(release.status === 204,
+                         "a ponte não reconheceu a liberação controlada da leitura inicial")
+        }
+        release.open("GET", testBridgeUrl + "/_test/release-first", true)
+        release.send()
+    }
 
     function check(condition, message) {
         checks += 1
@@ -93,6 +134,7 @@ Main {
     }
 
     function finish() {
+        trace("scene-finish")
         // Sem parar o timer, um `finish()` que adia a saída pelo quadro ainda
         // em composição reentraria a cada tick e repetiria o veredito.
         sceneTimer.stop()
@@ -276,6 +318,7 @@ Main {
     function advance(nextPhase) {
         window.phase = nextPhase
         window.waited = 0
+        window.trace("phase-advanced-" + nextPhase)
     }
 
     // Um passo da cena. Os ramos que esperam o quadro ou a resposta saem por
@@ -296,6 +339,10 @@ Main {
             window.capturedPhase = window.capturePhase
         }
         if (window.phase === 1 && window.statusInFlight) {
+            if (!window.loadingObservationLogged) {
+                window.loadingObservationLogged = true
+                window.trace("loading-phase-observed")
+            }
             if (window.capturePhase === "loading" && window.capturedPhase === ""
                     && window.capturesPending === 0) {
                 check(window.statusPhase === "loading",
@@ -305,6 +352,7 @@ Main {
             // da ponte chegaria antes e a evidência mostraria a Home pronta.
             if (!window.captureSettled("loading"))
                 return
+            window.releaseInitialResponse()
         }
         if (window.phase === 1 && !window.statusInFlight
                 && window.statusPhase === "ready") {
@@ -313,11 +361,15 @@ Main {
             // Home pronta.
             if (!window.captureSettled("loading"))
                 return
+            window.releaseInitialResponse()
             window.advance(2)
             return
         }
         if (window.phase === 2 && window.statusPhase === "ready" && !window.statusInFlight) {
+            if (!window.captureSettled("ready"))
+                return
             window.checkReadyPhase()
+            window.trace("harness-refresh-renewal")
             window.refreshStatus("")
             window.advance(3)
             return
@@ -331,6 +383,7 @@ Main {
             // o estado não renovado, não a recuperação.
             if (!window.captureSettled("stale"))
                 return
+            window.trace("harness-retry-status")
             window.retryStatus()
             window.advance(4)
             return
@@ -359,7 +412,9 @@ Main {
     /// pode abrir uma consulta concorrente, nem pode simplesmente sumir.
     function probeOverlapGuard() {
         const tentativas = window.statusAttempt
+        window.trace("harness-overlap-refresh-first")
         window.refreshStatus("")
+        window.trace("harness-overlap-refresh-second")
         window.refreshStatus("")
         check(window.statusAttempt === tentativas + 1,
               "consultas não podem se sobrepor: houve "
@@ -388,7 +443,17 @@ Main {
         onTriggered: window.guard(window.step, "um passo da cena")
     }
 
+    Connections {
+        target: window
+        function onStatusAttemptChanged() { window.trace("statusAttempt-changed") }
+        function onStatusInFlightChanged() { window.trace("statusInFlight-changed") }
+        function onStatusRefreshQueuedChanged() { window.trace("statusRefreshQueued-changed") }
+        function onPendingRequestsChanged() { window.trace("pendingRequests-changed") }
+        function onStatusPhaseChanged() { window.trace("statusPhase-changed") }
+    }
+
     Component.onCompleted: {
+        window.trace("harness-component-completed")
         const args = Qt.application.arguments
         const hasBridge = args.indexOf("--steamzero-api") >= 0
             && args.indexOf("--steamzero-token") >= 0

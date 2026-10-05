@@ -451,13 +451,22 @@ def _default_runner(
     cwd: Path,
     timeout: int,
 ) -> subprocess.CompletedProcess[str]:
+    command = list(argv)
+    environment: dict[str, str] | None = None
+    if command and Path(command[0]).name == "steamzero":
+        # The release tool may itself run with PYTHONPATH=src so its local
+        # modules are importable. Never let that checkout shadow the installed
+        # package when a host CLI is being inspected or preflighted.
+        environment = os.environ.copy()
+        environment.pop("PYTHONPATH", None)
     return subprocess.run(
-        list(argv),
+        command,
         cwd=cwd,
         text=True,
         capture_output=True,
         timeout=timeout,
         check=False,
+        env=environment,
     )
 
 
@@ -956,6 +965,43 @@ def _host_preflight(
     if pending not in (None, [], 0):
         raise AutomationError("host possui operações críticas pendentes")
 
+    expected_version = manifest.get("packageVersion")
+    expected_commit = manifest.get("sourceCommit")
+    if (
+        manifest.get("release") != release
+        or not isinstance(expected_version, str)
+        or not expected_version
+        or not isinstance(expected_commit, str)
+        or COMMIT_RE.fullmatch(expected_commit) is None
+    ):
+        raise AutomationError("manifesto ativo não declara proveniência completa")
+    if doctor_payload.get("version") != expected_version:
+        raise AutomationError("versão do doctor diverge do manifesto da release ativa")
+    doctor_checks = doctor_data.get("checks")
+    provenance_check = (
+        next(
+            (
+                check
+                for check in doctor_checks
+                if isinstance(check, dict) and check.get("name") == "runtime.provenance"
+            ),
+            None,
+        )
+        if isinstance(doctor_checks, list)
+        else None
+    )
+    if not isinstance(provenance_check, dict) or provenance_check.get("status") != "pass":
+        detail = (
+            str(provenance_check.get("message") or provenance_check.get("status") or "ausente")
+            if isinstance(provenance_check, dict)
+            else "ausente"
+        )
+        raise AutomationError(
+            f"doctor não confirmou runtime.provenance; promoção recusada: {detail}"
+        )
+    if provenance_check.get("message") != release:
+        raise AutomationError("runtime.provenance diverge do manifesto da release ativa")
+
     service_status = _run(
         [str(active_cli), "service", "status", "--json"],
         timeout=30,
@@ -971,6 +1017,8 @@ def _host_preflight(
         or convergence.get("daemonRelease") != release
     ):
         raise AutomationError("daemon não está convergido com a release ativa")
+    if convergence.get("daemonCommit") != expected_commit:
+        raise AutomationError("commit de origem do daemon diverge do manifesto ativo")
     for unit in ("steamzero-core.socket", "steamzero-core.service"):
         _run(
             ["systemctl", "--user", "is-active", unit],
@@ -984,6 +1032,8 @@ def _host_preflight(
         "doctor": {
             "ok": True,
             "pendingOperations": pending,
+            "release": release,
+            "sourceCommit": expected_commit,
         },
         "daemon": {
             "state": "converged",

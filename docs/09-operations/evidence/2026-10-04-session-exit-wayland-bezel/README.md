@@ -190,3 +190,100 @@ executada nesta branch. A observação da revisão anterior era release
 candidata. A autorização de código/PR/merge desta tarefa não é autorização de
 instalação ou B_VISUAL. Permanecem gaps físicos para exit durante pausa, janela
 Qt Wayland, gameplay com bezel e retorno contextual/input na release instalada.
+
+## Continuidade de central-loading — 05/10/2026
+
+O handoff serial autorizado cedeu temporariamente
+`tests/integration/test_qml_handheld_offscreen.py` à WS-2026-10-JOURNEY-LAUNCHER-SESSION;
+`tests/qml/check_central_loading.qml` foi declarado no claim Jornada antes de
+ser alterado. A Biblioteca permaneceu ativa, preservando G58/G59 e os demais
+caminhos exclusivos. O probe original 137 foi copiado sem alteração para
+[`05-central-loading-counter-probe.json`](05-central-loading-counter-probe.json),
+SHA-256 `2f9d42cb724486feb0f2b963a6592fa055cce55f37854936cf6ef8d24930bc7c`.
+Ele prova interferência da contagem global entre instâncias, mas declara
+explicitamente que não reproduz nem explica a sexta leitura histórica.
+
+O bridge agora mantém sequência, lock, porta, trace e barreira por instância;
+usa socket efêmero, threads próprias não daemon, deadlines por evento e fecha
+barreira, servidor, handlers e socket por context manager. A cena registra
+origem de refresh/retry, fase, `statusAttempt`, `statusInFlight`, fila e pedidos
+pendentes. O resultado de `qml6` (código, stdout, stderr e timeout) é validado
+antes da contagem, e qualquer divergência imprime a sequência HTTP completa.
+Regressões cobrem isolamento A/B e cleanup em sucesso, falha e timeout. Os
+quadros loading, stale e ready são capturados em execuções independentes.
+
+O checkpoint focal executou dez casos: **10 passed em 32,12 s**. O snapshot do
+state home real permaneceu idêntico (12818 arquivos, 2068 diretórios,
+1372896963 bytes e mesmo `max_mtime_ns`). O trace sintético completo está em
+[`06-central-loading-trace.json`](06-central-loading-trace.json): `qml6` saiu
+com código 0, registrou cinco GET `/status` em sequência, nenhum erro de
+transporte e cleanup confirmado (serve thread parada, zero handlers, fd -1).
+Hash do teste Python `193b0446cd2e19f7d1701c60891ba1177675c81e24eb525bf07c376fb71d5b66`;
+hash do harness QML `749f12c7ad8345cb6188a289f474d17cac70c132ef444df6dc2894c6774341fa`.
+
+Em seguida, o módulo inteiro `tests/integration/test_qml_handheld_offscreen.py`
+passou: **62 passed em 121,49 s**, também com snapshot real idêntico antes e
+depois. Isso cobre a ordem completa entre seus testes na versão instrumentada;
+como não reproduziu seis pedidos, não estabelece a causa que ocorreu na
+integral anterior.
+
+Após acrescentar o parser estruturado dos eventos QML ao diagnóstico, os dez
+casos focais passaram novamente em **29,51 s**. O trace atual está em
+[`07-central-loading-structured-trace.json`](07-central-loading-structured-trace.json),
+SHA-256 `d8933683d422cc922d016fb0cf147e6ef03c886327f0170af3b24fb1fe84a676`.
+Ele compara `qmlLogicalAttemptMax=5` com cinco recebimentos `/status`, contém 44
+eventos QML sem erro de parse, returncode 0, nenhum erro HTTP e cleanup completo.
+Hashes da fonte executada ao gerar o trace 07: teste Python
+`85e479a905eb7d2ab39e28e4222dda3a3f70e89ce80df7cefafee05129c7971b`; harness
+QML `749f12c7ad8345cb6188a289f474d17cac70c132ef444df6dc2894c6774341fa`.
+
+Com o caso de timeout atualizado para provar a extração do trace parcial, o
+módulo QML completo passou novamente: **62 passed em 96,33 s**. O state home
+real permaneceu idêntico. Hash atual do teste Python:
+`201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707`.
+
+Esta execução verde não explica o seis-vs-cinco histórico. O log integral
+vermelho continua preservado em
+[`04-integral-preflight-failed.log`](04-integral-preflight-failed.log), SHA-256
+`63dac04da8fa5f392e2cc4e0f5b853af7bb4d102602f405436f720615209fd2e`; sem
+stdout/stderr QML naquela falha, ainda não há causa medida. A integral do novo
+checkpoint não foi iniciada enquanto essa causa permanece desconhecida.
+
+Na próxima reprodução, o diagnóstico estruturado permite comparar
+`qmlLogicalAttemptMax` com `actualStatusReads`: ambos em seis apontariam para
+pedido lógico extra; cinco tentativas e seis recebimentos apontariam para
+repetição/transporte ou contabilização fora da instância; código/timeout e o
+último evento `scene-finish` delimitam encerramento do harness. Esses critérios
+são discriminantes para uma observação futura, não uma conclusão sobre os logs
+antigos.
+
+Gates estáticos deste checkpoint passaram: `ruff check src tools tests`,
+`ruff format --check src tools tests` (699 arquivos), `mypy src` (303 arquivos),
+`make independence boundaries`, `make status-check` e `git diff --check`. A
+integral local não foi iniciada porque a causa do seis-vs-cinco ainda não foi
+medida; o resultado vermelho anterior permanece aberto.
+
+
+## Instrução operacional atualizada — 05/10/2026
+
+A instrução atual do operador autoriza uma única integral da árvore corrigida. Ela substitui a decisão anterior, registrada acima, de aguardar uma reprodução discriminante da causa histórica antes de iniciar a integral. Essa alteração de sequência não fecha nem reclassifica o incidente antigo: `04-integral-preflight-failed.log` continua sendo a evidência vermelha, com SHA-256 `63dac04da8fa5f392e2cc4e0f5b853af7bb4d102602f405436f720615209fd2e`, e `GAP-AURA-UI-CENTRAL-LOADING-6-VS-5` permanece aberto sem causa estabelecida.
+
+A próxima ação é congelar `src/`, `tests/` e `tools/`, registrar HEAD e hashes dos arquivos modificados antes/depois, manter ativo o guard de estado real do runner e gravar o log vivo fora do checkout. Preservar cinco GET `/status`, o `Main.qml` real, os contratos de fases e o cleanup; não parar o daemon nem disputar CPU com validação visual. Se a nova integral passar, o resultado vale somente para a nova árvore. Se falhar, usar os diagnósticos completos para investigação focal e não repetir a suíte sem mudança causal. A autorização inclui commits, push, PR e merge commit somente depois de gates verdes; não autoriza instalação, rollback, publicação certificada ou B_VISUAL.
+
+
+## Integral do checkpoint corrigido — 05/10/2026
+
+Com a instrução operacional atualizada do operador, foi executado uma única vez `.venv/bin/python tools/run_tests_isolated.py tests -q`. O comando terminou com exit **0** em **2669,43 s (44:29)**: **6675 passed, 47 skipped, 0 failed**. O log completo está em [`08-integral-corrected-tree-2026-10-05.log`](08-integral-corrected-tree-2026-10-05.log), SHA-256 `328cc74330ebb90e6c01a2677a5325cc75c155b1eb7406630b02f8c2b20f2bca`. O log foi escrito em `/tmp` enquanto o checkpoint rodava e copiado ao acervo somente após a saída terminal.
+
+O HEAD-base permaneceu `31564383ac90b53e0ae8ed6696eaa7ca32f8d5ef`. Hashes antes/depois também coincidiram: `tests/integration/test_qml_handheld_offscreen.py` `201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707`; `tests/qml/check_central_loading.qml` `749f12c7ad8345cb6188a289f474d17cac70c132ef444df6dc2894c6774341fa`; `tests/unit/test_release_host.py` `61681010e7585d5697f41954ee3e7a4eaea6ac5148cbb752af1c5cac21ea3cc6`; `tools/release_host.py` `cc6ff13ff1080c90796755d737cf622352289d8e1baed4095b9e8ab4ddeabf66`.
+
+O guard real detectou alteração durante a janela (`logs/core.jsonl` e `state.db`; 12818 arquivos e 2068 diretórios antes/depois; bytes 1372896963 → 1372897989). O runner atribuiu as escritas ao `steamzero-core --systemd`, PID 695227, já ativo antes do teste, e terminou sem reprovar, mas marcou a atribuição como degradada enquanto esse dono externo escreve. O daemon não foi parado, conforme instrução. Isso limita a prova de ausência de escrita concorrente da suíte; não altera o exit 0 do pytest nem é prova de que o host ficou imutável.
+
+Este é um passe da nova árvore corrigida. O histórico não foi reescrito: `04-integral-preflight-failed.log` continua vermelho (6670 passed, 47 skipped, 1 failed; SHA-256 `63dac04da8fa5f392e2cc4e0f5b853af7bb4d102602f405436f720615209fd2e`) e `GAP-AURA-UI-CENTRAL-LOADING-6-VS-5` segue sem causa. A integral nova não reproduziu nem explica o sexto pedido antigo. Não promove maturidade física, instalação, Theme Studio/Engine ou B_VISUAL.
+
+
+## Estado consultivo do host e gates estáticos — 05/10/2026
+
+Antes da integral, `release_host.py --json inspect` confirmou somente por leitura a release ativa `2.0.0rc1-5715d7962691`, source commit `5715d7962691efedef0f1b63e71adff1ad5ba801`, service/socket ativos, Doctor schema 22 e `pendingOperations=0`. O Doctor permaneceu degraded: 9 backups órfãos, 9 journals órfãos, `bootDirect=unknown` e botões Deck sem teclas. O inspect também marcou o worktree sujo e o host diferente da última tag. Nenhum cleanup, restart, instalação ou outra mutação foi feita.
+
+Após a integral, os gates estáticos passaram sobre a mesma fonte: `ruff check src tools tests`; `ruff format --check src tools tests` (699 arquivos); `mypy src` (303 arquivos); `make independence boundaries`; `make status-check` (`STATUS-CHECK: OK`); `git diff --check`. Os hashes de `src/tests/tools` confirmam que o código permaneceu idêntico durante a integral.

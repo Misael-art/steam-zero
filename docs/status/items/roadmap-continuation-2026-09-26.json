@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "e259c533b053c92f1291b774f9d40503530e0df725b68e79aa2d630740857883",
+  "scopeDigest": "24dfeb7643d41028ccf9e22ddf7d57dbe84359fe7954184f6f47d90d1e71aac5",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -218,10 +218,28 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only revalidation after archiving the initial integral stdout byte-for-byte as gzip and recording its decompressed SHA-256. No acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/03-host-preflight-2026-10-05.md",
+      "command": "2026-10-05 read-only follow-up after PR #251: installed and daemon identities agree at 2.0.0rc1-5715d7962691; schema 22, pendingOperations 0, managed activation ownership, rollback manifest/smoke, daemon convergence and units pass. Doctor warns about 9 orphan backups/journals, bootDirect unknown and Deck keys false. No install, cleanup, gameplay, capture or product maturity promotion.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/04-integral-preflight-failed.log",
+      "command": "2026-10-05 run_tests_isolated.py tests -q: 6670 passed, 47 skipped, 1 failed em 2454,86 s; única falha em test_central_loading_phases_are_observable_offscreen (esperava 5 GET /status, recebeu 6), state home real idêntico antes/depois. Reexecução isolada: 1 passed em 3,46 s, causa não determinada; arquivo está reservado pelo workstream ativo de Biblioteca, sem handoff não pode ser editado. Nenhum eixo de produto promovido.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/08-integral-corrected-tree-2026-10-05.log",
+      "command": "2026-10-05 .venv/bin/python tools/run_tests_isolated.py tests -q: exit 0, 6675 passed, 47 skipped, 0 failed em 2669.43 s. Resultado da nova árvore; hashes src/tests/tools coincidiram. State guard registrou escritor externo pré-existente e atribuição degradada. O incidente do log 04 permanece failed e sem causa.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Corrigir as quatro falhas da integral inicial (CLI opcional, matriz gerada e contrato aditivo do bezel), revalidar focado e executar a integral corrigida uma vez. Depois renovar log/digests/views, status-check, commits separados, push/PR, CI terminal no SHA exato e merge commit; instalação/B_VISUAL exigem autorização/token próprios.",
+  "nextAction": "A integral instrumentada da árvore corrigida passou em 2026-10-05: 6675 passed, 47 skipped, 0 failed; o guard detectou escritas do daemon externo já ativo e marcou a atribuição do state home como degradada. Este passe não explica o seis-vs-cinco: preservar o log 04 vermelho e o gap histórico sem causa. Revisar os diffs, fechar os commits separados, fazer push/PR e aguardar CI terminal no SHA exato antes do merge commit; depois devolver serialmente o path reservado à Biblioteca. Instalação, rollback e B_VISUAL continuam fora da autorização atual.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-05",
   "notes": "Planejamento e continuidade no PR #249 permanecem locais à feature branch; nenhum merge, release, instalação ou certificação física foi promovido. Um checkout confirmado. Roadmap, marcos, handoff e prompt preservam os limites de autorização. RC-00 executado em 2026-09-26: base/release/worktree conferidos; 21 claims obsoletos encerrados com evidência de integração e 5 mantidos abertos; a suíte integral da auditoria permanece registrada como não verde (1 falha documental histórica). 2026-10-01: revisão das rodadas B_VISUAL 133/134. 2026-10-02: continuação da autoria Theme Studio; o overflow horizontal dos inspetores foi reproduzido no Qt pinado, corrigido com controles de largura e coberto por verificação geométrica antes de cada evento Qt. A jornada passou no container e no host, e 140 testes focados passaram. A continuação atual acrescenta controle tipado, estado loading/keyframe, edição e reordenação de timeline/clips e prova pixelizada no consumidor da AURA UI em biblioteca sintética isolada. Focados 10+68+1+2 passaram; a integral atual terminou 6560/47 em 2302.24s e todos os gates locais passaram. B_VISUAL continua necessário para input físico e a release instalada continua anterior a esta branch. Launcher/AURA Cinema não consomem cenas importadas. A Engine tem demo de asset de fonte única, mas editar assetRecipes no documento e configurar tier/resolução ainda exige uma fatia própria de editor e runtime; cena editada ainda não foi consumida por SceneEsdeView. A revisão de 2026-10-02 incorporou o sidecar journey v1 ao contrato de Theme Engine/Studio e ao V4. Os testes atuais cobrem domínio/persistência local, não autoria UI, render Engine, Launcher/Cinema ou sessão física. O diff de README.md pertence ao commit documental upstream de main que foi reconciliado no início desta continuidade; ele foi registrado como escopo sem associar ou promover capacidade de produto. 2026-10-03: novo registro de preview da Jornada demonstra o uso local dos renderizadores e mantém sem promoção a integração de runtime. 2026-10-03: bridge de loopback e preview native da Journey foram conectados; o teste de UI cria menus/facetas compartilhadas, round-trips o documento e comprova binding no resolver. O gate integral final da árvore será registrado no fechamento; Launcher, adapters de sessão, Main instalada e B_VISUAL continuam pendentes. 2026-10-03: teste da jornada edita maxItems em tema filho de asset-recipes-demo, salva/reabre o tema e confirma a lista limitada no preview native. A cobertura usa sceneSurfaces herdado por extends; 132 testes focados passaram. Prova do checkout, sem promoção física, Launcher/Cinema ou sessão real."
 }

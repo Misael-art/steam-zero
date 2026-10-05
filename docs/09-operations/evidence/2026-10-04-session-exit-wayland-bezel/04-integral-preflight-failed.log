@@ -1,0 +1,189 @@
+........................................................................ [  1%]
+........................................................................ [  2%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+.............................................ss.s..s.................sss [ 11%]
+ss....s........sssssssssssssssss..................sssssssssssssssss..... [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+....................................................s................... [ 17%]
+........................................................................ [ 18%]
+.........................F.............................................. [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+...........................ss........................................... [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 94%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+......................                                                   [100%]ipc connect failed: [Errno 2] No such file or directory
+
+=================================== FAILURES ===================================
+_____________ test_central_loading_phases_are_observable_offscreen _____________
+
+    @pytest.mark.visual
+    def test_central_loading_phases_are_observable_offscreen() -> None:
+        """RC-01 (UX-02) — a Central tem de ser legível enquanto carrega.
+    
+        O `/status` do host real leva segundos; durante esse intervalo a Home
+        publicava os fallbacks como se fossem medições ("Não instalado", "Nenhum
+        jogo publicado ainda", "Nenhuma pendência" em verde). Este teste roda o
+        `Main.qml` contra uma ponte que demora, falha e recupera, e cobra as quatro
+        fases no objeto vivo.
+    
+        Sem runtime QML o teste reprova: verde sem renderização é o modo como a
+        regressão de ícones já atravessou os gates (G13).
+        """
+        if QML is None:
+            pytest.fail(
+                f"{DIAG_VISUAL_ENVIRONMENT}: qml6 ausente. As fases de carregamento "
+                "da Central não podem ser verificadas sem runtime QML, e declarar "
+                "verde sem renderizar é o defeito que a RC-01 combate."
+            )
+        port = _start_central_loading_bridge()
+        completed = _run_central_loading_harness(port)
+        with _CENTRAL_LOADING_LOCK:
+            served = len(_CENTRAL_LOADING_CALLS)
+        # 1 leitura atrasada, 2 renovação recusada, 3 retry que recupera, 4+5 a
+        # sondagem do guarda de sobreposição no fim da cena (uma emissão + a
+        # relênia coerçada). Mudou de 3 para 5 quando o descarte virou coerção.
+>       assert served == 5, f"a cena esperava cinco GET /status, a ponte serviu {served}"
+E       AssertionError: a cena esperava cinco GET /status, a ponte serviu 6
+E       assert 6 == 5
+
+tests/integration/test_qml_handheld_offscreen.py:659: AssertionError
+----------------------------- Captured stderr call -----------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 19826)
+Traceback (most recent call last):
+  File "/usr/lib/python3.14/socketserver.py", line 318, in _handle_request_noblock
+    self.process_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 349, in process_request
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/http/server.py", line 500, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/http/server.py", line 488, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/integration/test_qml_handheld_offscreen.py", line 620, in do_GET
+    self._send(200, json.dumps(_central_loading_status()))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/integration/test_qml_handheld_offscreen.py", line 627, in _send
+    self.wfile.write(payload)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+=========================== short test summary info ============================
+SKIPPED [10] tests/integration/test_emulator_conformance.py:487: Flatpak fixa commit; o checksum é garantia do executor portátil
+SKIPPED [17] tests/integration/test_emulator_conformance.py:507: core não lança sozinho; quem lança é o RetroArch
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-bluemsx nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-fbneo nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-freeintv nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-fuse nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-genesis-plus-gx nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-ngp nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-pce nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-vb nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mednafen-wswan nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mesen nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mgba nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-mupen64plus-next nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-opera nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-puae nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-snes9x nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-stella nao declara capability `configure`
+SKIPPED [1] tests/integration/test_emulator_conformance.py:521: libretro-vice-x64 nao declara capability `configure`
+SKIPPED [1] ../../../../../../mnt/sdcard/Projects/Port_Steam/tests/integration/test_metadata_to_catalog_pipeline.py:173: reference/ não versionado; checkout sem pesquisa
+SKIPPED [1] ../../../../../../mnt/sdcard/Projects/Port_Steam/tests/unit/test_metadata_import_pegasus.py:187: reference/ não versionado; checkout sem pesquisa
+SKIPPED [1] ../../../../../../mnt/sdcard/Projects/Port_Steam/tests/unit/test_metadata_import_pegasus.py:199: reference/ não versionado; checkout sem pesquisa
+FAILED tests/integration/test_qml_handheld_offscreen.py::test_central_loading_phases_are_observable_offscreen
+1 failed, 6670 passed, 47 skipped in 2454.86s (0:40:54)
+real-state before: exists=True files=12818 directories=2068 bytes=1372896271 max_mtime_ns=1791171294318910104 source=HOME-default
+real-state after:  exists=True files=12818 directories=2068 bytes=1372896271 max_mtime_ns=1791171294318910104 source=HOME-default
