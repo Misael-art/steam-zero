@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "31564383ac90b53e0ae8ed6696eaa7ca32f8d5ef",
+  "sourceFileSha256": "02fe2e38a3202ffcb45c1b4ed6776afcbf9d209aa14c5e5c044996ad8529e078",
+  "scenario": "two owned disposable HTTP servers using the real _CentralLoadingHandler; reset mirrors _start_central_loading_bridge",
+  "qmlWindowOrInputExecuted": false,
+  "hostServiceOrGameUsed": false,
+  "reproducesOriginalSixRequestsFailure": false,
+  "serverAFirstRead": {
+    "httpStatus": 200,
+    "sharedStatusCount": 1,
+    "errorCode": null
+  },
+  "serverBFirstReadAfterReset": {
+    "httpStatus": 200,
+    "sharedStatusCount": 1,
+    "errorCode": null
+  },
+  "serverASecondRead": {
+    "httpStatus": 500,
+    "sharedStatusCount": 2,
+    "errorCode": "E-STATUS-SCENE"
+  },
+  "serverBCountWithoutSecondRead": 2,
+  "serverBCountContaminatedByA": true,
+  "allOwnedThreadsStopped": true,
+  "sourceFileUnchanged": true,
+  "interpretation": "A request served on A changes the count used by B; this independently proves shared accounting between bridge instances. No causality claim for the historical sixth request."
+}

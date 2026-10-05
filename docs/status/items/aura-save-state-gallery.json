@@ -26,7 +26,7 @@
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed",
     "tests/qml/launcher/check_launcher_save_state_gallery.qml"
   ],
-  "scopeDigest": "662b1e28a69bfea377283acbf00be4f73b0252f18cb9ca90aec6967d65789c4d",
+  "scopeDigest": "6499aa279b963b30da70b01b8ed3a9a2075bea88cd93bf348bea27eeced3b336",
   "dependsOn": [
     "SZ-AURA-SESSION-OSD",
     "SZ-AURA-LAUNCHER"
