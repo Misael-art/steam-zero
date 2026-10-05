@@ -1468,6 +1468,20 @@ def handheld_ui_contracts() -> dict[str, Any]:
             ),
         ),
         _action(
+            "theme.editor.set-bezel",
+            "Importar bezel PNG para o tema",
+            "/theme/editor/set-bezel",
+            service="system",
+            screen="system",
+            control="theme-editor-set-bezel",
+            schema=_schema(
+                "sessionId",
+                "source",
+                sessionId="string",
+                source="string",
+            ),
+        ),
+        _action(
             "theme.editor.edit-asset-recipe",
             "Editar receitas declarativas de assets",
             "/theme/editor/edit-asset-recipe",
