@@ -72,6 +72,37 @@ def test_emulation_launch_cli_uses_local_controller(
     assert envelope["data"]["emulatorId"] == "ryubing"
 
 
+def test_emulation_launch_cli_passes_explicit_bezel_resource(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    launched: list[tuple[str, str]] = []
+    resource = "asset://bezels/aura-custom@1.2.0-" + "a" * 64 + ".png"
+
+    class FakeController:
+        def launch_game(self, game_id: str, *, bezel_resource: str) -> dict[str, str]:
+            launched.append((game_id, bezel_resource))
+            return {"status": "started", "gameId": game_id, "emulatorId": "retroarch"}
+
+    monkeypatch.setattr("steamzero.adapters.emulation.EmulationController", FakeController)
+    code = main(
+        [
+            "emulation",
+            "launch",
+            "--game-id",
+            "game-1",
+            "--bezel-resource",
+            resource,
+            "--json",
+        ]
+    )
+    envelope = json.loads(capsys.readouterr().out)
+
+    assert code == 0
+    assert launched == [("game-1", resource)]
+    assert envelope["data"]["emulatorId"] == "retroarch"
+
+
 def test_emulation_launch_preflight_refusal_acknowledges_not_started(
     monkeypatch, capsys: pytest.CaptureFixture[str]
 ) -> None:  # type: ignore[no-untyped-def]

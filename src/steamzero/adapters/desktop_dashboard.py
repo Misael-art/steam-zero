@@ -13,7 +13,9 @@ from __future__ import annotations
 import contextlib
 import json
 import logging
+import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import urllib.parse
@@ -2205,6 +2207,35 @@ class DesktopDashboard:
         self, session_id: str, role: str, recipe_field: str, value: object
     ) -> dict[str, object]:
         return self._theme_editor.set_media_recipe(session_id, role, recipe_field, value)
+
+    def editor_set_bezel(self, session_id: str, source: str) -> dict[str, object]:
+        """Import one locally selected PNG into the current theme edit session."""
+        selected = Path(source).expanduser()
+        if not selected.is_absolute() or selected.is_symlink():
+            raise SteamZeroError(
+                "E-THEME-UNSAFE", detail="selecione um PNG local que não seja link simbólico"
+            )
+        flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(selected, flags)
+        except OSError as exc:
+            raise SteamZeroError(
+                "E-THEME-UNSAFE", detail="não foi possível abrir o PNG selecionado"
+            ) from exc
+        with os.fdopen(descriptor, "rb") as stream:
+            metadata = os.fstat(stream.fileno())
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_size <= 0
+                or metadata.st_size > 16 * 1024 * 1024
+            ):
+                raise SteamZeroError(
+                    "E-THEME-LIMIT", detail="o PNG do bezel precisa ter até 16 MiB"
+                )
+            payload = stream.read((16 * 1024 * 1024) + 1)
+        if len(payload) > 16 * 1024 * 1024:
+            raise SteamZeroError("E-THEME-LIMIT", detail="o PNG do bezel precisa ter até 16 MiB")
+        return self._theme_editor.set_asset(session_id, "bezel", payload, selected.name)
 
     def editor_edit_asset_recipe(
         self,

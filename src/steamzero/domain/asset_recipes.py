@@ -10,6 +10,7 @@ fornecidos pelo tema nunca atravessam esta fronteira.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import math
 import re
@@ -991,6 +992,28 @@ def validate_asset_source(source: bytes) -> None:
         raise ValueError("formato de asset-fonte desconhecido")
 
 
+def validate_retroarch_bezel_source(source: bytes) -> tuple[int, int]:
+    """Validate the bounded PNG format accepted by the RetroArch overlay path."""
+    validate_asset_source(source)
+    if not source.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("bezel customizado do RetroArch exige PNG")
+    try:
+        from PIL import Image
+
+        with Image.open(io.BytesIO(source)) as image:
+            if image.format != "PNG":
+                raise ValueError("o conteúdo não é uma imagem PNG")
+            width, height = image.size
+            if not (1 <= width <= 8192 and 1 <= height <= 8192):
+                raise ValueError("as dimensões do PNG excedem o limite de 8192 px")
+            image.verify()
+    except ValueError:
+        raise
+    except Exception as exc:
+        raise ValueError("o PNG do bezel está corrompido ou não pode ser decodificado") from exc
+    return width, height
+
+
 __all__ = [
     "ASSET_RECIPE_SCHEMA_VERSION",
     "DEFAULT_ASSET_CAPABILITIES",
@@ -1015,4 +1038,5 @@ __all__ = [
     "asset_recipe_editor_schema",
     "resolve_asset_recipes",
     "validate_asset_source",
+    "validate_retroarch_bezel_source",
 ]

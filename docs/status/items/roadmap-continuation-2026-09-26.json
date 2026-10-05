@@ -34,9 +34,11 @@
     "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
     "tests/integration/test_experience_journey_bridge_e2e.py",
     "tests/qml/check_experience_journey_bridge_e2e.qml",
-    "tests/unit/test_theme_editor.py"
+    "tests/unit/test_theme_editor.py",
+    "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
+    "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "c975b6b8bfde0d42d41ee6d1b5c978cbbea15eace2e211bead84e493c9f71a43",
+  "scopeDigest": "e259c533b053c92f1291b774f9d40503530e0df725b68e79aa2d630740857883",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -186,9 +188,39 @@
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04: handoff/roadmap e evidência descrevem a integração sintética da Jornada, a execução XML local e as lacunas físicas/custom bezel. O aceite V4 permanece parcial.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "Continuação após PR #250: P0-A/P0-B e caminho de bezel custom implementados/testados no checkout; gates integrais e ciclo instalado continuam pendentes.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 initial isolated full suite: 6661 passed, 47 skipped, 4 failed in 2353.67 s; the failures and focused corrections are itemized in the evidence README. The real state-home delta was attributed to the pre-existing steamzero-core daemon, so attribution is degraded; the service was not stopped. No physical/release axis promoted; corrected integral remains pending.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: declared paths changed in the current correction cycle. This entry refreshes scope integrity only; it does not rerun this item’s full acceptance criteria or promote an implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only refresh after preserving the corrected integral in 02-integral-final.log (6666 passed, 47 skipped, 0 failed). This records scope integrity only; no acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only revalidation after archiving the initial integral stdout byte-for-byte as gzip and recording its decompressed SHA-256. No acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "V1-V3 e a autoria de Jornada/Engine do PR #249 estão integradas em main b12e5f799498b92995a581c941735a21f27ef546, com CI terminal verde. O consumo da mesma Jornada por Launcher/Cinema e a operação por capabilities reais seguem no item SZ-AURA-LAUNCHER e no workstream WS-2026-10-JOURNEY-LAUNCHER-SESSION; B_VISUAL e prova de release permanecem pendentes.",
+  "nextAction": "Corrigir as quatro falhas da integral inicial (CLI opcional, matriz gerada e contrato aditivo do bezel), revalidar focado e executar a integral corrigida uma vez. Depois renovar log/digests/views, status-check, commits separados, push/PR, CI terminal no SHA exato e merge commit; instalação/B_VISUAL exigem autorização/token próprios.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-04",
   "notes": "Planejamento e continuidade no PR #249 permanecem locais à feature branch; nenhum merge, release, instalação ou certificação física foi promovido. Um checkout confirmado. Roadmap, marcos, handoff e prompt preservam os limites de autorização. RC-00 executado em 2026-09-26: base/release/worktree conferidos; 21 claims obsoletos encerrados com evidência de integração e 5 mantidos abertos; a suíte integral da auditoria permanece registrada como não verde (1 falha documental histórica). 2026-10-01: revisão das rodadas B_VISUAL 133/134. 2026-10-02: continuação da autoria Theme Studio; o overflow horizontal dos inspetores foi reproduzido no Qt pinado, corrigido com controles de largura e coberto por verificação geométrica antes de cada evento Qt. A jornada passou no container e no host, e 140 testes focados passaram. A continuação atual acrescenta controle tipado, estado loading/keyframe, edição e reordenação de timeline/clips e prova pixelizada no consumidor da AURA UI em biblioteca sintética isolada. Focados 10+68+1+2 passaram; a integral atual terminou 6560/47 em 2302.24s e todos os gates locais passaram. B_VISUAL continua necessário para input físico e a release instalada continua anterior a esta branch. Launcher/AURA Cinema não consomem cenas importadas. A Engine tem demo de asset de fonte única, mas editar assetRecipes no documento e configurar tier/resolução ainda exige uma fatia própria de editor e runtime; cena editada ainda não foi consumida por SceneEsdeView. A revisão de 2026-10-02 incorporou o sidecar journey v1 ao contrato de Theme Engine/Studio e ao V4. Os testes atuais cobrem domínio/persistência local, não autoria UI, render Engine, Launcher/Cinema ou sessão física. O diff de README.md pertence ao commit documental upstream de main que foi reconciliado no início desta continuidade; ele foi registrado como escopo sem associar ou promover capacidade de produto. 2026-10-03: novo registro de preview da Jornada demonstra o uso local dos renderizadores e mantém sem promoção a integração de runtime. 2026-10-03: bridge de loopback e preview native da Journey foram conectados; o teste de UI cria menus/facetas compartilhadas, round-trips o documento e comprova binding no resolver. O gate integral final da árvore será registrado no fechamento; Launcher, adapters de sessão, Main instalada e B_VISUAL continuam pendentes. 2026-10-03: teste da jornada edita maxItems em tema filho de asset-recipes-demo, salva/reabre o tema e confirma a lista limitada no preview native. A cobertura usa sceneSurfaces herdado por extends; 132 testes focados passaram. Prova do checkout, sem promoção física, Launcher/Cinema ou sessão real."

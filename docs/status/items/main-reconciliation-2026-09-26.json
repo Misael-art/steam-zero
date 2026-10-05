@@ -26,7 +26,7 @@
     "docs/status/workstreams/main-reconciliation-2026-09-26.json",
     "docs/WORKLOG.md"
   ],
-  "scopeDigest": "63bd21efc8c6b3ae31949b03db09219f2580859d9319ac9bb44da2d39dfbbaa9",
+  "scopeDigest": "d5556127f6caa312c01a95cb0747181523694f6857b14656746b513814eecc0b",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
@@ -117,6 +117,12 @@
       "kind": "design",
       "reference": "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
       "command": "2026-10-04: atualização documental V4 registra consumo local no Launcher/Cinema, mantendo CI/merge e prova instalada separados. Sem nova reconciliação de refs.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
     }
   ],

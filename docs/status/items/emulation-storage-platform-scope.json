@@ -16,7 +16,7 @@
     "tests/integration/test_emulation_storage.py",
     "tests/integration/test_emulation_storage_platform_scope.py"
   ],
-  "scopeDigest": "62a73f9d5ff4c7e23059468c48a9effbd33a26e9654df67e0c92b35ab2832c97",
+  "scopeDigest": "8498af91581ad7cccbf3175dd22faa20a909aa37e011ecf161fe477e921180ba",
   "dependsOn": [
     "SZ-EMULATION-STORAGE-READMODEL",
     "SZ-EMULATION-PLATFORM-SCOPE"
@@ -50,10 +50,16 @@
       "reference": "tests",
       "command": "TMPDIR=/tmp .venv/bin/python tools/run_tests_isolated.py tests -q; runner permaneceu sem saída em 17% e foi interrompido; nenhum processo ou socket residual",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a apresentação visual por plataforma e validar o resumo na release instalada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-10-04",
   "notes": "A filtragem de jogos já existe, mas a coleta de armazenamento ainda varre raízes completas. Esta frente alinha a métrica física ao mesmo contexto canônico usado por saves e mídia."
 }

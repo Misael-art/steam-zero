@@ -3,34 +3,46 @@
 ## Continuidade vigente
 
 Checkout único: `/home/misael/Projects/Steam Zero/Canonical/2026-09-21`.
-Branch de trabalho: `codex/journey-launcher-session-2026-10-04`, baseada no
-`main` `b12e5f799498b92995a581c941735a21f27ef546`. A árvore está em andamento e
-contém a implementação da Jornada no Launcher/Cinema, contratos de sessão,
-provas focadas e atualização documental; preserve-a e não troque de branch.
+Branch ativa: `codex/session-exit-wayland-bezel-2026-10-04`, baseada no `main`
+`5e94e50810deac5bde22645fb3e015d62426baf2`. PR #250 está integrado; não retome
+nem commite em sua branch antiga. Workstream ativo:
+`WS-2026-10-JOURNEY-LAUNCHER-SESSION`.
 
-Workstream ativo: `WS-2026-10-JOURNEY-LAUNCHER-SESSION`. A prova de integração
-mais recente passou com 207 testes focados; a prova inclui a cópia ativa da
-Jornada, facetas tipadas, retorno, ação de sessão e cena XML compilada no
-Cinema/`SceneEsdeView`. O contrato de bezel publica o slot e o perfil RetroArch
-aplica apenas o AURA gerenciado; bezel personalizado ainda não é executável.
-Após tornar repetição da saída idempotente enquanto `closing`, os 16 testes de
-controle/adapter de sessão também passaram.
-Consulte `docs/09-operations/evidence/2026-10-04-journey-launcher-session`
-quando os resultados integrais e o SHA candidato forem registrados.
+Esta continuação implementa P0-A (saída confirmada de processo suspenso, com
+identidade PID/start ticks/grupo e confirmação do watcher), P0-B (homes XDG
+privados mantendo o socket Wayland absoluto validado no ambiente do QML) e o
+recorte de bezel personalizado: PNG-fonte pelo Theme Studio, URI versionada na
+Jornada, catálogo/resolver e configuração privada para o próximo launch do
+RetroArch Flatpak. O read model informa `launch-configured-unconfirmed`; não há
+prova de que o RetroArch compôs os pixels. O AURA gerenciado continua fallback e
+outros adapters continuam indisponíveis com motivo.
 
-Próximo checkpoint: estabilizar implementação e documentos, executar uma vez os
-seis gates integrais de `AGENTS.md`, promover os logs necessários, separar
-commits funcionais/documentais e o commit de integração compartilhada, fazer
-push/PR e aguardar CI terminal verde no SHA final. A autorização da tarefa cobre
-essas operações no branch próprio e o merge autorizado. Não instalar, publicar,
-reverter ou capturar a release no host nesta etapa: isso exige autorização e
-token próprios. B_VISUAL ainda precisa de janela/captura/input seguros e do ciclo
-na candidata instalada.
+Os módulos focados mais recentes passaram: 399 testes em 141,61 s, incluindo os
+harnesses QML de Jornada e overlay; três regressões de persistência/importação,
+propagação do URI até o callback de launch e erro HTTP de schema passaram em
+follow-up. Ruff check, ruff format --check e git diff --check dos arquivos
+alterados passaram. Ainda falta o checkpoint dos seis gates integrais da árvore
+congelada e a documentação final de seus resultados. O relatório e a prova
+histórica preservada estão em
+`docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md`.
 
-O perfil RetroArch Flatpak é o único ciclo de sessão apoiado por esta fatia.
-Pause/resume, save-state, disco e saída são publicados pelo adapter; saída pede
-confirmação e espera `closed` real. Outros perfis deixam a capability ausente
-com razão legível. Nenhuma fixture sintética promove operação ou consumo físico.
+PR/CI/merge por merge commit estão autorizados para esta branch conforme o
+prompt desta tarefa; nenhuma instalação, rollback, publicação ou interação
+física está autorizada por essa permissão geral. A release observada na revisão
+anterior era `2.0.0rc1-5715d7962691`; revalidar somente por leitura antes de
+preparar qualquer candidata. B_VISUAL exige autorização específica, token novo,
+janela/captura/input seguros e a release efetivamente instalada.
+
+Não declarar Qt no compositor real, gameplay, bezel visualmente aplicado, input
+físico ou capacidades `installed/certified` com base nos testes de checkout.
+Manter abertos os gaps de exit físico durante pausa, janela Wayland Qt física,
+aplicação visual do bezel e GAP-AURA-LAUNCHER-EXIT-PHYSICAL.
+
+Próximo checkpoint: terminar os documentos/status e seus digests; executar uma
+vez os gates integrais exigidos; promover o log capturado fora de `scopePaths`;
+separar commits funcionais, documentais e de integração compartilhada; fazer um
+push, abrir PR e aguardar CI terminal verde no SHA exato antes do merge
+autorizado. Nenhuma autorização antiga de release ou B_VISUAL se transfere.
 
 ## Registro de 01/10/2026 (histórico)
 

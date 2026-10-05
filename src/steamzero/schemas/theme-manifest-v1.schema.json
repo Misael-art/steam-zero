@@ -206,7 +206,8 @@
       "properties": {
         "background": { "$ref": "#/$defs/assetPath" },
         "logo": { "$ref": "#/$defs/assetPath" },
-        "sidebar": { "$ref": "#/$defs/assetPath" }
+        "sidebar": { "$ref": "#/$defs/assetPath" },
+        "bezel": { "$ref": "#/$defs/assetPath" }
       },
       "additionalProperties": false,
       "propertyNames": {

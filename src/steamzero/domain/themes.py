@@ -39,7 +39,7 @@ THEME_API_VERSION = 1
 THEME_DEFAULT_ID = "org.steamzero.default"
 MAX_EXTENDS_DEPTH = 2
 MAX_THEMES = 100
-ASSET_SLOTS_ALLOWED = frozenset({"background", "logo", "sidebar"})
+ASSET_SLOTS_ALLOWED = frozenset({"background", "logo", "sidebar", "bezel"})
 
 
 def merge_scene_surface_books(

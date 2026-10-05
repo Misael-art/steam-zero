@@ -7,6 +7,7 @@ from __future__ import annotations
 import builtins
 import json
 import os
+import re
 import secrets
 import threading
 from collections.abc import Iterable, Mapping
@@ -34,6 +35,10 @@ _HISTORY_LIMIT = 100
 MAX_PUBLIC_RECORDS = 20_000
 MAX_PREVIEW_ROWS = 64
 _DEFAULT_READ_MODEL = "library.games"
+_BEZEL_RESOURCE_THEME = re.compile(
+    r"^asset://bezels/(?P<theme>[a-z0-9]+(?:[.-][a-z0-9]+)+)@"
+    r"(?P<version>[0-9]+\.[0-9]+\.[0-9]+)-[0-9a-f]{64}\.png$"
+)
 
 
 @dataclass
@@ -117,14 +122,7 @@ class JourneyStudioService:
         copy_id = f"org.steamzero.copy-{secrets.token_hex(4)}"
         document = self._store.import_copy(bundle, copy_id=copy_id, copy_name=copy_name)
         snapshot = self._open(dict(document.data), saved_payload=None)
-        snapshot["dependencies"] = [
-            {
-                "themeId": theme_id,
-                "version": None,
-                "state": "version-not-declared",
-            }
-            for theme_id in self._theme_dependency_ids(document)
-        ]
+        snapshot["dependencies"] = self._theme_dependencies(document)
         snapshot["packageContents"] = ["experience.json"]
         return snapshot
 
@@ -395,7 +393,30 @@ class JourneyStudioService:
             appearance = stage.get("appearance", {})
             if appearance.get("mode") == "custom":
                 themes.add(str(appearance["themeId"]))
+            bezel = stage.get("bezelResource")
+            if isinstance(bezel, str):
+                match = _BEZEL_RESOURCE_THEME.fullmatch(bezel)
+                if match:
+                    themes.add(match.group("theme"))
         return sorted(themes)
+
+    @staticmethod
+    def _theme_dependencies(document: JourneyDocument) -> builtins.list[dict[str, Any]]:
+        versions: dict[str, str] = {}
+        for stage in document.data["sessionStages"]:
+            bezel = stage.get("bezelResource")
+            if isinstance(bezel, str):
+                match = _BEZEL_RESOURCE_THEME.fullmatch(bezel)
+                if match:
+                    versions[match.group("theme")] = match.group("version")
+        return [
+            {
+                "themeId": theme_id,
+                "version": versions.get(theme_id),
+                "state": "version-locked" if theme_id in versions else "version-not-declared",
+            }
+            for theme_id in JourneyStudioService._theme_dependency_ids(document)
+        ]
 
     @staticmethod
     def _menu(data: dict[str, Any], menu_id: str) -> dict[str, Any]:
@@ -565,14 +586,31 @@ class JourneyStudioService:
             )
             appearance = payload.get("appearance")
             if appearance is None:
-                data["sessionStages"] = [
-                    item for item in data["sessionStages"] if item["stageId"] != stage_id
-                ]
+                if stage is not None:
+                    stage.pop("appearance", None)
+                    if "bezelResource" not in stage:
+                        data["sessionStages"].remove(stage)
             elif stage is None:
                 data["sessionStages"].append(
                     {"stageId": stage_id, "appearance": deepcopy(appearance)}
                 )
             else:
                 stage["appearance"] = deepcopy(appearance)
+        elif operation == "set-stage-bezel":
+            stage_id = str(payload["stageId"])
+            stage = next(
+                (item for item in data["sessionStages"] if item["stageId"] == stage_id),
+                None,
+            )
+            resource = payload.get("bezelResource")
+            if resource is None:
+                if stage is not None:
+                    stage.pop("bezelResource", None)
+                    if "appearance" not in stage:
+                        data["sessionStages"].remove(stage)
+            elif stage is None:
+                data["sessionStages"].append({"stageId": stage_id, "bezelResource": str(resource)})
+            else:
+                stage["bezelResource"] = str(resource)
         else:
             raise ValueError(f"operação de autoria não permitida: {operation}")

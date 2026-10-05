@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "ready",
   "distribution": "installed",
-  "scopeDigest": "126cdb6ffd64c4bbab1058b24c13da566ac1426fb4898eab639121a540e5f376",
+  "scopeDigest": "01616e233ebdb89f00ee99942e492b61a921e87cf309b928b16a514a73657d64",
   "scopePaths": [
     "src/steamzero/adapters/desktop_contracts.py",
     "src/steamzero/adapters/desktop_dashboard.py",
@@ -179,6 +179,12 @@
       "kind": "diagnostic",
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
     }
   ],

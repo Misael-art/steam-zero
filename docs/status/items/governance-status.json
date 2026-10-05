@@ -33,7 +33,7 @@
     "pyproject.toml",
     "docs/09-operations/HANDOFF-2026-08-27.md"
   ],
-  "scopeDigest": "5026646e83149df10f340774b801ab61173f45bab9d52d7d7a83c42daf989628",
+  "scopeDigest": "b89d855dc517bdb86ce57f4042754d4ce1487f303faa0bee20b0be63ede89481",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -179,6 +179,24 @@
       "kind": "test",
       "reference": "tests/unit/test_project_status.py",
       "command": "rtk .venv/bin/python -m pytest tests/unit/test_project_status.py -q --tb=short; 13 passed em 6.47s após renovar digests e gerar as views. O gate make status-check permanece registrado separadamente como gate final.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/01-product/CAPABILITY-MATRIX.md",
+      "command": "2026-10-04 initial full-suite capability-matrix regression: generated documentation was one capability behind the current code. The initial failure is retained in docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/01-integral-initial-failed.log. Regenerated only through make update-capability-matrix; tools/capability_matrix.py --check and the focused committed-matrix test passed. No capability axis promoted.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/01-product/CAPABILITY-MATRIX.md",
+      "command": "2026-10-04 generated matrix updated through make update-capability-matrix; capability_matrix.py --check and test_committed_matrix_matches_the_code passed after regeneration. This aligns the derived view and does not certify runtime behavior.",
       "result": "passed"
     }
   ],

@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from steamzero.core import fs, paths
+from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
 
 if TYPE_CHECKING:
@@ -38,6 +39,7 @@ DIAG_CONTROL_FAILED = "AURA-SESSION-CONTROL-FAILED-003"
 StoreFactory = Callable[[], StateStore]
 SignalProcess = Callable[[int, int], None]
 ReadStartTicks = Callable[[int], int | None]
+ReadProcessGroupIdentity = Callable[[int], tuple[int, int] | None]
 ObserveSession = Callable[[str], Mapping[str, Any]]
 
 
@@ -81,6 +83,14 @@ def _read_line(connection: socket.socket) -> bytes:
     return raw.split(b"\n", 1)[0]
 
 
+def _process_group_identity(pid: int) -> tuple[int, int] | None:
+    """Return (process group, session) for a live pid without guessing on errors."""
+    try:
+        return os.getpgid(pid), os.getsid(pid)
+    except OSError:
+        return None
+
+
 class SessionControlOwner:
     """Implementa pause/retomada/saída dentro do processo que lançou o jogo."""
 
@@ -93,6 +103,7 @@ class SessionControlOwner:
         *,
         store_factory: StoreFactory = StateStore,
         read_start_ticks: ReadStartTicks,
+        read_process_group_identity: ReadProcessGroupIdentity | None = None,
         signal_process: SignalProcess | None = None,
         peripheral_control: SessionPeripheralControl | None = None,
     ) -> None:
@@ -102,9 +113,15 @@ class SessionControlOwner:
         self.start_ticks = start_ticks
         self._store_factory = store_factory
         self._read_start_ticks = read_start_ticks
+        self._read_process_group_identity = read_process_group_identity or _process_group_identity
         self._signal_process = signal_process or os.killpg
         self._peripheral_control = peripheral_control
         self._lock = threading.RLock()
+        # The request owner lives for the session. Keep partial two-signal exit
+        # progress so a failed SIGCONT can be retried without sending SIGTERM
+        # twice. A new owner that only observes `closing` returns it unchanged.
+        self._exit_stage = "idle"
+        self._exit_was_suspended = False
 
     @property
     def current(self) -> SessionControlRecord | None:
@@ -130,35 +147,75 @@ class SessionControlOwner:
         if confirmed is not True:
             raise RuntimeError("o encerramento da sessão exige confirmação explícita")
         with self._lock:
-            current = self.current
-            if current is None or current.state not in {"running", "suspended", "closing"}:
-                raise RuntimeError("a sessão não está disponível para encerramento")
-            if self.start_ticks is None or self._read_start_ticks(self.pid) != self.start_ticks:
-                raise RuntimeError("a identidade do processo da sessão não pôde ser confirmada")
             with self._store_factory() as store:
                 store.migrate()
                 row = store.get_game_session(self.session_id)
-                if row is None or row.get("game_id") != self.game_id:
+                if (
+                    row is None
+                    or row.get("id") != self.session_id
+                    or row.get("game_id") != self.game_id
+                    or row.get("owner") != SESSION_OWNER
+                ):
                     raise RuntimeError("a sessão mudou antes do encerramento")
                 state = str(row.get("state") or "unknown")
                 if state in {"running", "suspended"}:
+                    self._verify_process_identity(row)
+                    self._exit_was_suspended = state == "suspended"
+                    self._exit_stage = "term"
                     store.transition_game_session(self.session_id, "closing")
-                    request_signal = True
+                elif state == "closing":
+                    self._verify_recorded_identity(row)
                 elif state != "closing":
                     raise RuntimeError("a sessão já não está em um estado encerrável")
-                else:
-                    request_signal = False
-                if request_signal:
-                    try:
-                        self._signal_process(self.pid, signal.SIGTERM)
-                    except OSError as exc:
-                        raise RuntimeError(
-                            "o processo da sessão recusou o pedido de encerramento"
-                        ) from exc
+                if self._exit_stage == "term":
+                    self._verify_process_identity(row)
+                    self._send_exit_signal(signal.SIGTERM)
+                    self._exit_stage = "continue" if self._exit_was_suspended else "complete"
+                if self._exit_stage == "continue":
+                    # TERM is pending for a stopped process. Continuing only this
+                    # verified session lets Linux deliver it; it does not publish
+                    # `running` and never targets a general process group.
+                    still_owned = self._verify_process_identity(row, allow_exited=True)
+                    if still_owned:
+                        self._send_exit_signal(signal.SIGCONT)
+                    self._exit_stage = "complete"
             updated = self.current
         if updated is None:
             raise RuntimeError("a sessão desapareceu após o pedido de encerramento")
         return updated
+
+    def _verify_recorded_identity(self, row: Mapping[str, Any]) -> None:
+        if (
+            row.get("id") != self.session_id
+            or row.get("game_id") != self.game_id
+            or row.get("owner") != SESSION_OWNER
+            or row.get("pid") != self.pid
+            or row.get("start_ticks") != self.start_ticks
+        ):
+            raise RuntimeError("a identidade da sessão mudou antes do sinal")
+
+    def _verify_process_identity(
+        self, row: Mapping[str, Any], *, allow_exited: bool = False
+    ) -> bool:
+        self._verify_recorded_identity(row)
+        if self.start_ticks is None:
+            raise RuntimeError("a identidade do processo da sessão não pôde ser confirmada")
+        observed_ticks = self._read_start_ticks(self.pid)
+        if observed_ticks is None and allow_exited:
+            return False
+        if observed_ticks != self.start_ticks:
+            raise RuntimeError("a identidade do processo da sessão não pôde ser confirmada")
+        if self._read_process_group_identity(self.pid) != (self.pid, self.pid):
+            raise RuntimeError("o grupo da sessão não pertence ao processo iniciado")
+        return True
+
+    def _send_exit_signal(self, signum: int) -> None:
+        try:
+            self._signal_process(self.pid, signum)
+        except OSError as exc:
+            raise RuntimeError(
+                "o pedido de encerramento falhou; atualize a sessão e tente novamente"
+            ) from exc
 
     def list_save_states(self) -> Mapping[str, Any]:
         if self._peripheral_control is None:
@@ -220,6 +277,15 @@ class SessionControlOwner:
                 raise RuntimeError("a identidade do processo da sessão não pôde ser confirmada")
             with self._store_factory() as store:
                 store.migrate()
+                row = store.get_game_session(self.session_id)
+                if (
+                    row is None
+                    or row.get("id") != self.session_id
+                    or row.get("game_id") != self.game_id
+                    or row.get("owner") != SESSION_OWNER
+                ):
+                    raise RuntimeError("a sessão mudou antes do controle")
+                self._verify_process_identity(row)
                 store.transition_game_session(self.session_id, intermediate)
                 try:
                     self._signal_process(self.pid, signum)
@@ -449,7 +515,28 @@ class RemoteSessionControl:
         except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise RuntimeError("o dono da sessão não respondeu") from exc
         if not isinstance(response, dict) or response.get("accepted") is not True:
-            raise RuntimeError("o dono da sessão recusou a operação")
+            detail = (
+                _bounded_text(response.get("detail"), limit=256)
+                if isinstance(response, dict)
+                else ""
+            )
+            suffix = f": {detail}" if detail else ""
+            raise RuntimeError(f"o dono da sessão recusou a operação{suffix}")
+        response_state = _bounded_text(response.get("state"), limit=32)
+        if response_state in {
+            "launching",
+            "running",
+            "suspending",
+            "suspended",
+            "resuming",
+            "closing",
+            "closed",
+            "failed",
+        }:
+            # Use the owner's acknowledgement. An exit may terminate the child
+            # before a separate read-only observer can revalidate its PID; that
+            # observer will publish `closed` when its watcher collects the exit.
+            return SessionControlRecord(self._session_id, self._game_id, response_state)
         current = self.current
         if current is None:
             raise RuntimeError("a sessão não está mais disponível")

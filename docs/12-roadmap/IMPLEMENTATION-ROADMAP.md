@@ -59,18 +59,26 @@ salvo/reaberto no Theme Engine em fixture sintética. Isso fecha a dependência
 local entre bridge, read model e `sceneLayouts`; não demonstra pixels/tempo em
 release.
 
-Na continuidade de 2026-10-04, o Launcher/Cinema também consome uma cópia ativa
-da mesma Jornada: a prova local cobre quatro menus, plataforma/gênero/ano e
-campo público `developer`, destino compartilhado, layout nomeado, retorno e cena
-XML compilada no `SceneEsdeView`. Ações da sessão são ligadas ao dono observado
-no perfil RetroArch Flatpak; pause/resume, save-state, disco e exit não são
-inferidos de tema ou fallback. O bezel AURA gerenciado é aplicado nesse perfil;
-bezel personalizado permanece indisponível até existir operação confirmada do
-adapter/runtime.
+Na continuidade após o PR #250, a Jornada ativa ainda dirige Launcher/Cinema
+com quatro menus, facetas públicas, destino compartilhado, layout, cena XML e
+retorno contextual. O trabalho posterior corrige saída confirmada a partir de
+pausa por processo/grupo validado e preserva o socket Wayland original absoluto
+no modo XDG isolado, mantendo os homes privados. O caminho de teste usa um filho
+descartável e sockets UNIX de fixture; abertura Qt na mesa real permanece
+pendente.
 
-O aceite V4 continua pendente de release/captura/input físico, fluxo de gameplay
-real e prova instalada com erros/recuperação. Sessões sintéticas e animações
-não provam launch, pausa, save/load ou exit reais.
+O recorte de bezel personalizado agora percorre autoria do PNG-fonte,
+persistência/undo/redo/export/import, URI lógica versionada, catálogo/resolver e
+configuração privada no próximo launch do RetroArch Flatpak. O runtime remove
+seus próprios artefatos após observar a saída e a UI separa configuração enviada
+de execução visual confirmada. O read model é
+`launch-configured-unconfirmed`; não há alegação de pixels aplicados durante
+gameplay. Outros adapters continuam indisponíveis com razão.
+
+O aceite V4 continua pendente de release instalada, captura/input físico e ciclo
+de gameplay real com pausa, saves, saída e retorno, incluindo confirmação visual
+do bezel. Testes de checkout e sessão sintética não provam essas operações no
+host.
 
 ### Relação com os achados e trabalho restante
 
@@ -131,7 +139,7 @@ Identificadores `RC-*` são índices deste plano, não novos IDs de capacidade. 
 | RC-00 / primeiro | Integrar documentação da auditoria e plano; conferir main/branch/host, resolver claims ativos obsoletos com evidência; mapear cada capacidade parcial/planejada ao lote responsável | Árvore local preservada; leitura de AGENTS/status | Nenhum arquivo pendente perdido; views/digests válidos; cada item da matriz tem destino, dependência ou decisão explícita. Não transformar esta etapa em nova auditoria integral |
 | RC-01 / P1 | Central legível e responsiva: contraste, loading/erro/vazio explícitos, custo da consulta de status; readiness explicado, tamanho humano, foco/scroll e modal RetroFE compacto | RC-00; contratos atuais da central | Reproduzir UX-01/02; medir antes/depois com mesmo catálogo. Home utilizável no orçamento aplicável; sem tela vazia enganosa; contraste essencial conforme política; controles alcançáveis em viewport compacto e escala de texto; timeout/retry sem corrida |
 | RC-02 / P1 | Biblioteca acionável: fila de arquivos/sets, extração segura, projeções multidisco, derivados vinculados ao original, preview de espaço, scan assíncrono/cancelável onde ainda faltar | RC-00; scanner/job/store atuais; G48/G51/G55–59 reavaliados | Classificar os 18 arquivos/15 candidatos sem somar conjuntos sobrepostos. Demonstrar plan→apply→reexecução→cancel/recovery→rollback em cópias controladas, hashes de origens iguais, recusa por espaço insuficiente e ausência de duplicidade. Resolver cobertura 3DS/Wii U pelos contratos próprios |
-| RC-03 / P1 | Sessão jogável consistente: controle→jogo→pausa→save/load→retorno, OSD acessível, fade/reducedMotion, bezel e multidisco; saves normais/checkpoints tratados separadamente de save-state | RC-01 para UI; RC-02 para sets pendentes; adapter/runtime compatível | Release/SHA identificados; capturas running/suspended, razões visíveis de indisponibilidade, foco restaurado, troca 1→2→1 pelo Launcher, save/load com resultado verificável. AC-SV-02 por falha controlada isolada/VM antes da prova autorizada no host; nunca desligar abruptamente o host para testar. Nesta continuidade, a configuração RetroArch aplica apenas o bezel AURA gerenciado; bezel personalizado segue indisponível até adapter/runtime comprovar aplicação. |
+| RC-03 / P1 | Sessão jogável consistente: controle→jogo→pausa→save/load→retorno, OSD acessível, fade/reducedMotion, bezel e multidisco; saves normais/checkpoints tratados separadamente de save-state | RC-01 para UI; RC-02 para sets pendentes; adapter/runtime compatível | Release/SHA identificados; capturas running/suspended, razões visíveis de indisponibilidade, foco restaurado, troca 1→2→1 pelo Launcher, save/load com resultado verificável. AC-SV-02 por falha controlada isolada/VM antes da prova autorizada no host; nunca desligar abruptamente o host para testar. A continuidade corrige exit confirmado durante pausa e configura bezel AURA/custom somente para próximo launch RetroArch Flatpak; pixels e ciclo físico aguardam prova instalada autorizada. |
 | RC-04 / P1 | Componentes e primeira execução: aquisição/verify/update/rollback, BIOS/firmware/keys, first-run, portais Flatpak/PCSX2, input, handheld/dock/offline/suspend; doctor com remediação | RC-00; integração com RC-02/03 para prova fim a fim | Reproduzir G49/G50 e estado atual dos runtimes; instalar só pelo fluxo governado autorizado. Runtime ausente/incompatível produz causa acionável; provar launch e retorno por perfil suportado com conteúdo autorizado; sem alegar gameplay PS4/PS5/Vita por catálogo |
 | RC-05 / P2 | Mídia e frontends: providers/cache/licenças, ES-DE com dados reais, RetroFE import→ativação, Steam/SRM idempotentes; AURA Cinema consistente e mensurado | RC-01; catálogo RC-02; RC-04 quando runtime necessário | G52/G54 reavaliados; bindings resolvidos, arte estabilizada sem sleeps arbitrários, import/reimport sem duplicação, fallback offline. Cinema a 1280×800: 60 FPS, p95 ≤16,7 ms e orçamento VRAM conforme spec, com hardware/release e tiers registrados |
 | RC-06 / P2 | Theme Engine e Studio completos por fatias de autoria descritas abaixo | RC-05 para dados/consumo; contratos de tema seguros | Criar→editar→preview→undo/redo→salvar→exportar→importar→reabrir→usar no runtime sem perda, com input físico; cumprir DoD separado da Engine e do Studio, sem promover Launcher por arrasto |
@@ -172,7 +180,7 @@ RC-00 deve conferir **todos** os itens da matriz, inclusive os declarados comple
 | CAP-01 | RC-06 + RC-03/05 | DoD independente de Studio, Engine e Launcher |
 | CAP-02 | RC-05 | Cinema atual a 1280×800; não reutilizar aprovação a 948×593 |
 | CAP-03, CAP-04 | RC-03 | Fade observado na transição e reducedMotion; discos trocados pela UI instalada |
-| CAP-05 | RC-03 | O contrato `sceneSurfaces` declara a fonte pública `session.peripherals.bezels` e RetroArch publica/aplica o bezel AURA gerenciado. Bezel customizado permanece indisponível: falta operação de adapter/runtime e confirmação da aplicação durante gameplay; não inferir capacidade a partir do contrato ou do fallback AURA. |
+| CAP-05 | RC-03 | RetroArch Flatpak configura bezel AURA ou PNG personalizado validado por URI versionada em arquivos privados da sessão; a seleção é para próximo launch e o read model permanece `launch-configured-unconfirmed`. Falta confirmar a aplicação visual durante gameplay numa release instalada; outros adapters não herdam a capability. |
 | EVID-01, EVID-02 | RC-01/03/05/06 conforme superfície | Capturas de diálogos/overlays e ativação dos sete controles não sondados; prova por input real |
 | EVID-03, EVID-04 | RC-01/05 | Classificador distingue recursos KDE de warnings próprios; captura espera estado de mídia, sem concluir ausência a partir de 650 ms |
 | EVID-05 | RC-05 | ES-DE com fixture/read model real; placeholder anterior não prova defeito |

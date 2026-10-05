@@ -28,7 +28,7 @@
     "tests/unit/test_component_jobs.py",
     "tests/unit/test_launcher_ui_backend.py"
   ],
-  "scopeDigest": "d5c28c6a1496d1a22d33cd69b32f939309d02fc5224eaa917be79e808d1277ea",
+  "scopeDigest": "c1bdbcf33d69a409eb158c35d74524fce3592d671b1192802ac9a82988e8a528",
   "dependsOn": [
     "SZ-AURA-CINEMA-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -144,6 +144,12 @@
       "kind": "diagnostic",
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
     }
   ],

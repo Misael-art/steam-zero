@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from steamzero.adapters.journey_public import journey_public_field_types, project_game_row
+from steamzero.core.errors import SteamZeroError
 from steamzero.domain.experience_journey import JourneyDocument, JourneyStore
 from steamzero.launcher.journey_runtime import JourneyRuntime
 
@@ -367,3 +368,47 @@ def test_runtime_projects_raw_rows_before_they_can_reach_launcher_or_cinema() ->
     ]
     assert not any("path" in field.casefold() for field in runtime._published["library.games"])
     assert "authToken" not in runtime._published["library.games"]
+
+
+def test_stage_bezel_distinguishes_inheritance_missing_incompatible_and_available() -> None:
+    runtime = _runtime()
+    assert runtime.stage_bezel("bezel")["state"] == "inherited-aura"
+    resource_id = "asset://bezels/org.test.bezel@1.2.3-" + "e" * 64 + ".png"
+    document = dict(runtime.document.data)
+    document["sessionStages"].append({"stageId": "bezel", "bezelResource": resource_id})
+    runtime.document = JourneyDocument.parse(document)
+
+    runtime._bezel_resolver = lambda _resource: {
+        "resourceId": resource_id,
+        "origin": "custom-theme",
+        "version": "1.2.3",
+        "license": "CC-BY-4.0",
+        "label": "Test bezel",
+        "available": True,
+        "compatible": True,
+    }
+    available = runtime.stage_bezel("bezel")
+    assert available["state"] == "available"
+    assert available["resourceId"] == resource_id
+    assert available["applyMode"] == "next-launch"
+
+    def missing(_resource: str) -> dict[str, object]:
+        raise SteamZeroError("E-THEME-NOT-FOUND", detail="tema ausente")
+
+    runtime._bezel_resolver = missing
+    absent = runtime.stage_bezel("bezel")
+    assert absent["state"] == "missing-reference"
+    assert absent["diagnosticMessage"] == "tema ausente"
+
+    def incompatible(_resource: str) -> dict[str, object]:
+        raise SteamZeroError("E-THEME-INCOMPATIBLE", detail="digest desatualizado")
+
+    runtime._bezel_resolver = incompatible
+    invalid = runtime.stage_bezel("bezel")
+    assert invalid["state"] == "incompatible"
+    assert invalid["diagnosticMessage"] == "digest desatualizado"
+
+    runtime._bezel_resolver = None
+    unsupported = runtime.stage_bezel("bezel")
+    assert unsupported["state"] == "unavailable"
+    assert unsupported["resourceId"] == resource_id

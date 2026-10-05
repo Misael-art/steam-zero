@@ -1314,6 +1314,124 @@ def test_launch_argv_flatpak_standalone_from_platform_profile(monkeypatch, tmp_p
     assert argv == ["flatpak", "run", "--user", "net.pcsx2.PCSX2", "--fullscreen", str(rom)]
 
 
+def test_custom_bezel_launch_uses_private_session_config_and_cleans_after_untracked_spawn(
+    monkeypatch, tmp_path: Path
+) -> None:  # type: ignore[no-untyped-def]
+    import hashlib
+    import io
+
+    from PIL import Image
+
+    controller = _controller(monkeypatch, tmp_path)
+    output = io.BytesIO()
+    Image.new("RGBA", (18, 12), (120, 40, 20, 255)).save(output, format="PNG")
+    png = output.getvalue()
+    resource_id = "asset://bezels/org.test.bezel@1.0.0-" + hashlib.sha256(png).hexdigest() + ".png"
+    resolved = {
+        "id": resource_id,
+        "resourceId": resource_id,
+        "assetUrl": resource_id,
+        "label": "Test bezel",
+        "origin": "custom-theme",
+        "themeId": "org.test.bezel",
+        "version": "1.0.0",
+        "license": "CC-BY-4.0",
+        "format": "png",
+        "size": len(png),
+        "available": True,
+        "compatible": True,
+        "adapterId": "retroarch-flatpak",
+        "applyMode": "next-launch",
+        "reason": "",
+        "_sourceBytes": png,
+    }
+    monkeypatch.setattr(emulation, "resolve_bezel_resource", lambda _resource: resolved)
+    monkeypatch.setattr(
+        emulation, "list_bezel_resources", lambda: [dict(resolved, _sourceBytes=None)]
+    )
+    controller._launch_preflight = lambda _game_id: {  # type: ignore[attr-defined]
+        "game": {"id": "game-1", "name": "Test game"},
+        "game_settings": {},
+        "emulator_id": "retroarch",
+        "platform_id": "snes",
+        "rom": tmp_path / "game.sfc",
+        "profile": _retroarch_profile(),
+        "source_type": "flatpak",
+        "flatpak_ref": "org.libretro.RetroArch",
+        "payload": None,
+        "core_path": None,
+    }
+    (tmp_path / "game.sfc").write_bytes(b"test rom")
+    monkeypatch.setattr(
+        controller,
+        "_apply_launch_enhancements",
+        lambda *_args: {"applied": [], "tried": [], "skipped": []},
+    )
+    observed: dict[str, object] = {}
+
+    def spawn(argv):  # type: ignore[no-untyped-def]
+        observed["argv"] = tuple(argv)
+        config = Path(argv[argv.index("--appendconfig") + 1])
+        observed["config"] = config.read_text(encoding="utf-8")
+        overlay_line = next(
+            line for line in observed["config"].splitlines() if line.startswith("input_overlay =")
+        )
+        overlay_path = Path(overlay_line.split('"')[1])
+        observed["asset"] = (overlay_path.parent / "aura-bezel.png").read_bytes()
+        observed["session_root"] = config.parent
+        return None
+
+    controller._spawn = spawn  # type: ignore[attr-defined]
+    controller._build_exec_argv = lambda _profile, **kwargs: [  # type: ignore[attr-defined]
+        "flatpak",
+        "run",
+        "--appendconfig",
+        str(kwargs["session_config"]),
+        str(kwargs["rom"]),
+    ]
+    controller._runtime_compat_argv = lambda _emulator_id, argv: argv  # type: ignore[attr-defined]
+
+    result = controller.launch_game("game-1", bezel_resource=resource_id)
+
+    assert result["status"] == "started"
+    assert observed["asset"] == png
+    config_text = str(observed["config"])
+    assert 'config_save_on_exit = "false"' in config_text
+    session_root = observed["session_root"]
+    assert isinstance(session_root, Path)
+    assert list(session_root.iterdir()) == []
+
+
+def test_custom_bezel_is_rejected_before_non_retroarch_spawn(monkeypatch, tmp_path: Path) -> None:
+    controller = _controller(monkeypatch, tmp_path)
+    calls: list[tuple[str, ...]] = []
+    controller._launch_preflight = lambda _game_id: {  # type: ignore[attr-defined]
+        "game": {"id": "game-1", "name": "Test game"},
+        "game_settings": {},
+        "emulator_id": "pcsx2",
+        "platform_id": "playstation-2",
+        "rom": tmp_path / "game.iso",
+        "profile": _retroarch_profile("pcsx2"),
+        "source_type": "flatpak",
+        "flatpak_ref": "net.pcsx2.PCSX2",
+        "payload": None,
+        "core_path": None,
+    }
+    monkeypatch.setattr(
+        controller,
+        "_apply_launch_enhancements",
+        lambda *_args: {"applied": [], "tried": [], "skipped": []},
+    )
+    controller._spawn = lambda argv: calls.append(tuple(argv))  # type: ignore[attr-defined]
+
+    with pytest.raises(SteamZeroError, match="somente para RetroArch Flatpak"):
+        controller.launch_game(
+            "game-1",
+            bezel_resource="asset://bezels/org.test.bezel@1.0.0-" + "f" * 64 + ".png",
+        )
+    assert calls == []
+
+
 def _retroarch_profile(adapter_id: str = "retroarch"):  # type: ignore[no-untyped-def]
     from steamzero.domain.launch_profile import LaunchProfile
 
@@ -1395,6 +1513,32 @@ def test_retroarch_launch_carries_the_session_bezel_config(tmp_path: Path) -> No
 
     assert argv[4:6] == ["--appendconfig", str(session_config)]
     assert argv[-1] == str(rom)
+
+
+def test_session_and_controls_configs_share_one_ordered_appendconfig(
+    monkeypatch, tmp_path: Path
+) -> None:  # type: ignore[no-untyped-def]
+    controller = EmulationController(store_factory=lambda: StateStore(tmp_path / "state.db"))
+    managed = input_devices.ManagedRetroArchConfig(root=tmp_path / "managed")
+    managed.overlay_path.parent.mkdir(parents=True)
+    managed.overlay_path.write_text(managed.overlay_content(), encoding="utf-8")
+    monkeypatch.setattr(input_devices, "managed_config", lambda *_args, **_kwargs: managed)
+    session_config = tmp_path / "sessions" / "one" / "session-peripherals.cfg"
+    rom = tmp_path / "game.sfc"
+
+    argv = controller._build_exec_argv(  # type: ignore[attr-defined]
+        _retroarch_profile(),
+        source_type="flatpak",
+        flatpak_ref="org.libretro.RetroArch",
+        payload=None,
+        rom=rom,
+        session_config=session_config,
+    )
+
+    assert argv.count("--appendconfig") == 1
+    append_value = argv[argv.index("--appendconfig") + 1]
+    assert append_value == f"{managed.overlay_path}|{session_config}"
+    assert append_value.index(str(managed.overlay_path)) < append_value.index(str(session_config))
 
 
 def test_a_non_retroarch_emulator_is_launched_unchanged(monkeypatch, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]

@@ -4,16 +4,19 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import socket
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol
 
-from steamzero.core import fs, paths
+from steamzero.adapters.theme_catalog import list_bezel_resources, resolve_bezel_resource
+from steamzero.core import fs, ids, paths
 from steamzero.core.errors import SteamZeroError
 
 MAX_SLOT = 31
@@ -62,16 +65,35 @@ def default_retroarch_runtime_log_root() -> Path:
     return Path.home() / ".var/app/org.libretro.RetroArch/config/retroarch/playlists/logs"
 
 
-def prepare_retroarch_session_config() -> Path:
-    """Publish bounded session controls and the managed AURA bezel overlay."""
+_SESSION_ID = re.compile(r"^[0-9A-HJKMNP-TV-Z]{26}$")
+_SESSION_BEZEL_RESOURCE = re.compile(
+    r"^asset://bezels/(?P<theme>[a-z0-9]+(?:[.-][a-z0-9]+)+)@"
+    r"(?P<version>[0-9]+\.[0-9]+\.[0-9]+)-(?P<digest>[0-9a-f]{64})\.png$"
+)
+_SESSION_CONFIG_FILES = (SESSION_CONFIG_NAME, BEZEL_CONFIG_NAME, BEZEL_ASSET_NAME)
 
+
+def prepare_retroarch_session_config(
+    bezel_resource: str = "aura-default",
+    *,
+    session_id: str | None = None,
+    resolved_bezel: Mapping[str, Any] | None = None,
+) -> Path:
+    """Create a per-session RetroArch config with the selected validated PNG."""
+
+    session_id = session_id or ids.new_ulid()
+    if not _SESSION_ID.fullmatch(session_id):
+        raise ValueError("identificador de sessão inválido para a configuração RetroArch")
     state_root = paths.saves_dir() / "states"
     # RetroArch falls back to its sandbox default when the override points to
     # a directory that does not exist. Create the managed root before spawn so
     # the session adapter and the emulator observe the same state files.
     fs.ensure_dir(state_root, mode=0o700)
     config_root = paths.config_home() / "retroarch"
-    config_path = config_root / SESSION_CONFIG_NAME
+    fs.ensure_dir(config_root, mode=0o700)
+    sessions_root = fs.ensure_private_child(config_root, "sessions", mode=0o700)
+    session_root = fs.ensure_private_child(sessions_root, session_id, mode=0o700)
+    config_path = session_root / SESSION_CONFIG_NAME
     asset_root = Path(__file__).resolve().parents[1] / "ui" / "assets"
     bezel_source = asset_root / BEZEL_SOURCE_NAME
     bezel_asset_source = asset_root / BEZEL_ASSET_NAME
@@ -83,9 +105,50 @@ def prepare_retroarch_session_config() -> Path:
         raise SteamZeroError(
             "E-COMPONENT-DEGRADED", detail=f"derivado de bezel AURA ausente: {BEZEL_ASSET_NAME}"
         )
-    bezel_asset = config_root / BEZEL_ASSET_NAME
-    fs.copy_file_atomic(bezel_asset_source, bezel_asset)
-    bezel_config = config_root / BEZEL_CONFIG_NAME
+    if resolved_bezel is None:
+        resolved = resolve_bezel_resource(bezel_resource)
+    else:
+        resolved = dict(resolved_bezel)
+        if resolved.get("resourceId") != bezel_resource:
+            raise SteamZeroError(
+                "E-THEME-UNSAFE", detail="bezel resolvido não corresponde à seleção"
+            )
+    image = resolved.get("_sourceBytes")
+    if not isinstance(image, bytes):
+        raise SteamZeroError("E-THEME-UNSAFE", detail="asset validado do bezel está ausente")
+    if resolved.get("available") is not True or resolved.get("compatible") is not True:
+        raise SteamZeroError(
+            "E-THEME-INCOMPATIBLE", detail="bezel indisponível para RetroArch Flatpak"
+        )
+    try:
+        from steamzero.domain.asset_recipes import validate_retroarch_bezel_source
+
+        validate_retroarch_bezel_source(image)
+    except ValueError as exc:
+        raise SteamZeroError("E-THEME-UNSAFE", detail=str(exc)) from exc
+    if bezel_resource == "aura-default":
+        if resolved.get("origin") != "aura":
+            raise SteamZeroError("E-THEME-UNSAFE", detail="identidade do bezel AURA inválida")
+    else:
+        match = _SESSION_BEZEL_RESOURCE.fullmatch(bezel_resource)
+        if match is None:
+            raise SteamZeroError("E-THEME-UNSAFE", detail="URI lógico de bezel inválido")
+        if hashlib.sha256(image).hexdigest() != match.group("digest"):
+            raise SteamZeroError("E-THEME-UNSAFE", detail="digest do asset de bezel não confere")
+        if (
+            resolved.get("origin") != "custom-theme"
+            or resolved.get("themeId") != match.group("theme")
+            or resolved.get("version") != match.group("version")
+        ):
+            raise SteamZeroError("E-THEME-UNSAFE", detail="namespace/versão do bezel não conferem")
+    bezel_asset = session_root / BEZEL_ASSET_NAME
+    fs.write_atomic(bezel_asset, image)
+    bezel_config = session_root / BEZEL_CONFIG_NAME
+    config_values = (str(bezel_asset), str(bezel_config), str(state_root))
+    if any(any(character in value for character in '"\r\n') for value in config_values):
+        raise SteamZeroError(
+            "E-COMPONENT-DEGRADED", detail="caminho incompatível com a configuração do RetroArch"
+        )
     fs.write_atomic_text(
         bezel_config,
         "\n".join(
@@ -120,6 +183,38 @@ def prepare_retroarch_session_config() -> Path:
     return config_path
 
 
+def cleanup_retroarch_session_artifacts(
+    session_id: str, *, config_home: Path | None = None
+) -> bool:
+    """Remove only the known SteamZero files for this observed session."""
+    if not _SESSION_ID.fullmatch(session_id):
+        return False
+    base = config_home or paths.config_home()
+    retroarch_root = base / "retroarch"
+    sessions_root = retroarch_root / "sessions"
+    session_root = sessions_root / session_id
+    if (
+        session_root.is_symlink()
+        or not session_root.is_dir()
+        or sessions_root.is_symlink()
+        or retroarch_root.is_symlink()
+    ):
+        return False
+    try:
+        session_root.resolve(strict=True).relative_to(sessions_root.resolve(strict=True))
+    except (OSError, ValueError):
+        return False
+    for filename in _SESSION_CONFIG_FILES:
+        path = session_root / filename
+        if path.is_symlink():
+            return False
+        if path.exists():
+            if not path.is_file():
+                return False
+            fs.remove_file(path)
+    return not any(session_root.iterdir())
+
+
 def _send_udp(command: str, *, host: str, port: int, timeout: float) -> None:
     payload = command.encode("utf-8")
     if len(payload) > 512:
@@ -148,6 +243,8 @@ class RetroArchSessionPeripheral:
         sleep: Callable[[float], None] = time.sleep,
         now: Callable[[], datetime] = lambda: datetime.now(UTC),
         runtime_log_root: Path | None = None,
+        bezel_resource: Mapping[str, Any] | None = None,
+        bezel_catalog: Sequence[Mapping[str, Any]] | None = None,
     ) -> None:
         self._content_path = Path(content_path)
         self._state_root = Path(state_root)
@@ -165,6 +262,8 @@ class RetroArchSessionPeripheral:
             runtime_log_root or default_retroarch_runtime_log_root()
         )
         self._discs = self._read_m3u()
+        self._bezel_resource = dict(bezel_resource or {})
+        self._bezel_catalog = list(bezel_catalog or ())
 
     def list_save_states(self) -> Mapping[str, Any]:
         entries: list[dict[str, Any]] = []
@@ -244,21 +343,62 @@ class RetroArchSessionPeripheral:
         """
 
         discs = self.list_discs()
+        selected_id = str(self._bezel_resource.get("resourceId") or "aura-default")
+        raw_catalog = self._bezel_catalog or list_bezel_resources()
+        selected = next(
+            (raw for raw in raw_catalog if (raw.get("resourceId") or raw.get("id")) == selected_id),
+            None,
+        )
+        ordered_catalog = raw_catalog[:8]
+        if selected is not None:
+            others = [raw for raw in raw_catalog if raw is not selected]
+            ordered_catalog = [selected, *others[:7]]
+        elif self._bezel_resource and selected_id != "aura-default":
+            # A valid theme can fall beyond the bounded catalog window. Keep
+            # the already validated current selection visible without exposing
+            # its private source bytes.
+            ordered_catalog = [
+                {
+                    key: value
+                    for key, value in self._bezel_resource.items()
+                    if not str(key).startswith("_")
+                },
+                *ordered_catalog[:7],
+            ]
+        bezels: list[dict[str, Any]] = []
+        for raw in ordered_catalog:
+            identifier = raw.get("resourceId") or raw.get("id")
+            if not isinstance(identifier, str) or not identifier:
+                continue
+            item = dict(raw)
+            item["id"] = identifier
+            item["assetUrl"] = raw.get("assetUrl", "")
+            item["selected"] = identifier == selected_id
+            if identifier == selected_id:
+                # RetroArch's UDP GET_CONFIG_PARAM currently exposes only a
+                # fixed set of values and does not return input_overlay. The
+                # adapter can prove that it passed this session config at
+                # launch, but not that the runtime loaded or drew the image.
+                item["applied"] = False
+                item["executionState"] = "launch-configured-unconfirmed"
+                item["applyMode"] = "next-launch"
+                item["reason"] = (
+                    "Configuração da sessão enviada no launch; o runtime e os pixels "
+                    "do overlay ainda não foram confirmados."
+                )
+            else:
+                item["applied"] = False
+                item["executionState"] = "available"
+            bezels.append(item)
         return {
             "state": "ready",
             "activeDisc": discs.get("activeDisc"),
             "discs": discs.get("discs", []),
-            "selectedBezel": "aura-default",
-            "bezels": [
-                {
-                    "id": "aura-default",
-                    "label": "AURA Cinema",
-                    "assetUrl": "asset://bezels/aura-bezel.svg",
-                    "available": True,
-                    "compatible": True,
-                    "selected": True,
-                }
-            ],
+            "selectedBezel": selected_id,
+            "appliedBezel": None,
+            "bezelExecutionState": "launch-configured-unconfirmed",
+            "bezelApplyMode": "next-launch",
+            "bezels": bezels,
             "fade": {"phase": "idle", "progress": 0.0, "durationMs": 180},
         }
 
@@ -452,6 +592,7 @@ __all__ = [
     "SESSION_CONFIG_NAME",
     "RetroArchSessionPeripheral",
     "SessionPeripheralControl",
+    "cleanup_retroarch_session_artifacts",
     "default_retroarch_runtime_log_root",
     "prepare_retroarch_session_config",
 ]

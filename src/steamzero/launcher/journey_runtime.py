@@ -69,6 +69,7 @@ class JourneyRuntime:
         source_states: Mapping[str, str] | None = None,
         launchable_game_ids: Sequence[str] = (),
         theme_resolver: Any = None,
+        bezel_resolver: Any = None,
     ) -> None:
         self.document = document
         self._published = {
@@ -91,6 +92,7 @@ class JourneyRuntime:
         self._source_states = dict(source_states or {})
         self._launchable_game_ids = frozenset(str(value) for value in launchable_game_ids)
         self._theme_resolver = theme_resolver
+        self._bezel_resolver = bezel_resolver
         document.ensure_activatable(self._published)
         self.navigator = JourneyNavigator(document, published_read_models=self._published)
         self.executor = JourneyExecutor(
@@ -159,6 +161,7 @@ class JourneyRuntime:
         source_states: Mapping[str, str] | None = None,
         launchable_game_ids: Sequence[str] = (),
         theme_resolver: Any = None,
+        bezel_resolver: Any = None,
     ) -> JourneyRuntime | None:
         store = JourneyStore(root)
         journey_id = store.active_id()
@@ -172,6 +175,7 @@ class JourneyRuntime:
             source_states=source_states,
             launchable_game_ids=launchable_game_ids,
             theme_resolver=theme_resolver,
+            bezel_resolver=bezel_resolver,
         )
 
     @property
@@ -235,6 +239,102 @@ class JourneyRuntime:
                             theme.get("resolutionDiagnostic")
                             or "O tema não é compatível; a superfície usa AURA."
                         )[:240]
+        return result
+
+    def stage_bezel(self, stage_id: str) -> dict[str, Any]:
+        """Resolve a version-locked bezel choice from the saved journey stage."""
+        if stage_id not in SESSION_STAGES:
+            return {
+                "journeyId": self.journey_id,
+                "stageId": stage_id,
+                "state": "missing-reference",
+                "resourceId": "aura-default",
+                "diagnosticCode": "JOURNEY-STAGE-REFERENCE-MISSING",
+                "diagnosticMessage": "A etapa pedida não existe no contrato da Jornada.",
+                "applyMode": "next-launch",
+            }
+        assignment = next(
+            (
+                stage.get("bezelResource")
+                for stage in self.document.data["sessionStages"]
+                if str(stage.get("stageId")) == stage_id
+            ),
+            None,
+        )
+        selected = isinstance(assignment, str) and assignment != "aura-default"
+        resource_id = str(assignment) if isinstance(assignment, str) else "aura-default"
+        result: dict[str, Any] = {
+            "journeyId": self.journey_id,
+            "stageId": stage_id,
+            "resourceId": resource_id,
+            "state": "selected"
+            if selected
+            else ("explicit-aura" if assignment else "inherited-aura"),
+            "applyMode": "next-launch",
+            "diagnosticCode": "",
+            "diagnosticMessage": "",
+        }
+        if selected and not callable(self._bezel_resolver):
+            result.update(
+                state="unavailable",
+                diagnosticCode="JOURNEY-BEZEL-ADAPTER-UNAVAILABLE",
+                diagnosticMessage=(
+                    "Este runtime não publicou um resolver de bezel; a seleção fica "
+                    "preservada, mas a etapa não pode aplicá-la."
+                ),
+            )
+        if selected and callable(self._bezel_resolver):
+            try:
+                resolved = self._bezel_resolver(resource_id)
+            except Exception as exc:
+                resolved = None
+                error_code = str(getattr(exc, "code", ""))
+                detail = str(getattr(exc, "detail", ""))
+                if error_code == "E-THEME-NOT-FOUND":
+                    result.update(
+                        state="missing-reference",
+                        diagnosticCode="JOURNEY-BEZEL-REFERENCE-MISSING",
+                        diagnosticMessage=detail[:240]
+                        or (
+                            "O tema/asset do bezel não está instalado; "
+                            "selecione outro ou herde AURA."
+                        ),
+                    )
+                else:
+                    result.update(
+                        state="incompatible",
+                        diagnosticCode="JOURNEY-BEZEL-INCOMPATIBLE",
+                        diagnosticMessage=detail[:240]
+                        or "O tema, versão, conteúdo ou formato do bezel não é compatível.",
+                    )
+            if not isinstance(resolved, Mapping):
+                if result["state"] == "selected":
+                    result.update(
+                        state="missing-reference",
+                        diagnosticCode="JOURNEY-BEZEL-REFERENCE-MISSING",
+                        diagnosticMessage=(
+                            "O bezel escolhido não está instalado na versão declarada; "
+                            "selecione outro recurso ou herde AURA."
+                        ),
+                    )
+            else:
+                result.update(
+                    origin=str(resolved.get("origin") or "unknown"),
+                    version=str(resolved.get("version") or "unknown"),
+                    license=str(resolved.get("license") or "unknown"),
+                    label=str(resolved.get("label") or "Bezel personalizado")[:128],
+                )
+                if resolved.get("available") is not True or resolved.get("compatible") is not True:
+                    result.update(
+                        state="incompatible",
+                        diagnosticCode="JOURNEY-BEZEL-INCOMPATIBLE",
+                        diagnosticMessage=str(
+                            resolved.get("reason")
+                            or "O bezel escolhido não é compatível com o adapter desta sessão."
+                        )[:240],
+                    )
+                else:
+                    result["state"] = "available"
         return result
 
     def handle(self, request: Mapping[str, Any]) -> dict[str, Any]:

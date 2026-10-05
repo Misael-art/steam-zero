@@ -9,7 +9,7 @@
   "verification": "unit",
   "operation": "unknown",
   "distribution": "not-packaged",
-    "scopeDigest": "8a58ffc7d5b74a4b4cc4df314e68e37c665f6f610e3e6082792dd1ea3795f9a0",
+  "scopeDigest": "014ef5b039ba2f368072ab7217066b04f3f653df89e678ebceeca1dff73bee98",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/service/methods.py",
@@ -39,10 +39,16 @@
       "reference": "tests/unit/test_service_methods.py",
       "command": ".venv/bin/python tools/run_tests_isolated.py tests/unit/test_service_methods.py -q",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Cobrir cli/main.py e service/methods.py por itens agregadores de diretorio na etapa de catalogo; este item responde apenas pela superficie frontends dentro deles.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-08-11",
+  "updatedAt": "2026-10-04",
   "notes": "Cherry-picks f4a81d1/c6c2712/67ceab0 na harmonizacao a45. ATENCAO: cli/main.py e service/methods.py sao superficies COMPARTILHADAS; este item as lista para que nao fiquem sem dono, mas responde so pelo comando/metodos frontends. A cobertura por diretorio entra com os itens agregadores do catalogo. Promovido a 'integrated' em 2026-08-11: a PR #65 foi mesclada na main (63963d5f8633, squash) e todos os caminhos de scopePaths existem naquele commit — verificado por ancestralidade, nao pelo relatorio do merge."
 }

@@ -369,3 +369,58 @@ def test_removing_referenced_menu_requires_explicit_reconnection(tmp_path: Path)
         "kind": "menu",
         "id": "games-next",
     }
+
+
+def test_custom_bezel_survives_history_save_reopen_and_journey_copy(tmp_path: Path) -> None:
+    service = JourneyStudioService(tmp_path / "journeys")
+    created = service.create(name="Jornada com bezel", journey_id="org.steamzero.bezel-journey")
+    session_id = str(created["sessionId"])
+    resource_id = "asset://bezels/org.test.bezel@1.2.3-" + "c" * 64 + ".png"
+
+    selected = service.transact(
+        session_id,
+        "set-stage-bezel",
+        {"stageId": "bezel", "bezelResource": resource_id},
+        expected_generation=created["generation"],
+    )
+    assert selected["document"]["sessionStages"] == [
+        {"stageId": "bezel", "bezelResource": resource_id}
+    ]
+    stage_theme = service.transact(
+        session_id,
+        "set-stage-appearance",
+        {"stageId": "bezel", "appearance": {"mode": "inherit-aura"}},
+        expected_generation=selected["generation"],
+    )
+    cleared_appearance = service.transact(
+        session_id,
+        "set-stage-appearance",
+        {"stageId": "bezel", "appearance": None},
+        expected_generation=stage_theme["generation"],
+    )
+    assert cleared_appearance["document"]["sessionStages"] == [
+        {"stageId": "bezel", "bezelResource": resource_id}
+    ]
+
+    undone = service.undo(session_id)
+    assert undone["document"]["sessionStages"][0]["appearance"] == {"mode": "inherit-aura"}
+    redone = service.redo(session_id)
+    assert redone["document"]["sessionStages"] == [
+        {"stageId": "bezel", "bezelResource": resource_id}
+    ]
+    saved = service.save(session_id)
+    reopened = service.load("org.steamzero.bezel-journey")
+    assert reopened["document"] == saved["snapshot"]["document"]
+
+    copied = service.import_copy(service.export_copy(session_id), copy_name="Cópia com bezel")
+    assert copied["document"]["sessionStages"] == [
+        {"stageId": "bezel", "bezelResource": resource_id}
+    ]
+    dependency = next(
+        item for item in copied["dependencies"] if item["themeId"] == "org.test.bezel"
+    )
+    assert dependency == {
+        "themeId": "org.test.bezel",
+        "version": "1.2.3",
+        "state": "version-locked",
+    }

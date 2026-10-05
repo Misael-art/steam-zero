@@ -13,7 +13,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_emulation_storage_management.py"
   ],
-  "scopeDigest": "e56c8e2d2a5ea4499ea4f4aeb1687205c52650051a6ff8901f9996e4c4b71ef5",
+  "scopeDigest": "59cfddcbeca62d511240c2233d08136d048fe4d863e3aa3a08c4e51cc6f539f8",
   "dependsOn": [
     "SZ-EMULATION-STORAGE-READMODEL"
   ],
@@ -47,10 +47,16 @@
       "reference": "tests",
       "command": "TMPDIR=/tmp .venv/bin/python tools/run_tests_isolated.py tests -q; runner permaneceu sem saída em 17% e foi interrompido; nenhum processo ou socket residual",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar seletor visual de destino e seleção em lote no frontend proprietário e validar na release instalada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-10-04",
   "notes": "O read model de armazenamento já publica estatísticas e atalhos de gestão. A compactação NSZ agora possui caminho individual e lote transacional; o seletor visual de destino e a validação física continuam pendentes."
 }

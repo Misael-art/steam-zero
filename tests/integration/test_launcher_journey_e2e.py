@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import subprocess
 import urllib.parse
 import urllib.request
+import uuid
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -394,6 +396,15 @@ def test_launcher_entrypoint_loads_active_journey_and_compiles_xml_scene(
         ),
         encoding="utf-8",
     )
+    original_runtime = tmp_path.parent.parent / f"wl-{uuid.uuid4().hex[:8]}"
+    original_runtime.mkdir(mode=0o700)
+    original_runtime.chmod(0o700)
+    original_socket = original_runtime / "wayland-0"
+    listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    listener.bind(str(original_socket))
+    listener.listen(2)
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(original_runtime))
+    monkeypatch.setenv("WAYLAND_DISPLAY", "wayland-0")
     captured: dict[str, Any] = {}
 
     def forbidden(*_args: Any, **_kwargs: Any) -> Any:
@@ -405,6 +416,8 @@ def test_launcher_entrypoint_loads_active_journey_and_compiles_xml_scene(
 
     def capture_bridge(bridge: Any) -> int:
         captured["bridge"] = bridge
+        captured["waylandDisplay"] = os.environ.get("WAYLAND_DISPLAY")
+        captured["runtimeDir"] = os.environ.get("XDG_RUNTIME_DIR")
         return 0
 
     monkeypatch.setattr(
@@ -412,8 +425,8 @@ def test_launcher_entrypoint_loads_active_journey_and_compiles_xml_scene(
         capture_bridge,
     )
 
-    assert (
-        launcher_main(
+    try:
+        result = launcher_main(
             [
                 "--library",
                 str(library),
@@ -422,8 +435,11 @@ def test_launcher_entrypoint_loads_active_journey_and_compiles_xml_scene(
                 str(isolated_root),
             ]
         )
-        == 0
-    )
+    finally:
+        listener.close()
+    assert result == 0
+    assert captured["waylandDisplay"] == str(original_socket)
+    assert captured["runtimeDir"] == str(isolated_root / "runtime")
     bridge = captured["bridge"]
     assert bridge.journey_current()["journeyId"] == document.id
     assert bridge.journey_current()["theme"]["sceneResolutionState"] == "resolved"
@@ -448,6 +464,10 @@ def test_launcher_entrypoint_loads_active_journey_and_compiles_xml_scene(
 
 def test_saved_activated_journey_drives_bridge_cinema_copy_and_xml_theme(tmp_path: Path) -> None:
     document = _document()
+    bezel_resource = "asset://bezels/org.test.bezel@1.2.3-" + "a" * 64 + ".png"
+    journey_data = dict(document.data)
+    journey_data["sessionStages"].append({"stageId": "bezel", "bezelResource": bezel_resource})
+    document = JourneyDocument.parse(journey_data)
     original_store = JourneyStore(tmp_path / "studio-store")
     original_store.root.mkdir()
     original_store.save(document)
@@ -580,6 +600,20 @@ def test_saved_activated_journey_drives_bridge_cinema_copy_and_xml_theme(tmp_pat
         if (projected := project_game_row(record, source="emulation")) is not None
     ]
     assert all("path" not in row for row in rows)
+
+    def resolve_bezel(resource_id: str) -> dict[str, Any]:
+        assert resource_id == bezel_resource
+        return {
+            "resourceId": resource_id,
+            "origin": "custom-theme",
+            "themeId": "org.test.bezel",
+            "version": "1.2.3",
+            "license": "CC-BY-4.0",
+            "label": "Fixture bezel",
+            "available": True,
+            "compatible": True,
+        }
+
     runtime = JourneyRuntime.from_store(
         active_store.root,
         read_models={
@@ -614,18 +648,23 @@ def test_saved_activated_journey_drives_bridge_cinema_copy_and_xml_theme(tmp_pat
         source_states={"library.platforms": "available", "library.games": "available"},
         launchable_game_ids=("celeste", "metroid", "mario"),
         theme_resolver=resolve_theme,
+        bezel_resolver=resolve_bezel,
     )
     assert runtime is not None
     assert runtime.document.id == copied.id
     assert runtime.document.data["menus"][3]["appearance"]["themeId"] == XML_THEME_ID
     home_rows = [{"id": "celeste", "title": "Celeste", "section": "library"}]
     launch_calls: list[tuple[str, str]] = []
+    launch_bezel_calls: list[tuple[str, str, str]] = []
     bridge = LauncherBridge(
         sections=build_sections(home_rows),
         titles=build_titles(home_rows),
         covers={"celeste": "asset://fixture/celeste-cover.png"},
         context_path=tmp_path / "return-context.json",
         on_launch=lambda game_id, focus_id: launch_calls.append((game_id, focus_id)),
+        on_launch_bezel=lambda game_id, focus_id, resource_id: launch_bezel_calls.append(
+            (game_id, focus_id, resource_id)
+        ),
         journey_runtime=runtime,
     )
 
@@ -759,6 +798,9 @@ def test_saved_activated_journey_drives_bridge_cinema_copy_and_xml_theme(tmp_pat
         )
         assert reused_id["diagnosticCode"] == "JOURNEY-REQUEST-ID-REUSED"
         assert launch_calls == []  # Bridge returns intent; the UI owns the launch handoff.
+
+        bridge.launch("celeste", "library:celeste")
+        assert launch_bezel_calls == [("celeste", "library:celeste", bezel_resource)]
 
         current_after_play = _get_json(base, "/journey/current", bridge.token)
         pause = _post_json(

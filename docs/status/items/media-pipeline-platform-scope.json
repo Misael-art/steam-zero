@@ -14,7 +14,7 @@
     "tests/integration/test_media_pipeline_platform_scope.py",
     "docs/09-operations/evidence/2026-09-22-media-pipeline-readonly"
   ],
-  "scopeDigest": "1fe1dd10ecbf21b6863c6496f5a615f6638232f0dd167ecad9badf6e15afefd4",
+  "scopeDigest": "eef6f0f4d8d54dbd797997c3289af977f55882e8b97c93aae523318297184c67",
   "dependsOn": [
     "SZ-EMULATION-PLATFORM-SCOPE",
     "SZ-MEDIA-PROVIDER-PLATFORM-FILTER"
@@ -72,10 +72,16 @@
       "reference": "docs/09-operations/evidence/2026-09-22-media-theme-first-run/README.md",
       "command": "media.global.search-missing real: job assíncrono devolveu jobId imediatamente e terminou degraded com 15 jogos, 9 processados, 6 pulados, zero falhas de aplicação e rejeição ScreenScraper explícita em 9 jogos.",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "HARD-EXTERNAL-SUBITEM: preservar o diagnóstico e aguardar credencial ScreenScraper autorizada; recuperar qualquer job global stale pelo ciclo G25 antes de repetir. Depois medir qualidade por kind e publicar a cadeia de rollback. Não converter o lote degraded em cobertura garantida.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-22",
+  "updatedAt": "2026-10-04",
   "notes": "O escopo por plataforma, denominador, fases, health persistida e providerDetails está integrado e presente na release ativa. A operação real comprovou busca individual e lote assíncrono com ScreenScraper rejeitado e SteamGridDB funcional, sem perder a causa no read model. Permanece degraded por credencial externa, falta de score perceptual/cobertura completa de kinds/publicação/rollback e qualquer job stale que precise de recovery antes de nova tentativa."
 }

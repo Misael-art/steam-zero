@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import io
 import json
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -53,6 +55,78 @@ class TestEditorCreate:
         a = mgr.create("A")
         b = mgr.create("B")
         assert a["sessionId"] != b["sessionId"]
+
+
+def _bezel_png(width: int = 32, height: int = 24) -> bytes:
+    from PIL import Image
+
+    output = io.BytesIO()
+    Image.new("RGBA", (width, height), (12, 34, 56, 255)).save(output, format="PNG")
+    return output.getvalue()
+
+
+def test_bezel_asset_is_undoable_saved_reopened_and_exported(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+    manager = ThemeEditorManager()
+    session = manager.create("Bezel authoring")
+    session_id = str(session["sessionId"])
+    payload = _bezel_png()
+
+    edited = manager.set_asset(session_id, "bezel", payload, "../../external-name.png")
+    assert edited["asset"] == {"slot": "bezel", "filename": "bezel.png", "size": len(payload)}
+    assert edited["dimensions"] == {"width": 32, "height": 24}
+    assert edited["manifest"]["assets"]["bezel"] == "assets/bezel.png"
+    assert edited["manifest"]["license"] == "MIT"
+
+    undone = manager.undo(session_id)
+    assert "bezel" not in undone["manifest"].get("assets", {})
+    redone = manager.redo(session_id)
+    assert redone["manifest"]["assets"]["bezel"] == "assets/bezel.png"
+
+    saved = manager.save(session_id)
+    theme_dir = Path(saved["path"])
+    assert (theme_dir / "assets" / "bezel.png").read_bytes() == payload
+    reopened = manager.load(saved["themeId"])
+    assert reopened["manifest"]["assets"]["bezel"] == "assets/bezel.png"
+    package_bytes = manager.export_zip(str(reopened["sessionId"]))
+    with zipfile.ZipFile(io.BytesIO(package_bytes)) as archive:
+        assert f"{saved['themeId']}/assets/bezel.png" in archive.namelist()
+        assert archive.read(f"{saved['themeId']}/assets/bezel.png") == payload
+
+    from steamzero.domain.theme_install import ThemeInstaller
+
+    package = tmp_path / "bezel-theme.zip"
+    package.write_bytes(package_bytes)
+    installed = ThemeInstaller().install(str(package), force=True)
+    assert installed["themeId"] == saved["themeId"]
+    installed_asset = theme_dir / "assets" / "bezel.png"
+    assert installed_asset.read_bytes() == payload
+
+
+@pytest.mark.parametrize(
+    ("filename", "payload", "error_code"),
+    [
+        ("overlay.svg", b"<svg xmlns='http://www.w3.org/2000/svg'/>", "E-API-SCHEMA"),
+        ("overlay.webp", b"RIFF\x00\x00\x00\x00WEBP", "E-API-SCHEMA"),
+        ("overlay.png", b"\x89PNG\r\n\x1a\nnot-a-png", "E-THEME-UNSAFE"),
+    ],
+)
+def test_bezel_upload_rejects_unsupported_or_invalid_image(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    filename: str,
+    payload: bytes,
+    error_code: str,
+) -> None:
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+    manager = ThemeEditorManager()
+    session_id = str(manager.create("Invalid bezel")["sessionId"])
+    with pytest.raises(SteamZeroError) as excinfo:
+        manager.set_asset(session_id, "bezel", payload, filename)
+    assert excinfo.value.code == error_code
+    assert "bezel" not in manager._get_session(session_id).assets
 
 
 class TestEditorLoad:

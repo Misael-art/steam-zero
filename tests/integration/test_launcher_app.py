@@ -6,11 +6,15 @@ from __future__ import annotations
 
 import http.client
 import json
+import os
+import socket
+import stat
 import sys
 import threading
 import time
 import urllib.error
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +26,13 @@ from steamzero.adapters.launcher_receipt import spawn_receipt
 from steamzero.adapters.launcher_ui import LauncherBridge
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
 from steamzero.launcher.app import build_sections, build_titles, main
+
+
+def _wayland_listener(path: Path) -> socket.socket:
+    listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    listener.bind(str(path))
+    listener.listen(2)
+    return listener
 
 
 def _get(url: str, token: str) -> dict:
@@ -458,6 +469,13 @@ def test_isolated_launcher_uses_synthetic_xdg_and_never_reads_host_catalog_or_se
         encoding="utf-8",
     )
     isolated_root = tmp_path / "isolated-session"
+    original_runtime = tmp_path.parent.parent / f"wl-{uuid.uuid4().hex[:8]}"
+    original_runtime.mkdir(mode=0o700)
+    original_runtime.chmod(0o700)
+    original_socket = original_runtime / "wayland-0"
+    listener = _wayland_listener(original_socket)
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(original_runtime))
+    monkeypatch.setenv("WAYLAND_DISPLAY", "wayland-0")
     captured: dict[str, object] = {}
 
     def forbidden(*_args, **_kwargs):
@@ -465,14 +483,16 @@ def test_isolated_launcher_uses_synthetic_xdg_and_never_reads_host_catalog_or_se
 
     def capture(bridge):
         captured["bridge"] = bridge
+        captured["waylandDisplay"] = os.environ.get("WAYLAND_DISPLAY")
+        captured["runtimeDir"] = os.environ.get("XDG_RUNTIME_DIR")
         return 0
 
     monkeypatch.setattr(app, "_steam_catalog", forbidden)
     monkeypatch.setattr(app, "_host_accessibility", forbidden)
     monkeypatch.setattr("steamzero.adapters.launcher_ui.launch_launcher_ui", capture)
 
-    assert (
-        main(
+    try:
+        result = main(
             [
                 "--library",
                 str(fixture),
@@ -481,10 +501,13 @@ def test_isolated_launcher_uses_synthetic_xdg_and_never_reads_host_catalog_or_se
                 str(isolated_root),
             ]
         )
-        == 0
-    )
+    finally:
+        listener.close()
+    assert result == 0
 
     bridge = captured["bridge"]
+    assert captured["waylandDisplay"] == str(original_socket)
+    assert captured["runtimeDir"] == str(isolated_root / "runtime")
     assert bridge.model()["sections"][0]["items"][0]["id"] == "safe-game"
     assert bridge._session_observer is None
     assert bridge._session_overlay is None
@@ -494,6 +517,115 @@ def test_isolated_launcher_uses_synthetic_xdg_and_never_reads_host_catalog_or_se
     )
     with pytest.raises(SteamZeroError, match="lançamento não publicado"):
         bridge.launch("safe-game", "nes:safe-game")
+
+
+@pytest.mark.parametrize("display_form", ["relative", "absolute"])
+def test_isolated_xdg_keeps_a_valid_wayland_endpoint_outside_private_runtime(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, display_form: str
+) -> None:
+    from steamzero.launcher.app import _configure_isolated_xdg
+
+    fake_home = tmp_path / "home"
+    monkeypatch.setattr(Path, "home", lambda: fake_home)
+    original_runtime = tmp_path.parent.parent / f"wl-{uuid.uuid4().hex[:8]}"
+    original_runtime.mkdir(mode=0o700)
+    original_runtime.chmod(0o700)
+    endpoint = original_runtime / "wayland-0"
+    listener = _wayland_listener(endpoint)
+    isolated_root = tmp_path / "isolated"
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(original_runtime))
+    monkeypatch.setenv(
+        "WAYLAND_DISPLAY", "wayland-0" if display_form == "relative" else str(endpoint)
+    )
+    try:
+        assert _configure_isolated_xdg(isolated_root) == isolated_root
+        assert os.environ["WAYLAND_DISPLAY"] == str(endpoint)
+        assert os.environ["XDG_RUNTIME_DIR"] == str(isolated_root / "runtime")
+        for variable in (
+            "XDG_CONFIG_HOME",
+            "XDG_DATA_HOME",
+            "XDG_STATE_HOME",
+            "XDG_CACHE_HOME",
+            "XDG_RUNTIME_DIR",
+        ):
+            isolated_directory = Path(os.environ[variable])
+            assert isolated_directory.parent == isolated_root
+            assert stat.S_IMODE(isolated_directory.stat().st_mode) == 0o700
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.connect(os.environ["WAYLAND_DISPLAY"])
+        accepted, _address = listener.accept()
+        accepted.close()
+    finally:
+        listener.close()
+
+
+def test_isolated_xdg_rejects_missing_or_invalid_wayland_endpoints(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from steamzero.launcher.app import _configure_isolated_xdg
+
+    monkeypatch.setattr(Path, "home", lambda: tmp_path / "home")
+    original_runtime = tmp_path / "runtime"
+    original_runtime.mkdir(mode=0o700)
+    original_runtime.chmod(0o700)
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(original_runtime))
+    monkeypatch.delenv("DISPLAY", raising=False)
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    with pytest.raises(ValueError, match="sessão gráfica não está disponível"):
+        _configure_isolated_xdg(tmp_path / "headless")
+
+    invalid_endpoint = original_runtime / "wayland-0"
+    invalid_endpoint.write_text("not a socket", encoding="utf-8")
+    monkeypatch.setenv("WAYLAND_DISPLAY", "wayland-0")
+    with pytest.raises(ValueError, match="socket do usuário atual"):
+        _configure_isolated_xdg(tmp_path / "invalid")
+
+
+def test_isolated_xdg_preserves_x11_when_wayland_is_absent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from steamzero.launcher.app import _configure_isolated_xdg
+
+    monkeypatch.setattr(Path, "home", lambda: tmp_path / "home")
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    monkeypatch.setenv("DISPLAY", ":77")
+    assert _configure_isolated_xdg(tmp_path / "isolated") == tmp_path / "isolated"
+    assert "WAYLAND_DISPLAY" not in os.environ
+    assert os.environ["DISPLAY"] == ":77"
+    assert os.environ["XDG_RUNTIME_DIR"] == str(tmp_path / "isolated" / "runtime")
+
+
+def test_headless_isolated_launcher_reports_missing_session_before_catalog_or_launch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from steamzero.launcher import app
+
+    fixture = tmp_path / "library.json"
+    fixture.write_text("[]", encoding="utf-8")
+    observed: list[str] = []
+
+    def forbidden(*_args, **_kwargs):
+        observed.append("host-capability")
+        raise AssertionError("headless isolated launcher consulted host state")
+
+    monkeypatch.setattr(app, "_steam_catalog", forbidden)
+    monkeypatch.setattr(app, "_host_accessibility", forbidden)
+    monkeypatch.setattr("steamzero.adapters.launcher_ui.launch_launcher_ui", forbidden)
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    monkeypatch.delenv("DISPLAY", raising=False)
+    with pytest.raises(SystemExit) as rejected:
+        main(
+            [
+                "--library",
+                str(fixture),
+                "--isolated-library",
+                "--isolated-root",
+                str(tmp_path / "isolated"),
+            ]
+        )
+    assert rejected.value.code == 2
+    assert observed == []
+    assert "WAYLAND_DISPLAY ausente" in capsys.readouterr().err
 
 
 def test_isolated_launcher_refuses_a_root_inside_home_before_creating_it(

@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import Any, cast
 from urllib.parse import parse_qs, urlparse
 
+from jsonschema import ValidationError
+
 from steamzero.adapters.desktop_contracts import handheld_ui_contracts
 from steamzero.adapters.desktop_dashboard import DesktopDashboard
 from steamzero.adapters.desktop_kde import (
@@ -40,6 +42,7 @@ from steamzero.adapters.journey_studio import (
 )
 from steamzero.adapters.steam_session import readiness as session_readiness
 from steamzero.adapters.steam_session import request_target
+from steamzero.adapters.theme_catalog import list_bezel_resources
 from steamzero.core import paths, transaction
 from steamzero.core.errors import SteamZeroError, build_error
 from steamzero.core.state import StateStore
@@ -125,6 +128,7 @@ _JOURNEY_OPERATION_FIELDS: dict[str, tuple[frozenset[str], frozenset[str]]] = {
     "set-group-by": (frozenset({"menuId", "values"}), frozenset()),
     "set-menu-appearance": (frozenset({"menuId", "appearance"}), frozenset()),
     "set-stage-appearance": (frozenset({"stageId", "appearance"}), frozenset()),
+    "set-stage-bezel": (frozenset({"stageId", "bezelResource"}), frozenset()),
 }
 
 
@@ -1113,6 +1117,11 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 self._required_string(payload, "field"),
                 payload.get("value"),
             )
+        if path == "/theme/editor/set-bezel":
+            return self._dashboard().editor_set_bezel(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "source"),
+            )
         if path == "/theme/editor/edit-asset-recipe":
             raw_index = payload.get("index")
             raw_to_index = payload.get("toIndex")
@@ -1249,12 +1258,17 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 if key not in {"sessionId", "expectedGeneration"}
             }
             self._validate_journey_operation(operation, operation_payload)
-            return self._control_server.journey_studio.transact(
-                session_id,
-                operation,
-                operation_payload,
-                expected_generation=generation,
-            )
+            try:
+                return self._control_server.journey_studio.transact(
+                    session_id,
+                    operation,
+                    operation_payload,
+                    expected_generation=generation,
+                )
+            except ValidationError as exc:
+                raise SteamZeroError(
+                    "E-API-SCHEMA", detail="documento da Jornada viola o schema público"
+                ) from exc
         if path == "/journey/studio/save":
             self._require_exact_keys(payload, {"sessionId", "overwrite"})
             overwrite = payload.get("overwrite")
@@ -1828,6 +1842,7 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             "schemaVersion": 1,
             "readModels": read_models,
             "themes": themes,
+            "bezels": list_bezel_resources(),
             "limits": {
                 "maxRecords": MAX_PUBLIC_RECORDS,
                 "previewRows": MAX_PREVIEW_ROWS,
@@ -1898,6 +1913,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             appearance = payload.get("appearance")
             if appearance is not None and not isinstance(appearance, Mapping):
                 raise SteamZeroError("E-API-SCHEMA", detail="appearance precisa ser objeto ou null")
+        if operation == "set-stage-bezel":
+            resource = payload.get("bezelResource")
+            if resource is not None and (
+                not isinstance(resource, str) or not resource or len(resource) > 256
+            ):
+                raise SteamZeroError(
+                    "E-API-SCHEMA", detail="bezelResource precisa ser URI lógico ou null"
+                )
 
     def _issue_bios_source_handles(self) -> dict[str, list[dict[str, str]]]:
         """Publica capabilities efêmeras sem expor a identidade interna da origem."""

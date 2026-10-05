@@ -154,6 +154,12 @@ def test_additive_bezel_slot_inherits_aura_and_filters_untrusted_assets() -> Non
             "label": "AURA",
             "assetUrl": "asset://bezels/aura-bezel.svg",
             "selected": True,
+            "applied": False,
+            "origin": "unknown",
+            "version": "",
+            "license": "",
+            "applyMode": "unavailable",
+            "executionState": "unavailable",
         }
     ]
     assert any(item.code == DIAG_SURFACE_BEZEL for item in resolved.diagnostics)

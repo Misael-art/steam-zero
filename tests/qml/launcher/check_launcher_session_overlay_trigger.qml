@@ -33,6 +33,7 @@ Item {
 
     Component { id: sceneComponent; LauncherMain {} }
     Component { id: overlayComponent; LauncherSessionOverlay {} }
+    Component { id: peripheralsComponent; LauncherSessionPeripherals {} }
     SignalSpy {
         id: actionSpy
         objectName: "sessionOverlayActionSpy"
@@ -141,6 +142,45 @@ Item {
             const gallery = findChild(overlay, "launcherSessionSaveStateGallery")
             verify(gallery !== null)
             compare(gallery.visibleEntries.length, 1)
+        }
+
+        function test_session_bezel_reports_launch_configuration_without_claiming_pixels() {
+            const peripherals = createTemporaryObject(peripheralsComponent, harness,
+                {"width": 1280, "height": 800})
+            verify(peripherals !== null)
+            const resourceId = "asset://bezels/org.test.bezel@1.2.3-" + "a".repeat(64) + ".png"
+            peripherals.setModel({
+                "state": "ready",
+                "selectedBezel": resourceId,
+                "appliedBezel": null,
+                "bezelExecutionState": "launch-configured-unconfirmed",
+                "bezelApplyMode": "next-launch",
+                "bezels": [{
+                    "id": resourceId,
+                    "label": "Bezel de teste",
+                    "assetUrl": resourceId,
+                    "available": true,
+                    "compatible": true,
+                    "selected": true,
+                    "applied": false,
+                    "origin": "custom-theme",
+                    "version": "1.2.3",
+                    "license": "CC-BY-4.0",
+                    "applyMode": "next-launch",
+                    "executionState": "launch-configured-unconfirmed",
+                    "reason": "runtime e pixels ainda não confirmados"
+                }]
+            })
+            peripherals.openSurface()
+            const execution = findChild(peripherals, "sessionBezelExecutionStatus")
+            verify(execution !== null)
+            verify(execution.text.indexOf("ainda não confirmaram") >= 0, execution.text)
+            verify(execution.text.indexOf("próximo launch") >= 0, execution.text)
+            const catalog = findChild(peripherals, "sessionBezelCatalog")
+            verify(catalog !== null)
+            compare(catalog.count, 1)
+            verify(catalog.itemAt(0).text.indexOf("CC-BY-4.0") >= 0)
+            verify(catalog.itemAt(0).text.indexOf("selecionado") >= 0)
         }
 
         function test_exit_requests_confirmation_before_dispatch() {
