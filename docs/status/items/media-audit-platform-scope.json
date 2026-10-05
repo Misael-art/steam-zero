@@ -15,7 +15,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_media_audit_platform_scope.py"
   ],
-  "scopeDigest": "7179e6102a7d5f303c897e3d1f6667b8f3b2dd67b683f5f92913960a95e33597",
+  "scopeDigest": "8c9e438595acf9ec1cf8e8935747da1bf028980db0ae7e38bb86a0a7210199e6",
   "dependsOn": [
     "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE"
   ],
@@ -54,10 +54,16 @@
       "reference": "docs/09-operations/evidence/2026-09-22-media-theme-first-run/README.md",
       "command": "media.audit switch na release instalada: 51 masters, 112 derivados, 56 registros, zero órfãos; 112 PNGs conferidos em 600x900/920x430 sem divergência dimensional.",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Completar o contrato de qualidade: score perceptual e política de melhor candidato por kind, auditoria de hero/logo/icon/screenshot/manual/video e prova física de publicação/rollback Steam; só então promover a auditoria de integridade a qualidade garantida.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-22",
+  "updatedAt": "2026-10-04",
   "notes": "A auditoria por plataforma está integrada e foi executada na release instalada em Switch. Ela prova integridade, dimensões, ausência de órfãos e consistência do registry; não prova que a melhor mídia foi escolhida, nem cobre todos os kinds ou publicação/rollback. Operação permanece degraded até esse contrato de qualidade ser medido."
 }

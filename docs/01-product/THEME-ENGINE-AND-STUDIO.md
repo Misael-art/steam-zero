@@ -517,13 +517,36 @@ No perfil RetroArch Flatpak, a configuração gerenciada aplica o bezel AURA e o
 read model publica as capabilities de pause/resume, save-state, disco e saída
 de acordo com a sessão. Saída exige confirmação e request/session ID; `closing`
 é pendente até o watcher confirmar `closed`. Outros perfis não herdam essas
-capabilities por aparência. Ainda não há operação segura de escolher/aplicar um
-bezel personalizado, nem prova física de gameplay com esse tema. O resultado
-não prova a janela Main instalada, pixels/tempo de uma release ou input físico.
-Capabilities de launch, pause/resume, saves, bezel customizado e exit continuam
-`unknown` quando o adapter da sessão não as publica; a aparência resolvida
-nunca as habilita. O caminho de sessão local acima usa mocks/sessão sintética
-mais os testes do adapter; integração física, input, captura e operação na
-release instalada seguem pendentes.
+capabilities por aparência.
+
+Na continuidade após o PR #250, o Theme Studio aceita um PNG-fonte para o slot
+`bezel`, com validação de conteúdo/dimensões, limite de tamanho e licença do
+manifesto. O rascunho mostra o asset, e undo/redo, save/reopen, export e
+importação pelo instalador preservam os bytes. A Jornada persiste `bezelResource`
+como `aura-default` ou URI lógica `asset://bezels/{theme}@{version}-{sha256}.png`;
+ela não aceita caminho livre, URL remota ou código de tema. O catálogo expõe
+origem, versão, licença, formato e compatibilidade para o RetroArch Flatpak; URI
+ausente, digest/versão obsoletos e formatos incompatíveis têm diagnósticos e
+recuperação selecionando AURA.
+
+Na próxima sessão RetroArch Flatpak, o launcher revalida o URI contra o pacote
+instalado e cria somente seus arquivos de overlay/config dentro da pasta privada
+da sessão. A configuração própria é passada junto à configuração gerenciada de
+controles em um único `--appendconfig`; `config_save_on_exit` fica desativado
+para preservar `retroarch.cfg` de terceiros, e a limpeza ocorre após a saída ser
+observada. A seleção é de próximo lançamento, não troca ao vivo. O read model
+usa `launch-configured-unconfirmed` e nunca afirma `applied=true`: o adapter
+confirma os bytes e a configuração que enviou, não uma leitura do parâmetro
+`input_overlay` pelo RetroArch nem a composição final de pixels.
+
+A saída confirmada enquanto suspenso revalida ID, PID/start ticks e grupo de
+processos; envia TERM seguido de CONT apenas para o grupo próprio validado, sem
+escalar a SIGKILL. `closing` permanece pendente até o watcher observar `closed`.
+No modo isolado, todos os homes XDG continuam privados e o processo QML recebe o
+socket Wayland original absoluto depois de validar o endpoint. Essas provas são
+testes focados do checkout, incluindo processo e socket descartáveis. Qt no
+compositor real, input, aplicação de pixels durante gameplay, release instalada
+e métricas físicas seguem pendentes. AURA UI, Theme Studio, Theme Engine, AURA
+Launcher e capabilities operacionais continuam com estados independentes.
 Theme Studio, Theme Engine, AURA UI, AURA Launcher e os adapters de sessão
 continuam com critérios e provas independentes.

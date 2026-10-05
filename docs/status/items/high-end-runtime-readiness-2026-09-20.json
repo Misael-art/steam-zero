@@ -16,7 +16,7 @@
     "tests/unit/test_emulation_runtime_remediation.py",
     "docs/09-operations/evidence/2026-09-20-high-end-runtime-readiness"
   ],
-  "scopeDigest": "408f9d3bfd181ec2a42d510ae4d33580b53237749aa39ceba6bd0a305cc4d842",
+  "scopeDigest": "c3317a4bac7055187065209bf37ae6ebcc19cc0ad29f00fd8a13bc7658823efc",
   "dependsOn": [
     "SZ-PLATFORM-PS4-CATALOG",
     "SZ-PLATFORM-PS5-CATALOG",
@@ -62,12 +62,18 @@
       "reference": "docs/09-operations/evidence/2026-09-20-high-end-runtime-readiness/README.md",
       "command": "Inspeção read-only de release, componentes, acervo e configuração Flatpak xemu em 2026-09-20",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-HIGH-END-RUNTIME-READINESS"
   ],
   "nextAction": "Aguardar integração das frentes PS4/PS5 e do contrato X68000; com autorização, instalar release governada, importar somente firmware/dumps legais e repetir provas físicas. Enquanto isso, materializar archives pelo job assíncrono e manter Xbox/Xbox 360 em preflight seguro.",
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-10-04",
   "notes": "A ausência de firmware/arquivos de máquina Xbox, SharpEmu no host, conteúdo PS4/PS5 jogável e suporte M3U PX68K não é mascarada como erro genérico. O contrato X68000 pertence a outra frente; o handoff é SOFT-COORDINATION e a execução segura continua nos demais sistemas."
 }

@@ -30,7 +30,7 @@
     "docs/09-operations/evidence/2026-09-20-ps5-dump-identity",
     "docs/09-operations/evidence/2026-09-20-ps5-sharpemu-physical"
   ],
-  "scopeDigest": "32a1dda0a73041fa9b67914d50bf08032145d86abf2e70744e755d38439cb0fd",
+  "scopeDigest": "88496535c2b8c0f7f4182e69f4df60aeeabcaacbc7136eff46c65b4d90db27b6",
   "dependsOn": [
     "SZ-AGG-PLATFORM-MANIFESTS",
     "SZ-COMPONENT-LIFECYCLE",
@@ -186,6 +186,12 @@
       "kind": "design",
       "reference": "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
       "command": "2026-10-04: digest renovado por revisão editorial do roadmap; catálogo e estado de PS5 não foram alterados nem promovidos.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
     }
   ],

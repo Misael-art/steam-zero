@@ -15,7 +15,7 @@
     "tests/unit/test_multidisc_materializer.py",
     "docs/09-operations/evidence/2026-09-20-multidisc-materialization-ingestion"
   ],
-  "scopeDigest": "9e33f361e41589b2dcbd087b27b075d0d1c782720ff4acd6378fa6229a4e7196",
+  "scopeDigest": "5e2d89c3d320fec624a05a2bfa002087fe98c54ca7d05dae39e11e3b8af03641",
   "dependsOn": [
     "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
     "SZ-LIBRARY-CANONICAL"
@@ -57,12 +57,18 @@
       "reference": "tests/unit/test_multidisc_materializer.py",
       "command": "pytest focado de materialização multidisco, archives ZIP/RAR/7z, Zip Slip, ação archive.materialize e refresh do catálogo (10 passed); conjunto integrado de emulação (90 passed)",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-MULTIDISC-MATERIALIZATION-INGESTION"
   ],
   "nextAction": "Promover uma release governada e executar a prova física de materialização, lançamento M3U e retorno; exercitar também archive.materialize para PS4/PS5; manter X68000 em contrato pendente.",
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-10-04",
   "notes": "A playlist Amiga observada no host é preservada como evidência externa desta frente; não será sobrescrita nem usada para alegar gameplay da release ativa. A integração atual expõe archives extract-only como archive-needs-extraction, oferece o job assíncrono archive.materialize com staging/rollback e faz refresh do catálogo após publicação atômica. A suíte integral da integração excedeu o timeout operacional de cinco minutos; os testes focados passaram."
 }

@@ -21,7 +21,7 @@
     "tests/unit/test_emulation_controller.py",
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun"
   ],
-  "scopeDigest": "45afd61540ff85360a6226e999903e8f9942ec1576635bd7e9b265a879f37707",
+  "scopeDigest": "3b562967c3e377e828e7024a53e8cf4a1a292ef1cdbdea5fdefc32e25052a7cd",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-AGG-PLATFORM-MANIFESTS"
@@ -61,10 +61,16 @@
       "reference": "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun/08-deep-functional-ux-audit.md",
       "command": "Suíte integral isolada chegou a 17%, permaneceu sem avanço por 30s e foi interrompida; nenhum processo residual ficou ativo.",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar/instalar release autorizada e provar no host Atari 5200/7800/Lynx/Jaguar e Sega 32X; cobrir adapters de cores ainda ausentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-10-04",
   "notes": "Defeito reproduzido na auditoria: atari-classics agrupava sete systems sob stella, embora o catálogo editorial declare atari800/prosystem/beetle-lynx/virtual-jaguar para parte deles; sega-cd-32x também agrupava Sega CD e 32X sob genesis_plus_gx, embora 32X exija picodrive. systemId já é preservado no cache canônico; falta fazê-lo participar da escolha do core no lançamento. A correção não baixa nem instala cores: quando o core específico não estiver presente, o jogo fica bloqueado com a causa verificável."
 }

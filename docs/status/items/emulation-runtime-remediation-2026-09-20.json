@@ -14,7 +14,7 @@
     "tests/unit/test_emulation_runtime_remediation.py",
     "docs/09-operations/evidence/2026-09-20-emulation-runtime-remediation"
   ],
-  "scopeDigest": "51e42fe5fc39d0fb02306a399d6ed1cb8bb10c39280b231a3c2b851d812af83c",
+  "scopeDigest": "da76398099aaef83bbb4e6574759bc0cdca3ca97ca1967f0e14c607c333fc255",
   "dependsOn": [
     "SZ-EMULATION-REAL-DUMP-VALIDATION",
     "SZ-COMPONENT-LIFECYCLE",
@@ -62,12 +62,18 @@
       "reference": "tests/integration/test_keys_firmware.py",
       "command": "pytest -q",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-EMULATION-RUNTIME-REMEDIATION"
   ],
   "nextAction": "Promover uma release governada para provar PCSX2, materialização archive/multidisco, M3U, save/load e retorno físico; manter firmware e conteúdo proprietário sob confirmação explícita.",
-  "updatedAt": "2026-09-20",
+  "updatedAt": "2026-10-04",
   "notes": "O firmware oficial Sony só pode ser obtido mediante confirmação explícita do operador e verificação; nenhuma instalação de host, download proprietário ou reboot foi executado. A integração de archives mantém a origem intacta, recusa destino sem ownership e atualiza o catálogo somente após publicação atômica."
 }

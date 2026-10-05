@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "2280daa9822fcf274dd4c37e56ca8ee5cdd8847cc83583c1aaa6aba58effd811",
+  "scopeDigest": "197487f2accb2c3003c918ad69c76110e1d97172c54cfe164f12d5ef1a34e416",
   "scopePaths": [
     "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
     "src/steamzero/domain/asset_recipes.py",
@@ -133,7 +133,9 @@
     "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
     "tests/integration/test_experience_journey_bridge_e2e.py",
     "tests/qml/check_experience_journey_bridge_e2e.qml",
-    "tests/unit/test_theme_editor.py"
+    "tests/unit/test_theme_editor.py",
+    "tests/unit/test_themes.py",
+    "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
   "dependsOn": [],
   "knownGaps": [
@@ -591,9 +593,45 @@
       "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
       "command": "2026-10-04: escopo documental alinhado à prova local de consumo no Launcher/Cinema e à distinção entre tema nativo/XML e capability operacional. Nenhum estado físico foi promovido.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "Bateria focal: catálogo valida namespace/versão/licença/formato/tamanho/digest do PNG e recusa recurso ausente ou obsoleto; não mede aplicação visual no RetroArch.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_scene_surfaces.py",
+      "command": "2026-10-04 initial full-suite bezel surface regression: the legacy exact-value assertion did not include the new additive operational fields. The initial full-run failure is retained in docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/01-integral-initial-failed.log. Updated the expected defaults without weakening the unsafe asset filter; the targeted test passed in the five-case focused follow-up. Pixel/application proof remains open.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_scene_surfaces.py",
+      "command": "2026-10-04 focused correction: additive bezel metadata defaults and rejection of an untrusted file:// asset passed in the combined five-case run (1.05 s); no runtime/pixel capability promoted.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: declared paths changed in the current correction cycle. This entry refreshes scope integrity only; it does not rerun this item’s full acceptance criteria or promote an implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only refresh after preserving the corrected integral in 02-integral-final.log (6666 passed, 47 skipped, 0 failed). This records scope integrity only; no acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only revalidation after archiving the initial integral stdout byte-for-byte as gzip and recording its decompressed SHA-256. No acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "O resolver e a UI/bridge executam assetRecipes v2 por tier e breakpoint; os E2E QML de Jornada e Theme Studio passaram 2/2 na imagem visual Qt 6.11.2. Segue checkout/offscreen, sem pixels ou desempenho de release. Enviar o follow-up e os documentos atualizados, conferir CI terminal e continuar handoffs seriais de Launcher/Cinema e capabilities reais de sessão. B_VISUAL, instalação e execução física aguardam candidata e janela SteamZero disponíveis.",
+  "nextAction": "Resolver/catalogo validam o PNG-fonte e URI versionada; o adapter prepara config privada RetroArch Flatpak sem afirmar bezel aplicado. DoD físico, consumo de pixels e métricas de release continuam pendentes.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-04",
   "notes": "Estado permanece parcial, com três capacidades agora provadas fisicamente em releases anteriores; isso não cobre esta branch nem altera distribuição atual. GAP-THEME-ASSET-INVERT-HUE e GAP-THEME-FALLBACK-SIGNAL fechados: invert e hue rotate são aplicados pelo node builtin AssetColorTransform, com variantes pixel-distintas e alpha preservado. DEBT-HOST-INSTALL-DAEMON-RESTART FECHADO em release histórica. GAP-THEME-PERF-BUDGET-UNMEASURED teve sonda e medição de release registradas; FPS apresentado continua fora do critério sem instrumento de compositor. LOD de capas usa teto de decode declarado e evita textura intermediária sem consumidor. Em 2026-10-02, ThemeEditorPanel.qml foi alterado para limitar os Flow ao viewport e os domínios theme_effects/scene_motion ganharam schemas de controles tipados e reordenação de clips para a UI de autoria. Os focados passaram; isso verifica o contrato do Studio. O resolver de cenas, o renderer Engine, a cena ativa instalada e a medição em release não mudaram nem foram promovidos neste lote. O resultado integral de 6557 testes/47 skips pertence ao checkpoint anterior e será reexecutado para esta árvore. Nenhum eixo de Theme Engine foi promovido. O sidecar experience-journey-v1 possui apenas schema e domínio local; ThemeScenePreview, Theme Engine e SceneEsdeView não o consomem. O teste de 11 casos é contrato, não execução do renderizador nem evidência de capability. Em 2026-10-02, a branch de continuidade acrescentou schema v2, serviço transacional local e painel QML de Jornada. Nenhum caminho do resolver ou renderer Engine foi alterado: preview de resultados não é preview de cena e a Engine não recebe esse documento. GAP-EXPERIENCE-JOURNEY-ENGINE-CONSUMPTION segue aberto, sem promoção de capability. Em 2026-10-03, ExperienceJourneyPanel passou a resolver a origem visual da cobertura, carregar/cancelar uma sessão somente leitura pelo Theme Studio e escolher o renderer native ou ES-DE existente; o renderer ES-DE recebe as linhas públicas filtradas. O native sceneLayouts ainda usa o read model sintético do preview do Studio. O harness QML verifica seleção por cobertura, cancelamento e resposta tardia, mas não é bridge de produção. A Jornada salva/reaberta ainda não é consumida pelo runtime da Theme Engine; capability permanece parcial. 2026-10-03: a bridge de Jornada chama Dashboard.editor_preview com preview.items construídos no servidor; o ThemeEditorManager materializa sceneLayouts sobre a mesma consulta do documento reaberto. Tema ausente/incompatível mostra fallback AURA e diagnóstico. Prova loopback sintética, sem pixels/tempo de release, Launcher/Cinema ou sessão real. 2026-10-03: teste da jornada edita maxItems em tema filho de asset-recipes-demo, salva/reabre o tema e confirma a lista limitada no preview native. A cobertura usa sceneSurfaces herdado por extends; 132 testes focados passaram. Prova do checkout, sem promoção física, Launcher/Cinema ou sessão real. 2026-10-03 fechamento local de GAP-EXPERIENCE-JOURNEY-ENGINE-CONSUMPTION: uma Jornada salva/reaberta agora fornece linhas filtradas ao resolver native, e um tema filho editado/salvo/reaberto é executado pelo Theme Engine. Isso não fecha validação física da release nem integração Launcher/sessão. 2026-10-03: assetRecipes schema v2 e seletor de perfil estão ligados ao resolver native; o preview de tema usa o tier/resolução informado, com teste de breakpoint 1920×720 em domínio/bridge. A prova não cobre a cena da release, pixels ou desempenho medido, nem altera o estado de distribuição."

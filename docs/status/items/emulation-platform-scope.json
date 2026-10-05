@@ -13,7 +13,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_emulation_platform_scope.py"
   ],
-  "scopeDigest": "a4c803346dfb76994c6b80376816707f577eef7ab0d40505d1624e6979dab3f5",
+  "scopeDigest": "fe5ddeff4caa5d5aa211709ae55c33583feb5633311bd234d7966f3d5da69b98",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL"
   ],
@@ -58,10 +58,16 @@
       "reference": "tests",
       "command": "TMPDIR=/tmp .venv/bin/python tools/run_tests_isolated.py tests -q; runner permaneceu sem saída em 17% e foi interrompido; nenhum processo ou socket residual",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Validar a experiência na release instalada; a execução física do jogo e a correção QML dos cards Keys/Firmware continuam nas frentes proprietárias.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-03",
+  "updatedAt": "2026-10-04",
   "notes": "A área de emulação do Switch recebia a lista mista retornada pelo cache canônico. Isso fazia Saves e mídia apresentarem jogos de NES/PSP e o botão Atualizar todas varrer o acervo inteiro. A correção mantém Gestão geral/editorial separadas e restringe a área operacional ao contexto da plataforma. Correcao em 2026-09-03: `test_global_media_job_processes_only_switch_games` construia o controlador SEM `secret_store`, caindo no `SecretServiceStore` real, que shela para o `secret-tool` do host. Passava em toda maquina com chaveiro e reprovava no CI nas tres versoes de Python — o job de midia constroi os providers a partir do cofre, a chamada estourava e o job terminava `rolled-back` em vez de `completed`. Reproduzido localmente removendo `secret-tool` do PATH. Conferido que os outros 7 arquivos de teste sem `secret_store` nao alcancam esse caminho (38 passed na mesma condicao)."
 }

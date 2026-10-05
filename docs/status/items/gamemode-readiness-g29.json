@@ -20,7 +20,7 @@
     "tests/unit/test_desktop_dashboard.py",
     "docs/09-operations/evidence/2026-09-22-gamemode-readonly"
   ],
-  "scopeDigest": "a4eb72666b62b0544d3accce2f2c5ee68d24fad868a0f69862b3a528460ef1a4",
+  "scopeDigest": "ce1348941832759375876f0b2ea225ce4c7e430f78e6db49b1ec599f58f61659",
   "dependsOn": [
     "SZ-JOB-RECOVERY-DOCTOR"
   ],
@@ -64,12 +64,18 @@
       "reference": "docs/09-operations/evidence/2026-09-27-shell-esde-dialog/00-preflight.log",
       "command": "2026-09-27 RC-01 (4a fatia, dialogo ES-DE do shell): scopeDigest renovado por mudanca ALHEIA a este item. O escopo deste cartao declara src/steamzero/ui/qml/Main.qml, que a frente RC-01 editou para dar ao dialogo de importacao ES-DE do shell teto de altura, corpo rolavel, rodape fixo de 48 px e navegacao por tecla real (objeto theme-import-esde-dialog). A renovacao e revalidacao de escopo, NAO carimbo: nenhuma evidencia deste item foi reexecutada e nada do que esta pendente aqui mudou de estado. O gate da frente (tests/integration/test_ui_shell_esde_import_dialog.py, 20 passed na arvore da entrega) cobre o dialogo alterado, nao as assercoes deste cartao. A conciliacao do claim de Main.qml, medida e nao presumida, esta no log referenciado. Nada do readiness de GameMode foi tocado.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "HARD-EXTERNAL-SUBITEM: validar daemon, autorização e efeitos em uma sessão real com o operador; sem permissão/convergência não iniciar gamemoded, alterar grupos, governor ou split-lock.",
   "activeWorkstreams": [
     "WS-2026-09-GAMEMODE-READINESS-G29"
   ],
-  "updatedAt": "2026-09-26",
+  "updatedAt": "2026-10-04",
   "notes": "O software está integrado e instalado. A leitura no host encontrou o binário, mas não conseguiu provar daemon, autorização ou efeitos; portanto a capacidade permanece unknown/degraded. Nenhuma mutação administrativa foi executada."
 }

@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "54678b73a5d40ac00f893b2a4b78aa936b3a596d5ce118ecff0cfdebe1d23df0",
+  "scopeDigest": "f82a622fd1445d9269ff2abf4c69c57f15ef61412ff42e8eb3ffbc9065d163cf",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",
@@ -29,7 +29,15 @@
     "tests/unit/test_session_control.py",
     "tests/integration/test_launcher_session_composition.py",
     "docs/09-operations/evidence/2026-09-13-aura-session-composition",
-    "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed"
+    "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed",
+    "src/steamzero/adapters/session_peripherals.py",
+    "src/steamzero/adapters/theme_catalog.py",
+    "src/steamzero/domain/session_peripherals.py",
+    "src/steamzero/ui/qml/launcher/LauncherSessionPeripherals.qml",
+    "tests/unit/test_emulation_controller.py",
+    "tests/unit/test_session_peripherals.py",
+    "tests/qml/launcher/check_launcher_session_overlay_trigger.qml",
+    "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
   "dependsOn": [
     "SZ-AURA-CONTRACTS",
@@ -37,7 +45,9 @@
   ],
   "knownGaps": [
     "GAP-PS4-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
-    "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+    "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+    "GAP-AURA-SESSION-PAUSED-EXIT-PHYSICAL",
+    "GAP-AURA-LAUNCHER-CUSTOM-BEZEL-EXECUTION"
   ],
   "acceptanceCriteria": [
     "O contrato publica somente ações semânticas allowlisted e capacidades declaradas pelo adapter.",
@@ -112,9 +122,51 @@
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04 [mypy-fix scope reconciliation]: o código tipado da Jornada e as reproduções pós-integral constam no README. Digest renovado para o conteúdo atual; nenhuma capacidade física/release foi promovida.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 baseline em 5e94e508: processo filho próprio permaneceu suspenso após saída confirmada e repetida; prova bruta preservada no README.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "Pós-correção: teste de SessionControlOwner com processo real descartável e bateria focal da sessão passaram; TERM/CONT só após validar PID/start ticks/grupo, closing aguarda observer.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "Bateria focal exercitou config de bezel custom em raiz privada, config_save_on_exit=false, preservação de retroarch.cfg e limpeza idempotente; configuração de launch não confirma pixels.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 initial isolated full suite: 6661 passed, 47 skipped, 4 failed in 2353.67 s; the failures and focused corrections are itemized in the evidence README. The real state-home delta was attributed to the pre-existing steamzero-core daemon, so attribution is degraded; the service was not stopped. No physical/release axis promoted; corrected integral remains pending.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: declared paths changed in the current correction cycle. This entry refreshes scope integrity only; it does not rerun this item’s full acceptance criteria or promote an implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only refresh after preserving the corrected integral in 02-integral-final.log (6666 passed, 47 skipped, 0 failed). This records scope integrity only; no acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only revalidation after archiving the initial integral stdout byte-for-byte as gzip and recording its decompressed SHA-256. No acceptance criteria were rerun for this refresh and no maturity axis was promoted.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Preservar a galeria e as ações sem adapter como indisponíveis; fechar a prova de troca de disco somente com jogo multi-disc legítimo pelo Launcher instalado.",
+  "nextAction": "Exit confirmado durante pausa agora destrava somente o grupo validado e espera closed observado; bezel custom escreve config privada apenas para próximo launch. Manter gaps de gameplay/pixels e exit físico até B_VISUAL autorizado.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-04",
   "notes": "A10 da execução AURA. O contrato semântico continua impedindo que o tema invente pausa, volume ou saves. A release 2.0.0rc1-3acc2104dd5a adiciona prova física do OSD e da galeria de saves pelo Launcher instalado sobre jogo real; ações sem adapter permanecem visíveis e desabilitadas. Troca de disco segue dependente de um jogo multi-disc legítimo."

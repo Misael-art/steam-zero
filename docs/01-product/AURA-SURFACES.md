@@ -63,12 +63,27 @@ separadamente.
 O perfil de sessão suportado nesta fatia é RetroArch Flatpak: seu adapter
 publica pause/resume, save-state, disco e saída conforme a sessão observada;
 operações não suportadas continuam indisponíveis com a razão. O bezel AURA
-gerenciado é aplicado na configuração de sessão do RetroArch. Escolha de bezel
-personalizado ainda não é aplicada por adapter ou renderer de gameplay; declarar
-a fonte `session.peripherals.bezels` não prova essa operação. Input físico,
-comportamento na release instalada e o ciclo completo do Launcher/Cinema seguem
-sem verificação. Testes de checkout não promovem capacidades a `installed` ou
-`certified`.
+gerenciado continua como fallback. O Theme Studio agora aceita um PNG-fonte
+validado no slot `bezel`; a Jornada guarda a seleção como URI lógica com tema,
+versão e digest. Catálogo, resolver e Launcher encaminham essa seleção para o
+adapter RetroArch Flatpak, que escreve overlay/configuração privada da sessão
+para o próximo launch e a remove depois de observar a saída. O read model declara
+`launch-configured-unconfirmed`: isso confirma o envio da configuração gerida,
+não que o RetroArch carregou o overlay nem que os pixels apareceram durante o
+jogo. A UI informa que a seleção vale no próximo lançamento. Outros adapters
+permanecem indisponíveis com motivo. Input físico, a janela Qt no Wayland real,
+aplicação visual durante gameplay, comportamento na release instalada e o ciclo
+completo do Launcher/Cinema seguem sem verificação; testes de checkout não
+promovem capacidades a `installed` ou `certified`.
+
+Na continuidade após o PR #250, a saída confirmada de uma sessão suspensa envia
+TERM e, somente após validar ID da sessão, PID/start ticks e grupo/sessão de
+processos próprios, CONT para permitir que o Linux trate a saída pendente. O
+registro permanece `closing` até o observador confirmar o encerramento; não há
+SIGKILL nem sucesso publicado artificialmente. No Launcher isolado, os homes
+XDG continuam privados enquanto `WAYLAND_DISPLAY` é validado e entregue como
+socket absoluto do compositor ao processo QML. Os testes usam processo
+descartável e socket UNIX de fixture; não abrem uma janela Qt no compositor real.
 
 ## Linguagem permitida em reportes
 

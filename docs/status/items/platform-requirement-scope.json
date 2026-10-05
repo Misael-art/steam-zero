@@ -18,7 +18,7 @@
     "src/steamzero/schemas/platform-manifest-v1.schema.json",
     "tests/unit/test_platform_requirements.py"
   ],
-  "scopeDigest": "a4e91d35079d3340a90ce5c109b737433376c0cd0fb3468c7b8634aa5e4dbbd2",
+  "scopeDigest": "d0a13620938c19aac5e89ddc6902052794bce3967ff808ab023099df6580edc2",
   "dependsOn": [
     "SZ-AGG-PLATFORM-MANIFESTS"
   ],
@@ -51,10 +51,16 @@
       "reference": "tests",
       "command": "TMPDIR=/tmp .venv/bin/python tools/run_tests_isolated.py tests -q; runner chegou a 17%, ficou sem saída por 30s e foi interrompido com código 130; sem processos pytest/run_tests_isolated residuais",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
+      "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a remoção visual de cards não aplicáveis no QML compartilhado e ligar o store de firmware PS3.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-10-04",
   "notes": "Recorte funcional do agregador de manifests. O campo declarativo é opcional para preservar manifests antigos; Switch declara keys+firmware e PS3 declara firmware. O read model não publica esses requisitos em NES e demais plataformas sem declaração. Não promete ainda a verificação física do firmware PS3 nem adiciona o manifesto PS Vita; ambos permanecem lacunas explícitas."
 }
