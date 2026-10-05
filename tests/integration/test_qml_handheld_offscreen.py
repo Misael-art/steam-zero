@@ -4,13 +4,18 @@
 from __future__ import annotations
 
 import functools
+import http.client
 import json
 import os
 import shutil
+import socket
 import subprocess
 import tempfile
 import threading
 import time
+import uuid
+from contextlib import ExitStack
+from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from pathlib import Path
 
@@ -20,6 +25,15 @@ from steamzero.adapters.desktop_contracts import handheld_ui_contracts
 
 QML = shutil.which("qml6")
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@dataclass(frozen=True)
+class _CentralLoadingRun:
+    returncode: int
+    stdout: str
+    stderr: str
+    timed_out: bool = False
+
 
 #: Ambiente visual ausente. Não é motivo para verde.
 #:
@@ -101,7 +115,14 @@ def _qml_decodes_svg() -> bool:
     return completed.returncode == 0
 
 
-def _assert_qml_clean(completed: subprocess.CompletedProcess[str], label: str) -> None:
+def _assert_qml_clean(
+    completed: subprocess.CompletedProcess[str] | _CentralLoadingRun, label: str
+) -> None:
+    if getattr(completed, "timed_out", False):
+        raise AssertionError(
+            f"{label} excedeu o prazo do subprocesso QML\n"
+            f"stdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
+        )
     diagnostics = (
         "Binding loop",
         "Unable to assign",
@@ -484,13 +505,6 @@ def test_controls_profile_card_never_shows_green_without_proof() -> None:
     _assert_qml_clean(completed, "check_controls_profile_card.qml")
 
 
-#: Contagem de GET /status servidos pela ponte de cena da RC-01. O servidor é de
-#: sessão (porta estável), então o estado da sequência vive aqui e é zerado pelo
-#: fixture de teste.
-_CENTRAL_LOADING_CALLS: list[str] = []
-_CENTRAL_LOADING_LOCK = threading.Lock()
-
-
 def _central_loading_status() -> dict[str, object]:
     """Um /status mínimo, mas com a forma que o `Main.qml` consome.
 
@@ -578,24 +592,159 @@ def _central_loading_status() -> dict[str, object]:
     }
 
 
+_CENTRAL_LOADING_BARRIER_SECONDS = 10.0
+
+
+@dataclass
+class _CentralLoadingTrace:
+    """Per-server request timeline; payloads and authorization values are omitted."""
+
+    instance_id: str
+    port: int
+    hold_first_response: bool
+    lock: threading.Lock
+    release_first_response: threading.Event
+    first_response_waiting: threading.Event
+    events: list[dict[str, object]]
+    request_sequence: int = 0
+    status_sequence: int = 0
+    barrier_release_source: str | None = None
+    barrier_release_monotonic_ns: int | None = None
+
+    def begin(self, method: str, path: str, peer: str) -> dict[str, object]:
+        with self.lock:
+            self.request_sequence += 1
+            status_sequence: int | None = None
+            if method == "GET" and path == "/status":
+                self.status_sequence += 1
+                status_sequence = self.status_sequence
+            event: dict[str, object] = {
+                "instanceId": self.instance_id,
+                "port": self.port,
+                "requestSequence": self.request_sequence,
+                "statusSequence": status_sequence,
+                "peer": peer,
+                "method": method,
+                "path": path,
+                "receiptMonotonicNs": time.monotonic_ns(),
+                "responseStatus": None,
+                "responseStartMonotonicNs": None,
+                "responseEndMonotonicNs": None,
+                "barrierWaitStartMonotonicNs": None,
+                "barrierReleaseMonotonicNs": None,
+                "barrierReleaseSource": None,
+                "barrierOutcome": "not-applicable",
+                "transportErrorMonotonicNs": None,
+                "transportError": None,
+            }
+            self.events.append(event)
+            return event
+
+    def release_barrier(self, source: str) -> None:
+        with self.lock:
+            if self.barrier_release_source is None:
+                self.barrier_release_source = source
+                self.barrier_release_monotonic_ns = time.monotonic_ns()
+                self.release_first_response.set()
+
+    def mark_barrier(self, event: dict[str, object], released: bool) -> None:
+        with self.lock:
+            event["barrierOutcome"] = "released" if released else "deadline-exceeded"
+            event["barrierReleaseSource"] = self.barrier_release_source if released else None
+            event["barrierReleaseMonotonicNs"] = (
+                self.barrier_release_monotonic_ns if released else time.monotonic_ns()
+            )
+
+    def response_started(self, event: dict[str, object], status: int) -> None:
+        with self.lock:
+            event["responseStatus"] = status
+            event["responseStartMonotonicNs"] = time.monotonic_ns()
+
+    def response_finished(self, event: dict[str, object], error: OSError | None) -> None:
+        with self.lock:
+            event["responseEndMonotonicNs"] = time.monotonic_ns()
+            if error is not None:
+                event["transportErrorMonotonicNs"] = time.monotonic_ns()
+                event["transportError"] = {
+                    "type": type(error).__name__,
+                    "message": str(error),
+                }
+
+    def snapshot(self) -> list[dict[str, object]]:
+        with self.lock:
+            return [dict(event) for event in self.events]
+
+    @property
+    def status_count(self) -> int:
+        with self.lock:
+            return self.status_sequence
+
+
+class _OwnedThreadingHTTPServer(ThreadingHTTPServer):
+    """Threading bridge that owns and joins every request-handler thread."""
+
+    daemon_threads = False
+    block_on_close = True
+
+    def __init__(self, server_address: tuple[str, int], handler: type[BaseHTTPRequestHandler]):
+        self._active_handler_lock = threading.Lock()
+        self._active_handlers: set[threading.Thread] = set()
+        super().__init__(server_address, handler)
+
+    def process_request_thread(
+        self, request: socket.socket, client_address: tuple[str, int]
+    ) -> None:
+        thread = threading.current_thread()
+        with self._active_handler_lock:
+            self._active_handlers.add(thread)
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            with self._active_handler_lock:
+                self._active_handlers.discard(thread)
+
+    @property
+    def active_handler_count(self) -> int:
+        with self._active_handler_lock:
+            return len(self._active_handlers)
+
+
 class _CentralLoadingHandler(BaseHTTPRequestHandler):
-    """Ponte de cena da RC-01: leitura boa, renovação que falha, recuperação.
+    """Controlled RC-01 bridge with per-instance accounting and timed responses."""
 
-    A primeira resposta é atrasada de propósito. Sem atraso o `Main.qml` já
-    estaria em `ready` quando o harness olhasse, e o guard de sobreposição e a
-    fase `loading` seriam declarados verdes sem nunca terem sido observados.
-    """
-
-    first_response_delay_seconds = 0.5
+    def _trace(self) -> _CentralLoadingTrace:
+        return self.server.central_loading_trace  # type: ignore[attr-defined, no-any-return]
 
     def do_GET(self) -> None:
-        if self.path.split("?")[0] != "/status":
-            self._send(404, "rota fora da cena")
+        path = self.path.split("?", maxsplit=1)[0]
+        trace = self._trace()
+        event = trace.begin(
+            self.command, path, f"{self.client_address[0]}:{self.client_address[1]}"
+        )
+
+        if path == "/_test/ready":
+            self._send(204, "", event)
             return
-        with _CENTRAL_LOADING_LOCK:
-            _CENTRAL_LOADING_CALLS.append(self.path)
-            call_number = len(_CENTRAL_LOADING_CALLS)
-        if call_number == 2:
+        if path == "/_test/release-first":
+            trace.release_barrier("qml-harness")
+            self._send(204, "", event)
+            return
+        if path != "/status":
+            self._send(404, "rota fora da cena", event)
+            return
+
+        status_sequence = int(event["statusSequence"])
+        if status_sequence == 1 and trace.hold_first_response:
+            with trace.lock:
+                event["barrierWaitStartMonotonicNs"] = time.monotonic_ns()
+            trace.first_response_waiting.set()
+            released = trace.release_first_response.wait(_CENTRAL_LOADING_BARRIER_SECONDS)
+            trace.mark_barrier(event, released)
+            if not released:
+                self._send(504, "barreira de status inicial excedeu o prazo", event)
+                return
+
+        if status_sequence == 2:
             self._send(
                 500,
                 json.dumps(
@@ -613,21 +762,319 @@ class _CentralLoadingHandler(BaseHTTPRequestHandler):
                         }
                     }
                 ),
+                event,
             )
             return
-        if call_number == 1:
-            time.sleep(self.first_response_delay_seconds)
-        self._send(200, json.dumps(_central_loading_status()))
+        self._send(200, json.dumps(_central_loading_status()), event)
 
-    def _send(self, code: int, body: str) -> None:
+    def _send(self, code: int, body: str, event: dict[str, object]) -> None:
         payload = body.encode("utf-8")
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(payload)
+        trace = self._trace()
+        trace.response_started(event, code)
+        error: OSError | None = None
+        try:
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            self.wfile.flush()
+        except OSError as exc:
+            error = exc
+        finally:
+            trace.response_finished(event, error)
 
     def log_message(self, fmt: str, *args: object) -> None:
         pass
+
+
+@dataclass
+class _CentralLoadingBridge:
+    server: _OwnedThreadingHTTPServer
+    thread: threading.Thread
+    trace: _CentralLoadingTrace
+    port: int
+    closed: bool = False
+
+    def __enter__(self) -> _CentralLoadingBridge:
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
+        self.close()
+
+    def close(self) -> None:
+        if self.closed:
+            return
+        # A timed-out/failing QML process must not strand a handler on its gate.
+        self.trace.release_barrier("bridge-close")
+        try:
+            try:
+                self.server.shutdown()
+            finally:
+                self.server.server_close()
+        finally:
+            self.thread.join(timeout=5.0)
+            self.closed = not self.thread.is_alive() and self.server.fileno() == -1
+        if self.thread.is_alive():
+            raise AssertionError(f"ponte {self.trace.instance_id} deixou serve_forever vivo")
+        if self.server.active_handler_count:
+            raise AssertionError(
+                f"ponte {self.trace.instance_id} deixou "
+                f"{self.server.active_handler_count} handler(s) vivo(s)"
+            )
+        if self.server.fileno() != -1:
+            raise AssertionError(f"socket da ponte {self.trace.instance_id} não foi fechado")
+
+
+def _central_loading_http_get(bridge: _CentralLoadingBridge, path: str) -> int:
+    connection = http.client.HTTPConnection("127.0.0.1", bridge.port, timeout=5.0)
+    try:
+        connection.request("GET", path)
+        response = connection.getresponse()
+        response.read()
+        return response.status
+    finally:
+        connection.close()
+
+
+def _start_central_loading_bridge(*, hold_first_response: bool = True) -> _CentralLoadingBridge:
+    host = "127.0.0.1"
+    instance_id = uuid.uuid4().hex[:12]
+    server = _OwnedThreadingHTTPServer((host, 0), _CentralLoadingHandler)
+    port = int(server.server_address[1])
+    trace = _CentralLoadingTrace(
+        instance_id=instance_id,
+        port=port,
+        hold_first_response=hold_first_response,
+        lock=threading.Lock(),
+        release_first_response=threading.Event(),
+        first_response_waiting=threading.Event(),
+        events=[],
+    )
+    if not hold_first_response:
+        trace.release_barrier("test-no-barrier")
+    server.central_loading_trace = trace  # type: ignore[attr-defined]
+    thread = threading.Thread(
+        target=server.serve_forever,
+        name=f"steamzero-central-loading-{instance_id}",
+        daemon=False,
+    )
+    try:
+        thread.start()
+    except BaseException:
+        server.server_close()
+        raise
+    bridge = _CentralLoadingBridge(server=server, thread=thread, trace=trace, port=port)
+    try:
+        ready_status = _central_loading_http_get(bridge, "/_test/ready")
+        if ready_status != 204:
+            raise RuntimeError(f"ponte {instance_id} respondeu readiness HTTP {ready_status}")
+    except BaseException:
+        bridge.close()
+        raise
+    return bridge
+
+
+def _central_loading_qml_trace(
+    completed: _CentralLoadingRun,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    events: list[dict[str, object]] = []
+    parse_errors: list[dict[str, object]] = []
+    marker = "CENTRAL-TRACE "
+    for stream_name, stream in (("stdout", completed.stdout), ("stderr", completed.stderr)):
+        for line_number, line in enumerate(stream.splitlines(), start=1):
+            if marker not in line:
+                continue
+            raw_event = line.split(marker, maxsplit=1)[1]
+            try:
+                event = json.loads(raw_event)
+            except json.JSONDecodeError as exc:
+                parse_errors.append(
+                    {
+                        "stream": stream_name,
+                        "line": line_number,
+                        "error": str(exc),
+                        "raw": raw_event,
+                    }
+                )
+                continue
+            if not isinstance(event, dict):
+                parse_errors.append(
+                    {
+                        "stream": stream_name,
+                        "line": line_number,
+                        "error": "QML trace event is not a JSON object",
+                        "raw": raw_event,
+                    }
+                )
+                continue
+            events.append({"stream": stream_name, "line": line_number, **event})
+    return events, parse_errors
+
+
+def _assert_central_loading_run(
+    bridge: _CentralLoadingBridge,
+    completed: _CentralLoadingRun,
+    *,
+    expected_status_reads: int,
+    label: str,
+) -> None:
+    failures: list[str] = []
+    # Always validate the child process first; retain its complete output if any
+    # later bridge assertion also fails.
+    try:
+        _assert_qml_clean(completed, label)
+    except AssertionError as exc:
+        failures.append(f"QML: {exc}")
+
+    events = bridge.trace.snapshot()
+    status_events = [
+        event for event in events if event["method"] == "GET" and event["path"] == "/status"
+    ]
+    if len(status_events) != expected_status_reads:
+        failures.append(
+            f"a ponte {bridge.trace.instance_id} esperava {expected_status_reads} GET /status, "
+            f"recebeu {len(status_events)}"
+        )
+    transport_errors = [event for event in events if event["transportError"] is not None]
+    if transport_errors:
+        failures.append(f"respostas HTTP com erro de transporte: {transport_errors!r}")
+    qml_trace, qml_trace_parse_errors = _central_loading_qml_trace(completed)
+    logical_attempts = [
+        int(event["statusAttempt"])
+        for event in qml_trace
+        if isinstance(event.get("statusAttempt"), int)
+    ]
+    diagnostic = {
+        "bridgeInstance": bridge.trace.instance_id,
+        "port": bridge.port,
+        "closed": bridge.closed,
+        "serveThreadAlive": bridge.thread.is_alive(),
+        "activeHandlers": bridge.server.active_handler_count,
+        "listeningSocketFd": bridge.server.fileno(),
+        "expectedStatusReads": expected_status_reads,
+        "actualStatusReads": len(status_events),
+        "statusEvents": status_events,
+        "allHttpEvents": events,
+        "qmlTraceEvents": qml_trace,
+        "qmlTraceParseErrors": qml_trace_parse_errors,
+        "qmlLogicalAttemptMax": max(logical_attempts, default=0),
+        "qmlReturnCode": completed.returncode,
+        "qmlTimedOut": completed.timed_out,
+        "qmlStdout": completed.stdout,
+        "qmlStderr": completed.stderr,
+    }
+    assert not failures, "\n".join(
+        [
+            *failures,
+            "central-loading diagnostic:",
+            json.dumps(diagnostic, ensure_ascii=False, indent=2),
+        ]
+    )
+
+
+@pytest.mark.visual
+def test_central_loading_bridges_isolate_sequences_and_close_owned_resources() -> None:
+    with ExitStack() as stack:
+        bridge_a = stack.enter_context(_start_central_loading_bridge(hold_first_response=False))
+        bridge_b = stack.enter_context(_start_central_loading_bridge(hold_first_response=False))
+        a_first = _central_loading_http_get(bridge_a, "/status")
+        b_first = _central_loading_http_get(bridge_b, "/status")
+        a_second = _central_loading_http_get(bridge_a, "/status")
+        b_count_after_a = bridge_b.trace.status_count
+        b_second = _central_loading_http_get(bridge_b, "/status")
+
+    a_status_events = [event for event in bridge_a.trace.snapshot() if event["path"] == "/status"]
+    b_status_events = [event for event in bridge_b.trace.snapshot() if event["path"] == "/status"]
+    assert (a_first, b_first, a_second, b_second) == (200, 200, 500, 500)
+    assert b_count_after_a == 1, "uma leitura no servidor A renumerou o servidor B"
+    assert [event["statusSequence"] for event in a_status_events] == [1, 2]
+    assert [event["statusSequence"] for event in b_status_events] == [1, 2]
+    assert bridge_a.trace.instance_id != bridge_b.trace.instance_id
+    assert bridge_a.port != bridge_b.port
+    assert bridge_a.closed and bridge_b.closed
+    assert not bridge_a.thread.is_alive() and not bridge_b.thread.is_alive()
+    assert bridge_a.server.active_handler_count == bridge_b.server.active_handler_count == 0
+    assert bridge_a.server.fileno() == bridge_b.server.fileno() == -1
+
+
+@pytest.mark.visual
+@pytest.mark.parametrize("exit_mode", ("failure", "timeout"))
+def test_central_loading_bridge_closes_held_request_after_failure_or_timeout(
+    monkeypatch: pytest.MonkeyPatch, exit_mode: str
+) -> None:
+    bridge = _start_central_loading_bridge()
+    response_statuses: list[int] = []
+    request_errors: list[Exception] = []
+
+    def held_status_request() -> None:
+        try:
+            response_statuses.append(_central_loading_http_get(bridge, "/status"))
+        except Exception as exc:  # Preserve worker failures for the assertion.
+            request_errors.append(exc)
+
+    client_thread = threading.Thread(
+        target=held_status_request,
+        name=f"steamzero-central-loading-client-{bridge.trace.instance_id}",
+        daemon=False,
+    )
+
+    def enter_scenario() -> None:
+        client_thread.start()
+        assert bridge.trace.first_response_waiting.wait(timeout=5.0), (
+            f"ponte {bridge.trace.instance_id} não observou a primeira resposta bloqueada"
+        )
+
+    if exit_mode == "failure":
+        with bridge, pytest.raises(RuntimeError, match="falha controlada do harness"):
+            enter_scenario()
+            raise RuntimeError("falha controlada do harness")
+    else:
+        with bridge:
+            enter_scenario()
+
+            def timeout_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+                raise subprocess.TimeoutExpired(
+                    "qml6",
+                    timeout=30,
+                    output=(
+                        b'CENTRAL-TRACE {"sequence":42,"event":"simulated",'
+                        b'"statusAttempt":5}\ntrace QML parcial'
+                    ),
+                    stderr=b"aviso QML parcial",
+                )
+
+            monkeypatch.setattr(subprocess, "run", timeout_run)
+            completed = _run_central_loading_harness(bridge)
+            assert completed.timed_out is True
+            assert "trace QML parcial" in completed.stdout
+            assert "aviso QML parcial" in completed.stderr
+            with pytest.raises(AssertionError) as failure:
+                _assert_central_loading_run(
+                    bridge,
+                    completed,
+                    expected_status_reads=1,
+                    label="timeout injetado",
+                )
+            assert "trace QML parcial" in str(failure.value)
+            assert "aviso QML parcial" in str(failure.value)
+            assert '"qmlLogicalAttemptMax": 5' in str(failure.value)
+
+    client_thread.join(timeout=5.0)
+    assert not client_thread.is_alive(), "o cliente do pedido bloqueado não foi encerrado"
+    assert not request_errors, f"o cliente do pedido bloqueado falhou: {request_errors!r}"
+    assert response_statuses == [200]
+    assert bridge.closed
+    assert not bridge.thread.is_alive()
+    assert bridge.server.active_handler_count == 0
+    assert bridge.server.fileno() == -1
+    first_status = next(
+        event
+        for event in bridge.trace.snapshot()
+        if event["method"] == "GET" and event["path"] == "/status"
+    )
+    assert first_status["barrierReleaseSource"] == "bridge-close"
+    assert first_status["transportError"] is None
 
 
 @pytest.mark.visual
@@ -649,45 +1096,72 @@ def test_central_loading_phases_are_observable_offscreen() -> None:
             "da Central não podem ser verificadas sem runtime QML, e declarar "
             "verde sem renderizar é o defeito que a RC-01 combate."
         )
-    port = _start_central_loading_bridge()
-    completed = _run_central_loading_harness(port)
-    with _CENTRAL_LOADING_LOCK:
-        served = len(_CENTRAL_LOADING_CALLS)
-    # 1 leitura atrasada, 2 renovação recusada, 3 retry que recupera, 4+5 a
-    # sondagem do guarda de sobreposição no fim da cena (uma emissão + a
-    # relênia coerçada). Mudou de 3 para 5 quando o descarte virou coerção.
-    assert served == 5, f"a cena esperava cinco GET /status, a ponte serviu {served}"
-    _assert_qml_clean(completed, "ponte de cena da RC-01")
+    bridge = _start_central_loading_bridge()
+    with bridge:
+        completed = _run_central_loading_harness(bridge)
+    # Inicial, renovação recusada, retry, leitura durante a sondagem e drenagem
+    # da única relênia coerçada. O helper reúne essa contagem com o veredito e a
+    # saída integral do processo QML antes de reprovar qualquer divergência.
+    _assert_central_loading_run(
+        bridge,
+        completed,
+        expected_status_reads=5,
+        label="ponte de cena da RC-01",
+    )
 
 
-def _run_central_loading_harness(port: int, *extra: str) -> subprocess.CompletedProcess[str]:
+def _run_central_loading_harness(bridge: _CentralLoadingBridge, *extra: str) -> _CentralLoadingRun:
     """Roda o harness da RC-01 contra a ponte de cena na porta dada.
 
     O `--` é obrigatório: sem ele o `qml6` trata cada argumento como outro
     arquivo de componente e gasta um load falho por parâmetro.
     """
-    return subprocess.run(
-        [
-            str(QML),
-            "tests/qml/check_central_loading.qml",
-            "--",
-            "--steamzero-api",
-            f"http://127.0.0.1:{port}",
-            "--steamzero-token",
-            "cena-rc01",
-            *extra,
-        ],
-        cwd=ROOT,
-        env=_qml_environment(),
-        capture_output=True,
-        text=True,
-        timeout=30,
-        check=False,
+    command = [
+        str(QML),
+        "tests/qml/check_central_loading.qml",
+        "--",
+        "--steamzero-api",
+        f"http://127.0.0.1:{bridge.port}",
+        "--steamzero-token",
+        "cena-rc01",
+        *extra,
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=ROOT,
+            env=_qml_environment(),
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        stdout = (
+            exc.stdout.decode("utf-8", errors="replace")
+            if isinstance(exc.stdout, bytes)
+            else exc.stdout or ""
+        )
+        stderr = (
+            exc.stderr.decode("utf-8", errors="replace")
+            if isinstance(exc.stderr, bytes)
+            else exc.stderr or ""
+        )
+        return _CentralLoadingRun(
+            returncode=124,
+            stdout=stdout,
+            stderr=f"qml6 timeout after 30 seconds\n{stderr}",
+            timed_out=True,
+        )
+    return _CentralLoadingRun(
+        returncode=completed.returncode,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
     )
 
 
 @pytest.mark.visual
-@pytest.mark.parametrize("phase", ("loading", "stale"))
+@pytest.mark.parametrize("phase", ("loading", "stale", "ready"))
 def test_central_loading_frames_are_capturable(tmp_path: Path, phase: str) -> None:
     """RC-01 — o quadro que as asserções descrevem pode virar evidência.
 
@@ -698,12 +1172,19 @@ def test_central_loading_frames_are_capturable(tmp_path: Path, phase: str) -> No
     if QML is None:
         pytest.fail(f"{DIAG_VISUAL_ENVIRONMENT}: qml6 ausente; nenhum frame é gravável")
     output = tmp_path / f"central-{phase}.png"
-    completed = _run_central_loading_harness(
-        _start_central_loading_bridge(),
-        f"--capture-phase={phase}",
-        f"--capture-output={output}",
+    bridge = _start_central_loading_bridge()
+    with bridge:
+        completed = _run_central_loading_harness(
+            bridge,
+            f"--capture-phase={phase}",
+            f"--capture-output={output}",
+        )
+    _assert_central_loading_run(
+        bridge,
+        completed,
+        expected_status_reads=5,
+        label=f"captura {phase} da Central",
     )
-    _assert_qml_clean(completed, f"captura {phase} da Central")
     assert output.is_file() and output.stat().st_size > 0, (
         f"harness pediu o quadro `{phase}` e nenhuma imagem foi gravada em {output}"
     )
@@ -718,23 +1199,6 @@ def test_central_loading_frames_are_capturable(tmp_path: Path, phase: str) -> No
     colors = image.convert("RGB").getcolors(maxcolors=1_000_000)
     distinct = len(colors) if colors is not None else 1_000_000
     assert distinct > 8, f"o quadro `{phase}` tem {distinct} cores: não mostra a cena aferida"
-
-
-def _start_central_loading_bridge() -> int:
-    """Sobe uma ponte por teste: a sequência de respostas é por instância."""
-    host = "127.0.0.1"
-    for port in range(43000, 44000):
-        try:
-            server = HTTPServer((host, port), _CentralLoadingHandler)
-        except OSError:
-            continue
-        # A sequência é contada por módulo, não por servidor: sem este reset,
-        # um segundo teste veria "4a chamada" e a cena mudaria de significado.
-        with _CENTRAL_LOADING_LOCK:
-            del _CENTRAL_LOADING_CALLS[:]
-        threading.Thread(target=server.serve_forever, daemon=True).start()
-        return port
-    raise RuntimeError("nenhuma porta livre para a ponte de cena da RC-01")
 
 
 #: Cena RC-01 (UX-02, governança de estado): a re-consulta provocada por uma
