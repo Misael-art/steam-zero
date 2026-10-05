@@ -26,7 +26,7 @@ Rectangle {
     property int requestGeneration: 0
     property var journeyList: []
     property string activeJourneyId: ""
-    property var catalog: ({readModels: [], themes: []})
+    property var catalog: ({readModels: [], themes: [], bezels: []})
     property var session: null
     property string selectedMenuId: ""
     property string selectedTab: "menus"
@@ -114,6 +114,40 @@ Rectangle {
         {id: "error", label: qsTr("Erro")},
         {id: "offline", label: qsTr("Offline")}
     ]
+    readonly property var bezelChoices: {
+        const published = Array.isArray(catalog.bezels) ? catalog.bezels : []
+        const choices = [{
+            resourceId: "",
+            label: qsTr("AURA · herdar nesta etapa"),
+            available: true,
+            compatible: true,
+            origin: "aura",
+            version: "",
+            license: ""
+        }]
+        published.forEach(function(item) {
+            if (item && item.available === true && item.compatible === true) {
+                choices.push({
+                    resourceId: String(item.resourceId || item.id || ""),
+                    label: String(item.label || qsTr("Bezel sem nome"))
+                        + (item.version ? " · " + String(item.version) : "")
+                        + (item.license ? " · " + String(item.license) : ""),
+                    available: true,
+                    compatible: true,
+                    origin: String(item.origin || "unknown"),
+                    version: String(item.version || ""),
+                    license: String(item.license || "")
+                })
+            }
+        })
+        return choices
+    }
+    readonly property var unavailableBezels: {
+        const published = Array.isArray(catalog.bezels) ? catalog.bezels : []
+        return published.filter(function(item) {
+            return !item || item.available !== true || item.compatible !== true
+        })
+    }
 
     color: panel.backgroundColor
 
@@ -741,6 +775,51 @@ Rectangle {
         const appearance = selectedThemeId
             ? {mode: "custom", themeId: selectedThemeId} : {mode: "inherit-aura"}
         transact("set-stage-appearance", {stageId: stageId, appearance: appearance})
+    }
+
+    function stageBezelResource() {
+        const stages = journeyDocument.sessionStages || []
+        for (let i = 0; i < stages.length; ++i) {
+            if (stages[i].stageId === "bezel")
+                return String(stages[i].bezelResource || "")
+        }
+        return ""
+    }
+
+    function stageBezelChoiceIndex() {
+        const selected = panel.stageBezelResource()
+        for (let i = 0; i < panel.bezelChoices.length; ++i) {
+            if (String(panel.bezelChoices[i].resourceId || "") === selected)
+                return i
+        }
+        return -1
+    }
+
+    function selectedBezelStatus() {
+        const selected = panel.stageBezelResource()
+        if (!selected)
+            return qsTr("AURA herdado. A alteração só vale no próximo lançamento de RetroArch Flatpak.")
+        const published = Array.isArray(panel.catalog.bezels) ? panel.catalog.bezels : []
+        for (let i = 0; i < published.length; ++i) {
+            const item = published[i]
+            if (String(item.resourceId || item.id || "") === selected) {
+                if (item.available === true && item.compatible === true)
+                    return qsTr("%1 · %2 · licença %3. Seleção válida para RetroArch Flatpak; aplica-se no próximo lançamento.")
+                        .arg(String(item.label || qsTr("Bezel")))
+                        .arg(String(item.version || qsTr("versão desconhecida")))
+                        .arg(String(item.license || qsTr("desconhecida")))
+                return qsTr("Seleção incompatível: %1. O lançamento será recusado até trocar o recurso ou herdar AURA.")
+                    .arg(String(item.reason || qsTr("recurso indisponível")))
+            }
+        }
+        return qsTr("A referência salva não está no catálogo. O lançamento será recusado; escolha outro bezel ou herde AURA.")
+    }
+
+    function setStageBezel(resourceId) {
+        panel.transact("set-stage-bezel", {
+            stageId: "bezel",
+            bezelResource: resourceId ? String(resourceId) : null
+        })
     }
 
     function localPath(url) {
@@ -1752,6 +1831,51 @@ Rectangle {
                                         Layout.minimumHeight: panel.minimumInteractiveTarget
                                         onClicked: panel.setStageAppearance(modelData.id)
                                     }
+                                }
+                            }
+                            Label {
+                                text: qsTr("Bezel da etapa Jogo + bezel")
+                                color: panel.textColor
+                                font.weight: Font.DemiBold
+                                Layout.fillWidth: true
+                                Layout.topMargin: 12
+                            }
+                            ComboBox {
+                                id: journeyStageBezelPicker
+                                objectName: "journeyStageBezelPicker"
+                                Layout.fillWidth: true
+                                Layout.minimumHeight: panel.minimumInteractiveTarget
+                                model: panel.bezelChoices
+                                textRole: "label"
+                                currentIndex: panel.stageBezelChoiceIndex()
+                                Accessible.name: qsTr("Bezel da etapa de jogo")
+                                Accessible.description: qsTr("Escolha um bezel AURA ou PNG compatível; a seleção vale no próximo lançamento do RetroArch Flatpak")
+                                enabled: !panel.busy && panel.session !== null
+                                onActivated: function(index) {
+                                    const choice = panel.bezelChoices[index]
+                                    if (choice)
+                                        panel.setStageBezel(choice.resourceId)
+                                }
+                            }
+                            Label {
+                                objectName: "journeyStageBezelStatus"
+                                text: panel.selectedBezelStatus()
+                                color: text.indexOf(qsTr("incompatível")) >= 0
+                                    || text.indexOf(qsTr("recusado")) >= 0
+                                    ? panel.amberColor : panel.mutedColor
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                            Repeater {
+                                objectName: "journeyUnavailableBezels"
+                                model: panel.unavailableBezels
+                                delegate: Label {
+                                    required property var modelData
+                                    text: String(modelData.label || qsTr("Bezel indisponível"))
+                                        + " · " + String(modelData.reason || qsTr("incompatível"))
+                                    color: panel.amberColor
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
                                 }
                             }
                             Button {

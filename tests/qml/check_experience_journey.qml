@@ -197,7 +197,8 @@ Item {
                         {id: "year", name: "Ano", type: "integer"}
                     ]}
                 ],
-                themes: []
+                themes: [],
+                bezels: []
             }
             journey.selectedMenuId = "platforms"
             journey.selectedTab = "menus"
@@ -513,6 +514,43 @@ Item {
                 "AURA · escolha explícita")
             compare(find(journey, "journeyStageAppearance_gameplay").text,
                 "AURA · herança padrão")
+        }
+
+        function test_bezel_stage_choice_is_logical_and_has_recovery_reasons() {
+            usePublishedFixture()
+            const resourceId = "asset://bezels/org.test.bezel@1.2.3-" + "a".repeat(64) + ".png"
+            journey.catalog = Object.assign({}, journey.catalog, {bezels: [
+                {id: "aura-default", resourceId: "aura-default", label: "AURA Cinema",
+                    origin: "aura", version: "2.0.0", license: "GPL-3.0-or-later",
+                    available: true, compatible: true},
+                {id: resourceId, resourceId: resourceId, label: "Bezel de teste",
+                    origin: "custom-theme", version: "1.2.3", license: "CC-BY-4.0",
+                    available: true, compatible: true},
+                {id: "unavailable-1", resourceId: "", label: "Imagem SVG",
+                    available: false, compatible: false, reason: "RetroArch Flatpak exige PNG"}
+            ]})
+            journey.selectedTab = "stages"
+            journey.compactPane = "inspector"
+
+            const picker = find(journey, "journeyStageBezelPicker")
+            verify(picker !== null, "seletor de bezel da etapa não foi criado")
+            verify(picker.height >= 48)
+            compare(picker.currentIndex, 0, "AURA deve ser herdado por padrão")
+            verify(find(journey, "journeyStageBezelStatus").text.indexOf("próximo lançamento") >= 0)
+            const unavailable = find(journey, "journeyUnavailableBezels")
+            verify(unavailable !== null)
+            verify(unavailable.itemAt(0).text.indexOf("exige PNG") >= 0)
+
+            journey.setStageBezel(resourceId)
+            compare(harness.lastAction, "journey.studio.transact")
+            compare(harness.lastPayload.operation, "set-stage-bezel")
+            compare(harness.lastPayload.payload.stageId, "bezel")
+            compare(harness.lastPayload.payload.bezelResource, resourceId)
+            verify(harness.lastPayload.payload.bezelResource.indexOf("/home/") < 0)
+
+            journey.setStageBezel("")
+            compare(harness.lastPayload.payload.bezelResource, null,
+                "herdar AURA remove apenas a referência explícita")
         }
     }
 }

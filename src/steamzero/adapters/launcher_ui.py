@@ -47,6 +47,7 @@ from steamzero.launcher.navigation import HomeSection, resolve_home_focus
 
 #: Devolve a tentativa com recibo (ou ``None`` na rota Steam, sem recibo).
 LaunchCallback = Callable[[str, str], LaunchAttempt | None]
+LaunchBezelCallback = Callable[[str, str, str], LaunchAttempt | None]
 # AURA Launcher deve usar o backend acelerado do host.  O caminho software
 # continua disponível como degradação explícita para hosts sem RHI utilizável;
 # valores vindos do ambiente nunca são repassados diretamente ao QML.
@@ -282,6 +283,7 @@ class LauncherBridge:
         sections: Sequence[HomeSection],
         context_path: Path,
         on_launch: LaunchCallback,
+        on_launch_bezel: LaunchBezelCallback | None = None,
         titles: Mapping[str, str] | None = None,
         covers: Mapping[str, str] | None = None,
         title_variants: Mapping[str, Sequence[str]] | None = None,
@@ -326,6 +328,7 @@ class LauncherBridge:
         }
         self._context_path = Path(context_path)
         self._on_launch = on_launch
+        self._on_launch_bezel = on_launch_bezel
         self._accessibility = dict(accessibility or {})
         self._return_context = dict(return_context or {}) or None
         self._catalog_summary = dict(catalog_summary or {})
@@ -1139,7 +1142,15 @@ class LauncherBridge:
             }:
                 raise ValueError("the game already has an active canonical session")
             self._previous_sessions[game_id] = previous.get("sessionId")
-        attempt = self._on_launch(game_id, focus_id)
+        bezel_resource = "aura-default"
+        if self._journey_runtime is not None:
+            selection = self._journey_runtime.stage_bezel("bezel")
+            bezel_resource = str(selection.get("resourceId") or "aura-default")
+        attempt = (
+            self._on_launch_bezel(game_id, focus_id, bezel_resource)
+            if self._on_launch_bezel is not None
+            else self._on_launch(game_id, focus_id)
+        )
         if attempt is not None:
             # Uma tentativa substitui a anterior do mesmo jogo; respostas da
             # antiga deixam de ser consultáveis pelo caminho da ponte.
@@ -1299,6 +1310,7 @@ class LauncherBridge:
                 "failed": "error",
             }.get(state, "osd")
             result["journeyAppearance"] = self._journey_runtime.stage_appearance(selected_stage)
+            result["journeyBezel"] = self._journey_runtime.stage_bezel("bezel")
         return result
 
     def _session_locked(self, game_id: str) -> dict[str, Any]:

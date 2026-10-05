@@ -9,6 +9,7 @@ emulator that does not expose a surface remains visibly unavailable.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -17,6 +18,10 @@ MAX_DISCS = 16
 MAX_BEZELS = 8
 MAX_TEXT_LENGTH = 240
 _ASSET_PREFIXES = ("asset://", "qrc:/", "data:image/")
+_VERSIONED_BEZEL = re.compile(
+    r"^asset://bezels/[a-z0-9]+(?:[.-][a-z0-9]+)+@[0-9]+\.[0-9]+\.[0-9]+-"
+    r"[0-9a-f]{64}\.png$"
+)
 
 
 def _text(value: Any, *, fallback: str = "", limit: int = MAX_TEXT_LENGTH) -> str:
@@ -60,9 +65,16 @@ class BezelEntry:
     available: bool
     selected: bool
     reason: str = ""
+    compatible: bool = False
+    applied: bool = False
+    origin: str = "unknown"
+    version: str = ""
+    license: str = ""
+    apply_mode: str = "next-launch"
+    execution_state: str = "unavailable"
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result: dict[str, Any] = {
             "id": self.id,
             "label": self.label,
             "assetUrl": self.asset_url,
@@ -70,6 +82,23 @@ class BezelEntry:
             "selected": self.selected,
             "reason": self.reason,
         }
+        if (
+            self.applied
+            or self.origin != "unknown"
+            or self.version
+            or self.license
+            or self.execution_state != "unavailable"
+        ):
+            result.update(
+                compatible=self.compatible,
+                applied=self.applied,
+                origin=self.origin,
+                version=self.version,
+                license=self.license,
+                applyMode=self.apply_mode,
+                executionState=self.execution_state,
+            )
+        return result
 
 
 @dataclass(frozen=True)
@@ -113,7 +142,7 @@ class SessionPeripherals:
 def _disc(raw: Any, index: int, active: int | None) -> DiscEntry | None:
     if not isinstance(raw, Mapping):
         return None
-    identifier = _text(raw.get("id"), limit=64)
+    identifier = _text(raw.get("id"), limit=256)
     label = _text(raw.get("label"), limit=128)
     if not identifier or not label:
         return None
@@ -131,11 +160,20 @@ def _disc(raw: Any, index: int, active: int | None) -> DiscEntry | None:
 def _bezel(raw: Any, index: int, selected: str) -> BezelEntry | None:
     if not isinstance(raw, Mapping):
         return None
-    identifier = _text(raw.get("id"), limit=64)
+    identifier = _text(raw.get("id"), limit=256)
     label = _text(raw.get("label"), limit=128)
     if not identifier or not label:
         return None
     asset_url = _asset(raw.get("assetUrl"))
+    if asset_url.startswith("asset://") and not (
+        asset_url == "asset://bezels/aura-bezel.svg"
+        or _VERSIONED_BEZEL.fullmatch(asset_url)
+        or re.fullmatch(
+            r"asset://bezels/[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}\.(?:svg|png|webp)",
+            asset_url,
+        )
+    ):
+        asset_url = ""
     available = raw.get("available", bool(asset_url)) is True and bool(asset_url)
     reason = _text(raw.get("reason") or raw.get("detail"))
     if not available and not reason:
@@ -147,6 +185,15 @@ def _bezel(raw: Any, index: int, selected: str) -> BezelEntry | None:
         available=available,
         selected=identifier == selected,
         reason=reason,
+        compatible=raw.get("compatible", available) is True,
+        applied=raw.get("applied", False) is True,
+        origin=_text(raw.get("origin"), fallback="unknown", limit=32),
+        version=_text(raw.get("version"), limit=32),
+        license=_text(raw.get("license"), limit=128),
+        apply_mode=(
+            "next-launch" if raw.get("applyMode", "next-launch") == "next-launch" else "unavailable"
+        ),
+        execution_state=_text(raw.get("executionState"), fallback="unavailable", limit=32),
     )
 
 
@@ -166,7 +213,7 @@ def resolve_session_peripherals(raw: Any, *, reduced_motion: bool = False) -> Se
             if parsed_disc is not None:
                 discs.append(parsed_disc)
 
-    selected = _text(source.get("selectedBezel"), limit=64)
+    selected = _text(source.get("selectedBezel"), limit=256)
     bezels: list[BezelEntry] = []
     raw_bezels = source.get("bezels")
     if isinstance(raw_bezels, Sequence) and not isinstance(raw_bezels, (str, bytes, bytearray)):

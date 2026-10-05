@@ -908,6 +908,28 @@ Rectangle {
         }, panel._applyEditorResult)
     }
 
+    function chooseRetroarchBezelAsset() {
+        if (panel.editorReadOnly || !panel.editorSessionId)
+            return
+        bezelAssetDialog.open()
+    }
+
+    function importRetroarchBezelAsset(source) {
+        if (!source || panel.editorReadOnly || !panel.editorSessionId)
+            return
+        panel.requestEditorMutation("theme.editor.set-bezel", {
+            sessionId: panel.editorSessionId,
+            source: source
+        }, function(response) {
+            panel._applyEditorResult(response)
+            panel.authoringNotice = qsTr("Bezel PNG validado no rascunho. Salve o tema para disponibilizá-lo na Jornada.")
+            panel.authoringRevision += 1
+        }, function(message) {
+            panel.authoringNotice = String(message || qsTr("Não foi possível validar o bezel PNG."))
+            panel.authoringRevision += 1
+        })
+    }
+
     function editAssetRecipe(op, extra) {
         if (panel.editorReadOnly || !panel.editorSessionId)
             return
@@ -2641,6 +2663,53 @@ Rectangle {
                                 onEditingFinished: panel.setMetadata(modelData, text.trim())
                             }
                         }
+                    }
+
+                    Item { Layout.minimumHeight: 12 }
+
+                    Label {
+                        text: qsTr("Bezel do RetroArch Flatpak")
+                        color: panel.textColor
+                        font.pixelSize: Math.round(14 * panel.visualScale)
+                        font.weight: Font.Medium
+                        Layout.leftMargin: 12
+                        Layout.rightMargin: 12
+                        Layout.fillWidth: true
+                    }
+
+                    Label {
+                        text: panel.editorManifest.assets && panel.editorManifest.assets.bezel
+                            ? qsTr("Imagem no pacote: %1").arg(panel.editorManifest.assets.bezel)
+                            : qsTr("Sem imagem própria; a Jornada herdará AURA.")
+                        color: panel.mutedColor
+                        font.pixelSize: Math.round(11 * panel.visualScale)
+                        wrapMode: Text.WordWrap
+                        Layout.leftMargin: 12
+                        Layout.rightMargin: 12
+                        Layout.fillWidth: true
+                    }
+
+                    Label {
+                        text: qsTr("PNG até 16 MiB e 8192 px. A licença declarada no tema acompanha o asset. A aplicação ocorre no próximo lançamento RetroArch Flatpak.")
+                        color: panel.mutedColor
+                        font.pixelSize: Math.round(11 * panel.visualScale)
+                        wrapMode: Text.WordWrap
+                        Layout.leftMargin: 12
+                        Layout.rightMargin: 12
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        objectName: "themeEditorChooseBezelPng"
+                        text: qsTr("Escolher bezel PNG")
+                        enabled: !panel.editorReadOnly
+                        Accessible.name: text
+                        Accessible.description: qsTr("Importa uma imagem PNG validada para o pacote deste tema")
+                        Layout.leftMargin: 12
+                        Layout.rightMargin: 12
+                        Layout.fillWidth: true
+                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                        onClicked: panel.chooseRetroarchBezelAsset()
                     }
 
                     Item { Layout.minimumHeight: 16 }
@@ -4490,6 +4559,22 @@ Rectangle {
                 })
                 exportPreviewDialog.open()
             })
+        }
+    }
+
+    FileDialog {
+        id: bezelAssetDialog
+        title: qsTr("Escolher imagem PNG do bezel")
+        fileMode: FileDialog.OpenFile
+        nameFilters: [qsTr("Imagens PNG (*.png)")]
+        onAccepted: {
+            const source = panel.localPath(selectedFile)
+            if (!source) {
+                panel.authoringNotice = qsTr("O seletor não retornou um arquivo local.")
+                panel.authoringRevision += 1
+                return
+            }
+            panel.importRetroarchBezelAsset(source)
         }
     }
 

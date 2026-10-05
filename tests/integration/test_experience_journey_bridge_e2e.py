@@ -627,3 +627,77 @@ def test_journey_engine_preview_uses_a_saved_theme_editor_layout_change(
         "Synthetic Platformer",
         "Synthetic Puzzle",
     ]
+
+
+def test_bezel_catalog_and_stage_choice_cross_the_allowlisted_bridge(
+    journey_bridge: tuple[str, str, _JourneyDashboard],
+) -> None:
+    base_url, token, _dashboard = journey_bridge
+    catalog = _request(base_url, token, "/journey/studio/catalog")
+    aura = next(item for item in catalog["bezels"] if item["id"] == "aura-default")
+    assert aura["origin"] == "aura"
+    assert aura["adapterId"] == "retroarch-flatpak"
+
+    created = _request(
+        base_url,
+        token,
+        "/journey/studio/create",
+        method="POST",
+        payload={"name": "Jornada com bezel"},
+    )
+    resource_id = "asset://bezels/org.test.bezel@1.2.3-" + "b" * 64 + ".png"
+    selected = _request(
+        base_url,
+        token,
+        "/journey/studio/transact",
+        method="POST",
+        payload={
+            "operation": "set-stage-bezel",
+            "payload": {
+                "sessionId": created["sessionId"],
+                "expectedGeneration": created["generation"],
+                "stageId": "bezel",
+                "bezelResource": resource_id,
+            },
+        },
+    )
+    assert selected["document"]["sessionStages"] == [
+        {"stageId": "bezel", "bezelResource": resource_id}
+    ]
+
+    with pytest.raises(urllib.error.HTTPError) as path_request:
+        _request(
+            base_url,
+            token,
+            "/journey/studio/transact",
+            method="POST",
+            payload={
+                "operation": "set-stage-bezel",
+                "payload": {
+                    "sessionId": created["sessionId"],
+                    "expectedGeneration": selected["generation"],
+                    "stageId": "bezel",
+                    "bezelResource": "/home/user/bezel.png",
+                },
+            },
+        )
+    assert path_request.value.code == 400
+    assert json.loads(path_request.value.read())["error"]["code"] == "E-API-SCHEMA"
+    path_request.value.close()
+
+    inherited = _request(
+        base_url,
+        token,
+        "/journey/studio/transact",
+        method="POST",
+        payload={
+            "operation": "set-stage-bezel",
+            "payload": {
+                "sessionId": created["sessionId"],
+                "expectedGeneration": selected["generation"],
+                "stageId": "bezel",
+                "bezelResource": None,
+            },
+        },
+    )
+    assert inherited["document"]["sessionStages"] == []

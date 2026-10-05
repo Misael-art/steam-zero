@@ -22,6 +22,7 @@ from steamzero.domain.asset_recipes import (
     AssetRecipeBook,
     AssetRecipeNode,
     asset_recipe_editor_schema,
+    validate_retroarch_bezel_source,
 )
 from steamzero.domain.dynamic_palette import extract_dynamic_palette
 from steamzero.domain.glass_panels import resolve_glass_panels
@@ -370,8 +371,13 @@ def _declared(manifest: dict[str, object]) -> dict[str, object]:
 
 def _document(session: EditorSession) -> dict[str, object]:
     """Documento + declaração que todo resultado de edição devolve à interface."""
+    manifest = dict(session.manifest)
+    if session.assets:
+        manifest["assets"] = dict(session.assets)
+    else:
+        manifest.pop("assets", None)
     return {
-        "manifest": dict(session.manifest),
+        "manifest": manifest,
         "declared": _declared(session.manifest),
         "assetRecipeSchema": asset_recipe_editor_schema(),
         "effectSchema": effect_editor_schema(),
@@ -747,6 +753,16 @@ class ThemeEditorManager:
         ext = Path(filename).suffix.lower()
         if ext not in _ASSET_EXTENSIONS:
             raise SteamZeroError("E-API-SCHEMA", detail=f"extensão não permitida: {ext}")
+        dimensions: tuple[int, int] | None = None
+        if slot == "bezel":
+            if ext != ".png":
+                raise SteamZeroError(
+                    "E-API-SCHEMA", detail="bezel do RetroArch Flatpak exige imagem PNG"
+                )
+            try:
+                dimensions = validate_retroarch_bezel_source(data)
+            except ValueError as exc:
+                raise SteamZeroError("E-THEME-UNSAFE", detail=str(exc)) from exc
         # O nome gravado é derivado do slot, nunca do nome enviado: o filename
         # externo só contribui com a extensão, já validada acima.
         stored_name = f"{slot}{ext}"
@@ -755,7 +771,13 @@ class ThemeEditorManager:
             session.assets[slot] = f"assets/{stored_name}"
             session.dirty = True
         return {
+            **_document(session),
             "asset": {"slot": slot, "filename": stored_name, "size": len(data)},
+            **(
+                {"dimensions": {"width": dimensions[0], "height": dimensions[1]}}
+                if dimensions is not None
+                else {}
+            ),
             "history": _history_state(session),
         }
 

@@ -1664,3 +1664,37 @@ def test_bridge_unknown_action_is_not_found(bridge: tuple[str, str]) -> None:
     assert error.value.code == 404
     assert json.loads(error.value.read())["error"]["code"] == "E-API-UNKNOWN-ACTION"
     error.value.close()
+
+
+def test_theme_bezel_upload_is_an_authenticated_allowlisted_bridge_action(
+    dashboard_bridge: tuple[str, str, FakeDashboard],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    base, token, dashboard = dashboard_bridge
+    contract = request_json(base, token, "/contracts")
+    action = contract["byId"]["theme.editor.set-bezel"]
+    assert action["endpoint"] == "/theme/editor/set-bezel"
+    assert action["inputSchema"]["required"] == ["sessionId", "source"]
+
+    calls: list[tuple[str, str]] = []
+    monkeypatch.setattr(
+        dashboard,
+        "editor_set_bezel",
+        lambda session_id, source: (calls.append((session_id, source)), {"status": "accepted"})[1],
+        raising=False,
+    )
+    source = str(tmp_path / "local-bezel.png")
+    result = request_json(
+        base,
+        token,
+        "/theme/editor/set-bezel",
+        {"sessionId": "editor-session", "source": source},
+    )
+    assert result == {"status": "accepted"}
+    assert calls == [("editor-session", source)]
+
+    with pytest.raises(urllib.error.HTTPError) as missing:
+        request_json(base, token, "/theme/editor/set-bezel", {"sessionId": "editor-session"})
+    assert missing.value.code == 400
+    missing.value.close()

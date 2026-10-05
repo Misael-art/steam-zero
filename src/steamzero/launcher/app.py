@@ -40,6 +40,7 @@ from steamzero.adapters.launcher_receipt import (
     ReceiptSpawner,
     spawn_receipt,
 )
+from steamzero.adapters.theme_catalog import resolve_bezel_resource
 from steamzero.core import fs, ids, paths
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.title_variants import TITLE_VARIANT_MODES
@@ -236,7 +237,7 @@ def _context_path() -> Path:
 
 
 def _configure_isolated_xdg(root: Path) -> Path:
-    """Point every mutable/readable XDG surface at an explicit synthetic root."""
+    """Isolate XDG homes while retaining the caller's validated compositor socket."""
     candidate = Path(root).expanduser()
     if candidate.is_symlink():
         raise ValueError("a raiz isolada não pode ser link simbólico")
@@ -252,6 +253,48 @@ def _configure_isolated_xdg(root: Path) -> Path:
     root_mode = stat.S_IMODE(resolved.stat().st_mode)
     if root_mode & 0o077:
         raise ValueError("a raiz isolada precisa ter permissões privadas (0700)")
+
+    raw_display = os.environ.get("WAYLAND_DISPLAY", "")
+    resolved_endpoint: Path | None = None
+    if not raw_display or not raw_display.strip():
+        if not os.environ.get("DISPLAY", "").strip():
+            raise ValueError(
+                "WAYLAND_DISPLAY ausente e DISPLAY ausente; a sessão gráfica não está disponível"
+            )
+    else:
+        display_path = Path(raw_display)
+        if display_path.is_absolute():
+            endpoint = display_path
+        else:
+            runtime_value = os.environ.get("XDG_RUNTIME_DIR", "")
+            if not runtime_value or not runtime_value.strip():
+                raise ValueError("XDG_RUNTIME_DIR ausente para resolver o socket Wayland")
+            runtime = Path(runtime_value)
+            if not runtime.is_absolute() or runtime.is_symlink():
+                raise ValueError("XDG_RUNTIME_DIR original é inválido para a sessão Wayland")
+            try:
+                runtime_info = runtime.stat()
+            except OSError as exc:
+                raise ValueError("XDG_RUNTIME_DIR original não está disponível") from exc
+            if (
+                not stat.S_ISDIR(runtime_info.st_mode)
+                or runtime_info.st_uid != os.getuid()
+                or stat.S_IMODE(runtime_info.st_mode) & 0o077
+            ):
+                raise ValueError("XDG_RUNTIME_DIR original não é privado e pertence ao usuário")
+            if raw_display in {".", ".."} or "/" in raw_display:
+                raise ValueError("WAYLAND_DISPLAY relativo precisa ser um nome de socket")
+            endpoint = runtime / raw_display
+        try:
+            endpoint_info = endpoint.lstat()
+        except (OSError, RuntimeError) as exc:
+            raise ValueError("o socket Wayland original não está disponível") from exc
+        if not stat.S_ISSOCK(endpoint_info.st_mode) or endpoint_info.st_uid != os.getuid():
+            raise ValueError("WAYLAND_DISPLAY não aponta para um socket do usuário atual")
+        try:
+            resolved_endpoint = endpoint.resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise ValueError("o socket Wayland original não pôde ser resolvido") from exc
 
     for variable, name in (
         ("XDG_CONFIG_HOME", "config"),
@@ -270,6 +313,12 @@ def _configure_isolated_xdg(root: Path) -> Path:
                 f"{name} isolado precisa ser um diretório privado (0700) sem links"
             ) from exc
         os.environ[variable] = str(directory)
+    # libwayland and Qt interpret an absolute WAYLAND_DISPLAY as the exact
+    # socket address, independent of the private XDG_RUNTIME_DIR above.
+    if resolved_endpoint is None:
+        os.environ.pop("WAYLAND_DISPLAY", None)
+    else:
+        os.environ["WAYLAND_DISPLAY"] = str(resolved_endpoint)
     return resolved
 
 
@@ -299,7 +348,13 @@ class LaunchRouter:
         self._steam_executable = steam_executable or _steam_executable
         self._receipt_spawner = receipt_spawner or spawn_receipt
 
-    def launch(self, game_id: str, focus_id: str = "") -> LaunchAttempt | None:
+    def launch(
+        self,
+        game_id: str,
+        focus_id: str = "",
+        *,
+        bezel_resource: str = "aura-default",
+    ) -> LaunchAttempt | None:
         """Lança o jogo e devolve a tentativa com recibo capturável.
 
         Cada pedido tem um requestId próprio: correlacionar resposta a pedido é
@@ -310,6 +365,11 @@ class LaunchRouter:
         """
         request_id = ids.new_ulid()
         if self._kinds.get(game_id) == "steam":
+            if bezel_resource != "aura-default":
+                raise SteamZeroError(
+                    "E-COMPONENT-DEGRADED",
+                    detail="bezel customizado não está disponível para lançamentos Steam",
+                )
             plan = LaunchPlan(
                 game_id=game_id,
                 argv=self._steam_argv(game_id),
@@ -321,7 +381,10 @@ class LaunchRouter:
         executable = self._executable()
         # ``--json`` é o que o adapter de recibo consome: uma linha de
         # envelope no stdout, aceita ou notStarted, sem saída humana.
-        argv = (executable, "emulation", "launch", "--game-id", game_id, "--json")
+        argv: tuple[str, ...] = (executable, "emulation", "launch", "--game-id", game_id)
+        if bezel_resource != "aura-default":
+            argv = (*argv, "--bezel-resource", bezel_resource)
+        argv = (*argv, "--json")
         plan = LaunchPlan(
             game_id=game_id,
             argv=argv,
@@ -585,6 +648,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         return router.launch(game_id, focus_id)
 
+    def launch_game_with_bezel(
+        game_id: str, focus_id: str, bezel_resource: str
+    ) -> LaunchAttempt | None:
+        if args.isolated_library:
+            raise SteamZeroError(
+                "E-API-UNKNOWN-ACTION",
+                detail="lançamento não publicado no modo de catálogo isolado",
+            )
+        return router.launch(game_id, focus_id, bezel_resource=bezel_resource)
+
     accessibility = (
         {"highContrast": False, "reducedMotion": False, "visualScale": 1.0}
         if args.isolated_library
@@ -749,6 +822,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     [] if args.isolated_library else [game.id for game in catalog]
                 ),
                 theme_resolver=resolve_journey_theme,
+                bezel_resolver=(None if args.isolated_library else resolve_bezel_resource),
             )
             journey_diagnostic = {}
     except Exception:
@@ -775,6 +849,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         session_overlay=session_overlay,
         context_path=context_path,
         on_launch=launch_game,
+        on_launch_bezel=launch_game_with_bezel,
         accessibility=accessibility,
         return_context=return_context,
         catalog_summary=catalog_summary(payload, catalog, library),

@@ -1,17 +1,23 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import importlib.resources
 import json
+import os
+import re
+import stat
+from collections.abc import Mapping
+from dataclasses import dataclass
 from functools import cache
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import jsonschema
 from jsonschema import Draft202012Validator
 
 from steamzero.core.errors import SteamZeroError
-from steamzero.domain.asset_recipes import validate_asset_source
+from steamzero.domain.asset_recipes import validate_asset_source, validate_retroarch_bezel_source
 from steamzero.domain.theme_effects import PerformanceTier
 from steamzero.domain.themes import (
     THEME_API_VERSION,
@@ -30,6 +36,9 @@ _MAX_ASSET_BYTES = 16 * 1024 * 1024
 _MAX_ASSET_DIMENSION = 8192
 _MAX_DIR_DEPTH = 4
 _MAX_THEMES = 100
+_MAX_BEZEL_BYTES = 16 * 1024 * 1024
+_BEZEL_THEME_ID = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)+$")
+_BEZEL_VERSION = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 _ALLOWED_RASTER = frozenset({".png", ".jpg", ".jpeg", ".webp"})
 _ALLOWED_SVG_EXT = ".svg"
 _PROHIBITED_FILES = frozenset(
@@ -48,6 +57,44 @@ _PROHIBITED_FILES = frozenset(
         ".fish",
     }
 )
+
+
+@dataclass(frozen=True)
+class BezelResource:
+    """Validated public identity for one theme-owned bezel asset."""
+
+    id: str
+    resource_id: str
+    asset_url: str
+    label: str
+    origin: str
+    theme_id: str
+    version: str
+    license: str
+    format: str
+    size: int
+    available: bool
+    compatible: bool
+    reason: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "resourceId": self.resource_id,
+            "assetUrl": self.asset_url,
+            "label": self.label,
+            "origin": self.origin,
+            "themeId": self.theme_id,
+            "version": self.version,
+            "license": self.license,
+            "format": self.format,
+            "size": self.size,
+            "available": self.available,
+            "compatible": self.compatible,
+            "adapterId": "retroarch-flatpak",
+            "applyMode": "next-launch",
+            "reason": self.reason,
+        }
 
 
 def _load_manifest_schema() -> dict[str, Any]:
@@ -407,3 +454,278 @@ class ThemeCatalog:
                 high_contrast=high_contrast,
                 reduced_motion=reduced_motion,
             )
+
+
+_BEZEL_RESOURCE_URI = re.compile(
+    r"^asset://bezels/(?P<theme>[a-z0-9]+(?:[.-][a-z0-9]+)+)@"
+    r"(?P<version>[0-9]+\.[0-9]+\.[0-9]+)-(?P<digest>[0-9a-f]{64})"
+    r"(?P<suffix>\.[a-z0-9]+)$"
+)
+
+
+def _read_bounded_theme_asset(path: Path) -> bytes:
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(path, flags)
+    with os.fdopen(descriptor, "rb") as stream:
+        metadata = os.fstat(stream.fileno())
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("asset precisa ser um arquivo regular")
+        if metadata.st_size <= 0 or metadata.st_size > _MAX_BEZEL_BYTES:
+            raise ValueError("asset excede o limite de 16 MiB")
+        data = stream.read(_MAX_BEZEL_BYTES + 1)
+    if len(data) > _MAX_BEZEL_BYTES:
+        raise ValueError("asset excede o limite de 16 MiB")
+    return data
+
+
+def _theme_bezel_path(theme_dir: Path, logical_path: str) -> Path:
+    relative = PurePosixPath(logical_path)
+    if (
+        not logical_path.startswith("assets/")
+        or relative.is_absolute()
+        or not relative.parts
+        or any(part in {"", ".", ".."} for part in relative.parts)
+        or "\\" in logical_path
+    ):
+        raise ValueError("referência de bezel fora do namespace assets/")
+    candidate = theme_dir.joinpath(*relative.parts)
+    if candidate.is_symlink():
+        raise ValueError("asset não pode ser link simbólico")
+    resolved = candidate.resolve(strict=True)
+    root = theme_dir.resolve(strict=True)
+    if not resolved.is_relative_to(root) or not resolved.is_file():
+        raise ValueError("asset fora do pacote do tema")
+    return candidate
+
+
+def _unavailable_bezel(
+    theme_id: str, label: str, version: str, license_id: str, reason: str
+) -> BezelResource:
+    safe_theme_id = theme_id if _BEZEL_THEME_ID.fullmatch(theme_id) else "unknown"
+    version_label = version if _BEZEL_VERSION.fullmatch(version) else "unknown"
+    safe_license = (
+        license_id
+        if re.fullmatch(r"(?:LicenseRef-[a-zA-Z0-9._-]+|[A-Za-z0-9._+-]+)", license_id)
+        else "unknown"
+    )
+    identity = hashlib.sha256(f"{safe_theme_id}:{version_label}".encode()).hexdigest()[:20]
+    return BezelResource(
+        id=f"unavailable-{identity}",
+        resource_id="",
+        asset_url="",
+        label=" ".join((label or safe_theme_id).split())[:128],
+        origin="custom-theme",
+        theme_id=safe_theme_id,
+        version=version_label,
+        license=safe_license[:128],
+        format="unknown",
+        size=0,
+        available=False,
+        compatible=False,
+        reason=reason[:240],
+    )
+
+
+def _user_bezel_resources(user_themes_dir: Path | None) -> list[BezelResource]:
+    if user_themes_dir is None or user_themes_dir.is_symlink() or not user_themes_dir.is_dir():
+        return []
+    resources: list[BezelResource] = []
+    for entry in sorted(user_themes_dir.iterdir(), key=str):
+        if entry.is_symlink() or not entry.is_dir():
+            continue
+        manifest_path = entry / "theme.json"
+        try:
+            if manifest_path.is_symlink() or not manifest_path.is_file():
+                continue
+            raw_bytes = manifest_path.read_bytes()
+            if len(raw_bytes) > _MAX_MANIFEST_BYTES:
+                continue
+            raw = json.loads(raw_bytes)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(raw, dict):
+            continue
+        raw_assets = raw.get("assets")
+        if not isinstance(raw_assets, dict) or "bezel" not in raw_assets:
+            continue
+        theme_id = str(raw.get("id") or entry.name)
+        name = str(raw.get("name") or theme_id)
+        version = str(raw.get("version") or "unknown")
+        license_id = str(raw.get("license") or "unknown")
+        compatibility = raw.get("compatibility")
+        if (
+            not _BEZEL_THEME_ID.fullmatch(theme_id)
+            or not _BEZEL_VERSION.fullmatch(version)
+            or not isinstance(compatibility, Mapping)
+            or compatibility.get("themeApi") != THEME_API_VERSION
+        ):
+            resources.append(
+                _unavailable_bezel(
+                    theme_id,
+                    name,
+                    version,
+                    license_id,
+                    "O tema do bezel está ausente, inválido ou usa uma API incompatível.",
+                )
+            )
+            continue
+        try:
+            manifest = validate_theme_directory(entry)
+            logical_path = manifest.assets.get("bezel")
+            if not isinstance(logical_path, str):
+                raise ValueError("o manifesto não publica um asset de bezel")
+            asset_path = _theme_bezel_path(entry, logical_path)
+            data = _read_bounded_theme_asset(asset_path)
+            suffix = asset_path.suffix.casefold()
+            digest = hashlib.sha256(data).hexdigest()
+            resource_id = f"asset://bezels/{manifest.id}@{manifest.version}-{digest}{suffix}"
+            supported_format = suffix == ".png"
+            reason = ""
+            if supported_format:
+                try:
+                    validate_retroarch_bezel_source(data)
+                except ValueError as exc:
+                    supported_format = False
+                    reason = str(exc)
+            else:
+                with contextlib.suppress(ValueError):
+                    validate_asset_source(data)
+                reason = "RetroArch Flatpak aceita bezel personalizado em PNG validado."
+            resources.append(
+                BezelResource(
+                    id=resource_id,
+                    resource_id=resource_id,
+                    asset_url=resource_id,
+                    label=manifest.name[:128],
+                    origin="custom-theme",
+                    theme_id=manifest.id,
+                    version=manifest.version,
+                    license=manifest.license,
+                    format=suffix.removeprefix("."),
+                    size=len(data),
+                    available=supported_format,
+                    compatible=supported_format,
+                    reason=reason,
+                )
+            )
+        except (OSError, ValueError, SteamZeroError):
+            resources.append(
+                _unavailable_bezel(
+                    theme_id,
+                    name,
+                    version,
+                    license_id,
+                    "O asset do bezel não passou na validação do pacote e do formato.",
+                )
+            )
+    return resources[:_MAX_THEMES]
+
+
+def list_bezel_resources(user_themes_dir: Path | None = None) -> list[dict[str, Any]]:
+    """List AURA and validated theme resources without publishing local paths."""
+    if user_themes_dir is None:
+        from steamzero.core import paths
+
+        user_themes_dir = paths.themes_dir()
+    manifest = read_builtin_manifest(THEME_DEFAULT_ID)
+    asset_root = Path(__file__).resolve().parents[1] / "ui" / "assets"
+    aura_path = asset_root / "aura-bezel.png"
+    aura_data = _read_bounded_theme_asset(aura_path)
+    validate_retroarch_bezel_source(aura_data)
+    aura = BezelResource(
+        id="aura-default",
+        resource_id="aura-default",
+        asset_url="asset://bezels/aura-bezel.svg",
+        label="AURA Cinema",
+        origin="aura",
+        theme_id=manifest.id,
+        version=manifest.version,
+        license=manifest.license,
+        format="png",
+        size=len(aura_data),
+        available=True,
+        compatible=True,
+        reason="",
+    )
+    return [aura.to_dict(), *(item.to_dict() for item in _user_bezel_resources(user_themes_dir))]
+
+
+def resolve_bezel_resource(resource_id: str, user_themes_dir: Path | None = None) -> dict[str, Any]:
+    """Resolve and revalidate one logical resource immediately before launch."""
+    if user_themes_dir is None:
+        from steamzero.core import paths
+
+        user_themes_dir = paths.themes_dir()
+    if resource_id == "aura-default":
+        manifest = read_builtin_manifest(THEME_DEFAULT_ID)
+        asset_path = Path(__file__).resolve().parents[1] / "ui" / "assets" / "aura-bezel.png"
+        data = _read_bounded_theme_asset(asset_path)
+        validate_retroarch_bezel_source(data)
+        return {
+            "id": "aura-default",
+            "resourceId": "aura-default",
+            "assetUrl": "asset://bezels/aura-bezel.svg",
+            "label": "AURA Cinema",
+            "origin": "aura",
+            "themeId": manifest.id,
+            "version": manifest.version,
+            "license": manifest.license,
+            "format": "png",
+            "size": len(data),
+            "available": True,
+            "compatible": True,
+            "adapterId": "retroarch-flatpak",
+            "applyMode": "next-launch",
+            "reason": "",
+            "_sourceBytes": data,
+        }
+    match = _BEZEL_RESOURCE_URI.fullmatch(resource_id)
+    if match is None or match.group("suffix") != ".png":
+        raise SteamZeroError("E-THEME-UNSAFE", detail="URI lógico de bezel inválido")
+    theme_id = match.group("theme")
+    if not _BEZEL_THEME_ID.fullmatch(theme_id):
+        raise SteamZeroError("E-THEME-UNSAFE", detail="namespace do bezel inválido")
+    if user_themes_dir.is_symlink():
+        raise SteamZeroError("E-THEME-UNSAFE", detail="raiz de temas não pode ser link simbólico")
+    theme_dir = user_themes_dir / theme_id
+    if theme_dir.is_symlink():
+        raise SteamZeroError("E-THEME-UNSAFE", detail="pacote de tema não pode ser link simbólico")
+    if not theme_dir.is_dir():
+        raise SteamZeroError("E-THEME-NOT-FOUND", detail="o tema do bezel não está instalado")
+    try:
+        manifest = validate_theme_directory(theme_dir)
+        if manifest.id != theme_id or manifest.version != match.group("version"):
+            raise ValueError("a versão do tema mudou desde a seleção do bezel")
+        logical_path = manifest.assets.get("bezel")
+        if not isinstance(logical_path, str):
+            raise ValueError("o tema não publica mais um asset de bezel")
+        asset_path = _theme_bezel_path(theme_dir, logical_path)
+        data = _read_bounded_theme_asset(asset_path)
+        validate_retroarch_bezel_source(data)
+        if hashlib.sha256(data).hexdigest() != match.group("digest"):
+            raise ValueError("o conteúdo do bezel mudou desde a seleção")
+    except FileNotFoundError as exc:
+        raise SteamZeroError(
+            "E-THEME-NOT-FOUND", detail="o asset do bezel selecionado não está instalado"
+        ) from exc
+    except (OSError, ValueError, SteamZeroError) as exc:
+        detail = str(getattr(exc, "detail", "")) or str(exc)
+        raise SteamZeroError("E-THEME-INCOMPATIBLE", detail=detail[:240]) from exc
+    return {
+        "id": resource_id,
+        "resourceId": resource_id,
+        "assetUrl": resource_id,
+        "label": manifest.name,
+        "origin": "custom-theme",
+        "themeId": manifest.id,
+        "version": manifest.version,
+        "license": manifest.license,
+        "format": "png",
+        "size": len(data),
+        "available": True,
+        "compatible": True,
+        "adapterId": "retroarch-flatpak",
+        "applyMode": "next-launch",
+        "reason": "",
+        "_sourceBytes": data,
+    }

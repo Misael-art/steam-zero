@@ -1334,9 +1334,14 @@ def _cmd_emulation_launch(args: list[str], correlation_id: str) -> tuple[dict[st
     game_id = _flag_value(args, "--game-id")
     if game_id is None:
         raise SteamZeroError("E-API-SCHEMA", detail="use --game-id <id>")
+    bezel_resource = _flag_value(args, "--bezel-resource")
     controller = EmulationController()
     try:
-        data = controller.launch_game(game_id)
+        data = (
+            controller.launch_game(game_id)
+            if bezel_resource is None
+            else controller.launch_game(game_id, bezel_resource=bezel_resource)
+        )
     finally:
         close = getattr(controller, "close", None)
         if callable(close):

@@ -3,12 +3,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import io
 from pathlib import Path
 
 import pytest
 
 from steamzero.adapters.session_peripherals import (
     RetroArchSessionPeripheral,
+    cleanup_retroarch_session_artifacts,
     prepare_retroarch_session_config,
 )
 from steamzero.core import paths
@@ -90,17 +93,97 @@ def test_retroarch_complete_peripheral_projection_uses_logical_bezel_asset(
 
     assert projection["state"] == "ready"
     assert projection["selectedBezel"] == "aura-default"
-    assert projection["bezels"] == [
-        {
-            "id": "aura-default",
-            "label": "AURA Cinema",
-            "assetUrl": "asset://bezels/aura-bezel.svg",
+    assert projection["appliedBezel"] is None
+    assert projection["bezelExecutionState"] == "launch-configured-unconfirmed"
+    assert len(projection["bezels"]) == 1
+    assert projection["bezels"][0]["id"] == "aura-default"
+    assert projection["bezels"][0]["assetUrl"] == "asset://bezels/aura-bezel.svg"
+    assert projection["bezels"][0]["selected"] is True
+    assert projection["bezels"][0]["applied"] is False
+    assert projection["bezels"][0]["executionState"] == "launch-configured-unconfirmed"
+    assert projection["fade"] == {"phase": "idle", "progress": 0.0, "durationMs": 180}
+
+
+def test_custom_bezel_config_is_session_private_and_cleanup_is_idempotent(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from PIL import Image
+
+    monkeypatch.setattr(paths, "config_home", lambda: tmp_path / "config")
+    monkeypatch.setattr(paths, "saves_dir", lambda: tmp_path / "saves")
+    output = io.BytesIO()
+    Image.new("RGBA", (20, 12), (90, 30, 10, 255)).save(output, format="PNG")
+    png = output.getvalue()
+    resource_id = "asset://bezels/org.test.bezel@1.0.0-" + hashlib.sha256(png).hexdigest() + ".png"
+    session_id = "A" * 26
+    unrelated_config = tmp_path / "config" / "retroarch" / "retroarch.cfg"
+    unrelated_config.parent.mkdir(parents=True)
+    unrelated_config.write_text("third-party = true\n", encoding="utf-8")
+
+    config = prepare_retroarch_session_config(
+        resource_id,
+        session_id=session_id,
+        resolved_bezel={
+            "resourceId": resource_id,
+            "_sourceBytes": png,
             "available": True,
             "compatible": True,
-            "selected": True,
-        }
-    ]
-    assert projection["fade"] == {"phase": "idle", "progress": 0.0, "durationMs": 180}
+            "origin": "custom-theme",
+            "themeId": "org.test.bezel",
+            "version": "1.0.0",
+            "license": "CC-BY-4.0",
+        },
+    )
+    overlay_config = config.parent / "aura-bezel-overlay.cfg"
+    overlay_asset = config.parent / "aura-bezel.png"
+    session_text = config.read_text(encoding="utf-8")
+    assert config.parent.parent.name == "sessions"
+    assert config.parent.name == session_id
+    assert f'input_overlay = "{overlay_config}"' in session_text
+    assert 'config_save_on_exit = "false"' in session_text
+    assert overlay_asset.read_bytes() == png
+    assert unrelated_config.read_text(encoding="utf-8") == "third-party = true\n"
+    assert cleanup_retroarch_session_artifacts(session_id, config_home=tmp_path / "config") is True
+    assert cleanup_retroarch_session_artifacts(session_id, config_home=tmp_path / "config") is True
+    assert config.parent.is_dir()
+    assert list(config.parent.iterdir()) == []
+    assert unrelated_config.read_text(encoding="utf-8") == "third-party = true\n"
+
+
+def test_session_read_model_preserves_custom_uri_and_does_not_claim_applied(
+    tmp_path: Path,
+) -> None:
+    content = tmp_path / "game.sfc"
+    content.write_bytes(b"content")
+    resource_id = "asset://bezels/org.test.bezel@1.0.0-" + "b" * 64 + ".png"
+    selected = {
+        "id": resource_id,
+        "resourceId": resource_id,
+        "assetUrl": resource_id,
+        "label": "Test bezel",
+        "origin": "custom-theme",
+        "themeId": "org.test.bezel",
+        "version": "1.0.0",
+        "license": "CC-BY-4.0",
+        "format": "png",
+        "available": True,
+        "compatible": True,
+        "applyMode": "next-launch",
+    }
+    adapter = RetroArchSessionPeripheral(
+        content,
+        tmp_path / "states",
+        bezel_resource=selected,
+        bezel_catalog=[selected],
+    )
+    projection = resolve_session_peripherals(adapter.list_peripherals()).to_dict()
+    bezel = projection["bezels"][0]
+    assert bezel["id"] == resource_id
+    assert bezel["assetUrl"] == resource_id
+    assert bezel["selected"] is True
+    assert bezel["applied"] is False
+    assert bezel["executionState"] == "launch-configured-unconfirmed"
+    assert "pixels" in bezel["reason"]
 
 
 def test_retroarch_save_state_slot_zero_waits_for_a_real_file(tmp_path: Path) -> None:

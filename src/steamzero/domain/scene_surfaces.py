@@ -88,8 +88,15 @@ _CLOCK_SOURCE = re.compile(r"^clock\.iso$")
 _STATISTICS_SOURCE = re.compile(r"^stats\.[a-z][a-zA-Z0-9]{0,31}$")
 _CLOCK_FORMAT = re.compile(r"^HH:mm(?::ss)?$")
 _STATISTICS_FORMAT = re.compile(r"^[^{}]{0,16}\{value\}[^{}]{0,16}$")
-_BEZEL_ASSET = re.compile(r"^asset://bezels/[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}\.(?:svg|png|webp)$")
-_BEZEL_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$")
+_BEZEL_ASSET = re.compile(
+    r"^asset://bezels/(?:[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}\.(?:svg|png|webp)|"
+    r"[a-z0-9]+(?:[.-][a-z0-9]+)+@[0-9]+\.[0-9]+\.[0-9]+-[0-9a-f]{64}\.png)$"
+)
+_BEZEL_ID = re.compile(
+    r"^(?:[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}|"
+    r"asset://bezels/[a-z0-9]+(?:[.-][a-z0-9]+)+@[0-9]+\.[0-9]+\.[0-9]+-"
+    r"[0-9a-f]{64}\.png)$"
+)
 DEFAULT_CLOCK_FORMAT = "HH:mm"
 DEFAULT_STATISTICS_FORMAT = "{value}"
 _DEFAULT_KIND = {
@@ -655,6 +662,12 @@ def _bezel_entries(
                 "label": label.strip()[:128],
                 "assetUrl": asset_url,
                 "selected": raw.get("selected") is True,
+                "applied": raw.get("applied") is True,
+                "origin": str(raw.get("origin") or "unknown")[:32],
+                "version": str(raw.get("version") or "")[:32],
+                "license": str(raw.get("license") or "")[:128],
+                "applyMode": str(raw.get("applyMode") or "unavailable")[:32],
+                "executionState": str(raw.get("executionState") or "unavailable")[:32],
             }
         )
     if not entries and not any(

@@ -91,6 +91,7 @@ from steamzero.adapters.session_control import (
 )
 from steamzero.adapters.session_peripherals import (
     RetroArchSessionPeripheral,
+    cleanup_retroarch_session_artifacts,
     default_retroarch_runtime_log_root,
     prepare_retroarch_session_config,
 )
@@ -98,6 +99,7 @@ from steamzero.adapters.state_store_media import StateStoreGameMediaAdapter
 from steamzero.adapters.state_store_provider_health import StateStoreProviderHealthAdapter
 from steamzero.adapters.steam_shortcuts import SteamShortcutManager
 from steamzero.adapters.storage_summary import collect_storage_summary
+from steamzero.adapters.theme_catalog import list_bezel_resources, resolve_bezel_resource
 from steamzero.api import contracts
 from steamzero.core import fs, ids, journal, paths, safezip, transaction
 from steamzero.core.errors import LaunchNotStartedError, SteamZeroError, provider_error_category
@@ -1285,16 +1287,35 @@ class EmulationController:
             # emulador" e "Jogar" subiriam o RetroArch sem o perfil de controle
             # — que é o caminho que o usuário realmente percorre.
             overlay = input_devices.retroarch_launch_arguments(flatpak_ref)
-            session_config_args = (
-                ("--appendconfig", str(session_config)) if session_config is not None else ()
-            )
+            append_config_args: tuple[str, ...] = overlay
+            if session_config is not None:
+                session_config_path = str(session_config)
+                if "|" in session_config_path or any("|" in item for item in overlay[1:]):
+                    raise SteamZeroError(
+                        "E-COMPONENT-DEGRADED",
+                        detail="caminho de config contém o separador reservado do RetroArch",
+                    )
+                if overlay:
+                    if len(overlay) != 2 or overlay[0] != "--appendconfig":
+                        raise SteamZeroError(
+                            "E-COMPONENT-DEGRADED",
+                            detail="argumentos gerenciados do RetroArch são inválidos",
+                        )
+                    append_value = f"{overlay[1]}|{session_config_path}"
+                else:
+                    append_value = session_config_path
+                if len(append_value) > 4095:
+                    raise SteamZeroError(
+                        "E-COMPONENT-DEGRADED",
+                        detail="lista de configs do RetroArch excede o limite de caminho",
+                    )
+                append_config_args = ("--appendconfig", append_value)
             return [
                 "flatpak",
                 "run",
                 "--user",
                 flatpak_ref,
-                *overlay,
-                *session_config_args,
+                *append_config_args,
                 *args,
             ]
         if payload is None:
@@ -1659,12 +1680,16 @@ class EmulationController:
             "core_path": core_path,
         }
 
-    def launch_game(self, game_id: str) -> dict[str, Any]:
+    def launch_game(self, game_id: str, *, bezel_resource: str = "aura-default") -> dict[str, Any]:
         # A fase de PREPARAÇÃO precede sessão e spawn: qualquer SteamZeroError
         # aqui é comprovadamente anterior ao spawn e vira LaunchNotStartedError,
         # para o CLI declarar notStarted e o Launcher liberar a tentativa.
         # Falha depois da criação de sessão (spawn, PID) NÃO é convertida —
         # ela já finaliza a sessão canônica e não ganha garantia inventada.
+        session_artifact_id: str | None = None
+        retroarch_artifacts_created = False
+        configured_bezel: Mapping[str, Any] | None = None
+        bezel_catalog: list[dict[str, Any]] = []
         try:
             preflight = self._launch_preflight(game_id)
             game = preflight["game"]
@@ -1683,13 +1708,32 @@ class EmulationController:
             # argv faria a melhoria constar como aplicada sem efeito no lançamento
             # — falha silenciosa que nenhum teste de aplicação pegaria.
             enhancement_outcome = self._apply_launch_enhancements(game, game_settings, emulator_id)
-            session_config = (
-                prepare_retroarch_session_config()
-                if source_type == "flatpak"
-                and flatpak_ref
+            retroarch_supported = (
+                source_type == "flatpak"
+                and flatpak_ref is not None
                 and input_devices.RETROARCH_REF in flatpak_ref
-                else None
             )
+            if bezel_resource != "aura-default" and not retroarch_supported:
+                raise SteamZeroError(
+                    "E-COMPONENT-DEGRADED",
+                    detail="bezel customizado disponível somente para RetroArch Flatpak",
+                )
+            session_config = None
+            if retroarch_supported:
+                session_artifact_id = ids.new_ulid()
+                try:
+                    configured_bezel = resolve_bezel_resource(bezel_resource)
+                    bezel_catalog = list_bezel_resources()
+                    session_config = prepare_retroarch_session_config(
+                        bezel_resource,
+                        session_id=session_artifact_id,
+                        resolved_bezel=configured_bezel,
+                    )
+                except (OSError, ValueError) as exc:
+                    raise SteamZeroError(
+                        "E-THEME-INCOMPATIBLE", detail="o bezel selecionado não pôde ser aplicado"
+                    ) from exc
+                retroarch_artifacts_created = True
             argv = self._build_exec_argv(
                 profile,
                 source_type=source_type,
@@ -1701,16 +1745,30 @@ class EmulationController:
             )
             argv = self._runtime_compat_argv(emulator_id, argv)
         except SteamZeroError as exc:
+            if session_artifact_id is not None:
+                cleanup_retroarch_session_artifacts(session_artifact_id)
             raise LaunchNotStartedError(exc) from exc
 
         session_id: str | None = None
         control_server: SessionControlServer | None = None
         started_monotonic = self._monotonic()
         if self._process_waiter is not None:
-            session_id = self._create_tracked_game_session(game, emulator_id, platform_id)
+            try:
+                session_id = self._create_tracked_game_session(
+                    game,
+                    emulator_id,
+                    platform_id,
+                    session_id=session_artifact_id if retroarch_artifacts_created else None,
+                )
+            except Exception:
+                if retroarch_artifacts_created and session_artifact_id is not None:
+                    cleanup_retroarch_session_artifacts(session_artifact_id)
+                raise
         try:
             pid = self._spawn(argv)
         except Exception:
+            if retroarch_artifacts_created and session_artifact_id is not None:
+                cleanup_retroarch_session_artifacts(session_artifact_id)
             if session_id is not None:
                 self._finish_tracked_game_session(
                     session_id,
@@ -1742,6 +1800,8 @@ class EmulationController:
                                 rom,
                                 paths.saves_dir() / "states",
                                 runtime_log_root=default_retroarch_runtime_log_root(),
+                                bezel_resource=configured_bezel,
+                                bezel_catalog=bezel_catalog,
                             )
                         owner = SessionControlOwner(
                             session_id,
@@ -1771,6 +1831,7 @@ class EmulationController:
                         str(game["id"]),
                         str(game["titleId"]) if isinstance(game.get("titleId"), str) else None,
                         control_server,
+                        retroarch_artifacts_created,
                     ),
                     name=f"steamzero-game-{session_id[-8:]}",
                     # The CLI publishes the launch result and then reaches
@@ -1782,6 +1843,8 @@ class EmulationController:
                 )
                 watcher.start()
         elif session_id is not None:
+            if retroarch_artifacts_created and session_artifact_id is not None:
+                cleanup_retroarch_session_artifacts(session_artifact_id)
             self._finish_tracked_game_session(
                 session_id,
                 target="failed",
@@ -1792,6 +1855,8 @@ class EmulationController:
                 "E-SESSION-LAUNCH-FAILED",
                 detail="o launcher não publicou um PID observável",
             )
+        elif retroarch_artifacts_created and session_artifact_id is not None:
+            cleanup_retroarch_session_artifacts(session_artifact_id)
         return {
             "status": "started",
             "gameId": game_id,
@@ -1946,9 +2011,14 @@ class EmulationController:
         return self._cloud.launch(platform_id)
 
     def _create_tracked_game_session(
-        self, game: Mapping[str, Any], emulator_id: str, platform_id: str
+        self,
+        game: Mapping[str, Any],
+        emulator_id: str,
+        platform_id: str,
+        *,
+        session_id: str | None = None,
     ) -> str:
-        session_id = ids.new_ulid()
+        session_id = session_id or ids.new_ulid()
         metadata = json.dumps(
             {
                 "source": "emulation",
@@ -1990,6 +2060,7 @@ class EmulationController:
         game_id: str,
         title_id: str | None,
         control_server: SessionControlServer | None = None,
+        retroarch_artifacts_created: bool = False,
     ) -> None:
         waiter = self._process_waiter
         if waiter is None:
@@ -2016,6 +2087,15 @@ class EmulationController:
         finally:
             if control_server is not None:
                 control_server.close()
+            if retroarch_artifacts_created:
+                try:
+                    if not cleanup_retroarch_session_artifacts(session_id):
+                        _log.warning(
+                            "artefatos de bezel da sessão %s aguardam limpeza segura",
+                            session_id,
+                        )
+                except OSError:
+                    _log.warning("não foi possível limpar o bezel da sessão %s", session_id)
             self._running_pids.pop(emulator_id, None)
             if title_id is not None:
                 self._session_save_checkpoint(game_id, title_id, emulator_id)

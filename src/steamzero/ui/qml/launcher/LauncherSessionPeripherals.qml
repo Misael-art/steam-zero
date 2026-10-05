@@ -16,6 +16,13 @@ Item {
     property int selectedIndex: 0
     readonly property var discs: model && Array.isArray(model.discs) ? model.discs : []
     readonly property var bezels: model && Array.isArray(model.bezels) ? model.bezels : []
+    readonly property var selectedBezelRecord: {
+        for (let i = 0; i < bezels.length; ++i) {
+            if (bezels[i] && bezels[i].selected === true)
+                return bezels[i]
+        }
+        return null
+    }
     readonly property var fade: model && model.fade ? model.fade : ({"phase": "idle",
         "progress": 0.0, "durationMs": 180, "reducedMotion": false})
     readonly property var themeTokens: theme && theme.resolved ? theme.resolved : ({})
@@ -119,7 +126,7 @@ Item {
                 spacing: 16
                 Text {
                     width: parent.width - closeButton.width - 16
-                    text: qsTr("MÍDIA DA SESSÃO · TROCAR DISCO")
+                    text: qsTr("MÍDIA E BEZEL DA SESSÃO")
                     color: surface.accentColor
                     font.pixelSize: 18 * surface.visualScale
                     font.bold: true
@@ -218,14 +225,58 @@ Item {
                 }
             }
 
-            Text {
+            Column {
                 width: parent.width
-                text: bezels.length > 0
-                    ? qsTr("Molduras declaradas: %1 · aplicadas somente quando o adapter confirmar compatibilidade.").arg(bezels.length)
-                    : qsTr("Moldura: fallback proporcional sem asset confirmado")
-                color: surface.mutedColor
-                font.pixelSize: 12 * surface.visualScale
-                wrapMode: Text.Wrap
+                spacing: 6
+                Text {
+                    width: parent.width
+                    text: selectedBezelRecord
+                        ? qsTr("Bezel selecionado: %1 · %2 %3 · licença %4")
+                            .arg(String(selectedBezelRecord.label || qsTr("sem nome")))
+                            .arg(String(selectedBezelRecord.origin || qsTr("origem desconhecida")))
+                            .arg(String(selectedBezelRecord.version || ""))
+                            .arg(String(selectedBezelRecord.license || qsTr("desconhecida")))
+                        : qsTr("Bezel: AURA por herança ou sem catálogo publicado")
+                    color: surface.textColor
+                    font.pixelSize: 13 * surface.visualScale
+                    font.bold: true
+                    wrapMode: Text.Wrap
+                }
+                Text {
+                    objectName: "sessionBezelExecutionStatus"
+                    width: parent.width
+                    text: selectedBezelRecord
+                        && selectedBezelRecord.executionState === "launch-configured-unconfirmed"
+                        ? qsTr("Configuração da sessão enviada no launch. O RetroArch e os pixels do overlay ainda não confirmaram a aplicação; alterações da Jornada valem no próximo launch.")
+                        : selectedBezelRecord && selectedBezelRecord.applied === true
+                            ? qsTr("O adapter confirmou a aplicação do bezel nesta sessão.")
+                            : selectedBezelRecord
+                                ? String(selectedBezelRecord.reason || qsTr("Estado do runtime não confirmado."))
+                                : qsTr("Nenhuma confirmação de runtime disponível.")
+                    color: surface.mutedColor
+                    font.pixelSize: 12 * surface.visualScale
+                    wrapMode: Text.Wrap
+                }
+            }
+            Repeater {
+                objectName: "sessionBezelCatalog"
+                model: surface.bezels
+                delegate: Text {
+                    required property var modelData
+                    width: parent.width
+                    text: String(modelData.label || qsTr("Bezel"))
+                        + " · " + String(modelData.origin || qsTr("origem desconhecida"))
+                        + (modelData.version ? " " + String(modelData.version) : "")
+                        + (modelData.license ? " · " + String(modelData.license) : "")
+                        + (modelData.available === true && modelData.compatible === true
+                            ? (modelData.selected === true
+                                ? " · " + qsTr("selecionado")
+                                : " · " + qsTr("disponível para próximo launch"))
+                            : " · " + String(modelData.reason || qsTr("indisponível")))
+                    color: modelData.selected === true ? surface.accentColor : surface.mutedColor
+                    font.pixelSize: 11 * surface.visualScale
+                    wrapMode: Text.Wrap
+                }
             }
             Text {
                 width: parent.width

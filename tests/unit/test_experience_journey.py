@@ -744,3 +744,24 @@ def test_third_party_theme_without_the_additive_bezel_slot_reports_missing_eleme
 
     assert coverage[0]["appearance"] == "incompatible"
     assert coverage[0]["missingSceneElements"] == ["sceneSurfaces.slot:bezel"]
+
+
+def test_custom_bezel_resource_uri_is_logical_versioned_and_rejects_paths() -> None:
+    valid_resource = "asset://bezels/org.test.bezel@1.2.3-" + "d" * 64 + ".png"
+    valid = _parsed().data
+    valid["sessionStages"].append({"stageId": "bezel", "bezelResource": valid_resource})
+    parsed = JourneyDocument.parse(valid)
+    assert parsed.data["sessionStages"][-1]["bezelResource"] == valid_resource
+
+    invalid_resources = [
+        "/home/user/bezel.png",
+        "file:///tmp/bezel.png",
+        "https://example.org/bezel.png",
+        "asset://bezels/org.test.bezel@1.2.3-" + "d" * 63 + ".png",
+        "asset://bezels/org.test.bezel@1.2.3-" + "d" * 64 + ".svg",
+    ]
+    for resource in invalid_resources:
+        document = _parsed().data
+        document["sessionStages"].append({"stageId": "bezel", "bezelResource": resource})
+        with pytest.raises(ValidationError):
+            JourneyDocument.parse(document)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
+import io
 import json
 import tempfile
 from pathlib import Path
@@ -13,8 +15,10 @@ from steamzero.adapters.theme_catalog import (
     ThemeCatalog,
     _manifest_validator,
     _validate_manifest,
+    list_bezel_resources,
     list_builtin_theme_ids,
     read_builtin_manifest,
+    resolve_bezel_resource,
     validate_theme_directory,
 )
 from steamzero.core.errors import SteamZeroError
@@ -34,6 +38,48 @@ from steamzero.domain.themes import (
     ThemeResolver,
     ThemeTypographyTokens,
 )
+
+
+def _png_bytes(color: tuple[int, int, int, int] = (14, 28, 42, 255)) -> bytes:
+    from PIL import Image
+
+    output = io.BytesIO()
+    Image.new("RGBA", (24, 16), color).save(output, format="PNG")
+    return output.getvalue()
+
+
+def _write_bezel_theme(root: Path, *, extension: str = ".png") -> tuple[Path, bytes]:
+    theme_id = "org.test.custom-bezel"
+    directory = root / theme_id
+    assets = directory / "assets"
+    assets.mkdir(parents=True)
+    image = (
+        _png_bytes()
+        if extension == ".png"
+        else (
+            b"<svg xmlns='http://www.w3.org/2000/svg' width='24' height='16'>"
+            b"<rect width='24' height='16' fill='#102030'/></svg>"
+        )
+    )
+    (assets / f"bezel{extension}").write_bytes(image)
+    (directory / "theme.json").write_text(
+        json.dumps(
+            {
+                "schemaVersion": 1,
+                "kind": "steamzero-theme-v1",
+                "id": theme_id,
+                "name": "Custom bezel",
+                "version": "1.2.3",
+                "author": "Tests",
+                "license": "CC-BY-4.0",
+                "compatibility": {"themeApi": THEME_API_VERSION},
+                "assets": {"bezel": f"assets/bezel{extension}"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    return directory, image
+
 
 _SCHEMA_DIR = Path(__file__).parents[2] / "src" / "steamzero" / "schemas"
 
@@ -565,3 +611,64 @@ class TestUserThemeValidation:
         tmp_theme.rename(renamed)
         with pytest.raises(SteamZeroError, match="difere"):
             validate_theme_directory(renamed)
+
+
+def test_bezel_catalog_publishes_namespace_version_and_content_digest(
+    tmp_path: Path,
+) -> None:
+    theme_dir, png = _write_bezel_theme(tmp_path)
+    digest = hashlib.sha256(png).hexdigest()
+    resource_id = f"asset://bezels/org.test.custom-bezel@1.2.3-{digest}.png"
+
+    catalog = list_bezel_resources(tmp_path)
+    assert catalog[0]["resourceId"] == "aura-default"
+    bezel = next(item for item in catalog if item.get("themeId") == "org.test.custom-bezel")
+    assert bezel["resourceId"] == resource_id
+    assert bezel["origin"] == "custom-theme"
+    assert bezel["version"] == "1.2.3"
+    assert bezel["license"] == "CC-BY-4.0"
+    assert bezel["available"] is True
+    assert bezel["compatible"] is True
+    assert str(theme_dir) not in json.dumps(bezel)
+
+    resolved = resolve_bezel_resource(resource_id, tmp_path)
+    assert resolved["resourceId"] == resource_id
+    assert resolved["_sourceBytes"] == png
+    public = {key: value for key, value in resolved.items() if not key.startswith("_")}
+    assert str(theme_dir) not in json.dumps(public)
+
+
+def test_bezel_resolver_rejects_stale_content_and_missing_theme(tmp_path: Path) -> None:
+    theme_dir, png = _write_bezel_theme(tmp_path)
+    resource_id = (
+        f"asset://bezels/org.test.custom-bezel@1.2.3-{hashlib.sha256(png).hexdigest()}.png"
+    )
+    (theme_dir / "assets" / "bezel.png").write_bytes(_png_bytes((100, 90, 80, 255)))
+    with pytest.raises(SteamZeroError) as stale:
+        resolve_bezel_resource(resource_id, tmp_path)
+    assert stale.value.code == "E-THEME-INCOMPATIBLE"
+
+    for path in theme_dir.iterdir():
+        if path.is_dir():
+            for child in path.iterdir():
+                child.unlink()
+            path.rmdir()
+        else:
+            path.unlink()
+    theme_dir.rmdir()
+    with pytest.raises(SteamZeroError) as missing:
+        resolve_bezel_resource(resource_id, tmp_path)
+    assert missing.value.code == "E-THEME-NOT-FOUND"
+
+
+def test_bezel_catalog_disables_svg_for_retroarch_flatpak(tmp_path: Path) -> None:
+    _write_bezel_theme(tmp_path, extension=".svg")
+    bezel = next(
+        item
+        for item in list_bezel_resources(tmp_path)
+        if item.get("themeId") == "org.test.custom-bezel"
+    )
+    assert bezel["format"] == "svg"
+    assert bezel["available"] is False
+    assert bezel["compatible"] is False
+    assert "PNG" in bezel["reason"]
