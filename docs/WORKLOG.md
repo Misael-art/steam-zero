@@ -14675,3 +14675,11 @@ Validação desta revisão: 13 testes de status aprovados em 5.13s, guard de est
 - `GAP-AURA-UI-CENTRAL-LOADING-6-VS-5` permanece histórico, aberto e sem causa. `04-integral-preflight-failed.log` preservado com SHA `63dac04da8fa5f392e2cc4e0f5b853af7bb4d102602f405436f720615209fd2e`; o passe novo vale apenas para a árvore corrigida.
 - Ruff check, formatação (699), mypy (303), `make independence boundaries`, `make status-check` e `git diff --check` passaram. Handoff/harness, proteção de proveniência e evidência/status foram separados nos commits `799fe8d3`, `5a73ecef` e `b82a55d2`.
 - Estado no fechamento local: commits ainda não enviados; push/PR/CI/merge por SHA exato pendentes. Nenhuma instalação, rollback, publicação certificada, janela física, captura ou B_VISUAL foi executado; esses passos seguem fora da autorização/token atual.
+
+## 2026-10-05 — Handoff pós-merge para Library
+
+- PR #252 foi mesclado por commit be6a7e90359befcc09f88319c08c8cd836570b66. O push-run 37311278545 terminou verde nesse SHA; todos os jobs concluíram, inclusive Python 3.11/3.12/3.14, wheel/supply chain, smokes de Ubuntu/Arch/Manjaro e gate visual QML (375 passed, 13 skipped, 6.334 deselected).
+- tests/integration/test_qml_handheld_offscreen.py foi devolvido serialmente à WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT e removido da lista exclusiva da Jornada; SHA-256 atual: 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707. As duas workstreams foram atualizadas depois do merge.
+- Candidata preparada do artefato do run exato 37311278545 e validada por verify-bundle: release 2.0.0rc1-be6a7e90359b, wheel SHA-256 6b4c5e519afad1a3a38fa551e6a43831770218b1b5e80cc2e72e8bf56b5c1aaf, bundle em /home/misael/.local/state/steamzero/release-candidates/pr252-be6a7e90359befcc09f88319c08c8cd836570b66.
+- release_host.py --json inspect permaneceu somente leitura: host ativo 2.0.0rc1-5715d7962691 (5715d7962691efedef0f1b63e71adff1ad5ba801), schema 22, 0 operações pendentes; 9 backups/journals órfãos, bootDirect=unknown, botões Deck não chegam como teclas e estado degraded. O daemon permaneceu ativo.
+- Nenhuma instalação, rollback, publicação certificada ou B_VISUAL foi executada. GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 permanece aberto e sem causa; a prova verde vale apenas para a árvore corrigida.
