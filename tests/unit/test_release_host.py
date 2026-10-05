@@ -1519,6 +1519,179 @@ def test_host_preflight_rejects_incompatible_data_schema(
         release_host._host_preflight(runner=runner, check_ownership=False)
 
 
+def _host_preflight_fixture(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    provenance_status: str = "pass",
+    provenance_message: str | None = None,
+    daemon_commit: str | None = None,
+) -> tuple[_Runner, str, str]:
+    version = "0.1.0a41"
+    source_commit = "b" * 40
+    release = f"{version}-{source_commit[:12]}"
+    manifest = {
+        "release": release,
+        "packageVersion": version,
+        "sourceCommit": source_commit,
+    }
+    monkeypatch.setattr(
+        release_host,
+        "_read_host_truth",
+        lambda _root: {"ok": True, "release": release},
+    )
+    monkeypatch.setattr(
+        release_host,
+        "_installed_release_manifest",
+        lambda _release, _root: manifest,
+    )
+    active_cli = release_host.HOST_ROOT / "current" / "venv" / "bin" / "steamzero"
+    doctor = {
+        "ok": True,
+        "checks": [
+            {
+                "name": "runtime.provenance",
+                "status": provenance_status,
+                "message": provenance_message or release,
+            }
+        ],
+        "data": {
+            "schemaVersion": release_host.DATA_SCHEMA_VERSION,
+            "pendingOperations": 0,
+            "version": version,
+        },
+    }
+    service_status = {
+        "ok": True,
+        "data": {
+            "state": "converged",
+            "activatedRelease": release,
+            "daemonRelease": release,
+            "daemonCommit": daemon_commit or source_commit,
+        },
+    }
+    runner = _Runner(
+        {
+            (str(active_cli), "doctor", "--json"): (0, json.dumps(doctor), ""),
+            (str(active_cli), "service", "status", "--json"): (
+                0,
+                json.dumps(service_status),
+                "",
+            ),
+            ("systemctl", "--user", "is-active", "steamzero-core.socket"): (
+                0,
+                "active\n",
+                "",
+            ),
+            ("systemctl", "--user", "is-active", "steamzero-core.service"): (
+                0,
+                "active\n",
+                "",
+            ),
+        }
+    )
+    return runner, release, source_commit
+
+
+def test_default_runner_does_not_shadow_host_cli_with_checkout_pythonpath(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    def fake_run(
+        argv: Sequence[str],
+        *,
+        cwd: Path,
+        text: bool,
+        capture_output: bool,
+        timeout: int,
+        check: bool,
+        env: dict[str, str] | None,
+    ) -> subprocess.CompletedProcess[str]:
+        observed.update(argv=tuple(argv), cwd=cwd, env=env)
+        assert text and capture_output and not check
+        assert timeout == 30
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    monkeypatch.setenv("PYTHONPATH", "src")
+    monkeypatch.setattr(release_host.subprocess, "run", fake_run)
+
+    release_host._default_runner(("steamzero", "doctor", "--json"), Path("."), 30)
+
+    environment = observed["env"]
+    assert isinstance(environment, dict)
+    assert "PYTHONPATH" not in environment
+
+
+def test_host_preflight_rejects_unknown_runtime_provenance(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner, _release, _source_commit = _host_preflight_fixture(
+        monkeypatch,
+        provenance_status="warn",
+        provenance_message="origem do pacote desconhecida",
+    )
+
+    with pytest.raises(
+        release_host.AutomationError,
+        match=r"runtime\.provenance.*promoção recusada",
+    ):
+        release_host._host_preflight(runner=runner, check_ownership=False)
+
+    assert len(runner.calls) == 1
+    assert runner.calls[0][-2:] == ("doctor", "--json")
+
+
+def test_host_preflight_rejects_runtime_release_mismatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner, _release, _source_commit = _host_preflight_fixture(
+        monkeypatch,
+        provenance_message="0.1.0a41-cccccccccccc",
+    )
+
+    with pytest.raises(
+        release_host.AutomationError,
+        match=r"runtime\.provenance diverge",
+    ):
+        release_host._host_preflight(runner=runner, check_ownership=False)
+
+    assert len(runner.calls) == 1
+
+
+def test_host_preflight_rejects_daemon_commit_mismatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner, _release, _source_commit = _host_preflight_fixture(
+        monkeypatch,
+        daemon_commit="c" * 40,
+    )
+
+    with pytest.raises(release_host.AutomationError, match="commit de origem do daemon"):
+        release_host._host_preflight(runner=runner, check_ownership=False)
+
+    assert runner.calls[-1][1:] == ("service", "status", "--json")
+
+
+def test_host_preflight_accepts_coherent_runtime_provenance(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner, release, source_commit = _host_preflight_fixture(monkeypatch)
+
+    result = release_host._host_preflight(runner=runner, check_ownership=False)
+
+    assert result["release"] == release
+    doctor = result["doctor"]
+    daemon = result["daemon"]
+    assert isinstance(doctor, dict)
+    assert doctor["sourceCommit"] == source_commit
+    assert isinstance(daemon, dict)
+    assert daemon["commit"] == source_commit
+    assert runner.calls[-2:] == [
+        ("systemctl", "--user", "is-active", "steamzero-core.socket"),
+        ("systemctl", "--user", "is-active", "steamzero-core.service"),
+    ]
+
+
 def test_qml_smoke_accepts_only_alive_timeout() -> None:
     runner = _Runner({})
     runner.responses = {}
