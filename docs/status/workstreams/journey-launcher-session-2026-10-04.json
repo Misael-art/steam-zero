@@ -99,7 +99,6 @@
     "docs/09-operations/evidence/2026-10-04-journey-launcher-session",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel",
     "tests/integration/test_cli_emulation.py",
-    "tests/integration/test_qml_handheld_offscreen.py",
     "tools/release_host.py",
     "tests/unit/test_release_host.py"
   ],
@@ -117,6 +116,6 @@
     "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
     "docs/09-operations/AGENT-HANDOFF.md"
   ],
-  "nextAction": "Checkpoint integral autorizado e concluído na árvore corrigida: 6675 passed, 47 skipped, 0 failed em 2669.43 s, exit 0; HEAD-base 31564383ac90b53e0ae8ed6696eaa7ca32f8d5ef e hashes src/tests/tools inalterados antes/depois. O log 08 preserva o resultado; guard detectou escrita do daemon externo já ativo e declarou atribuição do state home degradada. Static gates passaram na mesma fonte antes da edição documental; renovar/renderizar status-check. Revisar diff e separar commits funcionais de proveniência e handoff/harness, commits documentais e shared final; um push, PR e CI terminal no SHA exato antes do merge commit. Após merge, devolver serialmente o teste à Biblioteca. Preservar o gap histórico 6-vs-5 sem causa e não iniciar instalação, rollback ou B_VISUAL sem nova autorização/token.",
+  "nextAction": "PR #252 foi mesclado em be6a7e90359befcc09f88319c08c8cd836570b66. O push-run #37311278545 terminou verde nesse SHA; o checkpoint novo registrou 6675 passed, 47 skipped e 0 failed localmente, e o gate visual CI 375 passed, 13 skipped, 6334 deselected. Atribuição do state home da integral local ficou degradada pela escrita do daemon externo pré-existente; o gap histórico GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 continua aberto e sem causa. Handoff pós-merge concluído: tests/integration/test_qml_handheld_offscreen.py, SHA-256 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707, voltou à WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT e saiu do exclusivePaths desta Jornada. Continuar as lacunas elegíveis de AURA Studio/Engine/Launcher sem promover maturidade por esta evidência automatizada. Não instalar, reverter, publicar certificação nem executar B_VISUAL sem autorização explícita e token exato.",
   "updatedAt": "2026-10-05"
 }
