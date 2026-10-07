@@ -90,6 +90,77 @@ Item {
         }
         return rows
     }
+    readonly property var latestLibraryScanAttempt: {
+        const jobs = emulation && emulation.jobs ? emulation.jobs : []
+        for (let i = 0; i < jobs.length; ++i) {
+            const job = jobs[i]
+            if (job && job.type === "library.scan")
+                return job
+        }
+        return null
+    }
+    readonly property var latestLibraryScan: {
+        const jobs = emulation && emulation.jobs ? emulation.jobs : []
+        for (let i = 0; i < jobs.length; ++i) {
+            const job = jobs[i]
+            const result = job && job.result ? job.result : null
+            const state = String(job && (job.rawState || job.state) || "")
+            if (job && job.type === "library.scan" && result
+                    && result.status === "scanned"
+                    && (state === "completed" || state === "succeeded")
+                    && Number.isFinite(Number(result.games)))
+                return job
+        }
+        return null
+    }
+    readonly property int scannedGameCount: latestLibraryScan
+        ? Number(latestLibraryScan.result.games || 0) : 0
+    function scanAttemptDescription() {
+        const attempt = latestLibraryScanAttempt
+        if (!attempt)
+            return qsTr("nenhuma varredura publicada")
+        const state = String(attempt.rawState || attempt.state || "")
+        if (["created", "queued", "blocked", "paused", "running", "cancelling",
+                    "rolling-back", "interrupted"].indexOf(state) >= 0)
+            return qsTr("varredura mais recente em andamento")
+        if (["failed", "cancelled", "rolled-back", "rollback-failed"].indexOf(state) >= 0)
+            return latestLibraryScan
+                ? qsTr("última tentativa falhou; dados abaixo são do último sucesso")
+                : qsTr("última tentativa falhou; nenhum snapshot concluído")
+        return qsTr("resultado da última varredura indisponível")
+    }
+    function formattedScanTimestamp(job) {
+        const value = String(job && (job.updatedAt || job.createdAt) || "")
+        const timestamp = Date.parse(value)
+        return Number.isFinite(timestamp)
+            ? Qt.formatDateTime(new Date(timestamp), "dd/MM/yyyy HH:mm")
+            : qsTr("horário indisponível")
+    }
+    readonly property string catalogCountLabel: {
+        if (loading)
+            return qsTr("Consultando a biblioteca")
+        const published = qsTr("%1 títulos publicados no catálogo Steam + emulação")
+            .arg(catalog.length)
+        if (!latestLibraryScan)
+            return qsTr("%1 · %2").arg(published).arg(scanAttemptDescription())
+        const result = latestLibraryScan.result
+        const files = Number.isFinite(Number(result.filesFound))
+            ? String(Number(result.filesFound)) : qsTr("não informado")
+        const rootSummary = Number.isFinite(Number(result.roots))
+            ? String(Number(result.roots)) + " "
+                + (Number(result.roots) === 1 ? qsTr("raiz") : qsTr("raízes"))
+            : qsTr("número de raízes não informado")
+        let summary = qsTr("%1 · último scan concluído da emulação: %2 jogos canônicos, %3 arquivos em %4 · atualizado em %5")
+            .arg(published).arg(String(scannedGameCount))
+            .arg(files).arg(rootSummary).arg(formattedScanTimestamp(latestLibraryScan))
+        const attempt = latestLibraryScanAttempt
+        if (attempt && attempt.jobId !== latestLibraryScan.jobId) {
+            const description = scanAttemptDescription()
+            if (description)
+                summary += qsTr(" · %1").arg(description)
+        }
+        return summary
+    }
     readonly property var favoriteRefs: collections && collections.favorites ? collections.favorites : []
     readonly property var collectionItems: collections && collections.collections
         ? collections.collections : []
@@ -219,10 +290,14 @@ Item {
                 Layout.fillWidth: true
             }
             Label {
-                text: root.loading ? qsTr("Consultando a biblioteca")
-                    : qsTr("%1 títulos publicados").arg(root.catalog.length)
+                objectName: "catalog-count-label"
+                text: root.catalogCountLabel
                 color: root.mutedColor
                 font.pixelSize: root.typeSize("metadata")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignRight
+                Layout.preferredWidth: root.compact ? 300 : 520
+                Layout.maximumWidth: Layout.preferredWidth
             }
         }
 

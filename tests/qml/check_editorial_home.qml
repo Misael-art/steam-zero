@@ -58,7 +58,15 @@ Window {
                     "statusLabel": "Nenhum jogo inventariado", "games": []}
             ],
             "platforms": [{"id": "switch", "name": "Fixture Switch", "state": "attention",
-                "statusLabel": "BIOS pendente", "games": [{"id": "rom-1", "name": "Fixture ROM"}]}]
+                "statusLabel": "BIOS pendente", "games": [{"id": "rom-1", "name": "Fixture ROM"}]}],
+            "jobs": [
+                {"type": "library.scan", "jobId": "scan-current", "state": "running",
+                    "updatedAt": "2026-10-05T23:20:00+00:00"},
+                {"type": "library.scan", "jobId": "scan-previous", "state": "succeeded",
+                    "updatedAt": "2026-10-05T22:20:00+00:00",
+                    "result": {"status": "scanned", "games": 4, "filesFound": 7,
+                        "updates": 1, "dlcs": 0, "roots": 1}}
+            ]
         })
         playtime: ({"games": [{"gameId": "10", "title": "Fixture Steam", "source": "steam", "playedSeconds": 5400,
             "action": {"kind": "steam-continue", "label": "Continuar", "enabled": true}}]})
@@ -97,6 +105,35 @@ Window {
                 check(home.typeSize("display") === 54 && home.typeSize("badge") === 18,
                       "papéis tipográficos devem respeitar escala de 150%")
                 check(home.catalog.length === 3, "Home deve unificar Steam e emulação")
+                check(home.scannedGameCount === 4,
+                      "Home deve ler jogos canônicos do último scan concluído")
+                check(home.catalogCountLabel.indexOf("3 títulos publicados no catálogo Steam + emulação") >= 0,
+                      "Home deve rotular o catálogo agregado")
+                check(home.catalogCountLabel.indexOf("4 jogos canônicos") >= 0,
+                      "Home deve apresentar jogos canônicos")
+                check(home.catalogCountLabel.indexOf("7 arquivos") >= 0,
+                      "Home deve apresentar arquivos")
+                check(home.catalogCountLabel.indexOf("1 raiz") >= 0,
+                      "Home deve apresentar raízes")
+                check(home.catalogCountLabel.indexOf("varredura mais recente em andamento") >= 0,
+                      "Home deve sinalizar a tentativa mais nova sem misturar seus dados ao snapshot anterior")
+                check(home.formattedScanTimestamp(home.latestLibraryScan).length > 0,
+                      "Home deve associar o snapshot concluído a um horário")
+                const priorEmulation = home.emulation
+                home.emulation = ({
+                    "editorialPlatforms": priorEmulation.editorialPlatforms,
+                    "platforms": priorEmulation.platforms,
+                    "jobs": [
+                        {"type": "library.scan", "jobId": "scan-failed", "state": "failed"},
+                        {"type": "library.scan", "jobId": "scan-previous", "state": "succeeded",
+                            "updatedAt": "2026-10-05T22:20:00+00:00",
+                            "result": {"status": "scanned", "games": 4, "filesFound": 7,
+                                "updates": 1, "dlcs": 0, "roots": 1}}
+                    ]
+                })
+                check(home.catalogCountLabel.indexOf("última tentativa falhou; dados abaixo são do último sucesso") >= 0
+                      && home.scannedGameCount === 4,
+                      "uma tentativa falha deve ficar distinta do snapshot válido anterior")
                 check(home.recent.length === 1, "Recentes deve usar somente sessões publicadas")
                 check(home.favorites.length === 1 && home.favorites[0].gameRef === "steam:20",
                       "favoritos devem usar gameRef publicado")
