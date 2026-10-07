@@ -5,6 +5,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import "readiness.js" as Readiness
 import "sizes.js" as Sizes
+import "job_result_presentation.js" as JobResultPresentation
 
 ApplicationWindow {
     id: root
@@ -569,6 +570,7 @@ ApplicationWindow {
             "library.bitrot": qsTr("Verificação anti-bitrot"),
             "rom.scan": qsTr("Descoberta de ROMs"),
             "media.search": qsTr("Busca de mídia"),
+            "component.apply": qsTr("Operação de componente"),
             "ui.action": qsTr("Ação da interface"),
             "content.import": qsTr("Importação de conteúdo"),
             "nsz.convert": qsTr("Conversão NSZ"),
@@ -657,7 +659,65 @@ ApplicationWindow {
             .arg(item.category).arg(item.relativePath).arg(Sizes.bytes(item.sizeBytes))
     }
 
-    function taskResultSummary(job) {        const result = job && job.result ? job.result : {}
+    function taskTraceSummary(job) {
+        const trace = JobResultPresentation.componentJobTrace(job)
+        const parts = []
+        if (trace.identity)
+            parts.push(qsTr("Componente: %1").arg(trace.identity))
+        if (trace.artifact)
+            parts.push(qsTr("Artefato: %1").arg(trace.artifact))
+        if (trace.targetVersion)
+            parts.push(qsTr("Alvo: %1").arg(trace.targetVersion))
+        if (trace.sourceRevision)
+            parts.push(qsTr("Revisão da fonte: %1").arg(trace.sourceRevision))
+        if (trace.artifactDigest)
+            parts.push(qsTr("SHA-256: %1…").arg(trace.artifactDigest.slice(0, 12)))
+        if (trace.correlationId)
+            parts.push(qsTr("Pedido: %1").arg(trace.correlationId))
+        if (trace.jobId)
+            parts.push(qsTr("Tarefa: %1").arg(trace.jobId))
+        if (trace.planId)
+            parts.push(qsTr("Plano: %1").arg(trace.planId))
+        if (trace.operationId)
+            parts.push(qsTr("Operação: %1").arg(trace.operationId))
+        return parts.join(" · ")
+    }
+
+    function taskResultSummary(job) {
+        if (job && job.type === "component.apply") {
+            const outcome = JobResultPresentation.componentJobOutcome(job)
+            const code = String(job.errorCode || qsTr("sem código"))
+            if (outcome === "rollback-complete")
+                return job.errorCode === "E-TX-VERIFY-FAILED"
+                    ? qsTr("A verificação falhou; o rollback foi concluído. Código: %1.").arg(code)
+                    : qsTr("A aplicação falhou; o rollback foi concluído. Código: %1.").arg(code)
+            if (outcome === "rollback-failed")
+                return qsTr("O rollback falhou; o estado anterior não foi confirmado. Código: %1.").arg(code)
+            if (outcome === "failure-unlinked")
+                return qsTr("Falhou sem operação transacional vinculada. Confira o estado antes de repetir. Código: %1.").arg(code)
+            if (outcome === "failed")
+                return qsTr("Falhou. Código: %1.").arg(code)
+            if (outcome === "succeeded")
+                return qsTr("Aplicação e verificação concluídas.")
+            if (outcome === "cancelled")
+                return qsTr("Cancelada; confira o estado do componente antes de repetir.")
+            if (outcome === "running") {
+                const progress = job.progress || {}
+                if (String(job.rawState || "") === "rolling-back")
+                    return qsTr("Rollback em andamento; aguarde a confirmação do estado final.")
+                if (progress.stage === "downloading")
+                    return Number(progress.total || 0) > 0
+                        ? qsTr("Baixando: %1 de %2 bytes.").arg(progress.current || 0).arg(progress.total)
+                        : qsTr("Baixando; o tamanho total ainda não foi informado.")
+                if (progress.stage === "verified")
+                    return qsTr("Verificação concluída; finalizando a tarefa.")
+                if (progress.stage === "installing")
+                    return qsTr("Aplicando o deployment do componente.")
+                if (progress.stage === "preparing")
+                    return qsTr("Preparando a aplicação do componente.")
+            }
+        }
+        const result = job && job.result ? job.result : {}
         const progress = job && job.progress ? job.progress : {}
         if (job.state === "running" && Number(progress.total || 0) > 0)
             return qsTr("%1 de %2 %3").arg(progress.current || 0)
@@ -3523,6 +3583,16 @@ ApplicationWindow {
                                     color: root.mutedColor
                                     wrapMode: Text.WordWrap
                                     Layout.fillWidth: true
+                                }
+                                Label {
+                                    visible: modelData.type === "component.apply"
+                                        && root.taskTraceSummary(modelData).length > 0
+                                    text: root.taskTraceSummary(modelData)
+                                    color: root.mutedColor
+                                    font.pixelSize: 11
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                    Accessible.name: qsTr("Rastreamento da operação do componente")
                                 }
                                 RowLayout {
                                     visible: modelData.canCancel || modelData.canRetry
