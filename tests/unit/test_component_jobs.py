@@ -35,7 +35,16 @@ class BlockingLifecycle:
     def validate_apply(self, plan_id: str, confirm_token: str) -> dict[str, str]:
         assert plan_id == "01M000000000000000000000AA"
         assert confirm_token == "confirm-token"
-        return {"adapterId": "demo-emulator", "action": "install", "executor": "engine"}
+        return {
+            "adapterId": "demo-emulator",
+            "action": "install",
+            "executor": "engine",
+            "artifact": "demo-payload",
+            "artifactSource": "portable",
+            "targetVersion": "1.2.3",
+            "sourceRevision": "revision-123",
+            "artifactDigest": "abcdef1234567890",
+        }
 
     def apply(self, plan_id: str, confirm_token: str) -> dict[str, str]:
         self.apply_calls += 1
@@ -69,6 +78,11 @@ class BlockingLifecycle:
             "adapterId": "demo-emulator",
             "action": "install",
             "executor": "engine",
+            "artifact": "demo-payload",
+            "artifactSource": "portable",
+            "targetVersion": "1.2.3",
+            "sourceRevision": "revision-123",
+            "artifactDigest": "abcdef1234567890",
         }
 
     def _apply_status(self, plan_id: str) -> str:
@@ -192,6 +206,11 @@ def _persist_component_job(raw_state: str = "queued") -> str:
                 "adapterId": "demo-emulator",
                 "action": "install",
                 "executor": "engine",
+                "artifact": "demo-payload",
+                "artifactSource": "portable",
+                "targetVersion": "1.2.3",
+                "sourceRevision": "revision-123",
+                "artifactDigest": "abcdef1234567890",
             },
             priority="interactive",
             created_by="ui",
@@ -229,6 +248,11 @@ def test_start_returns_immediately_and_deduplicates_repeated_confirmation(job_en
         "adapterId": "demo-emulator",
         "action": "install",
         "executor": "engine",
+        "artifact": "demo-payload",
+        "artifactSource": "portable",
+        "targetVersion": "1.2.3",
+        "sourceRevision": "revision-123",
+        "artifactDigest": "abcdef1234567890",
     }
 
     observed = service.get(str(first["jobId"]))
@@ -289,6 +313,8 @@ def test_failed_job_retries_as_a_new_auditable_job(job_env: None) -> None:
     assert failed["errorCode"] == "E-SUPPLY-OFFLINE"
     assert failed["canRetry"] is True
     assert failed["planId"] == "01M000000000000000000000AA"
+    assert failed["operationId"] is None
+    assert failed["targetVersion"] == "1.2.3"
     assert lifecycle.plan_status[str(failed["planId"])] == "aborted"
     failures = [item["failure"] for item in failed["diagnostics"] if "failure" in item]
     assert failures == [{"errorCode": "E-SUPPLY-OFFLINE", "detail": "rede indisponível"}]
@@ -302,6 +328,52 @@ def test_failed_job_retries_as_a_new_auditable_job(job_env: None) -> None:
     assert completed["state"] == "succeeded"
     assert lifecycle.plan_status[str(completed["planId"])] == "applied"
     assert lifecycle.apply_calls == 2
+
+
+def test_component_failure_preserves_transaction_operation_id(job_env: None) -> None:
+    operation_id = "01M000000000000000000000BB"
+
+    class VerificationFailureLifecycle(BlockingLifecycle):
+        def apply(self, plan_id: str, confirm_token: str) -> dict[str, str]:
+            raise SteamZeroError(
+                "E-TX-VERIFY-FAILED",
+                detail="verification diverged",
+                operation_id=operation_id,
+            )
+
+    class RecordingContext:
+        def __init__(self) -> None:
+            self.checkpoints: list[dict[str, object]] = []
+
+        def safepoint(self) -> None:
+            return
+
+        def set_progress(self, *args: object, **kwargs: object) -> None:
+            return
+
+        def checkpoint(self, data: dict[str, object]) -> None:
+            self.checkpoints.append(data)
+
+    job_id = _persist_component_job()
+    lifecycle = VerificationFailureLifecycle()
+    context = RecordingContext()
+    with state.open_state() as store:
+        job = JobManager(store).get(job_id)
+        assert job is not None
+        handler = ComponentJobService._handler(lifecycle.bind(store))
+        with pytest.raises(SteamZeroError) as error:
+            handler(job, context)  # type: ignore[arg-type]
+
+    assert error.value.operation_id == operation_id
+    assert job.operation_id == operation_id
+    failure = next(item["failure"] for item in context.checkpoints if "failure" in item)
+    assert failure["operationId"] == operation_id
+    public = ComponentJobService._view(job)
+    assert public["operationId"] == operation_id
+    assert public["correlationId"] == job.correlation_id
+    assert public["artifact"] == "demo-payload"
+    assert public["targetVersion"] == "1.2.3"
+    assert public["sourceRevision"] == "revision-123"
 
 
 def test_download_persists_real_byte_progress_while_job_is_running(job_env: None) -> None:

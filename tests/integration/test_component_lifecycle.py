@@ -596,11 +596,14 @@ class TestMetadataOnlyPlanning:
 
         metadata = lifecycle.validate_apply(plan.plan_id, plan.confirm_token)
 
-        assert metadata == {
-            "adapterId": "retroarch",
-            "action": "install",
-            "executor": "flatpak",
-        }
+        assert metadata["adapterId"] == "retroarch"
+        assert metadata["action"] == "install"
+        assert metadata["executor"] == "flatpak"
+        assert metadata["artifactSource"] == "flatpak"
+        assert metadata["artifact"]
+        assert metadata["sourceRevision"]
+        assert metadata["targetVersion"] == metadata["sourceRevision"]
+        assert "artifactDigest" not in metadata
         assert flatpak.calls == []
         with pytest.raises(SteamZeroError) as error:
             lifecycle.validate_apply(plan.plan_id, "token-incorreto")

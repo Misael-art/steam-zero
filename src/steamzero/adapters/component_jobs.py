@@ -39,6 +39,13 @@ class LifecyclePort(Protocol):
 
 StoreFactory = Callable[[], StateStore]
 LifecycleFactory = Callable[[StateStore], LifecyclePort]
+_TRACE_PARAM_KEYS = (
+    "artifact",
+    "artifactSource",
+    "targetVersion",
+    "sourceRevision",
+    "artifactDigest",
+)
 
 
 class ComponentJobService:
@@ -77,6 +84,7 @@ class ComponentJobService:
                     "adapterId": metadata["adapterId"],
                     "action": metadata["action"],
                     "executor": metadata["executor"],
+                    **self._trace_params(metadata),
                 },
                 priority="interactive",
                 created_by="ui",
@@ -148,6 +156,7 @@ class ComponentJobService:
                     "adapterId": metadata["adapterId"],
                     "action": metadata["action"],
                     "executor": metadata["executor"],
+                    **self._trace_params(metadata),
                     "retryOfJobId": previous.id,
                     "retryOfPlanId": previous_plan_id,
                 },
@@ -309,15 +318,23 @@ class ComponentJobService:
                     else:
                         result = lifecycle._apply_validated(plan_id)
             except SteamZeroError as exc:
+                if exc.operation_id:
+                    # Jobs own rollback/recovery for the transaction. Preserve
+                    # the id before raising so JobManager can reconcile the
+                    # same journal and the public task view can link to it.
+                    job.operation_id = exc.operation_id
+                failure = {
+                    "errorCode": exc.code,
+                    "detail": str(exc.detail or str(exc))[:240],
+                }
+                if exc.operation_id:
+                    failure["operationId"] = exc.operation_id
                 context.checkpoint(
                     {
                         "kind": "component-diagnostic",
                         "adapterId": adapter_id,
                         "executor": executor,
-                        "failure": {
-                            "errorCode": exc.code,
-                            "detail": str(exc.detail or str(exc))[:240],
-                        },
+                        "failure": failure,
                     }
                 )
                 lifecycle._abort_apply(plan_id)
@@ -355,6 +372,15 @@ class ComponentJobService:
         return matches[-1] if matches else None
 
     @staticmethod
+    def _trace_params(metadata: dict[str, str]) -> dict[str, str]:
+        """Persist only public artifact identity, version and digest metadata."""
+        return {
+            key: metadata[key]
+            for key in _TRACE_PARAM_KEYS
+            if isinstance(metadata.get(key), str) and metadata[key]
+        }
+
+    @staticmethod
     def _view(job: Job) -> dict[str, Any]:
         state = {
             "created": "queued",
@@ -373,11 +399,21 @@ class ComponentJobService:
         }.get(job.state, "failed")
         return {
             "jobId": job.id,
+            "correlationId": job.correlation_id,
             "type": job.type,
             "state": state,
             "rawState": job.state,
             "priority": job.priority,
             "planId": job.params.get("planId"),
+            "operationId": job.operation_id,
+            "adapterId": job.params.get("adapterId"),
+            "action": job.params.get("action"),
+            "executor": job.params.get("executor"),
+            "artifact": job.params.get("artifact"),
+            "artifactSource": job.params.get("artifactSource"),
+            "targetVersion": job.params.get("targetVersion"),
+            "sourceRevision": job.params.get("sourceRevision"),
+            "artifactDigest": job.params.get("artifactDigest"),
             "retryOfJobId": job.params.get("retryOfJobId"),
             "retryOfPlanId": job.params.get("retryOfPlanId"),
             "progress": job.progress,
