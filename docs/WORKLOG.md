@@ -14717,3 +14717,11 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - D5: cena branca reproduzida na instalada e corrigida na engine (padrão do tema para dimensões não escolhidas). Prova do "depois" é de janela do checkout, não da release instalada.
 - Gates: integral em C.UTF-8 com 6705 passed, 47 skipped, 1 failed (`test_committed_catalog_and_generated_views_are_consistent`); ruff, format, mypy, independence e boundaries passaram. `status-check` segue reprovado em 34 digests, 33 por código desta branch; nenhum digest alheio foi renovado. Em pt_BR, `test_theme_authoring_e2e` também falha (separador decimal).
 - Novo item SZ-LAUNCH-READINESS-PREPARATION. Sem push, sem instalação, sem launch de jogo. Claims a devolver: `emulation.py` (Biblioteca); `launcher/*`, `themes.py`, `theme_scene.py`, `cli/main.py` e QML (Jornada).
+
+## 2026-10-09 — Teclado pelo portal, jornada instalada e overlay de sessão
+
+- Operador reiniciou o xdg-desktop-portal e consentiu o teclado remoto; push da branch feito por autorização na thread.
+- Jornada na release 2.0.0rc1-213124ed513b: Launcher → detalhe → Jogar (NES, RetroArch Flatpak) → gameplay com Start alterando o jogo → saída pela tecla do emulador → zero órfãos → retorno ao mesmo jogo. Pause, save/load e saída pelo overlay não provados.
+- Defeito reproduzido na instalada e corrigido na branch: o overlay de sessão perdia o foco a cada atualização do estado. 105 testes de integração do Launcher passam; a integral não foi repetida após este delta de QML.
+- A SRAM do jogo lançado foi regravada pelo emulador na saída; as demais 24 entradas de save/state ficaram intactas. O conteúdo anterior não foi hasheado.
+- Candidata não preparada: o CI de push exige branch release-candidate e reprovaria no status-check (34 digests de outros itens, não renovados).

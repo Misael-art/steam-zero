@@ -43,6 +43,10 @@ Ordenação: do mais complexo (P1) ao menos complexo. Estados: `aberto`, `bloque
 | 19 | Studio em pt_BR rejeita `0.9` em parâmetro de efeito; `test_theme_authoring_e2e` falha fora do locale C | D5 | Campo usa `Number.fromLocaleString`; harness não fixa locale | bloqueado-governança (`ThemeEditorPanel.qml` é da WS Jornada) |
 | 20 | Launcher: detalhe sem controle "Voltar" visível/acessível; rótulo "Screenshots não publicados" transborda; sem capa | D2, PNG da instalada | Só a dica "Esc" existe | bloqueado-governança (QML do Launcher é da WS Jornada) |
 | 21 | Catálogo de temas "vazio" das rodadas anteriores | D2/R02 | Era a central em 948×593 no eDP-1; em 1600×1000 catálogo e abas aparecem. O layout compacto esconde os controles | aberto |
+| 22 | Overlay de sessão: setas não movem o foco; ação acessível não aciona os botões | jornada instalada de 2026-10-09 | `setModel()` devolvia o foco à ação inicial a cada atualização do estado; botões só tinham `TapHandler` | feito-na-branch (foco preservado por id, `Accessible.onPressAction`, regressão QML). Na instalada, Pausar e Sair seguem inalcançáveis pelo teclado |
+| 23 | Jornada instalada Launcher → detalhe → Jogar → gameplay → saída → retorno (NES, RetroArch Flatpak, teclado via portal) | 2026-10-09 | — | parcialmente provada: launch, Start alterando o jogo, áudio ativo, bezel em pixels, saída pela tecla do emulador, zero órfãos, retorno ao mesmo jogo. Não provado: pause, save/load, saída pelo overlay, movimento contínuo |
+| 24 | Overlay: rótulos crus (`volume`, `fastForward`, `achievement`, "Estado: running"), indisponíveis sem motivo visível, sem "Salvar estado"; galeria com texto ilegível e timestamp ISO; bezel cobre parte da imagem | PNG da instalada | — | aberto |
+| 25 | A SRAM do jogo lançado é regravada na saída; o preflight não mostra destino nem classe de segurança do save | jornada instalada | Comportamento do emulador; falta a superfície de preflight (D3) | aberto |
 
 ## Ordem de ataque (complexo → simples)
 

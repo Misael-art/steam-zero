@@ -30,8 +30,10 @@
     "src/steamzero/adapters/launcher_process.py",
     "src/steamzero/ui/qml/ThemeScenePreview.qml",
     "tests/unit/test_theme_scene.py",
-    "docs/status/items/launch-readiness-preparation-2026-10-08.json"
+    "docs/status/items/launch-readiness-preparation-2026-10-08.json",
+    "src/steamzero/ui/qml/launcher/LauncherSessionOverlay.qml",
+    "tests/qml/launcher/check_launcher_session_overlay_trigger.qml"
   ],
-  "nextAction": "Sucessão registrada em 2026-10-08: o operador encaminhou o prompt D0-D8 a este executor, que assume o lote não commitado descrito em docs/diagnostics/2026-10-07-HANDOFF-continuacao.md (origem operator-authorized-handoff, HEAD 31f29963, sem concorrência observada). Rodar a integral uma vez, commits funcional e documental separados e devolver os claims: emulation.py à WS Biblioteca; launcher/*, themes.py, theme_scene.py, cli/main.py e QML à WS Jornada.",
-  "updatedAt": "2026-10-08"
+  "nextAction": "Sucessão registrada em 2026-10-08: o operador encaminhou o prompt D0-D8 a este executor, que assume o lote não commitado descrito em docs/diagnostics/2026-10-07-HANDOFF-continuacao.md (origem operator-authorized-handoff, HEAD 31f29963, sem concorrência observada). Rodar a integral uma vez, commits funcional e documental separados e devolver os claims: emulation.py à WS Biblioteca; launcher/*, themes.py, theme_scene.py, cli/main.py e QML à WS Jornada. Handoff serial de 2026-10-09 (origem WS-2026-10-JOURNEY-LAUNCHER-SESSION, destino esta frente, por instrução do operador na thread para prosseguir o desenvolvimento): LauncherSessionOverlay.qml e check_launcher_session_overlay_trigger.qml, base 65c3143d, para preservar o foco do overlay entre atualizações e ligar a ação acessível; devolver após o commit.",
+  "updatedAt": "2026-10-09"
 }
