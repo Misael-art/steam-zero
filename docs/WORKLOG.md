@@ -14733,3 +14733,12 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Provado na janela do checkout, só por teclado: lançar, pausar (processo suspenso), cancelar saída, confirmar saída sem retomar, zero órfãos, retorno ao Cinema e saves idênticos por SHA-256. A release instalada não contém essas correções.
 - Integral em dc1d92ce (C.UTF-8): 6706 passed, 47 skipped, 1 failed, sendo a falha a consistência de digests, revalidada em seguida. Uma execução anterior em 56224f1f foi interrompida de propósito por ter ficado obsoleta.
 - CI da candidata em 302781c8 reprovou apenas no job Python 3.11; novo run segue no commit final.
+
+## 2026-10-09 (cont. 2) — Studio: histórico de metadados e saída com rascunho
+
+- Estado encontrado: `main` = `origin/main` = 55295f2c (fetch), PR #254 mesclado, CI de push 37938826016 verde, candidata 2.0.0rc1-55295f2c0841 preparada e conferida por verify-bundle. Instalação autorizada pelo operador na thread, mas não executada: o classificador de permissões do executor barrou o comando. Host segue em 2.0.0rc1-213124ed513b.
+- Branch `codex/d5-studio-draft-history-2026-10-09`, WS-2026-10-STUDIO-DRAFT-HISTORY; handoff serial de três paths da WS Jornada autorizado pelo operador na thread, a devolver após o merge.
+- `ThemeEditorPanel.qml`: `setMetadata` consome o `history` do documento canônico; Fechar com rascunho ou pedido em voo abre Salvar/Descartar/Continuar editando; save falho preserva o rascunho; o cancelamento de sessão descartada sobrevive à abertura de outro tema. O e2e de autoria passa em pt_BR (o harness digitava `0.9` literal).
+- Harness novo reprova contra o painel de 55295f2c. Integral em C.UTF-8: 6707 passed, 47 skipped, 1 failed (`test_committed_catalog_and_generated_views_are_consistent`); ruff, format (701), mypy (303), independence, boundaries e diff-check passaram.
+- `status-check` reprovado em seis digests de outros itens (SZ-AURA-LAUNCHER, SZ-ROADMAP-CONTINUATION, SZ-THEME-ENGINE, SZ-THEME-IMPORT-RETROFE, SZ-THEME-IMPORT-SURFACE, SZ-UI-DESKTOP-AUDIT) cujo escopo inclui o painel ou os arquivos de status; nenhum foi renovado.
+- Aberto: GAP-THEME-STUDIO-DRAFT-GUARD-ROUTE-ESCAPE (troca de rota e Escape dependem de `Main.qml`, outro claim). Sem push, sem instalação, sem launch de jogo, sem captura. Um `git stash`/`pop` imediato do próprio arquivo foi usado uma vez para isolar um travamento do harness.

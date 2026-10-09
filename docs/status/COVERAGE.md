@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 558 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 560 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 36 | 19 | hw |  |
@@ -98,7 +98,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 18 | 10 | hw |  |
 | SZ-THEME-IMPORT-RETROFE | 15 | 25 | 13 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 19 | 10 | unit |  |
-| SZ-THEME-STUDIO | 169 | 77 | 56 | hw |  |
+| SZ-THEME-STUDIO | 171 | 78 | 57 | hw |  |
 | SZ-UI-DESKTOP-AUDIT | 837 | 197 | 114 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |

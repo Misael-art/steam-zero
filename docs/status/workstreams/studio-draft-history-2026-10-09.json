@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
+  "item": "SZ-THEME-STUDIO",
+  "branch": "codex/d5-studio-draft-history-2026-10-09",
+  "baseRef": "55295f2c084142e26c8d6383854c2bf9affb8978",
+  "owner": "claude-d5-studio",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/ui/qml/ThemeEditorPanel.qml",
+    "tests/qml/check_theme_editor_asset_recipes.qml",
+    "docs/status/items/theme-studio.json",
+    "tests/qml/check_theme_authoring_e2e.qml",
+    "tests/qml/check_theme_editor_draft_guard.qml",
+    "tests/integration/test_theme_editor_draft_guard.py",
+    "docs/status/workstreams/studio-draft-history-2026-10-09.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Handoff serial recebido de WS-2026-10-JOURNEY-LAUNCHER-SESSION em 2026-10-09 por autorização do operador na thread (três paths; check_theme_authoring_e2e.qml não tinha claim ativo). Correção e regressão commitadas na branch; pendem gates integrais, push/PR, e ligar requestCloseEditor() à troca de rota e ao Escape em Main.qml, que pertence a outro claim. Devolver os três paths à Jornada após o merge.",
+  "updatedAt": "2026-10-09"
+}
