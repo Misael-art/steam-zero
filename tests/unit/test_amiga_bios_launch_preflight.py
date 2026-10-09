@@ -133,13 +133,18 @@ def test_readiness_treats_unprojected_imported_bios_as_playable(
         "_bios_projection_copies",
         lambda _platform, _emulator: [(tmp_path / "bios" / "kick34005.A500", target)],
     )
-    monkeypatch.setattr(
-        controller, "_emulator_source", lambda _e: (_ for _ in ()).throw(StopIteration)
-    )
+
+    class _PastBios(Exception):
+        """Marca que o preflight passou do bloco de BIOS."""
+
+    def _stop(_emulator: str) -> None:
+        raise _PastBios
+
+    monkeypatch.setattr(controller, "_emulator_source", _stop)
 
     # Passa do bloco de BIOS (a projeção é feita no launch); o que vier depois é
     # outro preflight, aqui interrompido de propósito.
-    with pytest.raises(StopIteration):
+    with pytest.raises(_PastBios):
         controller._launch_preflight("game", projection_ready=True)
 
 

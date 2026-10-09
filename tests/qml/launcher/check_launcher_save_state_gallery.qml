@@ -58,6 +58,16 @@ Item {
         onTriggered: {
             gallery.setModel(harness.readyModel)
             gallery.openGallery("loadState")
+            // O carimbo ISO não pode chegar cru ao jogador.
+            const stamp = gallery.formatTimestamp("2026-09-17T23:31:11.913622+00:00")
+            harness.check(/^\d{2}\/\d{2}\/2026 \d{2}:\d{2}$/.test(stamp),
+                          "o carimbo precisa ser formatado como data e hora: " + stamp)
+            harness.check(gallery.formatTimestamp("") === "Data indisponível"
+                          && gallery.formatTimestamp("ontem") === "Data indisponível",
+                          "carimbo ausente ou inválido precisa ser dito, não inventado")
+            harness.check(gallery.compatibilityLabel("native") === "formato nativo"
+                          && gallery.compatibilityLabel("") === "compatibilidade desconhecida",
+                          "a compatibilidade precisa de rótulo legível")
             harness.check(gallery.visible, "a galeria disponível precisa abrir")
             harness.check(gallery.entries.length === 2, "a galeria precisa renderizar os slots")
             harness.check(gallery.selectedEntry.slot === 1, "o primeiro slot precisa receber foco")

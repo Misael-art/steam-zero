@@ -372,8 +372,11 @@ Item {
                         width: (actionGrid.width - actionGrid.columnSpacing * 3) / 4
                         height: 58
                         radius: 8
+                        // Foco é borda e peso, como no botão Jogar e na
+                        // confirmação: o preenchimento de destaque deixava o
+                        // rótulo branco sobre azul claro.
                         color: modelData.enabled === true
-                            ? (index === overlay.selectedIndex ? overlay.accentColor : overlay.panelColor)
+                            ? (index === overlay.selectedIndex ? overlay.backgroundColor : overlay.panelColor)
                             : (index === overlay.selectedIndex ? "#3b2f20" : overlay.backgroundColor)
                         opacity: modelData.enabled === true ? 1 : 0.62
                         border.width: index === overlay.selectedIndex ? 3 : 1

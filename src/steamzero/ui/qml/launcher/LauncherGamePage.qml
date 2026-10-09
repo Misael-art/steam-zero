@@ -163,18 +163,16 @@ FocusScope {
             asynchronous: true
             sourceSize: Qt.size(Math.ceil(width), Math.ceil(height))
         }
-        Text {
+        LauncherCoverFallback {
+            objectName: "gameCoverFallback"
             anchors.fill: parent
-            anchors.margins: 24
+            anchors.margins: 4
             visible: detailCover.status !== Image.Ready
-            text: String(page.model.title || qsTr("Sem capa"))
-            textFormat: Text.PlainText
-            color: "#ffffff"
-            font.pixelSize: 26 * page.textScale
-            wrapMode: Text.Wrap
-            elide: Text.ElideRight
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+            title: String(page.model.title || "")
+            // O título está ao lado, em destaque; aqui ele seria repetição.
+            showTitle: false
+            highContrast: page.accessibility && page.accessibility.highContrast === true
+            textScale: page.textScale
         }
     }
     Column {
