@@ -88,7 +88,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 8 | 2 | unit |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
-| SZ-RETROARCH-FLATPAK-PRESERVATION | 2 | 4 | 2 | dev |  |
+| SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
 | SZ-ROADMAP-CONTINUATION | 71 | 32 | 12 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 8 | 3 | dev |  |
