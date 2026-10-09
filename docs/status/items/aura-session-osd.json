@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "928de074f8d23d04bc0b1f9377be35202c38b41fa7f7d18da8da0f2c12d32fe6",
+  "scopeDigest": "856dffeaf22355b7c435cd795300cc7440c7783a9cf9747b2d9e9e5708bee4b7",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",
@@ -175,6 +175,12 @@
       "kind": "test",
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
     }
   ],

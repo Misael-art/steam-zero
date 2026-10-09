@@ -26,7 +26,7 @@
     "docs/status/workstreams/main-reconciliation-2026-09-26.json",
     "docs/WORKLOG.md"
   ],
-  "scopeDigest": "929a9ed7ffefd8a17f4802e9bffa4bc0679650a36d2732bb535539fc7b9a952f",
+  "scopeDigest": "2b4855fe9409fb01e07f12e1a5076d68db337145fcdd31f25813e5097d99ae1e",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
@@ -129,6 +129,12 @@
       "kind": "test",
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
     }
   ],

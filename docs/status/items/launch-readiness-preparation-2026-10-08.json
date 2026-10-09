@@ -15,7 +15,7 @@
     "tests/integration/test_launcher_app.py",
     "src/steamzero/adapters/launcher_process.py"
   ],
-  "scopeDigest": "db9fa32a78838b3b5ca540a273e7bac35d3330e04fde80adcb7b3ca2284fa33c",
+  "scopeDigest": "ae0f440423abff6997591340b5910d5c744a04a7def018558403dfa3cab63caf",
   "dependsOn": [],
   "knownGaps": [
     "GAP-LAUNCH-READINESS-INSTALLED-PROOF",
@@ -41,6 +41,12 @@
       "reference": "docs/diagnostics/2026-10-07-diagnostico-jornadas-reais-ux.md",
       "command": "Preflight read-only na release 2.0.0rc1-213124ed513b: 8 plataformas com todos os candidatos-base bloqueados; pontos 2a, 2d e 3",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Integrar por gates/CI no SHA exato, instalar candidata autorizada e provar no host: 409 legível no Launcher, extração real de Amiga/X68000, BIOS projetada e id do jogo válido após o rescan. Depois entregar o estado no cartão e o progresso da preparação.",

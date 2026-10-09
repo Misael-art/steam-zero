@@ -20,25 +20,25 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-TESTS | 558 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
-| SZ-AURA-CINEMA-COMPLETION | 98 | 35 | 18 | hw |  |
+| SZ-AURA-CINEMA-COMPLETION | 98 | 36 | 19 | hw |  |
 | SZ-AURA-CONTRACTS | 38 | 3 | 3 | unit |  |
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 10 | 4 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 314 | 84 | 48 | hw |  |
-| SZ-AURA-LAUNCHER-EXIT | 5 | 2 | 1 | dev |  |
+| SZ-AURA-LAUNCHER | 315 | 85 | 49 | hw |  |
+| SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
 | SZ-AURA-PLATFORM-EXECUTION-PLAN | 5 | 6 | 0 | none |  |
 | SZ-AURA-PLATFORM-MEDIA-SCOPE | 3 | 2 | 2 | unit |  |
 | SZ-AURA-RETROFE-MEDIA-INGESTION | 9 | 4 | 2 | hw |  |
 | SZ-AURA-RICH-MEDIA-PROJECTION | 9 | 5 | 3 | hw |  |
-| SZ-AURA-SAVE-STATE-GALLERY | 22 | 15 | 9 | hw |  |
+| SZ-AURA-SAVE-STATE-GALLERY | 22 | 16 | 10 | hw |  |
 | SZ-AURA-SEARCH-CONTRACT | 5 | 9 | 4 | dev |  |
-| SZ-AURA-SESSION-OSD | 48 | 20 | 8 | hw |  |
+| SZ-AURA-SESSION-OSD | 48 | 21 | 9 | hw |  |
 | SZ-AURA-UI | 16 | 14 | 6 | unit |  |
-| SZ-AURA-VISUAL-COMPLETION | 38 | 18 | 6 | hw |  |
-| SZ-AURA-VISUAL-RICH-SURFACE | 11 | 11 | 9 | hw |  |
+| SZ-AURA-VISUAL-COMPLETION | 38 | 19 | 7 | hw |  |
+| SZ-AURA-VISUAL-RICH-SURFACE | 11 | 12 | 10 | hw |  |
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
 | SZ-CAST-LAN | 6 | 3 | 3 | unit |  |
 | SZ-COMPONENT-LIFECYCLE | 30 | 23 | 19 | hw |  |
@@ -65,10 +65,10 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-GOVERNANCE-STATUS | 22 | 26 | 15 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
-| SZ-LAUNCH-READINESS-PREPARATION | 4 | 2 | 1 | dev |  |
+| SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 29 | 13 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
-| SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 14 | 7 | dev |  |
+| SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 15 | 8 | dev |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 6 | 3 | hw |  |
 | SZ-MEDIA-PIPELINE-PLATFORM-SCOPE | 3 | 9 | 6 | hw |  |
 | SZ-MEDIA-PROVIDER-PLATFORM-FILTER | 10 | 4 | 3 | unit |  |
@@ -99,8 +99,8 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-THEME-IMPORT-RETROFE | 15 | 25 | 13 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 19 | 10 | unit |  |
 | SZ-THEME-STUDIO | 169 | 77 | 56 | hw |  |
-| SZ-UI-DESKTOP-AUDIT | 836 | 196 | 113 | dev |  |
+| SZ-UI-DESKTOP-AUDIT | 837 | 197 | 114 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
-Arquivos em `src/`: **633**. Sob agregador apenas, sem item de capacidade: **268** (42%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.
+Arquivos em `src/`: **634**. Sob agregador apenas, sem item de capacidade: **268** (42%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.

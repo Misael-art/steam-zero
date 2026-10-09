@@ -47,6 +47,11 @@ Ordenação: do mais complexo (P1) ao menos complexo. Estados: `aberto`, `bloque
 | 23 | Jornada instalada Launcher → detalhe → Jogar → gameplay → saída → retorno (NES, RetroArch Flatpak, teclado via portal) | 2026-10-09 | — | parcialmente provada: launch, Start alterando o jogo, áudio ativo, bezel em pixels, saída pela tecla do emulador, zero órfãos, retorno ao mesmo jogo. Não provado: pause, save/load, saída pelo overlay, movimento contínuo |
 | 24 | Overlay: rótulos crus (`volume`, `fastForward`, `achievement`, "Estado: running"), indisponíveis sem motivo visível, sem "Salvar estado"; galeria com texto ilegível e timestamp ISO; bezel cobre parte da imagem | PNG da instalada | — | aberto |
 | 25 | A SRAM do jogo lançado é regravada na saída; o preflight não mostra destino nem classe de segurança do save | jornada instalada | Comportamento do emulador; falta a superfície de preflight (D3) | aberto |
+| 26 | Confirmação de saída sem foco de teclado e ilegível; jogador preso com o jogo pausado | jornada no checkout, 2026-10-09 | Diálogo padrão do estilo, fora do tema | feito-na-branch (`56224f1f`): diálogo temático, foco inicial em Cancelar, setas/Enter/Esc; provado por teclado |
+| 27 | Rótulos crus e estado em inglês no overlay; motivo da ação indisponível ausente | PNG da instalada | Rótulo caía no id da ação | feito-na-branch (`56224f1f`) |
+| 28 | Página de jogo sem alvo "Voltar"; rótulo de screenshots transbordando | PNG da instalada | — | feito-na-branch (`56224f1f`) |
+| 29 | Cartões sem capa com título cortado; foco com texto branco sobre azul claro; carimbo ISO na galeria | PNG da instalada e do checkout | — | feito-na-branch (`dc1d92ce`). Abertos: 9 de 14 ações do overlay indisponíveis geram ruído; bezel cobre parte do jogo |
+| 30 | CI Python 3.11 falhava em `test_readiness_treats_unprojected_imported_bios_as_playable` | run 37905470803 | `StopIteration` lançada por gerador vira `RuntimeError` no 3.11 | feito-na-branch (`dc1d92ce`) |
 
 ## Ordem de ataque (complexo → simples)
 

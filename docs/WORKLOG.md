@@ -14725,3 +14725,11 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Defeito reproduzido na instalada e corrigido na branch: o overlay de sessão perdia o foco a cada atualização do estado. 105 testes de integração do Launcher passam; a integral não foi repetida após este delta de QML.
 - A SRAM do jogo lançado foi regravada pelo emulador na saída; as demais 24 entradas de save/state ficaram intactas. O conteúdo anterior não foi hasheado.
 - Candidata não preparada: o CI de push exige branch release-candidate e reprovaria no status-check (34 digests de outros itens, não renovados).
+
+## 2026-10-09 (cont.) — Overlay, página de jogo e harmonia visual do Launcher
+
+- Tratativa dos digests autorizada pelo operador: 34 itens revalidados com a integral como evidência; status-check OK.
+- Commits 56224f1f e dc1d92ce: confirmação de saída operável por teclado, rótulos e estado legíveis, alvo Voltar, placeholder de capa, foco por borda, data local na galeria; sentinela do teste de BIOS trocada por causa do Python 3.11.
+- Provado na janela do checkout, só por teclado: lançar, pausar (processo suspenso), cancelar saída, confirmar saída sem retomar, zero órfãos, retorno ao Cinema e saves idênticos por SHA-256. A release instalada não contém essas correções.
+- Integral em dc1d92ce (C.UTF-8): 6706 passed, 47 skipped, 1 failed, sendo a falha a consistência de digests, revalidada em seguida. Uma execução anterior em 56224f1f foi interrompida de propósito por ter ficado obsoleta.
+- CI da candidata em 302781c8 reprovou apenas no job Python 3.11; novo run segue no commit final.
