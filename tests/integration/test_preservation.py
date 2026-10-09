@@ -6,7 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from steamzero.adapters.preservation import PreservationService, PreservationTarget
+from steamzero.adapters.preservation import (
+    PreservationService,
+    PreservationTarget,
+    _discover_targets,
+)
 from steamzero.core import fs, paths, transaction
 from steamzero.core.errors import SteamZeroError
 from steamzero.domain.switch_content import SwitchContentManager
@@ -272,6 +276,195 @@ def test_named_file_backup_restore_is_byte_identical_and_detects_conflict(
     transaction.rollback(restored.operation_id)
     assert (saves / "Zelda (USA).srm").read_bytes() == b"version-two"
     service.cleanup(diverged.staging_root)
+
+
+def _retroarch_flatpak_config(home: Path, save_root: Path) -> None:
+    config = home / ".var/app/org.libretro.RetroArch/config/retroarch/retroarch.cfg"
+    config.parent.mkdir(parents=True, exist_ok=True)
+    config.write_text(f'savefile_directory = "{save_root}"\n', encoding="utf-8")
+
+
+def test_retroarch_flatpak_configured_save_root_is_discovered(tmp_path: Path) -> None:
+    home = tmp_path
+    save_root = home / ".var/app/org.libretro.RetroArch/config/retroarch/custom-saves"
+    save_root.mkdir(parents=True)
+    fs.write_atomic(save_root / "fixture.srm", b"flatpak-save")
+    _retroarch_flatpak_config(home, save_root)
+
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+
+    assert len(targets) == 1
+    assert targets[0].root == save_root.resolve()
+    assert targets[0].file == "fixture.srm"
+
+
+def test_retroarch_flatpak_config_cannot_redirect_discovery_outside_app_data(
+    tmp_path: Path,
+) -> None:
+    home = tmp_path
+    save_root = home / "outside-flatpak-data"
+    save_root.mkdir()
+    fs.write_atomic(save_root / "fixture.srm", b"untrusted-target")
+    _retroarch_flatpak_config(home, save_root)
+
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+
+    assert targets == []
+
+
+def test_retroarch_flatpak_symlinked_config_is_ignored(tmp_path: Path) -> None:
+    home = tmp_path
+    config = home / ".var/app/org.libretro.RetroArch/config/retroarch/retroarch.cfg"
+    config.parent.mkdir(parents=True)
+    linked_config = home / "linked-retroarch.cfg"
+    save_root = home / ".var/app/org.libretro.RetroArch/config/retroarch/saves"
+    linked_config.write_text(
+        'savefile_directory = "' + str(save_root) + '"\n',
+        encoding="utf-8",
+    )
+    config.symlink_to(linked_config)
+    save_root.mkdir()
+    fs.write_atomic(save_root / "fixture.srm", b"flatpak-save")
+
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+
+    assert targets == []
+
+
+def test_retroarch_flatpak_relative_save_path_is_ignored(tmp_path: Path) -> None:
+    home = tmp_path
+    save_root = home / "relative-saves"
+    save_root.mkdir()
+    fs.write_atomic(save_root / "fixture.srm", b"flatpak-save")
+    config = home / ".var/app/org.libretro.RetroArch/config/retroarch/retroarch.cfg"
+    config.parent.mkdir(parents=True)
+    config.write_text('savefile_directory = "../../../../relative-saves"\n', encoding="utf-8")
+
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+
+    assert targets == []
+
+
+def test_retroarch_flatpak_symlinked_save_directory_is_ignored(tmp_path: Path) -> None:
+    home = tmp_path
+    app_root = home / ".var/app/org.libretro.RetroArch"
+    real_root = app_root / "config/retroarch/real-saves"
+    real_root.mkdir(parents=True)
+    fs.write_atomic(real_root / "fixture.srm", b"flatpak-save")
+    linked_root = app_root / "config/retroarch/saves"
+    linked_root.symlink_to(real_root, target_is_directory=True)
+    config = app_root / "config/retroarch/retroarch.cfg"
+    config.write_text(
+        'savefile_directory = "' + str(linked_root) + '"\n',
+        encoding="utf-8",
+    )
+
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+
+    assert targets == []
+
+
+def test_retroarch_conflicting_save_directory_settings_are_ignored(tmp_path: Path) -> None:
+    home = tmp_path
+    first_root = home / ".var/app/org.libretro.RetroArch/config/retroarch/first-saves"
+    second_root = home / ".var/app/org.libretro.RetroArch/config/retroarch/second-saves"
+    first_root.mkdir(parents=True)
+    second_root.mkdir(parents=True)
+    fs.write_atomic(first_root / "fixture.srm", b"first-save")
+    fs.write_atomic(second_root / "fixture.srm", b"second-save")
+    config = home / ".var/app/org.libretro.RetroArch/config/retroarch/retroarch.cfg"
+    config.write_text(
+        'savefile_directory = "' + str(first_root) + '"\n'
+        'savefile_directory = "' + str(second_root) + '"\n',
+        encoding="utf-8",
+    )
+
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+
+    assert targets == []
+
+
+def test_retroarch_duplicate_native_and_flatpak_saves_remain_ambiguous(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    home = tmp_path
+    native_root = home / ".config/retroarch/saves"
+    flatpak_root = home / ".var/app/org.libretro.RetroArch/config/retroarch/saves"
+    native_root.mkdir(parents=True)
+    flatpak_root.mkdir(parents=True)
+    fs.write_atomic(native_root / "fixture.srm", b"native-save")
+    fs.write_atomic(flatpak_root / "fixture.srm", b"flatpak-save")
+    _retroarch_flatpak_config(home, flatpak_root)
+    targets = _discover_targets(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        emulator_version="test",
+        home=home,
+        game_name="fixture",
+    )
+    service, _content = _service(home, monkeypatch, targets)
+
+    status = service.target_status(
+        _GAME,
+        _TITLE,
+        "retroarch",
+        "save",
+        game_name="fixture",
+    )
+
+    assert len(targets) == 2
+    assert status["confirmed"] is False
+    assert status["ambiguous"] is True
 
 
 def test_state_kind_roundtrip_and_limits_apply(

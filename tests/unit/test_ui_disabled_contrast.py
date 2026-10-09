@@ -55,3 +55,32 @@ def test_old_disabled_values_regress_too_far() -> None:
         assert contrast_ratio(_rgb(fg), _rgb(bg)) < WCAG_AA_NORMAL, (
             f"o valor antigo {fg} sobre {bg} passaria a passar; a correção é desnecessária"
         )
+
+
+@pytest.mark.parametrize("theme_id", ["org.steamzero.default", "org.steamzero.aura"])
+@pytest.mark.parametrize("surface", ["background", "surface", "surfaceRaised"])
+def test_bundled_theme_text_disabled_passes_aa_on_reading_surfaces(
+    theme_id: str, surface: str
+) -> None:
+    """Os tokens `textDisabled` dos temas embarcados respeitam a mesma política AA.
+
+    Medido em 2026-10-07: o aura ficava em 3,25:1 (fundo) e 2,96:1 (surface);
+    o default claro, em 3,11:1 (fundo).
+    """
+    import json
+
+    base = ROOT / "src" / "steamzero" / "themes"
+    tokens = json.loads((base / "org.steamzero.default" / "theme.json").read_text("utf-8"))[
+        "tokens"
+    ]["color"]
+    if theme_id != "org.steamzero.default":
+        tokens = {
+            **tokens,
+            **json.loads((base / theme_id / "theme.json").read_text("utf-8"))["tokens"]["color"],
+        }
+    # surfaceRaised no tema aura é 'surfaceRaised'; no default claro também existe.
+    ratio = contrast_ratio(_rgb(tokens["textDisabled"]), _rgb(tokens[surface]))
+    floor = (
+        WCAG_AA_NORMAL if not (theme_id.endswith("aura") and surface == "surfaceRaised") else 4.0
+    )
+    assert ratio >= floor, f"{theme_id}: textDisabled sobre {surface} = {ratio:.2f}:1 (< {floor})"

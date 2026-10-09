@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import platform
+import shlex
 import stat
 import zipfile
 from collections.abc import Callable, Sequence
@@ -430,7 +431,12 @@ def _candidate_roots(home: Path, emulator_id: str, kind: str) -> tuple[Path, ...
             "duckstation": {"state": (home / ".config/duckstation/savestates",)},
             "flycast": {"state": (home / ".config/flycast/state",)},
         }
-        return tuple(dict.fromkeys(table[emulator_id][kind]))
+        named_roots = list(table[emulator_id][kind])
+        if emulator_id == "retroarch" and kind == "save":
+            flatpak_root = _flatpak_retroarch_save_root(home)
+            if flatpak_root is not None:
+                named_roots.append(flatpak_root)
+        return tuple(dict.fromkeys(named_roots))
     if kind not in ("save", "shader-cache"):
         return ()
     aliases = {
@@ -456,6 +462,72 @@ def _candidate_roots(home: Path, emulator_id: str, kind: str) -> tuple[Path, ...
                 )
             )
     return tuple(dict.fromkeys(roots))
+
+
+def _flatpak_retroarch_save_root(home: Path) -> Path | None:
+    """Return RetroArch Flatpak's configured save root inside its private data.
+
+    The Flatpak config lives under its app-private directory and may point to a
+    custom save directory there. Only an absolute destination contained by the
+    app-private root is considered; a symlinked config or a path outside that
+    root is ignored. The normal target checks still reject symlinked save trees.
+    """
+    app_root = home / ".var/app/org.libretro.RetroArch"
+    config_path = app_root / "config/retroarch/retroarch.cfg"
+    config_parents = (
+        home / ".var",
+        home / ".var/app",
+        app_root,
+        app_root / "config",
+        config_path.parent,
+        config_path,
+    )
+    if any(path.is_symlink() for path in config_parents):
+        return None
+    try:
+        if not config_path.is_file() or config_path.stat().st_size > 1024 * 1024:
+            return None
+        lines = config_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+
+    configured_values: set[str] = set()
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, raw_value = stripped.split("=", 1)
+        if key.strip() != "savefile_directory":
+            continue
+        try:
+            tokens = shlex.split(raw_value, comments=True)
+        except ValueError:
+            return None
+        if len(tokens) != 1 or not tokens[0]:
+            return None
+        configured_values.add(tokens[0])
+    if len(configured_values) != 1:
+        return None
+
+    target = Path(os.path.expandvars(os.path.expanduser(configured_values.pop())))
+    if not target.is_absolute():
+        return None
+    try:
+        relative = target.relative_to(app_root)
+        if ".." in relative.parts:
+            return None
+        path_components = (
+            app_root.joinpath(*relative.parts[:index])
+            for index in range(1, len(relative.parts) + 1)
+        )
+        if any(path.is_symlink() for path in path_components):
+            return None
+        resolved_app_root = app_root.resolve(strict=False)
+        resolved_target = target.resolve(strict=False)
+        resolved_target.relative_to(resolved_app_root)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return resolved_target
 
 
 def _safe_target_root(root: Path) -> bool:

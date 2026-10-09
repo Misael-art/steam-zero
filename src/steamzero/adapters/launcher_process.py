@@ -127,3 +127,27 @@ def supervised_child(
         for restored, previous in installed:
             with contextlib.suppress(ValueError, OSError, TypeError):
                 signal.signal(restored, previous)
+
+
+def query_product(
+    executable: str, subcommand: str, game_id: str, *, timeout: float
+) -> Mapping[str, object] | None:
+    """Roda ``steamzero emulation <subcommand> --game-id`` e devolve o ``data``.
+
+    ``None`` quando a consulta em si falha (timeout, saída ilegível): quem
+    chama decide, sem confundir defeito da consulta com resposta do produto.
+    """
+    import json
+
+    try:
+        done = subprocess.run(  # noqa: S603 - argv fixo; game_id é um único argumento
+            [executable, "emulation", subcommand, "--game-id", game_id, "--json"],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+        data = json.loads(done.stdout.strip().splitlines()[-1])["data"]
+    except (OSError, ValueError, IndexError, KeyError, subprocess.SubprocessError):
+        return None
+    return data if isinstance(data, dict) else None

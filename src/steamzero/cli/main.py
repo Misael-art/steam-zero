@@ -1358,6 +1358,54 @@ def _cmd_emulation_launch(args: list[str], correlation_id: str) -> tuple[dict[st
     )
 
 
+def _cmd_emulation_readiness(args: list[str], correlation_id: str) -> tuple[dict[str, Any], int]:
+    """Diz, sem efeito colateral, se o jogo pode ser iniciado e por que não."""
+    from steamzero.adapters.emulation import EmulationController
+
+    game_id = _flag_value(args, "--game-id")
+    if game_id is None:
+        raise SteamZeroError("E-API-SCHEMA", detail="use --game-id <id>")
+    controller = EmulationController()
+    try:
+        data = {"gameId": game_id, **controller.game_readiness(game_id)}
+    finally:
+        close = getattr(controller, "close", None)
+        if callable(close):
+            close()
+    return (
+        build_envelope(
+            "emulation",
+            "readiness",
+            status="ok" if data["playable"] else "degraded",
+            data=data,
+            correlation_id=correlation_id,
+        ),
+        EXIT_OK,
+    )
+
+
+def _cmd_emulation_prepare(args: list[str], correlation_id: str) -> tuple[dict[str, Any], int]:
+    """Prepara o jogo (extrai archive) sem iniciá-lo."""
+    from steamzero.adapters.emulation import EmulationController
+
+    game_id = _flag_value(args, "--game-id")
+    if game_id is None:
+        raise SteamZeroError("E-API-SCHEMA", detail="use --game-id <id>")
+    controller = EmulationController()
+    try:
+        data = {"gameId": game_id, **controller.prepare_game(game_id)}
+    finally:
+        close = getattr(controller, "close", None)
+        if callable(close):
+            close()
+    return (
+        build_envelope(
+            "emulation", "prepare", status="ok", data=data, correlation_id=correlation_id
+        ),
+        EXIT_OK,
+    )
+
+
 def _cmd_cloud_list(_args: list[str], correlation_id: str) -> tuple[dict[str, Any], int]:
     from steamzero.adapters.emulation import EmulationController
 
@@ -2097,6 +2145,8 @@ HANDLERS: dict[tuple[str, str | None], Handler] = {
     ("desktop", "ui"): _cmd_desktop_ui,
     ("emulation", "workspace"): _cmd_emulation_workspace,
     ("emulation", "launch"): _cmd_emulation_launch,
+    ("emulation", "readiness"): _cmd_emulation_readiness,
+    ("emulation", "prepare"): _cmd_emulation_prepare,
     ("cloud", "list"): _cmd_cloud_list,
     ("cloud", "launch"): _cmd_cloud_launch,
     ("cloud", "plan"): _cmd_cloud_plan,

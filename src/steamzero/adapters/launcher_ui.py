@@ -220,6 +220,21 @@ class _Handler(BaseHTTPRequestHandler):
             return
         try:
             attempt = self._bridge.launch(game_id, focus_id)
+        except LaunchBlocked as blocked:
+            # Falha comprovadamente anterior ao spawn: o motivo já é escrito
+            # para o usuário e dá a ação que resolve.
+            self._send(
+                409,
+                {
+                    "error": {
+                        "code": blocked.code,
+                        "detail": blocked.reason,
+                        "impact": "O jogo não foi iniciado.",
+                        "canPrepare": blocked.can_prepare,
+                    }
+                },
+            )
+            return
         except (OSError, ValueError, SteamZeroError):
             # Exception text can contain local paths or credentials. Publish a
             # stable recovery contract, never an unfiltered traceback/detail.
@@ -274,6 +289,22 @@ class _Server(ThreadingHTTPServer):
     bridge: LauncherBridge
 
 
+class LaunchBlocked(Exception):
+    """Prontidão negou o lançamento antes de qualquer spawn."""
+
+    def __init__(self, code: str, reason: str, can_prepare: bool = False) -> None:
+        super().__init__(code)
+        self.code = code
+        self.reason = reason
+        self.can_prepare = can_prepare
+
+
+def _public_reason(reason: str) -> str:
+    """Motivo acionável sem caminho local: o home vira ``~``."""
+    home = str(Path.home())
+    return reason.replace(home, "~")[:240]
+
+
 class LauncherBridge:
     """Serve o modelo resolvido e recebe o pedido de lançamento."""
 
@@ -297,7 +328,13 @@ class LauncherBridge:
         session_overlay: SessionOverlayAdapter | None = None,
         journey_runtime: JourneyRuntime | None = None,
         journey_diagnostic: Mapping[str, Any] | None = None,
+        readiness: Callable[[str], Mapping[str, Any]] | None = None,
+        prepare: Callable[[str], Mapping[str, Any]] | None = None,
     ) -> None:
+        self._readiness = readiness
+        self._prepare = prepare
+        self._preparing: dict[str, threading.Thread] = {}
+        self._prepare_failures: dict[str, str] = {}
         self._sections = tuple(sections)
         self._titles = dict(titles or {})
         self._covers = dict(covers or {})
@@ -1115,6 +1152,47 @@ class LauncherBridge:
         with self._session_lock:
             return self._launch_locked(game_id, focus_id)
 
+    def _auto_prepare(self, game_id: str, verdict: Mapping[str, Any]) -> None:
+        """Inicia, em segundo plano, o que o jogo precisa para abrir.
+
+        Extrair um archive leva minutos, mais que o prazo de uma requisição da
+        UI. Então o primeiro "Jogar" dispara a preparação e responde na hora com
+        o que está acontecendo; o seguinte já encontra o jogo pronto. Nada é
+        iniciado enquanto isso.
+        """
+        if self._prepare is None or verdict.get("canPrepare") is not True:
+            return
+        running = self._preparing.get(game_id)
+        if running is not None and running.is_alive():
+            raise LaunchBlocked(
+                "LAUNCHER-PREPARING-001",
+                "Preparando o jogo (extraindo o arquivo). Tente Jogar de novo em instantes.",
+            )
+        failure = self._prepare_failures.pop(game_id, None)
+        if failure is not None:
+            raise LaunchBlocked("LAUNCHER-PREPARE-FAILED-001", failure)
+        prepare = self._prepare
+
+        def work() -> None:
+            try:
+                result = prepare(game_id)
+                if result.get("prepared") is not True:
+                    self._prepare_failures[game_id] = _public_reason(
+                        str(result.get("reason") or "a preparação não foi concluída")
+                    )
+            except Exception as exc:  # qualquer falha vira motivo ao usuário
+                self._prepare_failures[game_id] = _public_reason(
+                    str(getattr(exc, "detail", "") or "a preparação falhou")
+                )
+
+        thread = threading.Thread(target=work, name=f"prepare-{game_id}", daemon=True)
+        self._preparing[game_id] = thread
+        thread.start()
+        raise LaunchBlocked(
+            "LAUNCHER-PREPARING-001",
+            "Preparando o jogo (extraindo o arquivo). Tente Jogar de novo em instantes.",
+        )
+
     def _launch_locked(self, game_id: str, focus_id: str) -> LaunchAttempt | None:
         if self._pending_game is not None:
             self.session(self._pending_game)
@@ -1130,6 +1208,15 @@ class LauncherBridge:
             or section.items[node.column] != game_id
         ):
             raise ValueError("launch game does not match its return focus")
+        if self._readiness is not None:
+            verdict = self._readiness(game_id)
+            if verdict.get("playable") is False:
+                self._auto_prepare(game_id, verdict)
+                raise LaunchBlocked(
+                    str(verdict.get("code") or "E-CONTENT-UNSUPPORTED"),
+                    _public_reason(str(verdict.get("reason") or "")),
+                    can_prepare=verdict.get("canPrepare") is True,
+                )
         if self._session_observer is not None:
             previous = self._session_observer(game_id)
             if previous.get("state") in {

@@ -125,3 +125,21 @@ def test_retrofe_percent_and_default_canvas_are_normalized_without_touching_the_
         ]
     }
     assert _normalize_retrofe_scene(canvas)["views"][0]["elements"][0]["layout"]["x"] == 0.5
+
+
+def test_legacy_theme_folder_is_reported_as_preserved_not_missing(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from steamzero.core.errors import SteamZeroError
+    from steamzero.domain.theme_scene import load_manifest
+
+    (tmp_path / "legacy.pack").mkdir()
+    (tmp_path / "legacy.pack" / "layout.xml").write_text("<x/>")
+
+    with pytest.raises(SteamZeroError) as legacy:
+        load_manifest(tmp_path, "legacy.pack")
+    with pytest.raises(SteamZeroError) as absent:
+        load_manifest(tmp_path, "nada.aqui")
+
+    assert legacy.value.code == absent.value.code == "E-THEME-NOT-FOUND"
+    assert "preservada" in str(legacy.value.detail)
+    assert "não está instalado" in str(absent.value.detail)
+    assert (tmp_path / "legacy.pack" / "layout.xml").is_file()

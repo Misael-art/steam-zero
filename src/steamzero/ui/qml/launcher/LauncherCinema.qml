@@ -4,6 +4,11 @@ import ".."
 
 Item {
     id: cinema
+    objectName: "launcherCinema"
+    // Sem nome explícito o AT-SPI não oferecia como achar a cena Cinema.
+    Accessible.role: Accessible.Pane
+    Accessible.name: qsTr("Cinema")
+    Accessible.description: qsTr("Cena do AURA Launcher com a coleção e o jogo selecionado")
     property var scene: null
     property string currentFocus: ""
     readonly property bool selectionReady: scene !== null && scene.focusId === currentFocus
