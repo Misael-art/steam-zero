@@ -39,13 +39,19 @@
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-LAUNCHER-EXIT"
   ],
   "nextAction": "O roteamento de Escape está integrado em main via #214. Preservar GAP-AURA-LAUNCHER-EXIT-PHYSICAL e validar foco/saída em release instalada; os paths de código/testes foram transferidos serialmente para WS-2026-10-JOURNEY-LAUNCHER-SESSION.",
-  "scopeDigest": "2845a58fefe20471b802974d300e69c4464592efe8cc88ef875915b0e64669f7",
+  "scopeDigest": "e441684ed583538eaa9a878f2420575a357c79bab45866a38ac0b00be0f41b2b",
   "updatedAt": "2026-10-04",
   "notes": "Correção isolada: além do caminho semântico do shell, a Home captura Escape no foco efetivo e o encaminha ao pedido de saída; o teste de gesto usa keyClick real."
 }

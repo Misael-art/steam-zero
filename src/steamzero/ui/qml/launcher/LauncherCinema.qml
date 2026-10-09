@@ -4,6 +4,11 @@ import ".."
 
 Item {
     id: cinema
+    objectName: "launcherCinema"
+    // Sem nome explícito o AT-SPI não oferecia como achar a cena Cinema.
+    Accessible.role: Accessible.Pane
+    Accessible.name: qsTr("Cinema")
+    Accessible.description: qsTr("Cena do AURA Launcher com a coleção e o jogo selecionado")
     property var scene: null
     property string currentFocus: ""
     readonly property bool selectionReady: scene !== null && scene.focusId === currentFocus
@@ -378,18 +383,19 @@ Item {
                         sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
                         opacity: 0.94
                     }
-                    Text {
+                    LauncherCoverFallback {
+                        objectName: "cinemaCoverFallback"
                         anchors.fill: parent
-                        anchors.margins: 20
+                        anchors.margins: 4
                         visible: cover.sourceStatus !== Image.Ready
-                        text: String(card.game.title || qsTr("Sem capa"))
-                        textFormat: Text.PlainText
-                        color: "#ffffff"
-                        font.pixelSize: 22 * cinema.textScale
-                        wrapMode: Text.Wrap
-                        elide: Text.ElideRight
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                        title: String(card.game.title || "")
+                        // O título do jogo em foco já aparece abaixo do
+                        // carrossel; nos vizinhos, sobrepostos, virava texto
+                        // cortado.
+                        showTitle: card.modelData.highlighted
+                        highContrast: cinema.highContrast
+                        accentColor: cinema.accentColor
+                        textScale: cinema.textScale
                     }
                     TapHandler {
                         enabled: card.modelData.highlighted && cinema.selectionReady

@@ -240,3 +240,60 @@ def test_an_element_named_for_two_targets_becomes_two_elements(tmp_path: Path) -
         assert by_name[name]["layout"]["x"] == pytest.approx(x)
         assert by_name[name]["layout"]["fontSize"] == pytest.approx(0.04)
         assert by_name[name]["appearance"]["textColor"] == "#ffffff"
+
+
+def test_unselected_dimensions_follow_the_theme_default_and_say_so(tmp_path: Path) -> None:
+    """Sem escolha, a cena usa o padrão do tema — não cena sem geometria.
+
+    Regressão do painel branco medido no host: "padrão do tema" compilava sem
+    seguir bloco nenhum, e a geometria mora nos blocos.
+    """
+    files = {
+        "theme.xml": (
+            "<theme>"
+            "<aspectRatio name='1:1'><include>./quadrado.xml</include></aspectRatio>"
+            "<aspectRatio name='16:9'><include>./largo.xml</include></aspectRatio>"
+            "<fontSize name='small'><variables><corpo>0.02</corpo></variables></fontSize>"
+            "<fontSize name='medium'><variables><corpo>0.03</corpo></variables></fontSize>"
+            "<variant name='lista, grade'><variables><x>1</x></variables></variant>"
+            "</theme>"
+        ),
+        "quadrado.xml": (
+            "<theme><view name='system'><image name='q'><pos>0.9 0.9</pos></image></view></theme>"
+        ),
+        "largo.xml": (
+            "<theme><view name='system'><image name='l'><pos>0.1 0.2</pos></image></view></theme>"
+        ),
+    }
+    store = _install(tmp_path / "themes", tmp_path / "blobs", files)
+
+    rendered = theme_scene.render_scene(
+        THEME_ID,
+        themes_root=tmp_path / "themes",
+        store=store,
+        selection=scene_esde.Selection(variant="grade"),
+        workspace=tmp_path / "work",
+    )
+
+    assert rendered["selection"] == {
+        "effective": {"variant": "grade", "fontSize": "medium", "aspectRatio": "16:9"},
+        "themeDefault": {"aspectRatio": "16:9", "fontSize": "medium"},
+    }
+    elements = rendered["scene"]["views"][0]["elements"]
+    assert [element["id"] for element in elements] == ["image-l"]
+    assert elements[0]["layout"]["x"] == pytest.approx(0.1)
+
+
+def test_a_theme_without_selection_blocks_gets_no_invented_selection(tmp_path: Path) -> None:
+    files = {
+        "theme.xml": (
+            "<theme><view name='system'><image name='a'><pos>0.1 0.1</pos></image></view></theme>"
+        ),
+    }
+    store = _install(tmp_path / "themes", tmp_path / "blobs", files)
+
+    rendered = theme_scene.render_scene(
+        THEME_ID, themes_root=tmp_path / "themes", store=store, workspace=tmp_path / "work"
+    )
+
+    assert rendered["selection"] == {"effective": {}, "themeDefault": {}}

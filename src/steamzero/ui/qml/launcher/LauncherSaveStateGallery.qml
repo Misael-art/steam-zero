@@ -87,6 +87,22 @@ Item {
         return true
     }
 
+    // O carimbo chega em ISO 8601; ninguém lê "2026-09-17T23:31:11.913622+00:00".
+    function formatTimestamp(value) {
+        const parsed = new Date(String(value || ""))
+        if (isNaN(parsed.getTime()))
+            return qsTr("Data indisponível")
+        return Qt.formatDateTime(parsed, "dd/MM/yyyy HH:mm")
+    }
+
+    function compatibilityLabel(value) {
+        const labels = {
+            "native": qsTr("formato nativo"), "compatible": qsTr("compatível"),
+            "incompatible": qsTr("incompatível")
+        }
+        return labels[String(value || "")] || qsTr("compatibilidade desconhecida")
+    }
+
     function _text(value, fallback) {
         return typeof value === "string" && value.length > 0 ? value : fallback
     }
@@ -180,7 +196,7 @@ Item {
                     height: 270
                     radius: 12
                     color: modelData.available === true
-                        ? (index === gallery.selectedIndex ? gallery.accentColor : gallery.panelColor)
+                        ? (index === gallery.selectedIndex ? gallery.backgroundColor : gallery.panelColor)
                         : "#111b27"
                     opacity: modelData.available === true ? 1 : 0.62
                     border.width: index === gallery.selectedIndex ? 3 : 1
@@ -233,7 +249,7 @@ Item {
                             font.bold: true
                         }
                         Text {
-                            text: _text(modelData.timestamp, qsTr("Data indisponível"))
+                            text: gallery.formatTimestamp(modelData.timestamp)
                             color: gallery.mutedColor
                             font.pixelSize: 11 * gallery.visualScale
                             elide: Text.ElideRight
@@ -241,7 +257,7 @@ Item {
                         }
                         Text {
                             text: qsTr("%1 min · %2").arg(Math.floor(Number(modelData.playtimeSeconds || 0) / 60))
-                                .arg(_text(modelData.compatibility, "unknown"))
+                                .arg(gallery.compatibilityLabel(modelData.compatibility))
                             color: gallery.mutedColor
                             font.pixelSize: 11 * gallery.visualScale
                         }

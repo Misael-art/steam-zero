@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN",
+  "title": "Plano de desbloqueio da validacao fisica e jornadas reais",
+  "domain": "governance",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "none",
+  "operation": "blocked",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
+    "docs/09-operations/evidence/2026-10-07-physical-validation-unblock",
+    "docs/status/workstreams/physical-validation-unblock-plan-2026-10-07.json",
+    "docs/diagnostics/2026-10-07-diagnostico-jornadas-reais-ux.md",
+    "docs/diagnostics/2026-10-07-HANDOFF-continuacao.md",
+    "docs/status/workstreams/diagnostico-jornadas-ux-2026-10-07.json"
+  ],
+  "dependsOn": [
+    "SZ-ROADMAP-CONTINUATION"
+  ],
+  "knownGaps": [
+    "GAP-PHYSICAL-CAPTURE-INPUT-BACKEND",
+    "GAP-INSTALLED-CONSUMER-DISCOVERY",
+    "GAP-REAL-GAME-INPUT-SAVE-PREFLIGHT",
+    "GAP-PHYSICAL-SERIAL-HANDOFF"
+  ],
+  "acceptanceCriteria": [
+    "As rodadas R01-R17 tem destino RC existente, dependencia e criterio mensuravel D0-D8.",
+    "A disponibilidade instalada e conferida por pacote, entry points e runtime, sem concluir ausencia pela CLI central.",
+    "Jornadas reais preservam inputs e saves e distinguem teste funcional, observabilidade e benchmark.",
+    "Correcoes e digests pendentes sao reconciliados serialmente; certificacao depende de evidencia da candidata instalada."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-07-physical-validation-unblock/README.md",
+      "command": "Reconciliacao documental das rodadas 06-07/10 com matriz R01-R17 e inspeção estatica de pyproject.toml; sem execucao de casos fisicos nem promocao de produtos.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "D0: preservar e fechar R05/R06 com o owner, atribuir dez digests e negociar handoffs por arquivo. D1-D4: captura/input no backend real, entry point steamzero-launcher, preflight de save/input e provider-bytes-consumo-gameplay-retorno; D5-D8 completam autoria, UX e candidata autorizada.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-09",
+  "notes": "Custodia documental do plano D0-D8, nao novo produto ou catalogo concorrente. Registro local nao commitado; branch atual e trabalho alheio preservados. Relatos fisicos nao reexecutados; nenhum eixo de capacidade promovido. Fechamento de governanca global depende do owner dos arquivos e digests existentes."
+}

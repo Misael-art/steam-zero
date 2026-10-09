@@ -35,6 +35,7 @@ from steamzero.adapters.launcher_catalog import (
     catalog_summary,
 )
 from steamzero.adapters.launcher_media import launcher_media_metadata
+from steamzero.adapters.launcher_process import query_product
 from steamzero.adapters.launcher_receipt import (
     LaunchAttempt,
     ReceiptSpawner,
@@ -400,6 +401,31 @@ class LaunchRouter:
 
         launch_detached(plan, spawn=_receipt_spawn)
         return collected[0] if collected else None
+
+    def readiness(self, game_id: str) -> Mapping[str, Any]:
+        """Pergunta ao produto se o jogo pode abrir, sem iniciar nada.
+
+        Falha ao perguntar (timeout, saída ilegível) NÃO bloqueia: o preflight
+        do próprio ``emulation launch`` continua sendo a autoridade e reporta
+        o motivo real. Bloquear aqui por defeito da consulta seria inventar uma
+        recusa.
+        """
+        if self._kinds.get(game_id, "emulation") != "emulation":
+            return {"playable": True}
+        data = query_product(self._executable(), "readiness", game_id, timeout=20)
+        return data if data is not None and "playable" in data else {"playable": True}
+
+    def prepare(self, game_id: str) -> Mapping[str, Any]:
+        """Prepara o jogo (extrai archive) pelo produto; sem iniciar nada."""
+        data = query_product(self._executable(), "prepare", game_id, timeout=3600)
+        return (
+            data
+            if data is not None
+            else {
+                "prepared": False,
+                "reason": "a preparação não pôde ser executada",
+            }
+        )
 
     def _steam_argv(self, app_id: str) -> tuple[str, ...]:
         if not app_id.isdigit() or len(app_id) > 32:
@@ -850,6 +876,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         context_path=context_path,
         on_launch=launch_game,
         on_launch_bezel=launch_game_with_bezel,
+        readiness=None if args.isolated_library else router.readiness,
+        prepare=None if args.isolated_library else router.prepare,
         accessibility=accessibility,
         return_context=return_context,
         catalog_summary=catalog_summary(payload, catalog, library),

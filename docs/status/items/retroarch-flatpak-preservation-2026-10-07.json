@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-RETROARCH-FLATPAK-PRESERVATION",
+  "title": "Descoberta segura do destino de saves do RetroArch Flatpak",
+  "domain": "emulation",
+  "implementation": "complete",
+  "integration": "feature-branch",
+  "verification": "dev",
+  "operation": "degraded",
+  "distribution": "installed",
+  "scopePaths": [
+    "src/steamzero/adapters/preservation.py",
+    "tests/integration/test_preservation.py",
+    "docs/09-operations/evidence/2026-10-07-retroarch-flatpak-save"
+  ],
+  "scopeDigest": "ed3613c019b51be8c1717e65c74344382d99bc416bb0954da6476053fd58a050",
+  "dependsOn": [],
+  "knownGaps": [
+    "GAP-RETROARCH-FLATPAK-SAVE-ROOT-MISMATCH"
+  ],
+  "acceptanceCriteria": [
+    "O destino de save normal configurado no RetroArch Flatpak pode ser descoberto sem expor o caminho privado no relatório.",
+    "A descoberta não segue symlinks nem seleciona silenciosamente entre cópias duplicadas do mesmo save.",
+    "O arquivo retroarch.cfg e os dados do usuário permanecem sem alteração durante a detecção e o backup.",
+    "O preflight diferencia destino encontrado, ausente e ambíguo; save-state por sessão permanece em critério separado até comprovar que emulador e leitor de estado usam a mesma raiz efetiva."
+  ],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-07-retroarch-flatpak-save/README.md",
+      "command": "Leitura read-only da configuração RetroArch Flatpak instalada e comparação com PreservationService da mesma release",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_preservation.py",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests/integration/test_preservation.py -q (15 passed)",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "src/steamzero/adapters/preservation.py",
+      "command": ".venv/bin/mypy src/steamzero/adapters/preservation.py (success)",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-07-retroarch-flatpak-save/README.md",
+      "command": "Import checkout preservation adapter and compare its candidates with the installed Flatpak config without enumerating save files",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
+    }
+  ],
+  "nextAction": "Obter handoff serial para o caminho de save-state por sessão, integrar este patch por gates/CI em SHA exato e validar save normal na release governada antes de promover a operação.",
+  "activeWorkstreams": [
+    "WS-2026-10-RETROARCH-FLATPAK-PRESERVATION"
+  ],
+  "updatedAt": "2026-10-09",
+  "notes": "O patch de branch lê o savefile_directory configurado apenas quando está em caminho absoluto dentro do perfil privado do Flatpak. O scanner mantém a raiz nativa como candidata separada e destinos duplicados seguem ambíguos. Esta fatia cobre somente descoberta de save normal; não certifica escrita em gameplay nem o diretório de save-state injetado pela sessão."
+}

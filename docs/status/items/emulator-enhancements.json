@@ -25,7 +25,7 @@
     "src/steamzero/adapters/cheats",
     "docs/diagnostics/evidence/SZ-EMULATION-ENHANCEMENTS"
   ],
-  "scopeDigest": "115b73fa529d73582052f15f2555cdd17a08305f101eea2c796236e40f295cac",
+  "scopeDigest": "2925119df44feeebab2c0953f43d3bc8383c42a1c19b55283ecbe006c5414f53",
   "dependsOn": [
     "SZ-EMULATION-M10"
   ],
@@ -98,6 +98,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Defeito (2) do teste de 2026-08-21 RESOLVIDO: b34213d allowlist de rede na unit do daemon, presente na release instalada 2.0.0rc1-92d91d631b80 e PROVADO no host em 2026-08-25 pelo install fisico do melonDS com download dentro do daemon (evidencia docs/09-operations/evidence/2026-08-25-melonds-smoke-install-fisico). Proximo: retomar o teste de producao dos demais emuladores pelo fluxo governado, começando pelos flatpak 'missing' (ppsspp, xemu, azahar), e seguir a Onda 1 do workstream (identidade de titulo tipada por plataforma).",

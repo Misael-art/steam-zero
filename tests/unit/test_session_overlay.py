@@ -2,6 +2,7 @@
 # Copyright (C) 2026 SteamZero contributors
 """Provas do contrato semântico do overlay de sessão."""
 
+from steamzero.domain import session_overlay as _module
 from steamzero.domain.session_overlay import (
     DIAG_CRITICAL_ERROR,
     DIAG_DISABLED_ACTION,
@@ -114,3 +115,11 @@ def test_missing_or_unknown_action_degrades_without_fabricating_session() -> Non
     result = request_overlay_action(_model(), "secretShellCommand")
     assert result.accepted is False
     assert result.diagnostic == DIAG_UNKNOWN_ACTION
+
+
+def test_every_action_has_a_player_facing_label() -> None:
+    """O id é contrato, não texto de tela: nenhum rótulo pode ser o id cru."""
+    overlay = resolve_session_overlay(_model())
+    labels = {action.id: action.label for action in overlay.actions}
+    assert set(labels) == set(_module.OSD_ACTIONS)
+    assert all(label != action_id for action_id, label in labels.items())

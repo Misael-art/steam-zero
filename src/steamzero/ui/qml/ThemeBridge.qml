@@ -83,7 +83,7 @@ QtObject {
     readonly property color border: highContrast ? "#ffffff" : _get("color", "border", "#aebdbe")
     readonly property color text: highContrast ? "#ffffff" : _get("color", "text", "#16212a")
     readonly property color textMuted: highContrast ? "#e8e8e8" : _get("color", "textMuted", "#53616b")
-    readonly property color textDisabled: highContrast ? "#aaaaaa" : _get("color", "textDisabled", "#7a878b")
+    readonly property color textDisabled: highContrast ? "#aaaaaa" : _get("color", "textDisabled", "#5c6a70")
     readonly property color accent: highContrast ? "#00e5ff" : _get("color", "accent", "#006f99")
     readonly property color accentStrong: highContrast ? "#003d4d" : _get("color", "accentStrong", "#005471")
     readonly property color success: highContrast ? "#5eff62" : _get("color", "success", "#167a45")
@@ -161,7 +161,7 @@ QtObject {
             "border": "#aebdbe",
             "text": "#16212a",
             "textMuted": "#53616b",
-            "textDisabled": "#7a878b",
+            "textDisabled": "#5c6a70",
             "accent": "#006f99",
             "accentStrong": "#005471",
             "success": "#167a45",

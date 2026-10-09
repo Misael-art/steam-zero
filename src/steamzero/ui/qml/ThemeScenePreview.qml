@@ -59,8 +59,15 @@ Item {
 
     // Um seletor vazio parece controle quebrado. O rótulo diz qual dimensão é,
     // e a ausência de escolha ganha nome em vez de virar espaço em branco.
-    function labelFor(label, value) {
-        return label + ": " + (value ? value : qsTr("padrão do tema"))
+    function labelFor(label, value, dimension) {
+        if (value)
+            return label + ": " + value
+        // A engine resolve a dimensão não escolhida para o padrão que o tema
+        // declara; dizer qual é evita um "padrão" que ninguém sabe o que vale.
+        const defaults = rendered && rendered.selection && rendered.selection.themeDefault
+            ? rendered.selection.themeDefault : ({})
+        return label + ": " + (defaults[dimension]
+            ? qsTr("padrão do tema (%1)").arg(defaults[dimension]) : qsTr("padrão do tema"))
     }
 
     function optionsFor(dimension) {
@@ -146,7 +153,11 @@ Item {
         anchors.fill: parent
         spacing: 10
 
-        RowLayout {
+        // Flow, não RowLayout: com o padrão do tema escrito no rótulo a linha
+        // passa da largura do painel compacto, e uma linha que não quebra
+        // empurrava a cena para fora do diálogo.
+        Flow {
+            id: previewControls
             objectName: "previewControls"
             visible: !preview.immersive
             Layout.fillWidth: true
@@ -155,49 +166,48 @@ Item {
             SteamComboBox {
                 id: aspectBox
                 objectName: "aspectRatioBox"
-                Layout.minimumHeight: 48
-                Layout.minimumWidth: 130
+                height: Math.max(48, implicitHeight)
+                width: Math.min(previewControls.width, Math.max(130, implicitWidth))
                 model: preview.optionsFor("aspectRatio")
-                displayText: preview.labelFor(qsTr("Proporção"), currentValue)
+                displayText: preview.labelFor(qsTr("Proporção"), currentValue, "aspectRatio")
                 Accessible.name: qsTr("Proporção de tela")
                 onActivated: preview.render()
             }
             SteamComboBox {
                 id: colorBox
                 objectName: "colorSchemeBox"
-                Layout.minimumHeight: 48
-                Layout.minimumWidth: 150
+                height: Math.max(48, implicitHeight)
+                width: Math.min(previewControls.width, Math.max(150, implicitWidth))
                 model: preview.optionsFor("colorScheme")
-                displayText: preview.labelFor(qsTr("Cor"), currentValue)
+                displayText: preview.labelFor(qsTr("Cor"), currentValue, "colorScheme")
                 Accessible.name: qsTr("Esquema de cor")
                 onActivated: preview.render()
             }
             SteamComboBox {
                 id: fontBox
                 objectName: "fontSizeBox"
-                Layout.minimumHeight: 48
-                Layout.minimumWidth: 120
+                height: Math.max(48, implicitHeight)
+                width: Math.min(previewControls.width, Math.max(120, implicitWidth))
                 model: preview.optionsFor("fontSize")
-                displayText: preview.labelFor(qsTr("Fonte"), currentValue)
+                displayText: preview.labelFor(qsTr("Fonte"), currentValue, "fontSize")
                 Accessible.name: qsTr("Tamanho de fonte")
                 onActivated: preview.render()
             }
             SteamComboBox {
                 id: variantBox
                 objectName: "variantBox"
-                Layout.minimumHeight: 48
-                Layout.minimumWidth: 180
+                height: Math.max(48, implicitHeight)
+                width: Math.min(previewControls.width, Math.max(180, implicitWidth))
                 model: preview.optionsFor("variant")
-                displayText: preview.labelFor(qsTr("Variante"), currentValue)
+                displayText: preview.labelFor(qsTr("Variante"), currentValue, "variant")
                 Accessible.name: qsTr("Variante")
                 onActivated: preview.render()
             }
-            Item { Layout.fillWidth: true }
             SteamComboBox {
                 id: viewBox
                 objectName: "viewBox"
-                Layout.minimumHeight: 48
-                Layout.minimumWidth: 130
+                height: Math.max(48, implicitHeight)
+                width: Math.min(previewControls.width, Math.max(130, implicitWidth))
                 model: ["system", "gamelist", "menu"]
                 currentIndex: 1
                 Accessible.name: qsTr("View do tema")

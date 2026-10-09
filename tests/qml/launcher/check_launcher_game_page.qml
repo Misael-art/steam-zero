@@ -25,6 +25,20 @@ Item {
 
     property var activatedIds: []
 
+    function findByName(item, name) {
+        if (!item)
+            return null
+        if (item.objectName === name)
+            return item
+        const children = item.children || []
+        for (let i = 0; i < children.length; ++i) {
+            const found = findByName(children[i], name)
+            if (found !== null)
+                return found
+        }
+        return null
+    }
+
     LauncherGamePage {
         id: playable
         anchors.fill: parent
@@ -106,6 +120,21 @@ Item {
             blocked.move(-1)
             harness.check(blocked.currentFocus !== "action:play",
                           "o direcional não pode parar numa ação desabilitada")
+            // Voltar precisa existir como alvo na tela, não só como dica de tecla.
+            const back = harness.findByName(playable, "gameBack")
+            harness.check(back !== null && back.visible && back.width >= 48 && back.height >= 48,
+                          "a página de jogo precisa de um alvo Voltar visível com 48 px ou mais")
+            harness.check(back !== null && back.Accessible.name === "Voltar",
+                          "o alvo Voltar precisa de nome acessível")
+            // Sem capa: forma própria com monograma, sem repetir o título.
+            const cover = harness.findByName(blocked, "gameCoverFallback")
+            harness.check(cover !== null && cover.showTitle === false,
+                          "a capa ausente precisa do placeholder sem título repetido")
+            cover.title = "'89 (Japan)"
+            harness.check(cover.monogram === "8",
+                          "o monograma precisa pular aspas e parênteses: " + cover.monogram)
+            cover.title = ""
+            harness.check(cover.monogram === "?", "título vazio precisa de monograma neutro")
             Qt.exit(harness.failures === 0 ? 0 : 1)
         }
     }

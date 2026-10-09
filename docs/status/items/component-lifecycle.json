@@ -22,9 +22,15 @@
     "docs/09-operations/evidence/2026-08-27-matriz-componentes-fisica",
     "docs/09-operations/evidence/2026-08-27-launch-gate-drift",
     "docs/09-operations/evidence/2026-08-31-componentes-update-fisico",
-    "docs/09-operations/evidence/2026-09-22-component-matrix-readonly"
+    "docs/09-operations/evidence/2026-09-22-component-matrix-readonly",
+    "src/steamzero/adapters/lifecycle.py",
+    "src/steamzero/ui/qml/Main.qml",
+    "src/steamzero/ui/qml/job_result_presentation.js",
+    "tests/integration/test_component_job_presentation.py",
+    "tests/qml/check_component_job_presentation.qml",
+    "docs/status/workstreams/r05-component-operation-trace-2026-10-05.json"
   ],
-  "scopeDigest": "b5b3e8f2b78c4a1661c880589fca4992b68ce933ddcedf836eae6058eb0e6b67",
+  "scopeDigest": "130883a6b637a2946444bb3ac6636e95120f398b13a22250f3ecb426a6d0629e",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -132,12 +138,55 @@
       "reference": "docs/09-operations/evidence/2026-09-22-component-matrix-readonly",
       "command": "/usr/local/bin/steamzero component list --json (36 componentes: 33 installed, 2 missing — sunshine, vita3k — e 1 degraded — xenia-canary — com detail explicito; executor e sourceType concordam para Flatpak/AppImage/archive/native, sem fallback silencioso)",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/qml/check_component_job_presentation.qml",
+      "command": "rtk qml6 tests/qml/check_component_job_presentation.qml (exit 0)",
+      "result": "passed"
+    },
+    {
+      "kind": "hardware",
+      "reference": "docs/09-operations/evidence/2026-10-07-physical-validation-unblock/README.md",
+      "command": "release instalada 2.0.0rc1-213124ed513b observada read-only; job historico E-TX-VERIFY-FAILED/rolled-back sem operationId na public view",
+      "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_component_jobs.py",
+      "command": "rtk .venv/bin/python tools/run_tests_isolated.py tests/unit/test_component_jobs.py tests/integration/test_component_job_presentation.py -q (11 passed)",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_component_job_presentation.py",
+      "command": "rtk .venv/bin/python tools/run_tests_isolated.py tests/unit/test_component_jobs.py tests/integration/test_component_job_presentation.py -q (11 passed)",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "src/steamzero/adapters/component_jobs.py",
+      "command": "rtk .venv/bin/ruff check src/steamzero/adapters/component_jobs.py src/steamzero/adapters/lifecycle.py tests/unit/test_component_jobs.py tests/integration/test_component_job_presentation.py (All checks passed)",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_component_jobs.py",
+      "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/unit/test_component_jobs.py tests/integration/test_component_lifecycle.py tests/integration/test_component_job_presentation.py -q (99 passed)",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_project_status.py",
+      "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests -q (6676 passed, 47 skipped, 1 failed; project status digest consistency only)",
+      "result": "recorded"
     }
   ],
-  "nextAction": "HARD-EXTERNAL-SUBITEM: manter xenia-canary degradado com causa visivel e aguardar prova física autorizada de lançamento, acompanhamento de sessão e retorno ao Launcher; não instalar, reparar ou remover componentes neste ciclo.",
+  "nextAction": "R05 implementado em 36ea2a8a e integrado em 31f29963; testes focados e gates completos registrados. O status gate permanece vermelho por cinco digests externos; release instalada ainda não contém o patch.",
   "activeWorkstreams": [
-    "WS-2026-08-COMPONENT-MATRIZ"
+    "WS-2026-08-COMPONENT-MATRIZ",
+    "WS-2026-10-R05-COMPONENT-OPERATION-TRACE"
   ],
-  "updatedAt": "2026-09-22",
-  "notes": "O lifecycle está integrado no canonical e no host ativo: a matriz read-only atual preserva a distinção por origem, mostra 33 componentes instalados, 2 ausentes e xenia-canary degradado com causa explícita. A suíte vertical de jobs, roteamento, composição, workspace e lifecycle passou com 169 testes, sem alterar o state home real. A prova física de lançamento/retorno e a eventual reparação de xenia continuam fora desta sessão; nenhuma mutação foi executada."
+  "updatedAt": "2026-10-07",
+  "notes": "A matriz read-only da release instalada revelou uma falha historica E-TX-VERIFY-FAILED/rolled-back sem operationId na public view. A branch de R05 corrige a perda de operation_id, expõe metadados publicos de artefato e diferencia rollback confirmado de falha sem operacao vinculada na UI. A release instalada nao foi atualizada nesta tarefa. 2026-10-07: R05 foi dividido em commit core e integração compartilhada. Full suite 6676/47/1 com falha somente no catálogo/digests; não instalado."
 }

@@ -108,8 +108,15 @@ Item {
     }
 
     function setModel(value) {
+        // O estado da sessão é republicado enquanto o overlay está aberto. A
+        // escolha do usuário sobrevive à atualização: voltar ao foco inicial a
+        // cada leitura desfazia a seta antes do Enter e deixava Pausar e Sair
+        // inalcançáveis pelo teclado.
+        const current = overlay.overlayOpen && selectedIndex >= 0 && selectedIndex < actions.length
+            ? String(actions[selectedIndex].id || "") : ""
         overlay.overlayModel = value
-        overlay.selectedIndex = _initialIndex()
+        if (current === "" || !overlay.focusAction(current))
+            overlay.selectedIndex = _initialIndex()
         if (overlay.saveGalleryOpen)
             saveGallery.setModel(overlay.saveStates)
         if (overlay.peripheralOpen)
@@ -140,6 +147,24 @@ Item {
         overlay.localError = ""
         overlay.closeRequested()
         return true
+    }
+
+    readonly property string focusedReason: {
+        const action = selectedIndex >= 0 && selectedIndex < actions.length
+            ? actions[selectedIndex] : null
+        if (!action || action.enabled === true)
+            return ""
+        return qsTr("%1: %2").arg(String(action.label || action.id || ""))
+            .arg(_text(action.reason, qsTr("indisponível nesta sessão.")))
+    }
+
+    function stateLabel(state) {
+        const labels = {
+            "launching": qsTr("iniciando"), "running": qsTr("em jogo"),
+            "suspending": qsTr("pausando"), "suspended": qsTr("pausado"),
+            "resuming": qsTr("retomando"), "closing": qsTr("encerrando")
+        }
+        return labels[String(state || "")] || qsTr("indisponível")
     }
 
     function focusAction(actionId) {
@@ -311,6 +336,7 @@ Item {
                         color: overlay.primaryTextColor
                         font.pixelSize: 14 * overlay.visualScale
                     }
+                    Accessible.onPressAction: overlay.closeOverlay()
                     TapHandler { onTapped: overlay.closeOverlay() }
                 }
             }
@@ -318,8 +344,8 @@ Item {
             Row {
                 spacing: 12
                 Text {
-                    text: qsTr("Estado: %1").arg(_text(overlay.overlayModel
-                        ? overlay.overlayModel.state : "", qsTr("indisponível")))
+                    text: qsTr("Estado: %1").arg(overlay.stateLabel(overlay.overlayModel
+                        ? overlay.overlayModel.state : ""))
                     color: overlay.mutedTextColor
                     font.pixelSize: 14 * overlay.visualScale
                 }
@@ -346,8 +372,11 @@ Item {
                         width: (actionGrid.width - actionGrid.columnSpacing * 3) / 4
                         height: 58
                         radius: 8
+                        // Foco é borda e peso, como no botão Jogar e na
+                        // confirmação: o preenchimento de destaque deixava o
+                        // rótulo branco sobre azul claro.
                         color: modelData.enabled === true
-                            ? (index === overlay.selectedIndex ? overlay.accentColor : overlay.panelColor)
+                            ? (index === overlay.selectedIndex ? overlay.backgroundColor : overlay.panelColor)
                             : (index === overlay.selectedIndex ? "#3b2f20" : overlay.backgroundColor)
                         opacity: modelData.enabled === true ? 1 : 0.62
                         border.width: index === overlay.selectedIndex ? 3 : 1
@@ -371,6 +400,10 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                             wrapMode: Text.Wrap
                         }
+                        Accessible.onPressAction: {
+                            overlay.selectedIndex = index
+                            overlay.activateFocused()
+                        }
                         TapHandler {
                             onTapped: {
                                 overlay.selectedIndex = index
@@ -379,6 +412,20 @@ Item {
                         }
                     }
                 }
+            }
+
+            // O motivo aparece com o foco, não só depois do Enter: a ação
+            // esmaecida sem explicação parecia defeito.
+            Text {
+                objectName: "launcherSessionOverlayFocusedReason"
+                width: parent.width
+                visible: text !== ""
+                text: overlay.focusedReason
+                color: overlay.mutedTextColor
+                font.pixelSize: 14 * overlay.visualScale
+                wrapMode: Text.Wrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
             }
 
             Rectangle {
@@ -433,22 +480,115 @@ Item {
         objectName: "launcherSessionExitConfirmation"
         modal: true
         focus: true
+        anchors.centerIn: parent
         width: Math.max(280, Math.min(520, overlay.width - 32))
-        implicitHeight: Math.max(176, Math.min(220, overlay.height - 32))
+        padding: 20
         title: qsTr("Sair do jogo?")
-        standardButtons: Dialog.Yes | Dialog.Cancel
         parent: Overlay.overlay
+        // 0 = Cancelar, 1 = Sair. O foco nasce em Cancelar: Enter repetido por
+        // engano não pode encerrar a sessão.
+        property int choice: 0
+        readonly property var choices: [qsTr("Cancelar"), qsTr("Sair do jogo")]
+        function activateChoice() {
+            if (exitConfirmation.choice === 1)
+                exitConfirmation.accept()
+            else
+                exitConfirmation.reject()
+        }
+        onOpened: {
+            exitConfirmation.choice = 0
+            exitChoices.forceActiveFocus()
+        }
         onAccepted: {
             overlay.localError = ""
             overlay.actionRequested("exit")
             overlay.forceActiveFocus()
         }
         onRejected: overlay.forceActiveFocus()
-        contentItem: Text {
-            width: exitConfirmation.availableWidth
-            text: qsTr("Confirme que não há progresso pendente. O SteamZero enviará um pedido de encerramento e aguardará a confirmação real da sessão; não forçará o fechamento.")
+        // Os botões padrão do estilo não recebiam foco de teclado e o painel
+        // branco do sistema deixava o texto do tema ilegível.
+        background: Rectangle {
+            color: overlay.panelColor
+            radius: 12
+            border.width: 1
+            border.color: overlay.accentColor
+        }
+        header: Text {
+            text: exitConfirmation.title
             color: overlay.primaryTextColor
-            wrapMode: Text.WordWrap
+            font.pixelSize: 20 * overlay.visualScale
+            font.bold: true
+            padding: 20
+            bottomPadding: 0
+        }
+        contentItem: FocusScope {
+            id: exitChoices
+            objectName: "launcherSessionExitChoices"
+            implicitHeight: exitColumn.implicitHeight
+            focus: true
+            Keys.onLeftPressed: exitConfirmation.choice = 0
+            Keys.onRightPressed: exitConfirmation.choice = 1
+            Keys.onReturnPressed: exitConfirmation.activateChoice()
+            Keys.onEnterPressed: exitConfirmation.activateChoice()
+            Keys.onSpacePressed: exitConfirmation.activateChoice()
+            Keys.onEscapePressed: exitConfirmation.reject()
+            Column {
+                id: exitColumn
+                width: parent.width
+                spacing: 16
+                Text {
+                    width: parent.width
+                    text: qsTr("Confirme que não há progresso pendente. O SteamZero enviará um pedido de encerramento e aguardará a confirmação real da sessão; não forçará o fechamento.")
+                    color: overlay.primaryTextColor
+                    font.pixelSize: 14 * overlay.visualScale
+                    wrapMode: Text.WordWrap
+                }
+                Row {
+                    anchors.right: parent.right
+                    spacing: 12
+                    Repeater {
+                        model: exitConfirmation.choices
+                        delegate: Rectangle {
+                            required property string modelData
+                            required property int index
+                            objectName: index === 1 ? "launcherSessionExitConfirm"
+                                                    : "launcherSessionExitCancel"
+                            width: Math.max(140, choiceText.implicitWidth + 32)
+                            height: Math.max(48, 40 * overlay.visualScale)
+                            radius: 8
+                            color: overlay.backgroundColor
+                            border.width: index === exitConfirmation.choice ? 3 : 1
+                            border.color: index === exitConfirmation.choice
+                                ? overlay.accentColor : overlay.borderColor
+                            Accessible.name: modelData
+                            Accessible.role: Accessible.Button
+                            Accessible.onPressAction: {
+                                exitConfirmation.choice = index
+                                exitConfirmation.activateChoice()
+                            }
+                            TapHandler {
+                                onTapped: {
+                                    exitConfirmation.choice = index
+                                    exitConfirmation.activateChoice()
+                                }
+                            }
+                            Text {
+                                id: choiceText
+                                anchors.centerIn: parent
+                                text: parent.modelData
+                                color: overlay.primaryTextColor
+                                font.pixelSize: 15 * overlay.visualScale
+                                font.bold: parent.index === exitConfirmation.choice
+                            }
+                        }
+                    }
+                }
+                Text {
+                    text: qsTr("← → Escolher   Enter Confirmar   Esc Cancelar")
+                    color: overlay.mutedTextColor
+                    font.pixelSize: 12 * overlay.visualScale
+                }
+            }
         }
     }
 

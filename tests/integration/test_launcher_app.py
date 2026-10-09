@@ -1106,3 +1106,133 @@ def test_session_route_accepts_a_bounded_save_state_slot(tmp_path: Path) -> None
             result = json.loads(response.read())
         assert result["accepted"] is True
         assert result["slot"] == 4
+
+
+def _post_launch(base: str, token: str, game: str) -> tuple[int, dict]:
+    request = urllib.request.Request(  # noqa: S310
+        f"{base}/launch",
+        data=json.dumps({"gameId": game, "focusId": f"library:{game}"}).encode(),
+        headers={"X-SteamZero-Token": token, "Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=5) as response:  # noqa: S310
+            return response.status, json.loads(response.read() or b"{}")
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read())
+
+
+def test_launch_blocked_by_readiness_explains_reason_and_never_spawns(tmp_path: Path) -> None:
+    spawned: list[str] = []
+    home = str(Path.home())
+    bridge = LauncherBridge(
+        sections=build_sections([{"id": "game", "title": "Game", "section": "library"}]),
+        context_path=tmp_path / "return.json",
+        on_launch=lambda game, focus: spawned.append(game),
+        readiness=lambda _game: {
+            "playable": False,
+            "code": "E-CONTENT-BIOS-MISSING",
+            "reason": f"importe a BIOS panafz10.bin em {home}/bios",
+        },
+    )
+    with bridge.serving() as base:
+        status, body = _post_launch(base, bridge.token, "game")
+
+    assert status == 409
+    assert body["error"]["code"] == "E-CONTENT-BIOS-MISSING"
+    assert "importe a BIOS panafz10.bin" in body["error"]["detail"]
+    assert home not in body["error"]["detail"]
+    assert spawned == []
+
+
+def test_launch_proceeds_when_readiness_says_playable(tmp_path: Path) -> None:
+    spawned: list[str] = []
+    bridge = LauncherBridge(
+        sections=build_sections([{"id": "game", "title": "Game", "section": "library"}]),
+        context_path=tmp_path / "return.json",
+        on_launch=lambda game, focus: spawned.append(game),
+        readiness=lambda _game: {"playable": True, "code": "", "reason": ""},
+    )
+    with bridge.serving() as base:
+        status, _ = _post_launch(base, bridge.token, "game")
+
+    assert status == 200
+    assert spawned == ["game"]
+
+
+def test_router_readiness_never_blocks_on_a_failed_query(tmp_path: Path) -> None:
+    from steamzero.launcher.app import LaunchRouter
+
+    router = LaunchRouter(
+        on_spawn=lambda argv: 1,
+        context_path=tmp_path / "return.json",
+        executable=lambda: str(tmp_path / "inexistente"),
+        kinds={"steam1": "steam"},
+    )
+
+    assert router.readiness("g") == {"playable": True}
+    assert router.readiness("steam1") == {"playable": True}
+
+
+def test_blocked_archive_is_prepared_in_background_then_launches(tmp_path: Path) -> None:
+    spawned: list[str] = []
+    prepared = threading.Event()
+    release = threading.Event()
+    state = {"ready": False}
+
+    def readiness(_game: str) -> dict:
+        if state["ready"]:
+            return {"playable": True}
+        return {
+            "playable": False,
+            "code": "E-CONTENT-INCOMPLETE",
+            "reason": "x",
+            "canPrepare": True,
+        }
+
+    def prepare(_game: str) -> dict:
+        assert release.wait(5)
+        state["ready"] = True
+        prepared.set()
+        return {"prepared": True}
+
+    bridge = LauncherBridge(
+        sections=build_sections([{"id": "game", "title": "Game", "section": "library"}]),
+        context_path=tmp_path / "return.json",
+        on_launch=lambda game, focus: spawned.append(game),
+        readiness=readiness,
+        prepare=prepare,
+    )
+    with bridge.serving() as base:
+        first, body = _post_launch(base, bridge.token, "game")
+        second, body2 = _post_launch(base, bridge.token, "game")
+        release.set()
+        assert prepared.wait(5)
+        bridge._preparing["game"].join(5)
+        third, _ = _post_launch(base, bridge.token, "game")
+
+    assert (first, second) == (409, 409)
+    assert body["error"]["code"] == body2["error"]["code"] == "LAUNCHER-PREPARING-001"
+    assert third == 200
+    assert spawned == ["game"]
+
+
+def test_failed_preparation_is_reported_once(tmp_path: Path) -> None:
+    bridge = LauncherBridge(
+        sections=build_sections([{"id": "game", "title": "Game", "section": "library"}]),
+        context_path=tmp_path / "return.json",
+        on_launch=lambda game, focus: None,
+        readiness=lambda _g: {
+            "playable": False,
+            "code": "E-CONTENT-INCOMPLETE",
+            "canPrepare": True,
+        },
+        prepare=lambda _g: {"prepared": False, "reason": "archive corrompido"},
+    )
+    with bridge.serving() as base:
+        _post_launch(base, bridge.token, "game")
+        bridge._preparing["game"].join(5)
+        _, body = _post_launch(base, bridge.token, "game")
+
+    assert body["error"]["code"] == "LAUNCHER-PREPARE-FAILED-001"
+    assert "archive corrompido" in body["error"]["detail"]

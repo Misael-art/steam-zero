@@ -1,4 +1,4 @@
-# Roadmap de implementação — revisão após diagnóstico físico de 01/10/2026
+# Roadmap de implementação — continuidade e desbloqueio em 07/10/2026
 
 ## Autoridade, objetivo e ponto de partida
 
@@ -6,7 +6,42 @@ Este é o plano canônico de **ordem de execução**. `docs/status/items/*.json`
 
 Objetivo: concluir jornadas úteis de ponta a ponta com integridade de dados, foco por controle, recuperação e experiência AURA consistente. Continuar o código existente; não reiniciar as fases históricas nem implementar novamente capacidades já presentes. Aprovações históricas de implantação não são autorização transferível para instalar no host.
 
-## Prioridade vigente — produto visual e autoria de temas
+## Prioridade vigente — desbloquear e demonstrar as jornadas reais
+
+Esta atualização incorpora as rodadas R01–R17 de 06–07/10/2026, mantendo o histórico abaixo. O relatório instalado refere-se a `2.0.0rc1-213124ed513b`; as alterações R05/R06 continuam não commitadas na branch `codex/r05-component-operation-trace-2026-10-05`. A revisão documental não instala, integra ou certifica essas alterações. A síntese sanitizada e os critérios estão em [desbloqueio de jornadas reais](../09-operations/evidence/2026-10-07-physical-validation-unblock/README.md).
+
+As jornadas genéricas já estavam em RC-01–08 e V1–V4. Faltava tornar explícitos os bloqueios de execução, a distinção entre inventário e operação instalada e a sequência para removê-los. Os recortes D0–D8 abaixo são prioridade executiva desses lotes existentes; não criam capacidades concorrentes nem substituem seus itens de status.
+
+### Estado reportado e pontos que exigem confirmação
+
+- Captura falhou nos backends disponíveis; input direto foi recusado por incompatibilidade do ydotool. O resize invocou serviço de extensão GNOME numa sessão KDE/KWin. É preciso diagnosticar o backend correto; não concluir que a aplicação esteja defeituosa nem instalar ferramentas privilegiadas para contornar a recusa.
+- Cinco outras janelas estavam visíveis. Isso exige cuidado de foco/privacidade e limita benchmarks, mas não bloqueia automaticamente testes funcionais. Área de trabalho dedicada não isola CPU/GPU/memória; desempenho permanece um aceite separado.
+- Catálogo: 64 plataformas, 1.145 registros de emulação; o relatório encontrou 15 ações publicadas somente para Switch, sem controle detectado e com saves ambíguos. Inventário não prova gameplay. Jogo próprio não precisa estar marcado como demo para ser testável: confirmar input permitido e destinos de escrita seguros antes do launch.
+- O relatório não encontrou grupo Launcher na CLI central e declarou Cinema ausente. O código de referência declara o entry point separado `steamzero-launcher` em `pyproject.toml`. Auditar metadados do pacote, entry points publicados, executable/PID e rotas internas antes de confirmar ausência; CLI central, Launcher e preview fullscreen são consumidores distintos.
+- Theme Engine: seis temas compatíveis resolveram; cinco alternativos passaram por apply/readback/rollback; quatro entradas antigas retornaram `E-THEME-NOT-FOUND`. Isso exige reconciliação de compatibilidade/catálogo sem apagar pacotes pessoais. Importação de amostra em perfil temporário não prova autoria no Studio nem pixels.
+- Temas/Studio tinham rota semântica, mas controles não foram comprovados visíveis. Falta de `showing`/bounds no AT-SPI não prova painel vazio, travado ou inexistente. Contraste calculado de tokens, incluindo disabled em 3,76:1/3,17:1, não certifica contraste dos pixels nem deve ser aplicado indiscriminadamente a texto desabilitado.
+- R05/R06 têm correções locais e checkpoint reportado de 6.676 passed, 47 skipped, 1 failed por consistência. Dez digests estavam obsoletos; a causa por arquivo e item ainda precisa de reconciliação. Não renovar todos como se fossem reatestados nem transferir o verde da release antiga às mudanças locais.
+- SRM/ES-DE missing não invalida Steam nem o entry point Launcher. Busca de mídia com candidatos não prova download; ScreenScraper rejeitou credencial. Sync/casting sem conta/receptor não recebe aprovação operacional.
+
+### Fila de desbloqueio e critérios de saída
+
+| Recorte | Destino e achados | Ação e critério específico de saída |
+|---|---|---|
+| D0 — preservação e custódia | RC-00; R05/R06 e todos os paths reservados | Preservar o diff não commitado e fechar seu lote com o owner; handoffs seriais explícitos por arquivo/SHA. Identificar os digests afetados, registrar deltas e evidência proporcional; views pela ferramenta. Nenhum reset, stash automático, commit alheio ou promoção por recálculo. |
+| D1 — captura e input | RC-01/08; R02–04/R08–12/R16 | Diagnosticar sessão, portal/AT-SPI/backend KWin e incompatibilidade da ferramenta; usar fluxo oficial compatível ou solicitar consentimento específico. PNG real e clique/tecla com efeito verificado na janela alvo. Testes funcionais continuam em sessão compartilhada quando foco/privacidade permitem; benchmark isolado é etapa própria. |
+| D2 — superfície realmente instalada | RC-03/05/06/08; R02–04/R09/R15 | Conferir wheel/METADATA/entry_points/RECORD, executáveis e imports da release; abrir o entry point correto e rastrear rotas Launcher/Cinema/Studio. Publicar/corrigir apenas a entrada realmente ausente, com loading/erro/saída e acessibilidade; não reimplementar consumidor existente por não aparecer na CLI central. |
+| D3 — biblioteca pronta para sessão | RC-02/03/04; R07/R08/R15 | Descobrir ROMs/BIOS/cores reais; corrigir projeção de ações por plataforma quando elegível e diagnosticar cada indisponibilidade. Teclado permitido como input se o runtime suporta; resolver save-dir/card/slot/perfil efetivos. Jogo real selecionado e preflight verificável sem escrever nas fontes. |
+| D4 — mídia consumida e gameplay | RC-03/05; R15/R17 | Provider válido → seleção → bytes/decode/hash/proveniência → publicação → pixels/vídeo; launch via produto → input/gameplay → pause/save compatíveis → exit, inclusive pausado → retorno ao contexto. Credencial recusada não vira quota nem mock aprovado. Amostra por combinação elegível; nenhum selo para todas as ROMs. |
+| D5 — autoria e execução | RC-05/06; R02–04/R09/R10 | Corrigir histórico/saída do rascunho com Salvar/Descartar/Continuar, inclusive pedidos em voo; salvar/reabrir/export/import e consumir o mesmo documento. Reconciliar quatro legados sem exclusão destrutiva; corrigir render/vídeo/safe area/monitor e comprovar os consumidores separadamente. |
+| D6 — contexto e design | RC-01/03/04; R01/R06–08/R11–13/R16 | Contexto display/perfil verificado, contagens por universo/geração, readiness unknown honesto; grade/filtros/ações acessíveis e sem corte no viewport real. Medir foco, alvos, contraste aplicável e estética nos pixels; bounds e tokens são evidências complementares. |
+| D7 — dependências externas | RC-07; R14/R17 | Motivos e configuração claros; operar somente com provider/receiver/conta já autorizados. Ausência externa bloqueia aquele caso, não os demais. Não habilitar controles sem backend nem criar contas ou alterar serviço produtivo por inferência. |
+| D8 — candidata e qualificação | RC-08; todos | Gates no SHA funcional, CI terminal, bundle/proveniência/rollback conferidos e autorização/token para instalação. Repetir casos na candidata instalada; relatório individual com funcionalidade, UX/visual, segurança e métricas. Preservar vermelhos históricos e distinguir desempenho com interferência. |
+
+Entrega significativa inicial: remover D0/D1 quando viável e fechar **biblioteca → download real de mídia → launch → gameplay → exit → retorno**; em paralelo somente trabalho serialmente elegível do Studio. Sem captura/input, implementar/testar D2–D6 nos paths liberados e preparar candidata revisável; nenhum item fica fisicamente certificado.
+
+Cada D é ligado aos itens de capacidade existentes pelo executor. O item documental `SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN` guarda esta reconciliação e não promove implementação ou certificação de Studio, Engine, Launcher, mídia ou emulação.
+
+## Histórico de prioridade de 01/10 — produto visual e autoria de temas
 
 Esta revisão substitui a fila inicial de RC-01 e antecipa os recortes elegíveis de RC-05/06. Os demais lotes e seus contratos continuam abaixo. Não é necessário resolver todo o acervo de ROMs para criar, editar e executar um tema sobre dados sintéticos. Dependências reais de contrato/runtime continuam obrigatórias.
 

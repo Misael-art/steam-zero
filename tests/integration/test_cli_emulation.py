@@ -270,3 +270,35 @@ def test_controls_cli_rejects_open_ended_or_ambiguous_flags(
     assert main([*args, "--json"]) == 1
     envelope = json.loads(capsys.readouterr().out)
     assert envelope["error"]["code"] == "E-API-SCHEMA"
+
+
+@pytest.mark.parametrize(
+    ("readiness", "status"),
+    [
+        ({"playable": True, "code": "", "reason": ""}, "ok"),
+        (
+            {"playable": False, "code": "E-CONTENT-BIOS-MISSING", "reason": "importe a BIOS"},
+            "degraded",
+        ),
+    ],
+)
+def test_emulation_readiness_cli_reports_without_launching(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    readiness: dict[str, object],
+    status: str,
+) -> None:
+    class FakeController:
+        def game_readiness(self, game_id: str) -> dict[str, object]:
+            return readiness
+
+        def launch_game(self, game_id: str) -> None:
+            pytest.fail("readiness nunca pode iniciar o jogo")
+
+    monkeypatch.setattr("steamzero.adapters.emulation.EmulationController", FakeController)
+    code = main(["emulation", "readiness", "--game-id", "game-1", "--json"])
+    envelope = json.loads(capsys.readouterr().out)
+
+    assert code == 0
+    assert envelope["status"] == status
+    assert envelope["data"] == {"gameId": "game-1", **readiness}

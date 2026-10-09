@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import dataclasses
 import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -48,6 +49,17 @@ def load_manifest(themes_root: Path, theme_id: str) -> dict[str, Any]:
     """Lê o manifesto do tema instalado, falhando fechado."""
     path = _manifest_path(themes_root, theme_id)
     if not path.is_file():
+        if path.parent.is_dir():
+            # A pasta existe: é um pacote legado/incompleto, não um tema ausente.
+            # A mensagem diz isso e que nada foi apagado; migrar ou remover é
+            # decisão do usuário.
+            raise SteamZeroError(
+                "E-THEME-NOT-FOUND",
+                detail=(
+                    f"'{theme_id}' é uma pasta sem theme.json (formato legado); "
+                    "foi preservada e não é aplicável até ser migrada"
+                ),
+            )
         raise SteamZeroError("E-THEME-NOT-FOUND", detail=f"tema '{theme_id}' não está instalado")
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
@@ -176,6 +188,76 @@ def available_selections_for(
         fs.remove_tree(scratch)
 
 
+#: Dimensões que ganham o padrão do tema quando ninguém escolheu. ``language``
+#: fica de fora: não há seletor para ele e o padrão do ES-DE é o do sistema.
+_DEFAULTED_DIMENSIONS = (
+    ("aspectRatio", "aspect_ratio"),
+    ("colorScheme", "color_scheme"),
+    ("fontSize", "font_size"),
+    ("variant", "variant"),
+)
+
+
+#: Proporção de referência quando o consumidor não informa a da tela.
+_REFERENCE_ASPECT = 16 / 9
+
+
+def _aspect_value(name: str) -> float | None:
+    width, _, height = name.partition(":")
+    try:
+        ratio = float(width) / float(height)
+    except (ValueError, ZeroDivisionError):
+        return None
+    return ratio if ratio > 0 else None
+
+
+def _theme_default(dimension: str, declared: list[str]) -> str:
+    """O valor que o ES-DE usa quando o usuário não escolheu a dimensão.
+
+    É o primeiro que o tema declara, com duas exceções do próprio ES-DE: o
+    corpo de fonte parte de ``medium`` e a proporção é a declarada mais próxima
+    da tela. Aqui a tela é a referência 16:9; quem conhece a proporção real a
+    passa explícita na seleção.
+    """
+    if dimension == "fontSize" and "medium" in declared:
+        return "medium"
+    if dimension == "aspectRatio":
+        measured = [
+            (abs(ratio - _REFERENCE_ASPECT), name)
+            for name in declared
+            if (ratio := _aspect_value(name)) is not None
+        ]
+        if measured:
+            return min(measured, key=lambda pair: pair[0])[1]
+    return declared[0]
+
+
+def effective_selection(
+    selection: scene_esde.Selection | None, declared: dict[str, list[str]]
+) -> tuple[scene_esde.Selection, dict[str, str]]:
+    """Completa a seleção com o padrão do tema e diz quais dimensões completou.
+
+    Compilar com a dimensão vazia não é "o padrão do tema": é não seguir bloco
+    nenhum, e nos temas medidos a geometria mora nesses blocos — a cena
+    compilava com 1 de 16 elementos posicionados e o painel ficava em branco.
+    """
+    chosen = selection or scene_esde.Selection()
+    defaulted: dict[str, str] = {}
+    for dimension, attribute in _DEFAULTED_DIMENSIONS:
+        options = declared.get(dimension) or []
+        if getattr(chosen, attribute) or not options:
+            continue
+        defaulted[attribute] = _theme_default(dimension, options)
+    if not defaulted:
+        return chosen, {}
+    by_dimension = {
+        dimension: defaulted[attribute]
+        for dimension, attribute in _DEFAULTED_DIMENSIONS
+        if attribute in defaulted
+    }
+    return dataclasses.replace(chosen, **defaulted), by_dimension
+
+
 def render_scene(
     theme_id: str,
     *,
@@ -201,6 +283,12 @@ def render_scene(
             raise SteamZeroError(
                 "E-THEME-MANIFEST", detail=f"tema '{theme_id}' não declara theme.xml"
             )
+        # Sem seleção todos os blocos são seguidos: é a lista completa do que
+        # o tema declara, de onde sai o padrão de cada dimensão não escolhida.
+        declared = scene_esde.available_selections(
+            theme_import_esde_layout.resolve_includes(entry, theme_root=scratch).root
+        )
+        selection, defaulted = effective_selection(selection, declared)
         includes = theme_import_esde_layout.resolve_includes(
             entry, theme_root=scratch, system_id=system_id, selection=selection
         )
@@ -221,6 +309,7 @@ def render_scene(
         "themeId": theme_id,
         "version": manifest.get("version"),
         "systemId": system_id,
+        "selection": {"effective": selection.to_dict(), "themeDefault": defaulted},
         "scene": scene,
         "fidelity": fidelity,
         "assets": assets_report,

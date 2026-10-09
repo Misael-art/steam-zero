@@ -178,6 +178,7 @@ from steamzero.ports import (
 StoreFactory = Callable[[], StateStore]
 RegistryFactory = Callable[[], AdapterRegistry]
 _log = logging.getLogger(__name__)
+_ARCHIVE_SUFFIXES = (".7z", ".rar", ".zip", ".tar.gz", ".tar.bz2", ".tar.xz")
 Spawn = Callable[[Sequence[str]], int | None]
 ProcessWaiter = Callable[[int], int]
 
@@ -1503,20 +1504,105 @@ class EmulationController:
         Switch sem ``prod.keys``, e o erro só aparecia depois do gesto.
         """
         try:
-            self._launch_preflight(game_id)
+            self._launch_preflight(game_id, projection_ready=True)
         except SteamZeroError as exc:
-            return {"playable": False, "code": exc.code, "reason": exc.detail or exc.code}
+            return {
+                "playable": False,
+                "code": exc.code,
+                "reason": exc.detail or exc.code,
+                "canPrepare": self._archive_needs_preparation(game_id),
+            }
         except (OSError, KeyError, ValueError) as exc:
             # Preflight é diagnóstico: um caminho ilegível ou um registro
             # incompleto viram "não posso" com motivo, nunca exceção na tela.
             return {"playable": False, "code": "E-CONTENT-UNSUPPORTED", "reason": str(exc)}
         return {"playable": True, "code": "", "reason": ""}
 
-    def _launch_preflight(self, game_id: str) -> dict[str, Any]:
+    def _archive_request_for(self, game_id: str) -> ArchiveMaterializationRequest | None:
+        """Pedido de materialização do archive do jogo, ou ``None`` se não se aplica."""
+        game = self._current_game(game_id)
+        rom = Path(str(game["path"]))
+        if not rom.name.casefold().endswith(_ARCHIVE_SUFFIXES):
+            return None
+        if str(game.get("evidence") or "") == "archive-native":
+            return None
+        platform_id = str(game.get("platformId") or "")
+        if not platform_id:
+            return None
+        manifest = PlatformRegistry.bundled().get(platform_id)
+        return ArchiveMaterializationRequest(
+            platform_id=platform_id,
+            system_id=str(game.get("systemId") or platform_id),
+            title=str(game.get("name") or rom.stem),
+            source_path=rom,
+            library_root=self._root_for_game(rom.resolve(strict=True)),
+            manifest={"media": dict(manifest.media)},
+        )
+
+    def _archive_needs_preparation(self, game_id: str) -> bool:
+        try:
+            request = self._archive_request_for(game_id)
+            return (
+                request is not None
+                and ArchiveMaterializer().inspect(request).state == "needs-extraction"
+            )
+        except (SteamZeroError, OSError, KeyError, ValueError):
+            return False
+
+    def prepare_game(self, game_id: str) -> dict[str, Any]:
+        """Extrai o archive do jogo para um formato consumível, de forma governada.
+
+        É o "Preparar" do cartão: valida, extrai em staging isolado, verifica e
+        publica atomicamente (o mesmo materializador do job de UI), e então
+        atualiza o catálogo. Não inicia o jogo.
+        """
+        request = self._archive_request_for(game_id)
+        if request is None:
+            return {"prepared": False, "reason": "nada a preparar para este jogo"}
+        result = ArchiveMaterializer().run(request)
+        try:
+            refreshed = self._scan_library_now()
+            catalog: dict[str, Any] = {"status": "scanned", "games": refreshed.get("games", 0)}
+        except (OSError, SteamZeroError, ValueError) as exc:
+            catalog = {"status": "degraded", "code": "E-CATALOG-REFRESH", "reason": str(exc)}
+        return {"prepared": True, "result": result, "catalogRefresh": catalog}
+
+    def _prepare_launch(self, game_id: str) -> None:
+        """Faz sozinho o que o lançamento exige e é seguro automatizar.
+
+        Só o lançamento chama isto; a prontidão nunca escreve em disco. BIOS já
+        importada só precisa ser copiada ao emulador: a cópia é aditiva,
+        transacional e recusa alvo divergente, então "Jogar" resolve sem
+        exigir ``bios.link`` manual. Qualquer impedimento aqui é ignorado de
+        propósito: o preflight que vem a seguir reporta o motivo real.
+        """
+        try:
+            game = self._current_game(game_id)
+            settings = self._load_game_settings(strict=True)
+            emulator_id = self._settings_for_game_with_global(game, settings).get("emulatorId")
+            platform_id = str(game.get("platformId") or "")
+            if not isinstance(emulator_id, str) or not platform_id:
+                return
+            profile = self._launch_profile_for(platform_id, emulator_id)
+            if profile is None or not profile.requires_bios:
+                return
+            copies = self._bios_projection_copies(platform_id, emulator_id)
+            if not copies:
+                return
+            root = self._compatible_root({target: b"" for _source, target in copies})
+            plan = transaction.plan_copy_files(copies, root=root, kind="emulation.bios-link")
+            transaction.apply(plan.plan_id, plan.confirm_token)
+            _log.info("bios projetada automaticamente no launch: %s (%d)", platform_id, len(copies))
+        except (SteamZeroError, OSError, KeyError, ValueError):
+            return
+
+    def _launch_preflight(self, game_id: str, *, projection_ready: bool = False) -> dict[str, Any]:
         """Resolve e valida tudo que o lançamento exige, sem spawnar nada.
 
         Extraído de ``launch_game`` para que a disponibilidade mostrada na tela
-        e a decisão real de lançar não possam divergir.
+        e a decisão real de lançar não possam divergir. ``projection_ready`` vale
+        só para a prontidão: BIOS importada e ainda não projetada não bloqueia,
+        porque ``_prepare_launch`` a projeta no lançamento.
         """
         game = self._current_game(game_id)
         settings = self._load_game_settings(strict=True)
@@ -1541,8 +1627,7 @@ class EmulationController:
         rom = Path(str(game["path"]))
 
         archive_evidence = str(game.get("evidence") or "")
-        archive_suffixes = (".7z", ".rar", ".zip", ".tar.gz", ".tar.bz2", ".tar.xz")
-        if rom.name.casefold().endswith(archive_suffixes) and archive_evidence != "archive-native":
+        if rom.name.casefold().endswith(_ARCHIVE_SUFFIXES) and archive_evidence != "archive-native":
             raise SteamZeroError(
                 "E-CONTENT-INCOMPLETE",
                 detail=(
@@ -1608,7 +1693,7 @@ class EmulationController:
             )
         if profile.requires_bios:
             pending_bios = self._bios_projection_copies(platform_id, emulator_id)
-            if pending_bios:
+            if pending_bios and not projection_ready:
                 targets = ", ".join(str(target) for _source, target in pending_bios)
                 raise SteamZeroError(
                     "E-CONTENT-BIOS-MISSING",
@@ -1691,6 +1776,7 @@ class EmulationController:
         configured_bezel: Mapping[str, Any] | None = None
         bezel_catalog: list[dict[str, Any]] = []
         try:
+            self._prepare_launch(game_id)
             preflight = self._launch_preflight(game_id)
             game = preflight["game"]
             game_settings = preflight["game_settings"]

@@ -884,6 +884,35 @@ class ComponentLifecycle:
             self._validate_pending(ComponentPlan.from_dict(raw), confirm_token)
         return raw
 
+    @staticmethod
+    def _apply_job_metadata(
+        adapter_id: str,
+        action: str,
+        executor: str,
+        source_fingerprint: dict[str, Any] | None,
+    ) -> dict[str, str]:
+        """Expose pinned, non-secret identity for task and operation history."""
+        fingerprint = source_fingerprint if isinstance(source_fingerprint, dict) else {}
+
+        def first_string(*keys: str) -> str:
+            for key in keys:
+                value = fingerprint.get(key)
+                if isinstance(value, str) and value:
+                    return value
+            return ""
+
+        public = {
+            "adapterId": adapter_id,
+            "action": action,
+            "executor": executor,
+            "artifact": first_string("ref", "coreId") or adapter_id,
+            "artifactSource": first_string("type") or executor,
+            "targetVersion": first_string("version", "targetVersion", "targetCommit"),
+            "sourceRevision": first_string("targetCommit"),
+            "artifactDigest": first_string("coreSha256", "sha256", "archiveSha256"),
+        }
+        return {key: value for key, value in public.items() if value}
+
     def validate_apply(self, plan_id: str, confirm_token: str) -> dict[str, str]:
         """Valida confirmação e contexto sem iniciar preparo ou efeito.
 
@@ -894,11 +923,13 @@ class ComponentLifecycle:
         raw = self._validated_confirmation(plan_id, confirm_token)
         schema_version = int(raw.get("schemaVersion", 0))
         if schema_version == 1:
-            return {
-                "adapterId": str(raw["adapterId"]),
-                "action": str(raw["action"]),
-                "executor": "flatpak",
-            }
+            fingerprint = raw.get("sourceFingerprint")
+            return self._apply_job_metadata(
+                str(raw["adapterId"]),
+                str(raw["action"]),
+                "flatpak",
+                fingerprint if isinstance(fingerprint, dict) else None,
+            )
         envelope = ComponentPlan.from_dict(raw)
         manifest = self._registry.get(envelope.adapter_id)
         tombstone = self._registry.retired(envelope.adapter_id)
@@ -925,11 +956,12 @@ class ComponentLifecycle:
             )
         if self._source_fingerprint(manifest, route) != envelope.source_fingerprint:
             raise SteamZeroError("E-TX-STALE-PLAN", detail="manifesto mudou após o plano")
-        return {
-            "adapterId": envelope.adapter_id,
-            "action": envelope.action,
-            "executor": envelope.executor,
-        }
+        return self._apply_job_metadata(
+            envelope.adapter_id,
+            envelope.action,
+            envelope.executor,
+            envelope.source_fingerprint,
+        )
 
     def apply(self, plan_id: str, confirm_token: str) -> dict[str, Any]:
         """Aplica uma confirmação e fecha o envelope em toda saída não-crash."""
@@ -1139,9 +1171,12 @@ class ComponentLifecycle:
         )
         return {
             "planId": replacement.plan_id,
-            "adapterId": replacement.adapter_id,
-            "action": replacement.action,
-            "executor": replacement.executor,
+            **self._apply_job_metadata(
+                replacement.adapter_id,
+                replacement.action,
+                replacement.executor,
+                replacement.source_fingerprint,
+            ),
         }
 
     def _apply_deferred(

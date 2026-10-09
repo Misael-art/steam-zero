@@ -79,7 +79,7 @@ class ThemeColorTokens:
     border: str = "#aebdbe"
     text: str = "#16212a"
     textMuted: str = "#53616b"
-    textDisabled: str = "#7a878b"
+    textDisabled: str = "#5c6a70"
     accent: str = "#006f99"
     accentStrong: str = "#005471"
     success: str = "#167a45"

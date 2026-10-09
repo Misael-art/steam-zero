@@ -32,6 +32,21 @@ OSD_ACTIONS = (
     "achievement",
     "network",
 )
+_ACTION_LABELS = {
+    "volume": "Volume",
+    "mute": "Silenciar",
+    "brightness": "Brilho",
+    "screenshot": "Capturar tela",
+    "saveState": "Galeria de saves",
+    "loadState": "Carregar save",
+    "disc": "Trocar disco",
+    "fastForward": "Avançar rápido",
+    "rewind": "Rebobinar",
+    "exit": "Sair do jogo",
+    "control": "Controles",
+    "achievement": "Conquistas",
+    "network": "Rede",
+}
 MAX_REASON_LENGTH = 240
 MAX_ACTIONS = len(OSD_ACTIONS)
 ERROR_FIELDS = ("code", "message", "detail", "impact", "nextAction")
@@ -166,19 +181,12 @@ def _actions(
     for action_id in OSD_ACTIONS:
         available, reason = _capability(capabilities.get(action_id))
         operation = action_id
-        label = action_id
+        # O id é contrato, não texto de tela: sem rótulo próprio o overlay
+        # mostrava "fastForward" e "achievement" ao jogador.
+        label = _ACTION_LABELS.get(action_id, action_id)
         if action_id == "pause":
             label = "Retomar" if state == "suspended" else "Pausar"
             operation = "resume" if state == "suspended" else "pause"
-        elif action_id == "exit":
-            label = "Sair do jogo"
-            operation = "exit"
-        elif action_id == "saveState":
-            label = "Galeria de saves"
-        elif action_id == "loadState":
-            label = "Carregar save"
-        elif action_id == "disc":
-            label = "Trocar disco"
         # A critical error stays visible, but cannot be reported as a
         # successful action. Recovery controls remain declarative.
         if critical_error is not None and available:

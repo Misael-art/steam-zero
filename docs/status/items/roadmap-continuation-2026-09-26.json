@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "18384a38f8578550541e00c10bdc9ea7779f8b1679145ac3ac5b5714359a3dd5",
+  "scopeDigest": "2d1affe42fababa4205fa0c7589b29a50450dfe78c793c23a2eee8d3bb2f935b",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -235,6 +235,12 @@
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/08-integral-corrected-tree-2026-10-05.log",
       "command": "2026-10-05 .venv/bin/python tools/run_tests_isolated.py tests -q: exit 0, 6675 passed, 47 skipped, 0 failed em 2669.43 s. Resultado da nova árvore; hashes src/tests/tools coincidiram. State guard registrou escritor externo pré-existente e atribuição degradada. O incidente do log 04 permanece failed e sem causa.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
     }
   ],
