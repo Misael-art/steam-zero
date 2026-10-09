@@ -295,6 +295,7 @@ Item {
             if (actionId === "play")
                 shell.launchFocused()
         }
+        onBackRequested: shell.back()
     }
 
     Rectangle {

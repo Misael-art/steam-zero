@@ -72,6 +72,9 @@ FocusScope {
         focusedAction !== undefined && focusedAction.enabled === false
 
     signal activated(string actionId)
+    // Esc já volta pelo teclado; toque, ponteiro e leitor de tela precisam de
+    // um alvo na tela — a dica "Esc Voltar" não é acionável.
+    signal backRequested()
 
     function activateAction(action) {
         if (action === undefined || action === null || action.enabled === false)
@@ -359,7 +362,8 @@ FocusScope {
                     }
                     Text {
                         objectName: "gameScreenshotFallback"
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
                         visible: page.screenshots.length === 0
                         text: qsTr("Screenshots não publicados")
                         textFormat: Text.PlainText
@@ -398,6 +402,7 @@ FocusScope {
                         ? qsTr("Ativar %1").arg(modelData.label)
                         : (modelData.reason || qsTr("Ação indisponível"))
 
+                    Accessible.onPressAction: page.activateAction(modelData)
                     TapHandler { id: tapHandler; onTapped: page.activateAction(modelData) }
                     Keys.onPressed: function(event) {
                         if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter
@@ -419,6 +424,27 @@ FocusScope {
                             ? page._hc("#f2f6fb", "#ffffff") : page._hc("#8b93a8", "#c6d0db")
                         font.pixelSize: 16 * page.textScale
                     }
+                }
+            }
+            Rectangle {
+                objectName: "gameBack"
+                width: 130
+                height: Math.max(48, 40 * page.textScale)
+                radius: 8
+                color: page._hc("#0b1622", "#03080c")
+                border.width: 1
+                border.color: page._hc("#243044", "#68839b")
+                scale: backTap.pressed ? 0.98 : 1.0
+                Accessible.name: qsTr("Voltar")
+                Accessible.role: Accessible.Button
+                Accessible.description: qsTr("Voltar para a lista de jogos")
+                Accessible.onPressAction: page.backRequested()
+                TapHandler { id: backTap; onTapped: page.backRequested() }
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTr("Voltar")
+                    color: page._hc("#f2f6fb", "#ffffff")
+                    font.pixelSize: 16 * page.textScale
                 }
             }
         }

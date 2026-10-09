@@ -25,6 +25,20 @@ Item {
 
     property var activatedIds: []
 
+    function findByName(item, name) {
+        if (!item)
+            return null
+        if (item.objectName === name)
+            return item
+        const children = item.children || []
+        for (let i = 0; i < children.length; ++i) {
+            const found = findByName(children[i], name)
+            if (found !== null)
+                return found
+        }
+        return null
+    }
+
     LauncherGamePage {
         id: playable
         anchors.fill: parent
@@ -106,6 +120,12 @@ Item {
             blocked.move(-1)
             harness.check(blocked.currentFocus !== "action:play",
                           "o direcional não pode parar numa ação desabilitada")
+            // Voltar precisa existir como alvo na tela, não só como dica de tecla.
+            const back = harness.findByName(playable, "gameBack")
+            harness.check(back !== null && back.visible && back.width >= 48 && back.height >= 48,
+                          "a página de jogo precisa de um alvo Voltar visível com 48 px ou mais")
+            harness.check(back !== null && back.Accessible.name === "Voltar",
+                          "o alvo Voltar precisa de nome acessível")
             Qt.exit(harness.failures === 0 ? 0 : 1)
         }
     }

@@ -172,6 +172,61 @@ Item {
             compare(overlay.actions[overlay.selectedIndex].id, "saveState")
         }
 
+        function test_exit_confirmation_is_operable_by_keyboard_and_defaults_to_cancel() {
+            const overlay = createTemporaryObject(overlayComponent, harness,
+                {"width": 1280, "height": 800})
+            verify(overlay !== null)
+            const requested = []
+            overlay.actionRequested.connect(function(actionId) { requested.push(actionId) })
+            overlay.setModel({
+                "state": "suspended", "focusedAction": "exit",
+                "actions": [
+                    {"id": "pause", "label": "Retomar", "enabled": true},
+                    {"id": "exit", "label": "Sair do jogo", "enabled": true}
+                ]
+            })
+            overlay.openOverlay()
+            verify(overlay.activateFocused())
+            const dialog = findChild(overlay, "launcherSessionExitConfirmation")
+            verify(dialog !== null, "a confirmação de saída não foi encontrada")
+            tryCompare(dialog, "opened", true)
+            compare(dialog.choice, 0, "o foco da confirmação precisa nascer em Cancelar")
+
+            dialog.activateChoice()
+            tryCompare(dialog, "opened", false)
+            compare(requested.length, 0, "Cancelar não pode pedir o encerramento")
+
+            verify(overlay.activateFocused())
+            tryCompare(dialog, "opened", true)
+            compare(dialog.choice, 0, "reabrir precisa voltar o foco para Cancelar")
+            dialog.choice = 1
+            dialog.activateChoice()
+            tryCompare(dialog, "opened", false)
+            compare(requested.length, 1)
+            compare(requested[0], "exit")
+        }
+
+        function test_action_labels_state_and_unavailable_reason_are_readable() {
+            const overlay = createTemporaryObject(overlayComponent, harness,
+                {"width": 1280, "height": 800})
+            verify(overlay !== null)
+            overlay.setModel({
+                "state": "running", "focusedAction": "rewind",
+                "actions": [
+                    {"id": "rewind", "label": "Rebobinar", "enabled": false,
+                     "reason": "O adapter não declarou suporte para esta ação."},
+                    {"id": "pause", "label": "Pausar", "enabled": true}
+                ]
+            })
+            overlay.openOverlay()
+            compare(overlay.stateLabel("running"), "em jogo")
+            compare(overlay.stateLabel("suspended"), "pausado")
+            compare(overlay.focusedReason,
+                    "Rebobinar: O adapter não declarou suporte para esta ação.")
+            verify(overlay.move("right"))
+            compare(overlay.focusedReason, "")
+        }
+
         function test_session_bezel_reports_launch_configuration_without_claiming_pixels() {
             const peripherals = createTemporaryObject(peripheralsComponent, harness,
                 {"width": 1280, "height": 800})
