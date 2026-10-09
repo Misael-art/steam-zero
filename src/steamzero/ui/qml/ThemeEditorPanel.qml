@@ -73,6 +73,20 @@ Rectangle {
     property var editorTokens: ({})
     property bool editorReadOnly: false
     property bool editorDirty: false
+    /// Há trabalho que fechar perderia: rascunho alterado ou pedido ainda não
+    /// respondido. Toda saída do editor consulta isto antes de encerrar a sessão.
+    readonly property bool editorHasUnsavedDraft: panel.editorSessionId !== ""
+        && !panel.editorReadOnly
+        && (panel.editorDirty || panel.editorDraftMutationInFlight
+            || panel.editorMutationQueue.some(function(entry) {
+                return entry.allowClosedSession !== true
+            }))
+    /// O cancelamento de uma sessão já descartada também ocupa a fila, mas não é
+    /// trabalho do rascunho aberto e não deve fazer a saída perguntar.
+    property bool editorDraftMutationInFlight: false
+    property bool editorCloseSaving: false
+    property string editorCloseNotice: ""
+    readonly property bool draftExitDialogOpen: draftExitDialog.visible
     property var editorMutationQueue: []
     property bool editorMutationInFlight: false
     property int editorMutationGeneration: 0
@@ -860,6 +874,7 @@ Rectangle {
         const entry = queue.shift()
         panel.editorMutationQueue = queue
         panel.editorMutationInFlight = true
+        panel.editorDraftMutationInFlight = entry.allowClosedSession !== true
         let settled = false
 
         function settle(ok, result) {
@@ -867,6 +882,7 @@ Rectangle {
                 return
             settled = true
             panel.editorMutationInFlight = false
+            panel.editorDraftMutationInFlight = false
             const current = entry.generation === panel.editorMutationGeneration
                 && (entry.allowClosedSession || !entry.sessionId
                     || entry.sessionId === panel.editorSessionId)
@@ -1147,22 +1163,70 @@ Rectangle {
     function setMetadata(field, value) {
         if (panel.editorReadOnly || !panel.editorSessionId)
             return
+        // Perder o foco sem mudar o texto não é edição: não suja nem empilha histórico.
+        if (String(panel.editorManifest[field] || "") === String(value))
+            return
         panel.requestEditorMutation("theme.editor.set-metadata", {
             "sessionId": panel.editorSessionId,
             "field": field,
             "value": value
         }, function(response) {
-            if (response.manifest)
-                panel.editorManifest = response.manifest
-            panel.editorDirty = true
+            // O histórico vem do documento canônico; sem consumi-lo, Desfazer
+            // ficava inerte depois de editar nome, autor ou licença.
+            panel._applyEditorResult(response)
+            if (!response.history)
+                panel.editorDirty = true
         })
+    }
+
+    /// Saída única do editor. Devolve true quando fechou; false quando ficou
+    /// aguardando a escolha entre Salvar, Descartar e Continuar editando.
+    function requestCloseEditor() {
+        if (!panel.editorHasUnsavedDraft) {
+            panel._closeEditor()
+            return true
+        }
+        panel.editorCloseNotice = ""
+        draftExitDialog.open()
+        return false
+    }
+
+    function saveDraftAndClose() {
+        if (panel.editorCloseSaving || !panel.editorSessionId)
+            return
+        panel.editorCloseSaving = true
+        panel.editorCloseNotice = ""
+        // Entra na mesma fila das edições: o save só parte depois dos pedidos em voo.
+        panel.requestEditorMutation("theme.editor.save",
+            {sessionId: panel.editorSessionId, overwrite: true},
+            function(r) {
+                panel.editorCloseSaving = false
+                panel._applyEditorResult(r)
+                panel.editorDirty = false
+                draftExitDialog.close()
+                panel._closeEditor()
+                panel.refreshThemeList()
+            }, function(message) {
+                panel.editorCloseSaving = false
+                panel.editorCloseNotice = qsTr("Não foi possível salvar: %1 O rascunho continua aberto.")
+                    .arg(String(message))
+            })
+    }
+
+    function discardDraftAndClose() {
+        draftExitDialog.close()
+        panel._closeEditor()
     }
 
     function _openEditor(sessionId, manifest, preview, declared, effectSchema, motionSchema,
                          assetRecipeSchema, readOnly) {
         panel.editorLoadGeneration += 1
         panel.editorMutationGeneration += 1
-        panel.editorMutationQueue = []
+        // O cancelamento de uma sessão descartada ainda pode estar na fila atrás de
+        // um pedido em voo; abrir outro tema não pode fazê-lo sumir.
+        panel.editorMutationQueue = panel.editorMutationQueue.filter(function(entry) {
+            return entry.allowClosedSession === true
+        })
         panel.editorSessionId = sessionId
         panel.editorDeclared = declared || ({effects: ({}), sceneMotion: null})
         panel.editorEffectSchema = effectSchema || ({})
@@ -1186,6 +1250,8 @@ Rectangle {
         panel._syncAssetRecipeSelection()
         panel.selectAssetRecipeBreakpoint(-1)
         panel.editorDirty = false
+        panel.editorCloseSaving = false
+        panel.editorCloseNotice = ""
         panel.editorReadOnly = readOnly === true || manifest.readOnly === true
     }
 
@@ -1209,6 +1275,8 @@ Rectangle {
         panel.editorMotionSchema = ({})
         panel.editorAssetRecipeSchema = ({nodeTypes: [], nodes: ({})})
         panel.editorDirty = false
+        panel.editorCloseSaving = false
+        panel.editorCloseNotice = ""
         panel.editorReadOnly = false
         if (cancelSession)
             panel.requestEditorMutation("theme.editor.cancel",
@@ -2562,7 +2630,8 @@ Rectangle {
                     text: qsTr("Fechar")
                     implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
                     implicitWidth: 80
-                    onClicked: panel._closeEditor()
+                    Accessible.name: text
+                    onClicked: panel.requestCloseEditor()
                     background: Rectangle {
                         color: parent.hovered ? panel.redColor : panel.surfaceColor
                         opacity: parent.hovered ? 0.15 : 1.0
@@ -4645,6 +4714,91 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                     onClicked: panel.confirmExport()
+                }
+            }
+        }
+    }
+
+    // =====================================================================
+    // DRAFT EXIT CONFIRMATION
+    // =====================================================================
+    ThemedDialog {
+        id: draftExitDialog
+        objectName: "themeEditorDraftExitDialog"
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
+        title: qsTr("Alterações não salvas")
+        modal: true
+        width: Math.min(panel.width > 0 ? panel.width - 32 : 720, 560)
+        x: panel.width > 0 ? (panel.width - width) / 2 : 0
+        y: panel.height > 0 ? Math.max((panel.height - height) / 2, 24) : 24
+        standardButtons: Dialog.NoButton
+        // Escape equivale a Continuar editando; durante o save ninguém fecha por engano.
+        closePolicy: panel.editorCloseSaving ? Popup.NoAutoClose : Popup.CloseOnEscape
+        onOpened: draftExitContinue.forceActiveFocus()
+
+        background: Rectangle {
+            color: panel.raisedColor
+            radius: 12
+            border.color: panel.cyanDarkColor
+            border.width: 1
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 14
+            Label {
+                text: qsTr("O tema “%1” tem alterações que ainda não foram salvas.")
+                    .arg(panel.editorManifest.name || qsTr("Sem nome"))
+                color: panel.textColor
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            Label {
+                objectName: "themeEditorDraftExitNotice"
+                visible: text !== ""
+                text: panel.editorCloseSaving ? qsTr("Salvando…") : panel.editorCloseNotice
+                color: panel.editorCloseSaving ? panel.mutedColor : panel.amberColor
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Accessible.name: text
+            }
+            GridLayout {
+                Layout.fillWidth: true
+                columns: draftExitDialog.width < 480 ? 1 : 3
+                columnSpacing: 12
+                rowSpacing: 8
+                Button {
+                    id: draftExitContinue
+                    objectName: "themeEditorDraftContinue"
+                    text: qsTr("Continuar editando")
+                    enabled: !panel.editorCloseSaving
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 48)
+                    Accessible.name: text
+                    onClicked: draftExitDialog.close()
+                }
+                Button {
+                    objectName: "themeEditorDraftDiscard"
+                    text: qsTr("Descartar")
+                    enabled: !panel.editorCloseSaving
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 48)
+                    Accessible.name: qsTr("Descartar alterações e fechar")
+                    onClicked: panel.discardDraftAndClose()
+                }
+                Button {
+                    objectName: "themeEditorDraftSave"
+                    text: qsTr("Salvar")
+                    enabled: !panel.editorCloseSaving
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 48)
+                    Accessible.name: qsTr("Salvar alterações e fechar")
+                    onClicked: panel.saveDraftAndClose()
                 }
             }
         }
