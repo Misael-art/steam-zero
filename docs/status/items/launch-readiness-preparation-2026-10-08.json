@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-LAUNCH-READINESS-PREPARATION",
+  "title": "Prontidão e preparação de jogo antes do launch",
+  "domain": "emulation",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "dev",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "tests/unit/test_amiga_bios_launch_preflight.py",
+    "tests/integration/test_cli_emulation.py",
+    "tests/integration/test_launcher_app.py",
+    "src/steamzero/adapters/launcher_process.py"
+  ],
+  "scopeDigest": "db9fa32a78838b3b5ca540a273e7bac35d3330e04fde80adcb7b3ca2284fa33c",
+  "dependsOn": [],
+  "knownGaps": [
+    "GAP-LAUNCH-READINESS-INSTALLED-PROOF",
+    "GAP-LAUNCH-READINESS-CARD-STATE-AND-PROGRESS",
+    "GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN"
+  ],
+  "acceptanceCriteria": [
+    "`steamzero emulation readiness --game-id` responde somente leitura com código e motivo do bloqueio, sem iniciar jogo.",
+    "`steamzero emulation prepare --game-id` materializa o arquivo compactado por rota governada, sem iniciar jogo.",
+    "Jogar projeta a BIOS já importada de forma aditiva e recusa divergência; BIOS não importada continua pedindo importação.",
+    "`POST /launch` do Launcher consulta a prontidão antes do spawn e devolve 409 com código e motivo sem caminho privado; falha da consulta não bloqueia.",
+    "O cartão mostra o estado antes do gesto e a preparação tem progresso visível."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_app.py",
+      "command": ".venv/bin/python -m pytest tests/unit/test_amiga_bios_launch_preflight.py tests/integration/test_cli_emulation.py tests/integration/test_launcher_app.py tests/integration/test_preservation.py tests/unit/test_theme_import_to_runtime_journey.py tests/unit/test_ui_disabled_contrast.py tests/unit/test_themes.py tests/unit/test_emulation_controller.py -q (295 passed, 2026-10-08)",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/diagnostics/2026-10-07-diagnostico-jornadas-reais-ux.md",
+      "command": "Preflight read-only na release 2.0.0rc1-213124ed513b: 8 plataformas com todos os candidatos-base bloqueados; pontos 2a, 2d e 3",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Integrar por gates/CI no SHA exato, instalar candidata autorizada e provar no host: 409 legível no Launcher, extração real de Amiga/X68000, BIOS projetada e id do jogo válido após o rescan. Depois entregar o estado no cartão e o progresso da preparação.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-08",
+  "notes": "Os quatro primeiros critérios estão implementados e testados na branch; o quinto não está implementado. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos."
+}

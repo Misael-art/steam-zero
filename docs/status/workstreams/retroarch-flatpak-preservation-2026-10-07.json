@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-RETROARCH-FLATPAK-PRESERVATION",
+  "item": "SZ-RETROARCH-FLATPAK-PRESERVATION",
+  "branch": "codex/r05-component-operation-trace-2026-10-05",
+  "baseRef": "31f29963a13be3ca47bbe83ec11053b85b11f0a8",
+  "owner": "codex-d0-d8-continuation",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/adapters/preservation.py",
+    "tests/integration/test_preservation.py",
+    "docs/status/items/retroarch-flatpak-preservation-2026-10-07.json",
+    "docs/status/workstreams/retroarch-flatpak-preservation-2026-10-07.json",
+    "docs/09-operations/evidence/2026-10-07-retroarch-flatpak-save/README.md"
+  ],
+  "sharedPaths": [],
+  "nextAction": "Patch de descoberta de save normal validado por 15 testes, mypy, Ruff e diff-check; integrar após gates/CI e validar leitura/escrita segura na release governada. Se o teste exigir alteração em session_peripherals.py/testes reservados, obter handoff serial antes de editar.",
+  "updatedAt": "2026-10-07"
+}

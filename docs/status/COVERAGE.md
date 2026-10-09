@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 556 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 558 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 34 | 17 | hw |  |
@@ -41,7 +41,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-VISUAL-RICH-SURFACE | 11 | 10 | 8 | hw |  |
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
 | SZ-CAST-LAN | 6 | 3 | 3 | unit |  |
-| SZ-COMPONENT-LIFECYCLE | 24 | 16 | 14 | hw |  |
+| SZ-COMPONENT-LIFECYCLE | 30 | 23 | 19 | hw |  |
 | SZ-CONTROLS-INPUT-PROFILES | 16 | 8 | 4 | hw |  |
 | SZ-EMULATION-ENHANCEMENTS | 24 | 10 | 9 | unit |  |
 | SZ-EMULATION-HIGH-END-RUNTIME-READINESS | 5 | 5 | 2 | unit |  |
@@ -65,6 +65,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-GOVERNANCE-STATUS | 22 | 26 | 15 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
+| SZ-LAUNCH-READINESS-PREPARATION | 4 | 2 | 1 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 28 | 12 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
 | SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 13 | 6 | dev |  |
@@ -76,6 +77,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-MULTIDISC-MATERIALIZATION-INGESTION | 4 | 5 | 3 | unit |  |
 | SZ-MULTIDISC-SESSION-DISC-IDENTITY | 9 | 4 | 3 | hw |  |
 | SZ-ONLINE-P2P | 37 | 2 | 1 | none |  |
+| SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 3 | 1 | 0 | none |  |
 | SZ-PLATFORM-CORE-PER-SYSTEM | 78 | 5 | 3 | unit |  |
 | SZ-PLATFORM-PS4-CATALOG | 6 | 3 | 3 | unit |  |
 | SZ-PLATFORM-PS4-PHYSICAL-INSTALL | 8 | 3 | 2 | dev |  |
@@ -86,6 +88,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 7 | 1 | unit |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
+| SZ-RETROARCH-FLATPAK-PRESERVATION | 2 | 4 | 2 | dev |  |
 | SZ-ROADMAP-CONTINUATION | 71 | 31 | 11 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 8 | 3 | dev |  |
@@ -96,8 +99,8 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-THEME-IMPORT-RETROFE | 15 | 25 | 13 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 19 | 10 | unit |  |
 | SZ-THEME-STUDIO | 169 | 76 | 55 | hw |  |
-| SZ-UI-DESKTOP-AUDIT | 835 | 192 | 111 | dev |  |
+| SZ-UI-DESKTOP-AUDIT | 836 | 195 | 112 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
-Arquivos em `src/`: **632**. Sob agregador apenas, sem item de capacidade: **269** (42%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.
+Arquivos em `src/`: **633**. Sob agregador apenas, sem item de capacidade: **268** (42%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.

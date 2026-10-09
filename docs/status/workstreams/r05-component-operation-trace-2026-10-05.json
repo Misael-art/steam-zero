@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-R05-COMPONENT-OPERATION-TRACE",
+  "item": "SZ-COMPONENT-LIFECYCLE",
+  "branch": "codex/r05-component-operation-trace-2026-10-05",
+  "baseRef": "213124ed513b404c78bb0a83c0e2514648a429d4",
+  "owner": "codex-d0-d8-continuation",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/adapters/component_jobs.py",
+    "src/steamzero/adapters/lifecycle.py",
+    "src/steamzero/ui/qml/Main.qml",
+    "src/steamzero/ui/qml/job_result_presentation.js",
+    "tests/unit/test_component_jobs.py",
+    "tests/integration/test_component_job_presentation.py",
+    "tests/qml/check_component_job_presentation.qml",
+    "docs/status/items/component-lifecycle.json",
+    "docs/status/workstreams/r05-component-operation-trace-2026-10-05.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "R05 core 36ea2a8a e integração Main.qml 31f29963 commitados após validação focada e integral. Restam digests externos no status-check, CI no SHA final, candidata governada e prova física instalada.",
+  "updatedAt": "2026-10-07"
+}

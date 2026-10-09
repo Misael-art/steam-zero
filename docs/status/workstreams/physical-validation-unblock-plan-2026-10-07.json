@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-PHYSICAL-VALIDATION-UNBLOCK-PLAN",
+  "item": "SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN",
+  "branch": "codex/r05-component-operation-trace-2026-10-05",
+  "baseRef": "213124ed513b404c78bb0a83c0e2514648a429d4",
+  "owner": "codex-roadmap-unblock-review",
+  "state": "closed",
+  "exclusivePaths": [
+    "docs/status/items/physical-validation-unblock-plan-2026-10-07.json",
+    "docs/status/workstreams/physical-validation-unblock-plan-2026-10-07.json",
+    "docs/09-operations/evidence/2026-10-07-physical-validation-unblock"
+  ],
+  "sharedPaths": [
+    "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Revisao documental solicitada pelo operador no checkout com R05/R06 pendentes; nenhum commit em branch alheia. Integrar somente os arquivos desta revisao por handoff serial, preservar o diff existente e executar D0-D8 sem promover criterios fisicos.",
+  "updatedAt": "2026-10-07"
+}

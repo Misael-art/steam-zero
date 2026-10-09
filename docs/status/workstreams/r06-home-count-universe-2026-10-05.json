@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-R06-HOME-COUNT-UNIVERSE",
+  "item": "SZ-UI-DESKTOP-AUDIT",
+  "branch": "codex/r05-component-operation-trace-2026-10-05",
+  "baseRef": "213124ed513b404c78bb0a83c0e2514648a429d4",
+  "owner": "codex-d0-d8-continuation",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/ui/qml/EditorialHome.qml",
+    "tests/qml/check_editorial_home.qml",
+    "docs/status/items/ui-desktop-audit.json",
+    "docs/status/workstreams/r06-home-count-universe-2026-10-05.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "R06 core commit 7299b745 criado; focused QML e gates de código passaram. A suíte integral reporta 6676/47/1 pela consistência de digests/views externos. Aguardar candidata autorizada e captura oficial para operação visual.",
+  "updatedAt": "2026-10-07"
+}

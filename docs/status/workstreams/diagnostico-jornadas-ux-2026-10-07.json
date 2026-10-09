@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-DIAGNOSTICO-JORNADAS-UX",
+  "item": "SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN",
+  "branch": "codex/r05-component-operation-trace-2026-10-05",
+  "baseRef": "31f29963a13be3ca47bbe83ec11053b85b11f0a8",
+  "owner": "claude-d0-d8-successor",
+  "state": "active",
+  "exclusivePaths": [
+    "docs/diagnostics/2026-10-07-diagnostico-jornadas-reais-ux.md",
+    "docs/status/workstreams/diagnostico-jornadas-ux-2026-10-07.json",
+    "docs/diagnostics/2026-10-07-HANDOFF-continuacao.md"
+  ],
+  "sharedPaths": [
+    "src/steamzero/adapters/emulation.py",
+    "src/steamzero/cli/main.py",
+    "src/steamzero/domain/themes.py",
+    "src/steamzero/domain/theme_scene.py",
+    "src/steamzero/themes/org.steamzero.default/theme.json",
+    "src/steamzero/themes/org.steamzero.aura/theme.json",
+    "src/steamzero/ui/qml/ThemeBridge.qml",
+    "tests/unit/test_amiga_bios_launch_preflight.py",
+    "tests/integration/test_cli_emulation.py",
+    "tests/unit/test_ui_disabled_contrast.py",
+    "tests/unit/test_theme_import_to_runtime_journey.py",
+    "src/steamzero/launcher/app.py",
+    "src/steamzero/adapters/launcher_ui.py",
+    "tests/integration/test_launcher_app.py",
+    "src/steamzero/adapters/launcher_process.py",
+    "src/steamzero/ui/qml/ThemeScenePreview.qml",
+    "tests/unit/test_theme_scene.py",
+    "docs/status/items/launch-readiness-preparation-2026-10-08.json"
+  ],
+  "nextAction": "Sucessão registrada em 2026-10-08: o operador encaminhou o prompt D0-D8 a este executor, que assume o lote não commitado descrito em docs/diagnostics/2026-10-07-HANDOFF-continuacao.md (origem operator-authorized-handoff, HEAD 31f29963, sem concorrência observada). Rodar a integral uma vez, commits funcional e documental separados e devolver os claims: emulation.py à WS Biblioteca; launcher/*, themes.py, theme_scene.py, cli/main.py e QML à WS Jornada.",
+  "updatedAt": "2026-10-08"
+}
