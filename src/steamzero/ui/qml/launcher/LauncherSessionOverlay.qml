@@ -108,8 +108,15 @@ Item {
     }
 
     function setModel(value) {
+        // O estado da sessão é republicado enquanto o overlay está aberto. A
+        // escolha do usuário sobrevive à atualização: voltar ao foco inicial a
+        // cada leitura desfazia a seta antes do Enter e deixava Pausar e Sair
+        // inalcançáveis pelo teclado.
+        const current = overlay.overlayOpen && selectedIndex >= 0 && selectedIndex < actions.length
+            ? String(actions[selectedIndex].id || "") : ""
         overlay.overlayModel = value
-        overlay.selectedIndex = _initialIndex()
+        if (current === "" || !overlay.focusAction(current))
+            overlay.selectedIndex = _initialIndex()
         if (overlay.saveGalleryOpen)
             saveGallery.setModel(overlay.saveStates)
         if (overlay.peripheralOpen)
@@ -311,6 +318,7 @@ Item {
                         color: overlay.primaryTextColor
                         font.pixelSize: 14 * overlay.visualScale
                     }
+                    Accessible.onPressAction: overlay.closeOverlay()
                     TapHandler { onTapped: overlay.closeOverlay() }
                 }
             }
@@ -370,6 +378,10 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             wrapMode: Text.Wrap
+                        }
+                        Accessible.onPressAction: {
+                            overlay.selectedIndex = index
+                            overlay.activateFocused()
                         }
                         TapHandler {
                             onTapped: {

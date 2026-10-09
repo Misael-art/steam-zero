@@ -144,6 +144,34 @@ Item {
             compare(gallery.visibleEntries.length, 1)
         }
 
+        function test_model_refresh_keeps_the_action_the_user_moved_to() {
+            const overlay = createTemporaryObject(overlayComponent, harness,
+                {"width": 1280, "height": 800})
+            verify(overlay !== null)
+            const model = {
+                "state": "running", "focusedAction": "saveState",
+                "actions": [
+                    {"id": "saveState", "label": "Galeria de saves", "enabled": true},
+                    {"id": "pause", "label": "Pausar", "enabled": true},
+                    {"id": "exit", "label": "Sair do jogo", "enabled": true}
+                ]
+            }
+            overlay.setModel(model)
+            overlay.openOverlay()
+            compare(overlay.actions[overlay.selectedIndex].id, "saveState")
+
+            verify(overlay.move("right"))
+            compare(overlay.actions[overlay.selectedIndex].id, "pause")
+            // A sessão republica o estado enquanto o overlay está aberto.
+            overlay.setModel(Object.assign({}, model))
+            compare(overlay.actions[overlay.selectedIndex].id, "pause",
+                    "a atualização do estado devolveu o foco à ação inicial")
+
+            // Ação que sumiu do modelo: o foco volta ao inicial, não a um índice órfão.
+            overlay.setModel(Object.assign({}, model, {"actions": [model.actions[0], model.actions[2]]}))
+            compare(overlay.actions[overlay.selectedIndex].id, "saveState")
+        }
+
         function test_session_bezel_reports_launch_configuration_without_claiming_pixels() {
             const peripherals = createTemporaryObject(peripheralsComponent, harness,
                 {"width": 1280, "height": 800})
