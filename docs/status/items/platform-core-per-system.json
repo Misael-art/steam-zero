@@ -21,7 +21,7 @@
     "tests/unit/test_emulation_controller.py",
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun"
   ],
-  "scopeDigest": "3b562967c3e377e828e7024a53e8cf4a1a292ef1cdbdea5fdefc32e25052a7cd",
+  "scopeDigest": "fae86847309a0ae964ef9dee807f707ecea6277872d9d430fc5f76d00aab343b",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-AGG-PLATFORM-MANIFESTS"
@@ -67,6 +67,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Publicar/instalar release autorizada e provar no host Atari 5200/7800/Lynx/Jaguar e Sega 32X; cobrir adapters de cores ainda ausentes.",

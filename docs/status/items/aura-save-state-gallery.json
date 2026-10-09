@@ -26,7 +26,7 @@
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed",
     "tests/qml/launcher/check_launcher_save_state_gallery.qml"
   ],
-  "scopeDigest": "6499aa279b963b30da70b01b8ed3a9a2075bea88cd93bf348bea27eeced3b336",
+  "scopeDigest": "335717cf87cb84e113a959c46d5ebd3fc2a5e0845b73c67b57edcb88c4c4a1d0",
   "dependsOn": [
     "SZ-AURA-SESSION-OSD",
     "SZ-AURA-LAUNCHER"
@@ -123,6 +123,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Preservar save/load como capacidade instalada; fechar a troca de disco somente com um jogo multi-disc real e adapter comprovado.",

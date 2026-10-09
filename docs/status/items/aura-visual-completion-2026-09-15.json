@@ -28,7 +28,7 @@
     "tests/unit/test_component_jobs.py",
     "tests/unit/test_launcher_ui_backend.py"
   ],
-  "scopeDigest": "25bba5a796798a1e3ab5fcc9183b629135fcc21ed40815e4ea94062862fc66ee",
+  "scopeDigest": "d0d313c08e4bc022138bb81dd957329e37da939fb52de13a1343da229e312e11",
   "dependsOn": [
     "SZ-AURA-CINEMA-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -151,6 +151,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "activeWorkstreams": [

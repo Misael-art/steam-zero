@@ -17,7 +17,7 @@
     "tests/integration/test_emulation_storage.py",
     "tests/integration/test_cli_emulation.py"
   ],
-  "scopeDigest": "547db32d69128596f7a6546ebe9f896f107ca5cfc4e6df83feaa8cae5b706f17",
+  "scopeDigest": "4b929835e74f6fc4d824c97d1e3efc1bb4eb8a99cfbabf543c957021f2d23611",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL"
   ],
@@ -75,6 +75,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Validar a superfície física dos contratos restantes na release: destino para mover raiz, seleção/lote de compressão e ciclo de lançamento.",

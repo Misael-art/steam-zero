@@ -18,7 +18,7 @@
     "src/steamzero/schemas/platform-manifest-v1.schema.json",
     "tests/unit/test_platform_requirements.py"
   ],
-  "scopeDigest": "d0a13620938c19aac5e89ddc6902052794bce3967ff808ab023099df6580edc2",
+  "scopeDigest": "a30a5f2d10575e2b385293bddac8c8273156313518ac3dc492bc484e8d1ff353",
   "dependsOn": [
     "SZ-AGG-PLATFORM-MANIFESTS"
   ],
@@ -57,6 +57,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Integrar a remoção visual de cards não aplicáveis no QML compartilhado e ligar o store de firmware PS3.",

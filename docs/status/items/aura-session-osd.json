@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "910b4c28c9c8613ee391c9dc090eb32cbc4f63c9af85ddc21fdadd801dc1883c",
+  "scopeDigest": "928de074f8d23d04bc0b1f9377be35202c38b41fa7f7d18da8da0f2c12d32fe6",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",
@@ -170,6 +170,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/03-host-preflight-2026-10-05.md",
       "command": "2026-10-05 read-only follow-up after PR #251: installed and daemon identities agree at 2.0.0rc1-5715d7962691; schema 22, pendingOperations 0, managed activation ownership, rollback manifest/smoke, daemon convergence and units pass. Doctor warns about 9 orphan backups/journals, bootDirect unknown and Deck keys false. No install, cleanup, gameplay, capture or product maturity promotion.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "Exit confirmado a partir de pausa continua validado somente por processo descartável. Depois da release candidata autorizada, executar a jornada real e o retorno; preservação de saves, captura e input físico continuam pendentes.",

@@ -39,7 +39,7 @@
     "tests/integration/test_qml_handheld_offscreen.py",
     "tests/integration/test_qml_visual_capture.py"
   ],
-  "scopeDigest": "85d709ede0aaf679b637492fb3399b5f01d64ca26104d6af9404cb4cba6013b1",
+  "scopeDigest": "9244878fd08eaf893dbf74ade9d350b9c71dda99b94e0f76f2d1d5fff5992ee6",
   "dependsOn": [],
   "activeWorkstreams": [
     "WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT"
@@ -232,6 +232,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: paths in this item scope changed during the session exit, Wayland, and bezel continuation. This record binds the item to current scope bytes only; it does not rerun this item’s complete acceptance criteria or promote any implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "P1-LIBRARY/G58: tornar derivados gerenciados visíveis e relacionados ao proprietário na Gestão de arquivos, por mecanismo genérico para todas as plataformas e com preview/consentimento/quarentena/rollback, preservando originais. G59: mover library.root.scan para job assíncrono com progresso/cancelamento sem reduzir cobertura. G57: testar recusa de espaço insuficiente no host. Em paralelo, certificar relatedContent/audit/rename/quarentena/rollback universal em amostras seguras de todas as plataformas; runtime Vita3K continua ausente e não está validado para lançamento.",

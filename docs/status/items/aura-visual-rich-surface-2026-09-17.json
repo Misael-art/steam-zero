@@ -16,7 +16,7 @@
     "tests/qml/launcher/check_launcher_focus_bootstrap.qml",
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed"
   ],
-  "scopeDigest": "8fe6f49f59b6992c38556ab15e51d586019ace07456c9540af75fdced8604029",
+  "scopeDigest": "e06378b83a3877b6059387a33771b5d0432d1c288d278402be3b8ac6f556adbd",
   "dependsOn": [
     "SZ-AURA-VISUAL-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -94,6 +94,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-journey-launcher-session/README.md",
       "command": "2026-10-04 [WS-2026-10-JOURNEY-LAUNCHER-SESSION scope reconciliation]: digest reconciliado porque este escopo compartilha caminhos atualizados nesta frente. O resultado integral e as verificações focadas estão no README; este registro é somente de integridade de escopo, sem afirmar execução/capacidade física nem promover estágio.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "activeWorkstreams": [
