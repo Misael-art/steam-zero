@@ -1483,6 +1483,9 @@ class JourneyExecutor:
                 )
             value = selected_record.get(source_field)
             target_type = _field_definitions(target_fields)[target_field]
+            if value is None and selected_record.get("facet") is True:
+                context_filters[target_field] = None
+                continue
             if value is None:
                 return JourneyExecutionResult(
                     "invalid-binding",

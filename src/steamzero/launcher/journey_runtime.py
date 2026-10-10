@@ -30,6 +30,46 @@ _DEFAULT_FACETS = (
     "availability",
 )
 _NON_FACET_FIELDS = frozenset({"id", "gameId", "title", "name", "source"})
+
+
+def facet_items(
+    group_by: Sequence[str], groups: Sequence[Mapping[str, Any]]
+) -> list[dict[str, Any]]:
+    """One selectable row per grouped value, with the game count beside it.
+
+    The launcher list reads ``items``. Leaving the underlying game rows there
+    repeats every title that shares a genre or year. The row still carries the
+    published field so the existing menu binding can filter the shared games menu.
+    """
+    if not group_by:
+        return []
+    primary = group_by[0]
+    items: list[dict[str, Any]] = []
+    for group in groups:
+        raw_values = group.get("values")
+        values = dict(raw_values) if isinstance(raw_values, Mapping) else {}
+        projected = {field_id: values.get(field_id) for field_id in group_by}
+        primary_value = projected.get(primary)
+        label = "Desconhecido" if primary_value is None else str(primary_value)
+        token = json.dumps(
+            projected,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+        )
+        item: dict[str, Any] = {
+            "id": f"facet:{token}",
+            "title": label,
+            "name": label,
+            "count": int(group.get("count", 0)),
+            "facet": True,
+        }
+        item.update(projected)
+        items.append(item)
+    return items
+
+
 _PRIVATE_FIELD_IDS = frozenset(
     {
         "biospath",
@@ -588,7 +628,12 @@ class JourneyRuntime:
             sort=menu.get("sort", []),
             group_by=menu.get("groupBy", []),
         )
-        items = [dict(row) for row in query.rows]
+        group_by = [
+            str(field_id) for field_id in menu.get("groupBy", []) if isinstance(field_id, str)
+        ]
+        items = (
+            facet_items(group_by, query.groups) if group_by else [dict(row) for row in query.rows]
+        )
         filters = dict(context.filters)
         facets = self._facets(menu, source_id, fields, rows, filters)
         theme: Mapping[str, Any] | None = None

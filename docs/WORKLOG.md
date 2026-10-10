@@ -14751,3 +14751,20 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Integral em 5c085750 (C.UTF-8): 6708 passed, 47 skipped, 1 failed (consistência de digests). Duas execuções anteriores foram interrompidas de propósito por terem ficado obsoletas. Ruff, format (701), mypy (303), independence e boundaries passaram.
 - 14 digests revalidados com essa integral por autorização do operador ("faça tudo"), com o limite do delta registrado em cada item; status-check OK. Nenhum eixo promovido.
 - Aberto: valores de seletores em inglês, prévia sem cena do tema, validação por teclado na instalada, nova candidata para levar o lote ao host.
+
+## 2026-10-10 — Integral do template de jornada e custódia
+
+- Branch `codex/journey-complete-template-2026-10-09`, HEAD funcional `68288198`, um único worktree e árvore limpa durante a suíte. Release ativa permanece `2.0.0rc1-55295f2c0841`.
+- Integral em C.UTF-8: pytest 6713 passed, 47 skipped, 1 failed (`test_committed_catalog_and_generated_views_are_consistent`). O runner saiu rc=86: o state home real mudou na janela. Às 00:45 o systemd do usuário iniciou a UI instalada e às 00:50 ela encerrou (`desktop ui: ok`). O observador local também foi classificado como processo steamzero porque o caminho do script contém esse nome. Não é falha de produto do template e não foi repetida a suíte.
+- Nove digests envelhecidos por `68288198` foram renovados com resultado `partial`: o delta real é Criar completa, o parâmetro `template` na ponte e a paleta do painel de Jornadas. Itens que só compartilham os contratos não tiveram comportamento próprio alterado. Nenhum eixo foi promovido.
+- Handoff serial retrospectivo: `journey_studio.py`, `ExperienceJourneyPanel.qml` e `test_experience_journey_bridge_e2e.py` saem da WS-2026-10-JOURNEY-LAUNCHER-SESSION para WS-2026-10-JOURNEY-COMPLETE-TEMPLATE. O handoff não antecedeu o commit. Não havia outro checkout editando esses paths. `desktop_contracts.py`, `desktop_ui.py` e os dois testes da ponte, antes sem claim ativo, entram no mesmo workstream.
+- PR #255 permanece no pai `f2f8c553`, CI verde no run 38018687033. Este HEAD ainda não tem CI. Sem merge, sem instalação, sem prova física de pause/save/load.
+
+## 2026-10-10 (cont.) — Facetas distintas em Gêneros e Anos
+
+- Reconfirmado antes da edição: PR #256 em `1dbb6dda` (CI verde, reviewDecision vazio), PR #255 em `f2f8c553`, `origin/main` em `55295f2c`. A release instalada continua `2.0.0rc1-55295f2c0841`.
+- Defeito: com três jogos NES, Gêneros e Anos repetiam jogos porque `groupBy` vinha vazio e a lista lê `items`. O teste de um jogo não discriminava. Corrigido no template, no runtime e nas duas UIs. Preencher `groupBy` sozinho não bastava.
+- Prova focal, antes da integral: 15 passed sem visual, 3 passed no QML offscreen contra a LauncherBridge real, 37 passed nos consumidores já existentes. Seleção, retorno, rolagem, foco, filtro combinado, destino compartilhado, vazio, desconhecido, fonte indisponível e resposta tardia.
+- Integral única, `LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q`: pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A falha é só `test_committed_catalog_and_generated_views_are_consistent`. O runner saiu 1, não 86. Resultado vermelho preservado nesta entrada.
+- Interferência externa, separada do produto: durante a janela o state home ganhou 352 bytes em `logs/core.jsonl` e `state.db`. Escritor anterior à janela, pid 1614761, `steamzero-core` da release instalada, eventos `session.environment.changed` (power, displays, network). O guard emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER` e deixou a atribuição degradada. O processo não foi encerrado e o guard não foi enfraquecido.
+- Cinco digests revalidados depois da suíte (SZ-AURA-LAUNCHER, SZ-ROADMAP-CONTINUATION, SZ-THEME-ENGINE, SZ-THEME-STUDIO, SZ-UI-DESKTOP-AUDIT). Nenhum eixo promovido. Sem merge, sem instalação, sem gameplay físico.

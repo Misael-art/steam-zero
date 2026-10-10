@@ -407,6 +407,56 @@ def test_journey_editor_roundtrips_through_the_allowlisted_production_bridge(
     assert error.value.code == 400
 
 
+def test_complete_journey_template_crosses_the_allowlisted_bridge(
+    journey_bridge: tuple[str, str, _JourneyDashboard],
+) -> None:
+    """O modelo completo chega pela mesma rota e continua salvável e reabrível."""
+    base_url, token, _dashboard = journey_bridge
+    created = _request(
+        base_url,
+        token,
+        "/journey/studio/create",
+        method="POST",
+        payload={"name": "Sala completa", "template": "complete"},
+    )
+    document = created["document"]
+    assert [menu["id"] for menu in document["menus"]] == ["platforms", "genres", "years", "games"]
+    assert {stage["stageId"] for stage in document["sessionStages"]} >= {
+        "entryFade",
+        "pause",
+        "saves",
+        "bezel",
+        "exitFade",
+    }
+    assert created["diagnostics"] == []
+
+    saved = _request(
+        base_url,
+        token,
+        "/journey/studio/save",
+        method="POST",
+        payload={"sessionId": created["sessionId"], "overwrite": False},
+    )
+    reopened = _request(
+        base_url,
+        token,
+        "/journey/studio/load",
+        method="POST",
+        payload={"journeyId": saved["journeyId"]},
+    )
+    assert reopened["document"] == document
+
+    with pytest.raises(urllib.error.HTTPError) as error:
+        _request(
+            base_url,
+            token,
+            "/journey/studio/create",
+            method="POST",
+            payload={"name": "Outra", "template": "surpresa"},
+        )
+    assert error.value.code == 400
+
+
 @pytest.mark.visual
 def test_journey_authoring_qml_uses_the_real_allowlisted_bridge(
     journey_bridge: tuple[str, str, _JourneyDashboard],

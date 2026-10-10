@@ -17,6 +17,27 @@ Rectangle {
     property color accentColor: "#13bdf2"
     property color amberColor: "#ffbf47"
     property color errorColor: "#ff6b73"
+
+    // Sem isto os controles herdavam a paleta do estilo do sistema: botões e
+    // campos brancos sobre o fundo escuro do Studio, com texto desabilitado
+    // quase ilegível. A paleta deriva dos mesmos tokens do painel.
+    palette.window: panel.backgroundColor
+    palette.windowText: panel.textColor
+    palette.base: panel.surfaceColor
+    palette.alternateBase: panel.raisedColor
+    palette.text: panel.textColor
+    palette.button: panel.raisedColor
+    palette.buttonText: panel.textColor
+    palette.placeholderText: panel.mutedColor
+    palette.highlight: panel.accentColor
+    palette.highlightedText: "#04141c"
+    palette.mid: panel.borderColor
+    palette.dark: panel.borderColor
+    palette.light: panel.raisedColor
+    palette.midlight: panel.raisedColor
+    palette.disabled.buttonText: panel.mutedColor
+    palette.disabled.text: panel.mutedColor
+    palette.disabled.windowText: panel.mutedColor
     property real visualScale: 1.0
     property bool compactLayout: false
     property bool busy: false
@@ -222,8 +243,16 @@ Rectangle {
         })
     }
 
-    function createJourney() {
-        invoke("journey.studio.create", {name: journeyNameField.text || qsTr("Minha jornada")},
+    /// `template` "complete" abre a jornada já com os níveis de menu, as rotas
+    /// da sessão e os estágios (fades, pausa, saves, bezel) prontos para editar.
+    function createJourney(template) {
+        const complete = template === "complete"
+        const payload = {
+            name: journeyNameField.text || (complete ? qsTr("Jornada completa") : qsTr("Minha jornada"))
+        }
+        if (complete)
+            payload.template = "complete"
+        invoke("journey.studio.create", payload,
             function(result) {
                 panel.applySnapshot(result)
                 journeyNameField.text = ""
@@ -332,11 +361,32 @@ Rectangle {
             ? "system" : "gamelist"
     }
 
+    function previewEntries() {
+        const result = previewResult
+        if (!result)
+            return []
+        const groupBy = currentMenu && Array.isArray(currentMenu.groupBy) ? currentMenu.groupBy : []
+        if (groupBy.length > 0 && Array.isArray(result.groups)) {
+            const fieldId = String(groupBy[0])
+            return result.groups.slice(0, 64).map(function(group) {
+                const values = group && group.values ? group.values : ({})
+                const value = values[fieldId]
+                const label = value === null || value === undefined
+                    ? qsTr("Desconhecido") : String(value)
+                return {
+                    id: "facet:" + fieldId + ":" + label,
+                    title: label,
+                    name: label,
+                    count: group.count,
+                    facet: true
+                }
+            })
+        }
+        return Array.isArray(result.rows) ? result.rows.slice(0, 64) : []
+    }
+
     function journeyRuntimeModel() {
-        const rows = previewResult && Array.isArray(previewResult.rows)
-            ? previewResult.rows.slice(0, 64).map(function(row) {
-                return Object.assign({}, row)
-            }) : []
+        const rows = previewEntries().map(function(row) { return Object.assign({}, row) })
         const selected = rows.length > 0 ? rows[0] : ({})
         return {
             items: rows,
@@ -1064,6 +1114,15 @@ Rectangle {
                 Layout.minimumHeight: panel.minimumInteractiveTarget
                 onClicked: panel.createJourney()
             }
+            Button {
+                objectName: "journeyCreateComplete"
+                text: qsTr("Criar completa")
+                enabled: !panel.busy && panel.bridgeAvailable
+                Accessible.name: qsTr("Criar jornada completa")
+                Accessible.description: qsTr("Abre uma jornada com Plataformas, Gêneros, Anos e Jogos, as ações de jogar, pausar, salvar e sair, e os estágios de fade, pausa, saves e bezel prontos para editar")
+                Layout.minimumHeight: panel.minimumInteractiveTarget
+                onClicked: panel.createJourney("complete")
+            }
         }
 
         Label {
@@ -1256,9 +1315,26 @@ Rectangle {
                             {id: "stages", label: qsTr("Etapas")}
                         ]
                         delegate: Button {
+                            id: journeyTab
                             required property var modelData
                             text: modelData.label
                             checked: panel.selectedTab === modelData.id
+                            // Aba ativa marcada por faixa e peso, não só por cor.
+                            font.weight: checked ? Font.DemiBold : Font.Normal
+                            background: Rectangle {
+                                color: journeyTab.checked ? panel.raisedColor : panel.surfaceColor
+                                border.color: journeyTab.activeFocus ? panel.textColor : panel.borderColor
+                                border.width: journeyTab.activeFocus ? 2 : 1
+                                radius: 4
+                                Rectangle {
+                                    visible: journeyTab.checked
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    height: 3
+                                    color: panel.accentColor
+                                }
+                            }
                             Accessible.name: text
                             Layout.minimumHeight: panel.minimumInteractiveTarget
                             onClicked: panel.selectedTab = modelData.id
@@ -2054,11 +2130,20 @@ Rectangle {
                             }
                             Label {
                                 objectName: "journeyPreviewResultCount"
-                                text: panel.previewResult
-                                    ? qsTr("%1 resultados de %2 itens na fonte · exibindo %3")
+                                text: {
+                                    if (!panel.previewResult)
+                                        return ""
+                                    const grouped = panel.currentMenu
+                                        && (panel.currentMenu.groupBy || []).length > 0
+                                    if (grouped)
+                                        return qsTr("%1 facetas · %2 jogos correspondentes")
+                                            .arg((panel.previewResult.groups || []).length)
+                                            .arg(panel.previewResult.resultCount)
+                                    return qsTr("%1 resultados de %2 itens na fonte · exibindo %3")
                                         .arg(panel.previewResult.resultCount)
                                         .arg(panel.previewResult.totalCount)
-                                        .arg(panel.previewResult.returnedCount) : ""
+                                        .arg(panel.previewResult.returnedCount)
+                                }
                                 color: panel.mutedColor
                                 Layout.fillWidth: true
                             }
@@ -2099,12 +2184,15 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 128
                                 clip: true
-                                model: panel.previewResult ? panel.previewResult.rows || [] : []
+                                model: panel.previewEntries()
                                 delegate: Label {
                                     required property var modelData
                                     width: ListView.view.width
                                     height: Math.max(panel.minimumInteractiveTarget, 48)
-                                    text: String(modelData.title || modelData.name || modelData.id || "")
+                                    text: modelData.facet === true
+                                        ? qsTr("%1 · %2 jogos").arg(modelData.title || modelData.name || "")
+                                            .arg(modelData.count || 0)
+                                        : String(modelData.title || modelData.name || modelData.id || "")
                                     color: panel.textColor
                                     verticalAlignment: Text.AlignVCenter
                                     elide: Text.ElideRight

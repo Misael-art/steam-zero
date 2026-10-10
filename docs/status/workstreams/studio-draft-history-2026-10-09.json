@@ -24,6 +24,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Handoffs seriais recebidos em 2026-10-09 por autorização do operador na thread: três paths da WS-2026-10-JOURNEY-LAUNCHER-SESSION e Main.qml da WS-2026-10-R05-COMPONENT-OPERATION-TRACE. Guarda de saída cobre o botão Fechar e o fechamento da janela da Central; trocar de seção mantém a sessão viva e não perde o rascunho. Pendem CI no SHA final, merge e validação por teclado na release instalada. Devolver os quatro paths após o merge.",
-  "updatedAt": "2026-10-09"
+  "nextAction": "Handoffs seriais recebidos em 2026-10-09 por autorização do operador na thread: três paths da WS-2026-10-JOURNEY-LAUNCHER-SESSION e Main.qml da WS-2026-10-R05-COMPONENT-OPERATION-TRACE. Guarda de saída cobre o botão Fechar e o fechamento da janela da Central; trocar de seção mantém a sessão viva e não perde o rascunho. Pendem CI no SHA final, merge e validação por teclado na release instalada. Devolver os quatro paths após o merge. CI do PR #255 terminou verde em 2026-10-10 no SHA f2f8c553 (run 38018687033). O commit 68288198 está em codex/journey-complete-template-2026-10-09 e não entra neste PR.",
+  "updatedAt": "2026-10-10"
 }

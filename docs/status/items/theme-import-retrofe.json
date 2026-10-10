@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "ready",
   "distribution": "installed",
-  "scopeDigest": "4c21e47d9ac83a94d7c60db9805d3f7065edb4291b743f7aef42e04a909d56a3",
+  "scopeDigest": "ac68ab235e33598dda150911a516fe922e3468e4acca0fc04917c3dde84db207",
   "scopePaths": [
     "src/steamzero/adapters/desktop_contracts.py",
     "src/steamzero/adapters/desktop_dashboard.py",
@@ -192,10 +192,16 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta é o parâmetro opcional template em desktop_contracts.py e desktop_ui.py; a importação RetroFE não mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "partial"
     }
   ],
   "nextAction": "Manter a entrada RetroFE instalada e documentar explicitamente que inspeção/importação não promove ativação automática da cena.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-09",
+  "updatedAt": "2026-10-10",
   "notes": "A rota QML RetroFE oferece origem por pasta/XML, inspeção de layouts, relatório de cobertura/degradação, créditos/licença e confirmação explícita. A aplicação valida a licença, recusa assets ausentes ou symlinkados, grava blobs por conteúdo e publica sidecar de custódia junto ao IR; a cena continua sem ativação automática. A release 2.0.0rc1-435f9108eeb7 foi instalada e convergida no host, com rollback 2.0.0rc1-b09908a58261. 2026-10-02: renovacao de escopo por alteracao restrita aos inspetores de autoria do Theme Studio. Importacao ES-DE/RetroFE, dialogs do shell e eixos deste item nao foram alterados nem promovidos. Em 2026-10-02, os controles compartilhados ganharam alvo mínimo efetivo de 48 px. O diálogo RetroFE mudou visualmente nos quatro viewports; os goldens foram atualizados após inspeção e a rodada combinada ES-DE/RetroFE passou 13/13. A rodada vermelha contra as baselines antigas permanece registrada; isso não certifica input físico ou release. Em 2026-10-02, as baselines de RetroFE foram atualizadas após inspeção da captura causada pela nova entrada Abrir Jornadas no fundo do ThemeEditorPanel. O modal manteve geometria/conteúdo; o teste combinado passou 13/13 em Qt offscreen. Esta renovação não promove instalação física nem release."
 }

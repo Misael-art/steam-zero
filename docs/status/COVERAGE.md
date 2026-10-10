@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 561 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 564 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 36 | 19 | hw |  |
@@ -25,7 +25,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 11 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 315 | 86 | 50 | hw |  |
+| SZ-AURA-LAUNCHER | 315 | 89 | 51 | hw |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -66,7 +66,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
-| SZ-LIBRARY-CANONICAL | 169 | 30 | 14 | hw |  |
+| SZ-LIBRARY-CANONICAL | 169 | 31 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
 | SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 15 | 8 | dev |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 6 | 3 | hw |  |
@@ -89,17 +89,17 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 71 | 33 | 13 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 71 | 36 | 14 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 4 | 4 | dev |  |
-| SZ-THEME-ENGINE | 186 | 83 | 63 | hw |  |
-| SZ-THEME-ESDE-SCENE-RENDER | 26 | 17 | 9 | hw |  |
-| SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 19 | 11 | hw |  |
-| SZ-THEME-IMPORT-RETROFE | 15 | 26 | 14 | hw |  |
+| SZ-THEME-ENGINE | 186 | 86 | 64 | hw |  |
+| SZ-THEME-ESDE-SCENE-RENDER | 26 | 18 | 9 | hw |  |
+| SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 20 | 11 | hw |  |
+| SZ-THEME-IMPORT-RETROFE | 15 | 27 | 14 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 20 | 11 | unit |  |
-| SZ-THEME-STUDIO | 172 | 79 | 58 | hw |  |
-| SZ-UI-DESKTOP-AUDIT | 837 | 198 | 115 | dev |  |
+| SZ-THEME-STUDIO | 172 | 82 | 59 | hw |  |
+| SZ-UI-DESKTOP-AUDIT | 837 | 201 | 116 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 

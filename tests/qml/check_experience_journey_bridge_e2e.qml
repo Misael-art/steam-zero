@@ -228,6 +228,30 @@ Item {
             }, 4000, "a conexão não foi aplicada pela bridge")
         }
 
+        // Roda antes da jornada manual (ordem alfabética do TestCase): o botão abre a
+        // jornada completa pela bridge real, com níveis, ações de sessão e estágios.
+        function test_complete_template_button_opens_an_editable_full_journey() {
+            const button = byName("journeyCreateComplete")
+            verify(button !== null, "botão Criar completa ausente")
+            verify(button.enabled, "Criar completa desabilitado com a bridge disponível")
+            verify(button.height >= 48, "alvo de Criar completa menor que 48 px")
+            byName("journeyName").text = "Completa pela UI"
+            click(button)
+            tryVerify(function() {
+                return journey.session && journey.journeyDocument.name === "Completa pela UI"
+                    && !journey.busy
+            }, 4000, "Criar completa não chegou ao JourneyStudioService")
+            const doc = journey.journeyDocument
+            compare(doc.menus.length, 4)
+            compare(doc.entryMenuId, "platforms")
+            const stages = doc.sessionStages.map(function(stage) { return stage.stageId })
+            for (const expected of ["entryFade", "pause", "saves", "bezel", "exitFade"])
+                verify(stages.indexOf(expected) >= 0, "estágio ausente: " + expected)
+            const events = doc.connections.map(function(connection) { return connection.event })
+            for (const expected of ["play", "pause", "resume", "save", "load", "exit", "back"])
+                verify(events.indexOf(expected) >= 0, "ação ausente: " + expected)
+        }
+
         function test_create_three_metadata_paths_shared_menu_history_and_roundtrip() {
             verify(harness.contracts.byId["journey.studio.create"] !== undefined)
             const expectedName = "Jornada UI contra bridge real"
