@@ -17,6 +17,27 @@ Rectangle {
     property color accentColor: "#13bdf2"
     property color amberColor: "#ffbf47"
     property color errorColor: "#ff6b73"
+
+    // Sem isto os controles herdavam a paleta do estilo do sistema: botões e
+    // campos brancos sobre o fundo escuro do Studio, com texto desabilitado
+    // quase ilegível. A paleta deriva dos mesmos tokens do painel.
+    palette.window: panel.backgroundColor
+    palette.windowText: panel.textColor
+    palette.base: panel.surfaceColor
+    palette.alternateBase: panel.raisedColor
+    palette.text: panel.textColor
+    palette.button: panel.raisedColor
+    palette.buttonText: panel.textColor
+    palette.placeholderText: panel.mutedColor
+    palette.highlight: panel.accentColor
+    palette.highlightedText: "#04141c"
+    palette.mid: panel.borderColor
+    palette.dark: panel.borderColor
+    palette.light: panel.raisedColor
+    palette.midlight: panel.raisedColor
+    palette.disabled.buttonText: panel.mutedColor
+    palette.disabled.text: panel.mutedColor
+    palette.disabled.windowText: panel.mutedColor
     property real visualScale: 1.0
     property bool compactLayout: false
     property bool busy: false
@@ -222,8 +243,16 @@ Rectangle {
         })
     }
 
-    function createJourney() {
-        invoke("journey.studio.create", {name: journeyNameField.text || qsTr("Minha jornada")},
+    /// `template` "complete" abre a jornada já com os níveis de menu, as rotas
+    /// da sessão e os estágios (fades, pausa, saves, bezel) prontos para editar.
+    function createJourney(template) {
+        const complete = template === "complete"
+        const payload = {
+            name: journeyNameField.text || (complete ? qsTr("Jornada completa") : qsTr("Minha jornada"))
+        }
+        if (complete)
+            payload.template = "complete"
+        invoke("journey.studio.create", payload,
             function(result) {
                 panel.applySnapshot(result)
                 journeyNameField.text = ""
@@ -1064,6 +1093,15 @@ Rectangle {
                 Layout.minimumHeight: panel.minimumInteractiveTarget
                 onClicked: panel.createJourney()
             }
+            Button {
+                objectName: "journeyCreateComplete"
+                text: qsTr("Criar completa")
+                enabled: !panel.busy && panel.bridgeAvailable
+                Accessible.name: qsTr("Criar jornada completa")
+                Accessible.description: qsTr("Abre uma jornada com Plataformas, Gêneros, Anos e Jogos, as ações de jogar, pausar, salvar e sair, e os estágios de fade, pausa, saves e bezel prontos para editar")
+                Layout.minimumHeight: panel.minimumInteractiveTarget
+                onClicked: panel.createJourney("complete")
+            }
         }
 
         Label {
@@ -1256,9 +1294,26 @@ Rectangle {
                             {id: "stages", label: qsTr("Etapas")}
                         ]
                         delegate: Button {
+                            id: journeyTab
                             required property var modelData
                             text: modelData.label
                             checked: panel.selectedTab === modelData.id
+                            // Aba ativa marcada por faixa e peso, não só por cor.
+                            font.weight: checked ? Font.DemiBold : Font.Normal
+                            background: Rectangle {
+                                color: journeyTab.checked ? panel.raisedColor : panel.surfaceColor
+                                border.color: journeyTab.activeFocus ? panel.textColor : panel.borderColor
+                                border.width: journeyTab.activeFocus ? 2 : 1
+                                radius: 4
+                                Rectangle {
+                                    visible: journeyTab.checked
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    height: 3
+                                    color: panel.accentColor
+                                }
+                            }
                             Accessible.name: text
                             Layout.minimumHeight: panel.minimumInteractiveTarget
                             onClicked: panel.selectedTab = modelData.id

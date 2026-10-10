@@ -41,6 +41,160 @@ _BEZEL_RESOURCE_THEME = re.compile(
 )
 
 
+JOURNEY_TEMPLATES = ("blank", "complete")
+
+# Estágios da sessão que a jornada completa já declara. Todos herdam AURA: a
+# aparência é escolhida depois, por estágio, e nunca habilita a operação.
+_COMPLETE_STAGES = (
+    "entryFade",
+    "loading",
+    "gameplay",
+    "bezel",
+    "osd",
+    "pause",
+    "saves",
+    "exitFade",
+    "error",
+)
+
+
+def _complete_journey(identity: str, name: str) -> dict[str, Any]:
+    """Jornada pronta para editar: três níveis de menu e a sessão de jogo inteira.
+
+    O ponto de partida vazio obrigava a montar à mão cada menu, cada rota e
+    cada estágio antes de ver qualquer fluxo funcionando. Este modelo usa o
+    mesmo vocabulário do documento; tudo nele pode ser renomeado, religado ou
+    removido pelas operações normais do Studio.
+    """
+
+    def menu(
+        menu_id: str, label: str, read_model: str, sort: list[dict[str, str]]
+    ) -> dict[str, Any]:
+        return {
+            "id": menu_id,
+            "name": label,
+            "source": {"readModelId": read_model},
+            "filters": [],
+            "sort": sort,
+            "groupBy": [],
+        }
+
+    def node(menu_id: str, label: str, parent: str | None) -> dict[str, Any]:
+        return {
+            "id": f"menu-{menu_id}",
+            "kind": "menu",
+            "label": label,
+            "parentId": parent,
+            "menuId": menu_id,
+        }
+
+    def navigate(
+        connection_id: str, source: str, event: str, target: str, label: str, field: tuple[str, str]
+    ) -> dict[str, Any]:
+        return {
+            "id": connection_id,
+            "from": {"kind": "menu", "id": source},
+            "event": event,
+            "when": "user-input",
+            "action": "navigate",
+            "to": {"kind": "menu", "id": target},
+            "label": label,
+            "bindings": [{"sourceFieldId": field[0], "targetFieldId": field[1]}],
+        }
+
+    def back(source: str) -> dict[str, Any]:
+        return {
+            "id": f"{source}-back",
+            "from": {"kind": "menu", "id": source},
+            "event": "back",
+            "when": "user-input",
+            "action": "back",
+            "to": {"kind": "history"},
+            "label": "Voltar",
+            "bindings": [],
+        }
+
+    def session(event: str, action: str, stage: str, label: str) -> dict[str, Any]:
+        return {
+            "id": f"games-{event}",
+            "from": {"kind": "menu", "id": "games"},
+            "event": event,
+            "when": "user-input",
+            "action": action,
+            "to": {"kind": "stage", "id": stage},
+            "label": label,
+            "bindings": [],
+        }
+
+    by_title = [{"fieldId": "title", "direction": "ascending"}]
+    return {
+        "schemaVersion": 2,
+        "kind": "steamzero-experience-journey-v2",
+        "id": identity,
+        "name": name,
+        "entryMenuId": "platforms",
+        "organization": [
+            node("platforms", "Plataformas", None),
+            node("genres", "Gêneros", "menu-platforms"),
+            node("years", "Anos", "menu-platforms"),
+            node("games", "Jogos", "menu-genres"),
+        ],
+        "menus": [
+            menu("platforms", "Plataformas", "library.platforms", []),
+            menu("genres", "Gêneros", _DEFAULT_READ_MODEL, by_title),
+            menu(
+                "years",
+                "Anos",
+                _DEFAULT_READ_MODEL,
+                [{"fieldId": "year", "direction": "descending"}],
+            ),
+            menu("games", "Jogos", _DEFAULT_READ_MODEL, by_title),
+        ],
+        "connections": [
+            navigate(
+                "platforms-genres",
+                "platforms",
+                "select",
+                "genres",
+                "Explorar por gênero",
+                ("id", "platformId"),
+            ),
+            navigate(
+                "platforms-years",
+                "platforms",
+                "route",
+                "years",
+                "Explorar por ano",
+                ("id", "platformId"),
+            ),
+            navigate(
+                "genres-games",
+                "genres",
+                "select",
+                "games",
+                "Abrir jogos do gênero",
+                ("genre", "genre"),
+            ),
+            navigate(
+                "years-games", "years", "select", "games", "Abrir jogos do ano", ("year", "year")
+            ),
+            back("genres"),
+            back("years"),
+            back("games"),
+            session("play", "launch", "entryFade", "Jogar"),
+            session("pause", "pause", "pause", "Pausar"),
+            session("resume", "resume", "pause", "Retomar"),
+            session("open-saves", "open-saves", "saves", "Abrir saves"),
+            session("save", "save", "saves", "Salvar estado"),
+            session("load", "load", "saves", "Carregar estado"),
+            session("exit", "exit", "exitFade", "Sair do jogo"),
+        ],
+        "sessionStages": [
+            {"stageId": stage, "appearance": {"mode": "inherit-aura"}} for stage in _COMPLETE_STAGES
+        ],
+    }
+
+
 @dataclass
 class _EditSession:
     session_id: str
@@ -80,9 +234,17 @@ class JourneyStudioService:
         return journeys
 
     def create(
-        self, *, name: str = "Minha jornada", journey_id: str | None = None
+        self,
+        *,
+        name: str = "Minha jornada",
+        journey_id: str | None = None,
+        template: str = "blank",
     ) -> dict[str, Any]:
         identity = journey_id or f"org.steamzero.journey-{secrets.token_hex(4)}"
+        if template == "complete":
+            return self._open(_complete_journey(identity, name), saved_payload=None)
+        if template != "blank":
+            raise ValueError(f"modelo de jornada desconhecido: {template}")
         home_id = "home"
         raw = {
             "schemaVersion": 2,

@@ -36,6 +36,7 @@ from steamzero.adapters.desktop_kde import (
 )
 from steamzero.adapters.journey_public import game_record_public_field_types
 from steamzero.adapters.journey_studio import (
+    JOURNEY_TEMPLATES,
     MAX_PREVIEW_ROWS,
     MAX_PUBLIC_RECORDS,
     JourneyStudioService,
@@ -1225,11 +1226,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 self._required_string(payload, "sessionId"),
             )
         if path == "/journey/studio/create":
-            self._require_exact_keys(payload, {"name"})
+            self._require_exact_keys(payload, {"name"}, optional={"template"})
             name = self._required_string(payload, "name")
             if len(name) > 128:
                 raise SteamZeroError("E-API-SCHEMA", detail="nome da jornada excede 128 caracteres")
-            return self._control_server.journey_studio.create(name=name)
+            template = payload.get("template", "blank")
+            if template not in JOURNEY_TEMPLATES:
+                raise SteamZeroError("E-API-SCHEMA", detail="modelo de jornada desconhecido")
+            return self._control_server.journey_studio.create(name=name, template=template)
         if path == "/journey/studio/load":
             self._require_exact_keys(payload, {"journeyId"})
             return self._control_server.journey_studio.load(

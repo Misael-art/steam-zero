@@ -1662,7 +1662,11 @@ def handheld_ui_contracts() -> dict[str, Any]:
             screen="system",
             control="journey-studio-create",
             schema=_closed_schema(
-                ("name",), {"name": {"type": "string", "minLength": 1, "maxLength": 128}}
+                ("name",),
+                {
+                    "name": {"type": "string", "minLength": 1, "maxLength": 128},
+                    "template": {"type": "string", "enum": ["blank", "complete"]},
+                },
             ),
         ),
         _action(
