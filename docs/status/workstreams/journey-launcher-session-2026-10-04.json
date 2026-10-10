@@ -22,7 +22,6 @@
     "src/steamzero/launcher/cinema.py",
     "src/steamzero/launcher/launch.py",
     "src/steamzero/launcher/session.py",
-    "src/steamzero/adapters/journey_studio.py",
     "src/steamzero/adapters/journey_public.py",
     "src/steamzero/adapters/launcher_ui.py",
     "src/steamzero/adapters/launcher_session.py",
@@ -45,7 +44,6 @@
     "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
     "src/steamzero/ui/qml/SceneEsdeView.qml",
     "src/steamzero/ui/qml/SceneSurfacePreview.qml",
-    "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
     "src/steamzero/schemas/experience-journey-v2.schema.json",
     "src/steamzero/schemas/scene-surfaces-v1.schema.json",
     "src/steamzero/schemas/theme-manifest-v1.schema.json",
@@ -71,7 +69,6 @@
     "tests/unit/test_studio_graph.py",
     "tests/unit/test_theme_editor_extends.py",
     "tests/unit/test_themes.py",
-    "tests/integration/test_experience_journey_bridge_e2e.py",
     "tests/integration/test_desktop_ui_bridge.py",
     "tests/integration/test_launcher_app.py",
     "tests/integration/test_launcher_return_cycle.py",
@@ -113,6 +110,6 @@
     "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
     "docs/09-operations/AGENT-HANDOFF.md"
   ],
-  "nextAction": "PR #252 foi mesclado em be6a7e90359befcc09f88319c08c8cd836570b66. O push-run #37311278545 terminou verde nesse SHA; o checkpoint novo registrou 6675 passed, 47 skipped e 0 failed localmente, e o gate visual CI 375 passed, 13 skipped, 6334 deselected. Atribuição do state home da integral local ficou degradada pela escrita do daemon externo pré-existente; o gap histórico GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 continua aberto e sem causa. Handoff pós-merge concluído: tests/integration/test_qml_handheld_offscreen.py, SHA-256 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707, voltou à WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT e saiu do exclusivePaths desta Jornada. Continuar as lacunas elegíveis de AURA Studio/Engine/Launcher sem promover maturidade por esta evidência automatizada. Não instalar, reverter, publicar certificação nem executar B_VISUAL sem autorização explícita e token exato. Handoff serial de 2026-10-09 autorizado pelo operador na thread: ThemeEditorPanel.qml (SHA-256 na base b1fb9f08a2b5f0d2c8260183541817e2d14ad069820514f45bdd05b2814ab737), tests/qml/check_theme_editor_asset_recipes.qml e docs/status/items/theme-studio.json saem deste claim para WS-2026-10-STUDIO-DRAFT-HISTORY, branch codex/d5-studio-draft-history-2026-10-09 sobre 55295f2c084142e26c8d6383854c2bf9affb8978, sem concorrência observada no checkout único. Escopo: histórico de metadados e saída com rascunho. Devolução a este workstream após o merge; os demais paths permanecem aqui.",
-  "updatedAt": "2026-10-09"
+  "nextAction": "PR #252 foi mesclado em be6a7e90359befcc09f88319c08c8cd836570b66. O push-run #37311278545 terminou verde nesse SHA; o checkpoint novo registrou 6675 passed, 47 skipped e 0 failed localmente, e o gate visual CI 375 passed, 13 skipped, 6334 deselected. Atribuição do state home da integral local ficou degradada pela escrita do daemon externo pré-existente; o gap histórico GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 continua aberto e sem causa. Handoff pós-merge concluído: tests/integration/test_qml_handheld_offscreen.py, SHA-256 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707, voltou à WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT e saiu do exclusivePaths desta Jornada. Continuar as lacunas elegíveis de AURA Studio/Engine/Launcher sem promover maturidade por esta evidência automatizada. Não instalar, reverter, publicar certificação nem executar B_VISUAL sem autorização explícita e token exato. Handoff serial de 2026-10-09 autorizado pelo operador na thread: ThemeEditorPanel.qml (SHA-256 na base b1fb9f08a2b5f0d2c8260183541817e2d14ad069820514f45bdd05b2814ab737), tests/qml/check_theme_editor_asset_recipes.qml e docs/status/items/theme-studio.json saem deste claim para WS-2026-10-STUDIO-DRAFT-HISTORY, branch codex/d5-studio-draft-history-2026-10-09 sobre 55295f2c084142e26c8d6383854c2bf9affb8978, sem concorrência observada no checkout único. Escopo: histórico de metadados e saída com rascunho. Devolução a este workstream após o merge; os demais paths permanecem aqui. Handoff serial retrospectivo em 2026-10-10, depois do commit 68288198 e com um único worktree limpo, sem edição concorrente: journey_studio.py, ExperienceJourneyPanel.qml e tests/integration/test_experience_journey_bridge_e2e.py saem deste claim para WS-2026-10-JOURNEY-COMPLETE-TEMPLATE, branch codex/journey-complete-template-2026-10-09, base f2f8c553. O handoff não antecedeu a implementação. Devolução após o merge desse lote.",
+  "updatedAt": "2026-10-10"
 }

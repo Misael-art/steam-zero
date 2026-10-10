@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-JOURNEY-COMPLETE-TEMPLATE",
+  "item": "SZ-AURA-LAUNCHER",
+  "branch": "codex/journey-complete-template-2026-10-09",
+  "baseRef": "f2f8c553b5ac2f688aabfa92146e2e2c214a8e63",
+  "owner": "grok-journey-complete-template",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/adapters/journey_studio.py",
+    "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
+    "tests/integration/test_experience_journey_bridge_e2e.py",
+    "src/steamzero/adapters/desktop_contracts.py",
+    "src/steamzero/adapters/desktop_ui.py",
+    "tests/qml/check_experience_journey_bridge_e2e.qml",
+    "tests/unit/test_journey_complete_template.py",
+    "docs/status/workstreams/journey-complete-template-2026-10-10.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Custódia regularizada em atraso em 2026-10-10: um único worktree, árvore limpa em 68288198, sem edição concorrente. A integral desse SHA teve pytest 6713 passed, 47 skipped e 1 failed (digests); o runner saiu rc=86 porque a UI instalada 2.0.0rc1-55295f2c0841 escreveu o state home real entre 00:45 e 00:50. Próximo: CI no SHA documental e integração somente depois do PR #255. Sem prova física nesta release. Devolver os paths à WS-2026-10-JOURNEY-LAUNCHER-SESSION após o merge.",
+  "updatedAt": "2026-10-10"
+}

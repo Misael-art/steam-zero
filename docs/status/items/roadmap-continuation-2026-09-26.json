@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "378b58343077a805af745db55e041eb728dededd1e74890b69e0888f5084e6d2",
+  "scopeDigest": "4a14a8dc65681103e4b20f51f84d998534ecb25b7fd92431b286cc8bdee68050",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -248,10 +248,16 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta reúne o template de jornada completa, a ponte, o painel e os testes da ponte. Nenhum marco foi promovido. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "partial"
     }
   ],
   "nextAction": "A integral instrumentada da árvore corrigida passou em 2026-10-05: 6675 passed, 47 skipped, 0 failed; o guard detectou escritas do daemon externo já ativo e marcou a atribuição do state home como degradada. Este passe não explica o seis-vs-cinco: preservar o log 04 vermelho e o gap histórico sem causa. Revisar os diffs, fechar os commits separados, fazer push/PR e aguardar CI terminal no SHA exato antes do merge commit; depois devolver serialmente o path reservado à Biblioteca. Instalação, rollback e B_VISUAL continuam fora da autorização atual.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-09",
+  "updatedAt": "2026-10-10",
   "notes": "Planejamento e continuidade no PR #249 permanecem locais à feature branch; nenhum merge, release, instalação ou certificação física foi promovido. Um checkout confirmado. Roadmap, marcos, handoff e prompt preservam os limites de autorização. RC-00 executado em 2026-09-26: base/release/worktree conferidos; 21 claims obsoletos encerrados com evidência de integração e 5 mantidos abertos; a suíte integral da auditoria permanece registrada como não verde (1 falha documental histórica). 2026-10-01: revisão das rodadas B_VISUAL 133/134. 2026-10-02: continuação da autoria Theme Studio; o overflow horizontal dos inspetores foi reproduzido no Qt pinado, corrigido com controles de largura e coberto por verificação geométrica antes de cada evento Qt. A jornada passou no container e no host, e 140 testes focados passaram. A continuação atual acrescenta controle tipado, estado loading/keyframe, edição e reordenação de timeline/clips e prova pixelizada no consumidor da AURA UI em biblioteca sintética isolada. Focados 10+68+1+2 passaram; a integral atual terminou 6560/47 em 2302.24s e todos os gates locais passaram. B_VISUAL continua necessário para input físico e a release instalada continua anterior a esta branch. Launcher/AURA Cinema não consomem cenas importadas. A Engine tem demo de asset de fonte única, mas editar assetRecipes no documento e configurar tier/resolução ainda exige uma fatia própria de editor e runtime; cena editada ainda não foi consumida por SceneEsdeView. A revisão de 2026-10-02 incorporou o sidecar journey v1 ao contrato de Theme Engine/Studio e ao V4. Os testes atuais cobrem domínio/persistência local, não autoria UI, render Engine, Launcher/Cinema ou sessão física. O diff de README.md pertence ao commit documental upstream de main que foi reconciliado no início desta continuidade; ele foi registrado como escopo sem associar ou promover capacidade de produto. 2026-10-03: novo registro de preview da Jornada demonstra o uso local dos renderizadores e mantém sem promoção a integração de runtime. 2026-10-03: bridge de loopback e preview native da Journey foram conectados; o teste de UI cria menus/facetas compartilhadas, round-trips o documento e comprova binding no resolver. O gate integral final da árvore será registrado no fechamento; Launcher, adapters de sessão, Main instalada e B_VISUAL continuam pendentes. 2026-10-03: teste da jornada edita maxItems em tema filho de asset-recipes-demo, salva/reabre o tema e confirma a lista limitada no preview native. A cobertura usa sceneSurfaces herdado por extends; 132 testes focados passaram. Prova do checkout, sem promoção física, Launcher/Cinema ou sessão real."
 }
