@@ -1082,6 +1082,32 @@ Rectangle {
         return labels[field] || field
     }
 
+    /// Rola o painel de edição até a seção pedida, sem passar do fim do conteúdo.
+    function scrollEditTo(target) {
+        const flick = tokenScroll.contentItem
+        if (!target || !flick)
+            return
+        const top = target.mapToItem(flick.contentItem, 0, 0).y - 8
+        const limit = Math.max(0, flick.contentHeight - flick.height)
+        flick.contentY = Math.max(0, Math.min(top, limit))
+    }
+
+    /// Rótulo legível do parâmetro de efeito; o identificador segue no documento.
+    function effectParamLabel(param) {
+        const labels = {
+            "blur": qsTr("Desfoque"),
+            "radius": qsTr("Raio"),
+            "strength": qsTr("Intensidade"),
+            "color": qsTr("Cor"),
+            "opacity": qsTr("Opacidade"),
+            "offsetX": qsTr("Deslocamento X"),
+            "offsetY": qsTr("Deslocamento Y"),
+            "spread": qsTr("Espalhamento"),
+            "width": qsTr("Largura")
+        }
+        return labels[param] || param
+    }
+
     function formatEffectNumber(value, locale, decimals) {
         let formatted = Number(value).toLocaleString(locale, "f", decimals)
         const sample = Number(1.1).toLocaleString(locale, "f", 1)
@@ -2740,6 +2766,62 @@ Rectangle {
             }
         }
 
+        // O painel de edição é uma coluna longa; chegar em Movimento ou Bindings
+        // exigia rolar tudo. Estes atalhos levam direto à seção.
+        ListView {
+            id: editSectionNav
+            objectName: "themeEditorSectionNav"
+            visible: tokenScroll.visible
+            // Uma linha só, rolável: no compacto duas linhas de atalhos tiravam
+            // altura justamente do conteúdo que eles ajudam a alcançar.
+            orientation: ListView.Horizontal
+            clip: true
+            Layout.fillWidth: true
+            Layout.preferredHeight: panel.minimumInteractiveTarget
+            Layout.leftMargin: 12
+            Layout.rightMargin: 12
+            Layout.topMargin: 6
+            Layout.bottomMargin: 6
+            spacing: 6
+            Accessible.role: Accessible.ToolBar
+            Accessible.name: qsTr("Ir para a seção do editor")
+            model: [
+                {"label": qsTr("Metadados"), "target": editSectionMetadata},
+                {"label": qsTr("Cores e medidas"), "target": editSectionTokens},
+                {"label": qsTr("Mídia"), "target": editSectionMedia},
+                {"label": qsTr("Efeitos"), "target": editSectionEffects},
+                {"label": qsTr("Movimento"), "target": editSectionMotion},
+                {"label": qsTr("Bindings"), "target": editSectionBindings}
+            ]
+            delegate: Button {
+                id: sectionChip
+                required property var modelData
+                required property int index
+                objectName: "themeEditorSection_" + index
+                visible: modelData.target.visible
+                width: visible ? implicitWidth : 0
+                height: panel.minimumInteractiveTarget
+                text: modelData.label
+                Accessible.name: qsTr("Ir para %1").arg(text)
+                onClicked: panel.scrollEditTo(modelData.target)
+                background: Rectangle {
+                    color: sectionChip.down ? panel.cyanDarkColor : panel.surfaceColor
+                    radius: 6
+                    border.color: sectionChip.activeFocus ? panel.cyanColor : panel.borderColor
+                    border.width: sectionChip.activeFocus ? 2 : 1
+                }
+                contentItem: Label {
+                    text: sectionChip.text
+                    color: panel.textColor
+                    font.pixelSize: Math.round(12 * panel.visualScale)
+                    leftPadding: 6
+                    rightPadding: 6
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
+
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -2765,6 +2847,7 @@ Rectangle {
                     Item { Layout.minimumHeight: 8 }
 
                     Label {
+                        id: editSectionMetadata
                         text: qsTr("Metadados do tema")
                         color: panel.textColor
                         font.pixelSize: Math.round(16 * panel.visualScale)
@@ -2876,6 +2959,7 @@ Rectangle {
                     Item { Layout.minimumHeight: 16 }
 
                     CategorySection {
+                        id: editSectionTokens
                         title: qsTr("Cores")
                         categoryKey: "color"
                         tokenCount: 18
@@ -2952,6 +3036,7 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: editSectionMedia
                         objectName: "mediaRecipeInspector"
                         visible: panel.editorSessionId !== "" && !panel.editorReadOnly
                         color: panel.surfaceColor
@@ -3020,6 +3105,7 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: editSectionEffects
                         objectName: "effectStackInspector"
                         visible: panel.editorSessionId !== "" && !panel.editorReadOnly
                         color: panel.surfaceColor
@@ -3147,7 +3233,7 @@ Rectangle {
                                             Layout.preferredHeight: childrenRect.height
                                             spacing: 8
                                             Label {
-                                                text: qsTr("Fallback do efeito")
+                                                text: qsTr("Se não houver suporte")
                                                 color: panel.mutedColor
                                                 font.pixelSize: Math.round(11 * panel.visualScale)
                                                 Accessible.name: text
@@ -3181,7 +3267,7 @@ Rectangle {
                                                                                   paramRow.modelData)
                                                     spacing: 2
                                                     Label {
-                                                        text: paramRow.modelData
+                                                        text: panel.effectParamLabel(paramRow.modelData)
                                                         color: panel.mutedColor
                                                         font.pixelSize: Math.round(11 * panel.visualScale)
                                                     }
@@ -3282,6 +3368,7 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: editSectionMotion
                         objectName: "motionInspector"
                         visible: panel.editorSessionId !== "" && !panel.editorReadOnly
                         color: panel.surfaceColor
@@ -3569,6 +3656,7 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: editSectionBindings
                         objectName: "bindingInspector"
                         visible: panel.editorSessionId !== "" && !panel.editorReadOnly
                         color: panel.surfaceColor
@@ -3712,7 +3800,7 @@ Rectangle {
                     spacing: 12
 
                     Label {
-                        text: qsTr("Preview ao vivo")
+                        text: qsTr("Pré-visualização")
                         color: panel._previewBridge.textMuted
                         font.pixelSize: Math.round(12 * panel.visualScale)
                     }
@@ -3851,6 +3939,19 @@ Rectangle {
 
                     Rectangle {
                         visible: panel.assetRecipeEditorActive || panel.assetRecipeCanInitialize
+                        // Os controles desta seção usavam a paleta do estilo do sistema e
+                        // destoavam do cartão; passam a herdar as cores do tema em edição.
+                        palette.window: panel._previewBridge.surface
+                        palette.windowText: panel._previewBridge.text
+                        palette.base: panel._previewBridge.surfaceRaised
+                        palette.text: panel._previewBridge.text
+                        palette.button: panel._previewBridge.surfaceRaised
+                        palette.buttonText: panel._previewBridge.text
+                        palette.placeholderText: panel._previewBridge.textMuted
+                        palette.highlight: panel._previewBridge.accent
+                        palette.mid: panel._previewBridge.border
+                        palette.disabled.buttonText: panel._previewBridge.textDisabled
+                        palette.disabled.text: panel._previewBridge.textDisabled
                         color: panel._previewBridge.surface
                         radius: panel._previewBridge.radiusMedium
                         Layout.fillWidth: true
@@ -3980,7 +4081,7 @@ Rectangle {
                                 Layout.minimumWidth: 0
                                 Layout.maximumWidth: assetRecipeColumn.width
                                 Label {
-                                    text: qsTr("Fallback")
+                                    text: qsTr("Alternativa")
                                     color: panel._previewBridge.textMuted
                                 }
                                 ComboBox {
@@ -4008,7 +4109,7 @@ Rectangle {
                                 Layout.minimumWidth: 0
                                 Layout.maximumWidth: assetRecipeColumn.width
                                 Label {
-                                    text: qsTr("Tier")
+                                    text: qsTr("Nível gráfico")
                                     color: panel._previewBridge.textMuted
                                 }
                                 ComboBox {

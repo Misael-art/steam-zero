@@ -231,6 +231,11 @@ Window {
                   "ações do cabeçalho estouram a largura compacta")
             check(actions !== null && actions.y > 20, "título não ganhou linha própria no compacto")
             check(tabs.contentChildren[1].height >= 48, "alvo do alternador menor que 48 px")
+            const nav = find(panel, "themeEditorSectionNav")
+            check(nav !== null && nav.visible && nav.count === 6, "atalhos de seção ausentes")
+            check(nav.height <= 56, "atalhos de seção ocupam mais de uma linha no compacto")
+            nav.itemAtIndex(0).clicked()
+            check(nav.itemAtIndex(0).height >= 48, "alvo do atalho de seção menor que 48 px")
             tabs.currentIndex = 1
         },
         function() {
