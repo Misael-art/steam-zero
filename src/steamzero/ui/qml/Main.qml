@@ -357,6 +357,32 @@ ApplicationWindow {
     // Argumentos explícitos e ações internas continuam selecionando as demais
     // seções pela fonte única `navigationSections`.
     property int sectionIndex: 0
+    // Fechar a janela com um tema em edição perderia o rascunho sem aviso. O
+    // fechamento espera a escolha do diálogo do editor e só então prossegue.
+    property bool closeAfterThemeDraft: false
+    onClosing: function(close) {
+        if (!themeEditorPanel.editorHasUnsavedDraft)
+            return
+        close.accepted = false
+        root.closeAfterThemeDraft = true
+        root.sectionIndex = root.sectionIndexOf("themes")
+        themeTabs.currentIndex = 1
+        themeEditorPanel.requestCloseEditor()
+    }
+    Connections {
+        target: themeEditorPanel
+        function onEditorSessionIdChanged() {
+            if (themeEditorPanel.editorSessionId === "" && root.closeAfterThemeDraft) {
+                root.closeAfterThemeDraft = false
+                root.close()
+            }
+        }
+        function onDraftExitDialogOpenChanged() {
+            // Continuar editando: a janela fica, e o próximo fechar pergunta de novo.
+            if (!themeEditorPanel.draftExitDialogOpen && themeEditorPanel.editorSessionId !== "")
+                root.closeAfterThemeDraft = false
+        }
+    }
     property int emulatorFilter: 0
     property int steamFilter: 0
     property string steamArea: "performance"
@@ -6696,6 +6722,7 @@ ApplicationWindow {
                                 bottomPadding: root.bottomSafeInset
                                 ThemeEditorPanel {
                                     id: themeEditorPanel
+                                    objectName: "themeEditorPanel"
                                     width: Math.min(themeEditorScroll.availableWidth, root.contentMaxWidth)
                                     // Preenche a viewport do shell; o painel tem
                                     // ScrollViews internos para lista e tokens.

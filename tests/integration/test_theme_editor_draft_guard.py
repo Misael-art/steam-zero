@@ -17,11 +17,18 @@ import pytest
 
 QML = shutil.which("qml6")
 ROOT = Path(__file__).resolve().parents[2]
-HARNESS = "tests/qml/check_theme_editor_draft_guard.qml"
 
 
 @pytest.mark.skipif(QML is None, reason="qml6 ausente; o harness do editor não pode rodar")
-def test_editor_protege_rascunho_e_consome_historico_de_metadados() -> None:
+@pytest.mark.parametrize(
+    "harness",
+    [
+        "tests/qml/check_theme_editor_draft_guard.qml",
+        # Fechar a janela da Central é a saída que o painel sozinho não enxerga.
+        "tests/qml/check_main_theme_draft_close.qml",
+    ],
+)
+def test_editor_protege_rascunho_e_consome_historico_de_metadados(harness: str) -> None:
     env = os.environ.copy()
     env.update(
         {
@@ -32,7 +39,7 @@ def test_editor_protege_rascunho_e_consome_historico_de_metadados() -> None:
         }
     )
     completed = subprocess.run(
-        [str(QML), HARNESS],
+        [str(QML), harness],
         cwd=ROOT,
         env=env,
         capture_output=True,

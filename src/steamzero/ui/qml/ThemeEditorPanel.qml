@@ -1203,8 +1203,10 @@ Rectangle {
                 panel.editorCloseSaving = false
                 panel._applyEditorResult(r)
                 panel.editorDirty = false
-                draftExitDialog.close()
+                // Encerrar a sessão antes de fechar o diálogo: quem observa a saída
+                // distingue assim "fechou" de "continuou editando".
                 panel._closeEditor()
+                draftExitDialog.close()
                 panel.refreshThemeList()
             }, function(message) {
                 panel.editorCloseSaving = false
@@ -1214,8 +1216,8 @@ Rectangle {
     }
 
     function discardDraftAndClose() {
-        draftExitDialog.close()
         panel._closeEditor()
+        draftExitDialog.close()
     }
 
     function _openEditor(sessionId, manifest, preview, declared, effectSchema, motionSchema,
