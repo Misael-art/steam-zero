@@ -5,8 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from steamzero.adapters.journey_public import journey_public_field_types, project_game_row
+from steamzero.adapters.launcher_catalog import CatalogGame
 from steamzero.core.errors import SteamZeroError
 from steamzero.domain.experience_journey import JourneyDocument, JourneyStore
+from steamzero.launcher.app import _search_catalog_records
 from steamzero.launcher.journey_runtime import JourneyRuntime
 
 
@@ -288,11 +290,88 @@ def test_filter_values_use_public_projection_and_never_publish_local_paths() -> 
         source="emulation",
     )
     assert row is not None
+    assert row["platformId"] == "nes-famicom"
     assert row["year"] == 2018
     assert row["genre"] == "Platformer"
     assert row["developer"] == "Maddy Makes Games"
     assert "path" not in row
     assert "saves" not in row
+
+
+def test_projected_platform_id_keeps_catalog_id_when_system_id_differs() -> None:
+    catalog_id = project_game_row(
+        {
+            "id": "synthetic-catalog",
+            "title": "Synthetic",
+            "platformId": "nes-famicom",
+            "platform": "nes-famicom",
+            "systemId": "famicom",
+            "platformName": "NES / Famicom",
+        },
+        source="emulation",
+    )
+    assert catalog_id is not None
+    assert catalog_id["platformId"] == "nes-famicom"
+    assert catalog_id["systemId"] == "famicom"
+    assert catalog_id["platformName"] == "NES / Famicom"
+
+    platform_field = project_game_row(
+        {
+            "id": "synthetic-platform",
+            "title": "Synthetic",
+            "platform": "nes-famicom",
+            "systemId": "nes",
+        },
+        source="emulation",
+    )
+    assert platform_field is not None
+    assert platform_field["platformId"] == "nes-famicom"
+    assert platform_field["systemId"] == "nes"
+
+    core_only = project_game_row(
+        {
+            "id": "synthetic-core",
+            "title": "Synthetic",
+            "systemId": "famicom",
+        },
+        source="emulation",
+    )
+    assert core_only is not None
+    assert core_only["platformId"] == "famicom"
+    assert core_only["systemId"] == "famicom"
+
+    blank_platform_id = project_game_row(
+        {
+            "id": "synthetic-blank",
+            "title": "Synthetic",
+            "platformId": "",
+            "platform": "master-system",
+            "systemId": "sms",
+        },
+        source="emulation",
+    )
+    assert blank_platform_id is not None
+    assert blank_platform_id["platformId"] == "master-system"
+    assert blank_platform_id["systemId"] == "sms"
+
+
+def test_catalog_platform_survives_projection_after_search_join() -> None:
+    records = _search_catalog_records(
+        (
+            CatalogGame(
+                id="synthetic-nes",
+                title="Synthetic",
+                platform="nes-famicom",
+                platform_label="NES / Famicom",
+            ),
+        ),
+        ({"id": "synthetic-nes", "systemId": "famicom", "system": "famicom"},),
+    )
+    row = project_game_row(dict(records[0]), source="emulation")
+    assert row is not None
+    assert row["platformId"] == "nes-famicom"
+    assert row["systemId"] == "famicom"
+    assert row["platformName"] == "NES / Famicom"
 
 
 def test_active_pointer_reopens_the_same_persisted_journey(tmp_path: Path) -> None:
