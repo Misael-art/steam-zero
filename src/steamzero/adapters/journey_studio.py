@@ -68,7 +68,11 @@ def _complete_journey(identity: str, name: str) -> dict[str, Any]:
     """
 
     def menu(
-        menu_id: str, label: str, read_model: str, sort: list[dict[str, str]]
+        menu_id: str,
+        label: str,
+        read_model: str,
+        sort: list[dict[str, str]],
+        group_by: list[str] | None = None,
     ) -> dict[str, Any]:
         return {
             "id": menu_id,
@@ -76,7 +80,7 @@ def _complete_journey(identity: str, name: str) -> dict[str, Any]:
             "source": {"readModelId": read_model},
             "filters": [],
             "sort": sort,
-            "groupBy": [],
+            "groupBy": list(group_by or []),
         }
 
     def node(menu_id: str, label: str, parent: str | None) -> dict[str, Any]:
@@ -127,6 +131,8 @@ def _complete_journey(identity: str, name: str) -> dict[str, Any]:
         }
 
     by_title = [{"fieldId": "title", "direction": "ascending"}]
+    by_genre = [{"fieldId": "genre", "direction": "ascending"}]
+    by_year = [{"fieldId": "year", "direction": "descending"}]
     return {
         "schemaVersion": 2,
         "kind": "steamzero-experience-journey-v2",
@@ -141,13 +147,8 @@ def _complete_journey(identity: str, name: str) -> dict[str, Any]:
         ],
         "menus": [
             menu("platforms", "Plataformas", "library.platforms", []),
-            menu("genres", "Gêneros", _DEFAULT_READ_MODEL, by_title),
-            menu(
-                "years",
-                "Anos",
-                _DEFAULT_READ_MODEL,
-                [{"fieldId": "year", "direction": "descending"}],
-            ),
+            menu("genres", "Gêneros", _DEFAULT_READ_MODEL, by_genre, ["genre"]),
+            menu("years", "Anos", _DEFAULT_READ_MODEL, by_year, ["year"]),
             menu("games", "Jogos", _DEFAULT_READ_MODEL, by_title),
         ],
         "connections": [

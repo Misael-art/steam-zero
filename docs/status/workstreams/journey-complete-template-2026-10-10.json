@@ -15,7 +15,13 @@
     "src/steamzero/adapters/desktop_ui.py",
     "tests/qml/check_experience_journey_bridge_e2e.qml",
     "tests/unit/test_journey_complete_template.py",
-    "docs/status/workstreams/journey-complete-template-2026-10-10.json"
+    "docs/status/workstreams/journey-complete-template-2026-10-10.json",
+    "tests/unit/test_journey_studio.py",
+    "src/steamzero/launcher/journey_runtime.py",
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "src/steamzero/domain/experience_journey.py",
+    "tests/integration/test_journey_complete_facets.py",
+    "tests/qml/check_journey_complete_facets.qml"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -23,6 +29,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Custódia regularizada em atraso em 2026-10-10: um único worktree, árvore limpa em 68288198, sem edição concorrente. A integral desse SHA teve pytest 6713 passed, 47 skipped e 1 failed (digests); o runner saiu rc=86 porque a UI instalada 2.0.0rc1-55295f2c0841 escreveu o state home real entre 00:45 e 00:50. Próximo: CI no SHA documental e integração somente depois do PR #255. Sem prova física nesta release. Devolver os paths à WS-2026-10-JOURNEY-LAUNCHER-SESSION após o merge.",
+  "nextAction": "Facetas distintas de Gêneros e Anos estão no template, no runtime e nas duas UIs. A integral de 2026-10-10 ficou 6720 passed, 47 skipped, 1 failed (digests, revalidados em seguida); o daemon instalado escreveu o state home e não foi encerrado. Sem merge, sem instalação e sem prova física. Devolver os paths à WS Jornada após o merge.",
   "updatedAt": "2026-10-10"
 }

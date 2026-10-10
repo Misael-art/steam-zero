@@ -361,11 +361,32 @@ Rectangle {
             ? "system" : "gamelist"
     }
 
+    function previewEntries() {
+        const result = previewResult
+        if (!result)
+            return []
+        const groupBy = currentMenu && Array.isArray(currentMenu.groupBy) ? currentMenu.groupBy : []
+        if (groupBy.length > 0 && Array.isArray(result.groups)) {
+            const fieldId = String(groupBy[0])
+            return result.groups.slice(0, 64).map(function(group) {
+                const values = group && group.values ? group.values : ({})
+                const value = values[fieldId]
+                const label = value === null || value === undefined
+                    ? qsTr("Desconhecido") : String(value)
+                return {
+                    id: "facet:" + fieldId + ":" + label,
+                    title: label,
+                    name: label,
+                    count: group.count,
+                    facet: true
+                }
+            })
+        }
+        return Array.isArray(result.rows) ? result.rows.slice(0, 64) : []
+    }
+
     function journeyRuntimeModel() {
-        const rows = previewResult && Array.isArray(previewResult.rows)
-            ? previewResult.rows.slice(0, 64).map(function(row) {
-                return Object.assign({}, row)
-            }) : []
+        const rows = previewEntries().map(function(row) { return Object.assign({}, row) })
         const selected = rows.length > 0 ? rows[0] : ({})
         return {
             items: rows,
@@ -2109,11 +2130,20 @@ Rectangle {
                             }
                             Label {
                                 objectName: "journeyPreviewResultCount"
-                                text: panel.previewResult
-                                    ? qsTr("%1 resultados de %2 itens na fonte · exibindo %3")
+                                text: {
+                                    if (!panel.previewResult)
+                                        return ""
+                                    const grouped = panel.currentMenu
+                                        && (panel.currentMenu.groupBy || []).length > 0
+                                    if (grouped)
+                                        return qsTr("%1 facetas · %2 jogos correspondentes")
+                                            .arg((panel.previewResult.groups || []).length)
+                                            .arg(panel.previewResult.resultCount)
+                                    return qsTr("%1 resultados de %2 itens na fonte · exibindo %3")
                                         .arg(panel.previewResult.resultCount)
                                         .arg(panel.previewResult.totalCount)
-                                        .arg(panel.previewResult.returnedCount) : ""
+                                        .arg(panel.previewResult.returnedCount)
+                                }
                                 color: panel.mutedColor
                                 Layout.fillWidth: true
                             }
@@ -2154,12 +2184,15 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 128
                                 clip: true
-                                model: panel.previewResult ? panel.previewResult.rows || [] : []
+                                model: panel.previewEntries()
                                 delegate: Label {
                                     required property var modelData
                                     width: ListView.view.width
                                     height: Math.max(panel.minimumInteractiveTarget, 48)
-                                    text: String(modelData.title || modelData.name || modelData.id || "")
+                                    text: modelData.facet === true
+                                        ? qsTr("%1 · %2 jogos").arg(modelData.title || modelData.name || "")
+                                            .arg(modelData.count || 0)
+                                        : String(modelData.title || modelData.name || modelData.id || "")
                                     color: panel.textColor
                                     verticalAlignment: Text.AlignVCenter
                                     elide: Text.ElideRight

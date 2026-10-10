@@ -480,6 +480,7 @@ FocusScope {
                 anchors.centerIn: parent
                 width: Math.min(parent.width, 680)
                 Label {
+                    objectName: "journeyEmptyTitle"
                     text: view && view.sourceState === "unavailable"
                         ? qsTr("Fonte indisponível") : qsTr("Nenhum resultado")
                     color: journey.textColor
@@ -527,7 +528,9 @@ FocusScope {
                 border.width: index === journey.currentIndex ? 2 : 1
                 border.color: index === journey.currentIndex ? journey.accentColor : "#526779"
                 Accessible.role: Accessible.ListItem
-                Accessible.name: String(modelData.title || modelData.name || modelData.id || "")
+                Accessible.name: modelData.facet === true
+                    ? qsTr("%1, %2 jogos").arg(modelData.title || modelData.name || "").arg(modelData.count || 0)
+                    : String(modelData.title || modelData.name || modelData.id || "")
                 Accessible.selected: index === journey.currentIndex
                 RowLayout {
                     anchors.fill: parent
@@ -541,10 +544,17 @@ FocusScope {
                         elide: Text.ElideRight
                     }
                     Label {
-                        text: [modelData.platformName || modelData.platformId,
+                        objectName: "journeyResultMeta_" + index
+                        text: modelData.facet === true
+                            ? (Number(modelData.count) === 1
+                                ? qsTr("1 jogo")
+                                : qsTr("%1 jogos").arg(modelData.count || 0))
+                            : [modelData.platformName || modelData.platformId,
                                modelData.year, modelData.genre]
-                            .filter(function(value) { return value !== undefined && value !== null && value !== "" })
-                            .join(" · ")
+                                .filter(function(value) {
+                                    return value !== undefined && value !== null && value !== ""
+                                })
+                                .join(" · ")
                         color: journey.mutedColor
                         font.pixelSize: 14
                         elide: Text.ElideRight

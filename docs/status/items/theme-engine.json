@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "c535cf6c0e8d014ce5d2a8d431488137b3ed5adecf844eafde26da8c96d41905",
+  "scopeDigest": "351bbfe399c63b596579c408a39dbcd33bf54b83a9c7c869b65951dcbaa2f5fa",
   "scopePaths": [
     "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
     "src/steamzero/domain/asset_recipes.py",
@@ -653,6 +653,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta é o parâmetro opcional template nos contratos da ponte, a paleta de ExperienceJourneyPanel.qml e os testes da ponte. journey_studio.py não está neste escopo. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q na árvore de facetas ainda não commitada, pai 1dbb6dda (2026-10-10): pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A única falha é test_committed_catalog_and_generated_views_are_consistent, porque os digests deste lote ainda não estavam gravados. O runner saiu 1, não 86. O state home real mudou em logs/core.jsonl e state.db (+352 bytes) por escritor externo anterior à janela, pid 1614761, steamzero-core da release 2.0.0rc1-55295f2c0841, eventos session.environment.changed (power, displays, network). O guard emitiu W-TEST-REAL-STATE-EXTERNAL-WRITER e manteve a atribuição degradada. O daemon não foi encerrado e o guard não foi alterado. Neste escopo o delta é o binding isUnknown da faceta desconhecida e a prévia do painel, que lista grupos só quando groupBy não é vazio. journey_studio.py não está neste escopo. Não promove eixo.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/qml/check_journey_complete_facets.qml",
+      "command": "Prova focal anterior à integral, checkout offscreen: o painel real de Jornada lista Action · 2 jogos, RPG e Desconhecido na prévia agrupada e volta a listar os jogos quando groupBy está vazio. 3 passed no qmltestrunner. Não é a release instalada e não promove eixo.",
+      "result": "passed"
     }
   ],
   "nextAction": "Resolver e adapter preparam configuração privada RetroArch apenas para o próximo launch; read model permanece launch-configured-unconfirmed. Confirmar overlay/pixels e recuperação na release autorizada antes de declarar aplicação.",

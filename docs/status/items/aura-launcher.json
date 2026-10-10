@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "8bbd6ec4dea2b84f79b5240a43471c4f9784550d108875f67aa46ce6a533f2a6",
+  "scopeDigest": "79a26442bb39a4cfd939e6e28f2a0b0acf4240ff5385c90a4577bc9be37f83ed",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -642,6 +642,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta é Criar completa em journey_studio.py, o parâmetro template na ponte e a paleta de ExperienceJourneyPanel.qml. O template é um documento inicial; não executa pause, save, load nem saída. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q na árvore de facetas ainda não commitada, pai 1dbb6dda (2026-10-10): pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A única falha é test_committed_catalog_and_generated_views_are_consistent, porque os digests deste lote ainda não estavam gravados. O runner saiu 1, não 86. O state home real mudou em logs/core.jsonl e state.db (+352 bytes) por escritor externo anterior à janela, pid 1614761, steamzero-core da release 2.0.0rc1-55295f2c0841, eventos session.environment.changed (power, displays, network). O guard emitiu W-TEST-REAL-STATE-EXTERNAL-WRITER e manteve a atribuição degradada. O daemon não foi encerrado e o guard não foi alterado. Neste escopo o delta é o groupBy de Gêneros e Anos, as facetas em items do runtime e os rótulos de contagem em LauncherJourney.qml. Não promove eixo e não substitui prova na release instalada.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_journey_complete_facets.py",
+      "command": "Prova focal anterior à integral, checkout offscreen: 15 passed sem o marcador visual e 3 passed no QML (tests/integration/test_journey_complete_facets.py e tests/unit/test_journey_complete_template.py); 37 passed em runtime, domínio, ponte do template e e2e do launcher sem visual. Gêneros e Anos listam facetas distintas com contagem. Filtro combinado, destino compartilhado, seleção, foco, rolagem e retorno passaram pela bridge real. Vazio, metadado desconhecido, fonte indisponível e resposta tardia também. Não é a release instalada e não promove eixo.",
+      "result": "passed"
     }
   ],
   "nextAction": "A integral instrumentada da árvore corrigida passou em 2026-10-05: 6675 passed, 47 skipped, 0 failed; o state guard registrou escritor externo pré-existente e atribuição degradada. Esse passe não fecha GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 nem qualquer critério físico. Revisar diff, fechar gates estáticos já verdes na mesma fonte e status-check após esta reconciliação; então separar commits de proveniência, handoff/harness e documentação, fazer push, PR, CI terminal no SHA exato e merge commit. Após o merge, devolver serialmente o teste à Biblioteca; manter gaps de execução física, retorno contextual, Qt Wayland e bezel em aberto.",

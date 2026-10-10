@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "a44e36deed27ae84e60f244de2017906d4b4b2dca16c157f065a879a529a1a9b",
+  "scopeDigest": "a80f12ec9144a71eb8d5b07c9a3b479b17f7c901134d0469cfa56da6cf7cc601",
   "scopePaths": [
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun",
     "docs/09-operations/evidence/2026-09-07-theme-studio-contrast",
@@ -572,6 +572,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta é Criar completa em journey_studio.py, o parâmetro template na ponte, a paleta de ExperienceJourneyPanel.qml e os testes da ponte. O template preenche o documento; não certifica a sessão jogada. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q na árvore de facetas ainda não commitada, pai 1dbb6dda (2026-10-10): pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A única falha é test_committed_catalog_and_generated_views_are_consistent, porque os digests deste lote ainda não estavam gravados. O runner saiu 1, não 86. O state home real mudou em logs/core.jsonl e state.db (+352 bytes) por escritor externo anterior à janela, pid 1614761, steamzero-core da release 2.0.0rc1-55295f2c0841, eventos session.environment.changed (power, displays, network). O guard emitiu W-TEST-REAL-STATE-EXTERNAL-WRITER e manteve a atribuição degradada. O daemon não foi encerrado e o guard não foi alterado. Neste escopo o delta é o groupBy do template completo, o binding da faceta desconhecida e a lista de prévia. O template continua sendo documento inicial: não certifica pause, save, load nem saída jogada. Não promove eixo.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/qml/check_journey_complete_facets.qml",
+      "command": "Prova focal anterior à integral, checkout offscreen: a prévia do painel real mostra 3 facetas · 4 jogos correspondentes e o delegado Action · 2 jogos; sem groupBy a mesma prévia volta a listar Alpha. 3 passed no qmltestrunner. Não é a release instalada e não promove eixo.",
+      "result": "passed"
     }
   ],
   "nextAction": "Validar a saída com rascunho e o Desfazer de metadados por teclado na candidata instalada. Studio round-tripa o PNG-fonte e a Jornada persiste a URI versionada no checkout. Validar o consumo visual e acessibilidade em B_VISUAL após instalar candidata autorizada; nenhum pixel de release foi promovido.",

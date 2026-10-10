@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "4a14a8dc65681103e4b20f51f84d998534ecb25b7fd92431b286cc8bdee68050",
+  "scopeDigest": "f3822d162e7e2a6cfc6ab0e466bbd10ac2f791456a251a4e8895b3e350be9301",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -254,6 +254,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta reúne o template de jornada completa, a ponte, o painel e os testes da ponte. Nenhum marco foi promovido. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q na árvore de facetas ainda não commitada, pai 1dbb6dda (2026-10-10): pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A única falha é test_committed_catalog_and_generated_views_are_consistent, porque os digests deste lote ainda não estavam gravados. O runner saiu 1, não 86. O state home real mudou em logs/core.jsonl e state.db (+352 bytes) por escritor externo anterior à janela, pid 1614761, steamzero-core da release 2.0.0rc1-55295f2c0841, eventos session.environment.changed (power, displays, network). O guard emitiu W-TEST-REAL-STATE-EXTERNAL-WRITER e manteve a atribuição degradada. O daemon não foi encerrado e o guard não foi alterado. Neste escopo o delta é o binding isUnknown da faceta desconhecida, o groupBy do template e a prévia que só usa grupos quando o menu agrupa. Nenhum marco foi promovido.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_journey_complete_facets.py",
+      "command": "Prova focal anterior à integral, checkout offscreen: 15 passed sem o marcador visual e 3 passed no QML; 37 passed em runtime, domínio, ponte do template e e2e do launcher sem visual. A prévia do Studio mantém as linhas de jogo e publica grupos distintos. Não é a release instalada e não promove marco.",
+      "result": "passed"
     }
   ],
   "nextAction": "A integral instrumentada da árvore corrigida passou em 2026-10-05: 6675 passed, 47 skipped, 0 failed; o guard detectou escritas do daemon externo já ativo e marcou a atribuição do state home como degradada. Este passe não explica o seis-vs-cinco: preservar o log 04 vermelho e o gap histórico sem causa. Revisar os diffs, fechar os commits separados, fazer push/PR e aguardar CI terminal no SHA exato antes do merge commit; depois devolver serialmente o path reservado à Biblioteca. Instalação, rollback e B_VISUAL continuam fora da autorização atual.",

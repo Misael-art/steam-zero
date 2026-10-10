@@ -105,7 +105,7 @@
     "tools/ui_dialog_probe.qml",
     "tools/ui_scenario_fixtures.py"
   ],
-  "scopeDigest": "d4d53d90f0560f09b7b5a297bf4e5f7e59340952b70126e02f3525f7737399bf",
+  "scopeDigest": "8cb5062a7c67057bc34c1f56d2994e92891be17f2ee37d742b25fb9913ff7c74",
   "dependsOn": [],
   "knownGaps": [
     "GAP-UI-LIVE-LAUNCHER-ROUTING",
@@ -1346,6 +1346,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 68288198 (2026-10-10): pytest 6713 passed, 47 skipped, 1 failed; a única falha de teste é a consistência de digests do catálogo. O runner terminou rc=86 porque o state home real mudou na janela: a UI instalada 2.0.0rc1-55295f2c0841 subiu às 00:45 e encerrou às 00:50, e o observador da suíte entrou na classificação por ter steamzero no caminho. Neste escopo o delta é ExperienceJourneyPanel.qml: a paleta do painel de Jornadas passa a vir dos tokens do próprio painel, e a aba ativa é marcada por barra e peso. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q na árvore de facetas ainda não commitada, pai 1dbb6dda (2026-10-10): pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A única falha é test_committed_catalog_and_generated_views_are_consistent, porque os digests deste lote ainda não estavam gravados. O runner saiu 1, não 86. O state home real mudou em logs/core.jsonl e state.db (+352 bytes) por escritor externo anterior à janela, pid 1614761, steamzero-core da release 2.0.0rc1-55295f2c0841, eventos session.environment.changed (power, displays, network). O guard emitiu W-TEST-REAL-STATE-EXTERNAL-WRITER e manteve a atribuição degradada. O daemon não foi encerrado e o guard não foi alterado. Neste escopo o delta visual é a lista de prévia do Studio e a contagem ao lado de cada faceta no Launcher. Não promove eixo de auditoria visual.",
+      "result": "failed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/qml/check_journey_complete_facets.qml",
+      "command": "Prova focal anterior à integral, qmltestrunner offscreen: 3 passed. A prévia mostra as contagens e o Launcher mostra 2 jogos, 1 jogo e Desconhecido. Não é captura da release instalada e não promove eixo.",
+      "result": "passed"
     }
   ],
   "nextAction": "R06 implementado e commitado em 7299b745. A validação visual/operacional depende de candidata autorizada e captura oficial; nenhum eixo de auditoria visual foi promovido por QML offscreen.",
