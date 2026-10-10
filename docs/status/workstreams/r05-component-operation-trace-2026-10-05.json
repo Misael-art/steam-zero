@@ -10,7 +10,6 @@
   "exclusivePaths": [
     "src/steamzero/adapters/component_jobs.py",
     "src/steamzero/adapters/lifecycle.py",
-    "src/steamzero/ui/qml/Main.qml",
     "src/steamzero/ui/qml/job_result_presentation.js",
     "tests/unit/test_component_jobs.py",
     "tests/integration/test_component_job_presentation.py",
@@ -24,6 +23,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "R05 core 36ea2a8a e integração Main.qml 31f29963 commitados após validação focada e integral. Restam digests externos no status-check, CI no SHA final, candidata governada e prova física instalada.",
-  "updatedAt": "2026-10-07"
+  "nextAction": "R05 core 36ea2a8a e integração Main.qml 31f29963 commitados após validação focada e integral. Restam digests externos no status-check, CI no SHA final, candidata governada e prova física instalada. Handoff serial de 2026-10-09 autorizado pelo operador na thread: src/steamzero/ui/qml/Main.qml (base 55295f2c084142e26c8d6383854c2bf9affb8978, sem edição desta frente desde o merge do PR #254) sai deste claim para WS-2026-10-STUDIO-DRAFT-HISTORY, só para a guarda de fechamento da janela com rascunho de tema; devolução após o merge.",
+  "updatedAt": "2026-10-09"
 }

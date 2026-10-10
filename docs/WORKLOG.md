@@ -14742,3 +14742,12 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Harness novo reprova contra o painel de 55295f2c. Integral em C.UTF-8: 6707 passed, 47 skipped, 1 failed (`test_committed_catalog_and_generated_views_are_consistent`); ruff, format (701), mypy (303), independence, boundaries e diff-check passaram.
 - `status-check` reprovado em seis digests de outros itens (SZ-AURA-LAUNCHER, SZ-ROADMAP-CONTINUATION, SZ-THEME-ENGINE, SZ-THEME-IMPORT-RETROFE, SZ-THEME-IMPORT-SURFACE, SZ-UI-DESKTOP-AUDIT) cujo escopo inclui o painel ou os arquivos de status; nenhum foi renovado.
 - Aberto: GAP-THEME-STUDIO-DRAFT-GUARD-ROUTE-ESCAPE (troca de rota e Escape dependem de `Main.qml`, outro claim). Sem push, sem instalação, sem launch de jogo, sem captura. Um `git stash`/`pop` imediato do próprio arquivo foi usado uma vez para isolar um travamento do harness.
+
+## 2026-10-09 (cont. 3) — Candidata instalada, Studio no compacto e digests
+
+- Candidata 2.0.0rc1-55295f2c0841 instalada pelo operador pelo fluxo governado (rollback 2.0.0rc1-213124ed513b). Readback do executor: `current`, CLI, Launcher e daemon na release nova; PNG real do Cinema; `emulation readiness` no primeiro registro de 25 plataformas: 18 jogáveis, 7 bloqueadas com código. Jornadas por teclado na instalada não verificadas: a sessão de teclado do portal foi barrada pelo classificador de permissões do executor.
+- Diagnóstico sem correção: Vita responde `E-API-SCHEMA` citando `eden` porque, sem emulador lançável declarado, a resolução cai no padrão global; `adapters/emulation.py` pertence à WS Biblioteca.
+- Commits cda103ae, 1b1847dc e 5c085750: fechar a janela da Central com rascunho pergunta antes; no compacto o editor ganhou alternador Editar/Pré-visualizar, título em linha própria e atalhos de seção; rótulos em português em movimento e parâmetros de efeito; receitas herdam a paleta do tema em edição. Handoff serial de `Main.qml` (WS R05) autorizado pelo operador na thread.
+- Integral em 5c085750 (C.UTF-8): 6708 passed, 47 skipped, 1 failed (consistência de digests). Duas execuções anteriores foram interrompidas de propósito por terem ficado obsoletas. Ruff, format (701), mypy (303), independence e boundaries passaram.
+- 14 digests revalidados com essa integral por autorização do operador ("faça tudo"), com o limite do delta registrado em cada item; status-check OK. Nenhum eixo promovido.
+- Aberto: valores de seletores em inglês, prévia sem cena do tema, validação por teclado na instalada, nova candidata para levar o lote ao host.

@@ -30,7 +30,7 @@
     "tests/qml/check_component_job_presentation.qml",
     "docs/status/workstreams/r05-component-operation-trace-2026-10-05.json"
   ],
-  "scopeDigest": "130883a6b637a2946444bb3ac6636e95120f398b13a22250f3ecb426a6d0629e",
+  "scopeDigest": "25b1b929336fb0c2de4f12961c25016dc50f8677a4dbcc948b1cdf8f3f7b9f25",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -180,6 +180,12 @@
       "reference": "tests/unit/test_project_status.py",
       "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests -q (6676 passed, 47 skipped, 1 failed; project status digest consistency only)",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "R05 implementado em 36ea2a8a e integrado em 31f29963; testes focados e gates completos registrados. O status gate permanece vermelho por cinco digests externos; release instalada ainda não contém o patch.",
@@ -187,6 +193,6 @@
     "WS-2026-08-COMPONENT-MATRIZ",
     "WS-2026-10-R05-COMPONENT-OPERATION-TRACE"
   ],
-  "updatedAt": "2026-10-07",
+  "updatedAt": "2026-10-09",
   "notes": "A matriz read-only da release instalada revelou uma falha historica E-TX-VERIFY-FAILED/rolled-back sem operationId na public view. A branch de R05 corrige a perda de operation_id, expõe metadados publicos de artefato e diferencia rollback confirmado de falha sem operacao vinculada na UI. A release instalada nao foi atualizada nesta tarefa. 2026-10-07: R05 foi dividido em commit core e integração compartilhada. Full suite 6676/47/1 com falha somente no catálogo/digests; não instalado."
 }

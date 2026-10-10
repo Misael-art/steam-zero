@@ -105,7 +105,7 @@
     "tools/ui_dialog_probe.qml",
     "tools/ui_scenario_fixtures.py"
   ],
-  "scopeDigest": "20e251f6e3cd401a24901e8ae407dd5677b3bf437e4e666987fb79e53728e22a",
+  "scopeDigest": "751ef7e8ce7171f35d8f22cbcb780f197a661e6ce8b0a1b8ae1d7895073bdbb6",
   "dependsOn": [],
   "knownGaps": [
     "GAP-UI-LIVE-LAUNCHER-ROUTING",
@@ -1334,6 +1334,12 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "R06 implementado e commitado em 7299b745. A validação visual/operacional depende de candidata autorizada e captura oficial; nenhum eixo de auditoria visual foi promovido por QML offscreen.",
@@ -1348,6 +1354,6 @@
     "WS-2026-09-RC01-ESDE-IMPORT-GENERATION",
     "WS-2026-10-R06-HOME-COUNT-UNIVERSE"
   ],
-  "updatedAt": "2026-10-07",
+  "updatedAt": "2026-10-09",
   "notes": "Continuidade 2026-10-05: R06 recebeu baseline read-only da release instalada e patch na Home para nao misturar catalogo publicado com universo escaneado. A validacao foi offscreen em QML; a release instalada nao foi atualizada e a captura oficial segue bloqueada."
 }
