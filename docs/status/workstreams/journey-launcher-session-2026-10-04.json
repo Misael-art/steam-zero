@@ -46,7 +46,6 @@
     "src/steamzero/ui/qml/SceneEsdeView.qml",
     "src/steamzero/ui/qml/SceneSurfacePreview.qml",
     "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
-    "src/steamzero/ui/qml/ThemeEditorPanel.qml",
     "src/steamzero/schemas/experience-journey-v2.schema.json",
     "src/steamzero/schemas/scene-surfaces-v1.schema.json",
     "src/steamzero/schemas/theme-manifest-v1.schema.json",
@@ -56,7 +55,6 @@
     "tests/unit/test_asset_recipes.py",
     "tests/integration/test_launcher_session_peripherals.py",
     "tests/qml/check_theme_catalog_panel.qml",
-    "tests/qml/check_theme_editor_asset_recipes.qml",
     "tests/integration/test_launcher_journey_e2e.py",
     "tests/integration/test_theme_catalog_routes.py",
     "tests/integration/test_theme_catalog_panel_gestures.py",
@@ -91,7 +89,6 @@
     "docs/status/items/aura-ui.json",
     "docs/status/items/aura-launcher.json",
     "docs/status/items/theme-engine.json",
-    "docs/status/items/theme-studio.json",
     "docs/status/items/aura-session-osd.json",
     "docs/status/items/roadmap-continuation-2026-09-26.json",
     "docs/status/workstreams/v1-v3-theme-journey-2026-10-01.json",
@@ -116,6 +113,6 @@
     "docs/12-roadmap/IMPLEMENTATION-ROADMAP.md",
     "docs/09-operations/AGENT-HANDOFF.md"
   ],
-  "nextAction": "PR #252 foi mesclado em be6a7e90359befcc09f88319c08c8cd836570b66. O push-run #37311278545 terminou verde nesse SHA; o checkpoint novo registrou 6675 passed, 47 skipped e 0 failed localmente, e o gate visual CI 375 passed, 13 skipped, 6334 deselected. Atribuição do state home da integral local ficou degradada pela escrita do daemon externo pré-existente; o gap histórico GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 continua aberto e sem causa. Handoff pós-merge concluído: tests/integration/test_qml_handheld_offscreen.py, SHA-256 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707, voltou à WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT e saiu do exclusivePaths desta Jornada. Continuar as lacunas elegíveis de AURA Studio/Engine/Launcher sem promover maturidade por esta evidência automatizada. Não instalar, reverter, publicar certificação nem executar B_VISUAL sem autorização explícita e token exato.",
-  "updatedAt": "2026-10-05"
+  "nextAction": "PR #252 foi mesclado em be6a7e90359befcc09f88319c08c8cd836570b66. O push-run #37311278545 terminou verde nesse SHA; o checkpoint novo registrou 6675 passed, 47 skipped e 0 failed localmente, e o gate visual CI 375 passed, 13 skipped, 6334 deselected. Atribuição do state home da integral local ficou degradada pela escrita do daemon externo pré-existente; o gap histórico GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 continua aberto e sem causa. Handoff pós-merge concluído: tests/integration/test_qml_handheld_offscreen.py, SHA-256 201ce5d42d4a5f10f1610c9e873c5112e9d95d6e96cf54e76358eff24777a707, voltou à WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT e saiu do exclusivePaths desta Jornada. Continuar as lacunas elegíveis de AURA Studio/Engine/Launcher sem promover maturidade por esta evidência automatizada. Não instalar, reverter, publicar certificação nem executar B_VISUAL sem autorização explícita e token exato. Handoff serial de 2026-10-09 autorizado pelo operador na thread: ThemeEditorPanel.qml (SHA-256 na base b1fb9f08a2b5f0d2c8260183541817e2d14ad069820514f45bdd05b2814ab737), tests/qml/check_theme_editor_asset_recipes.qml e docs/status/items/theme-studio.json saem deste claim para WS-2026-10-STUDIO-DRAFT-HISTORY, branch codex/d5-studio-draft-history-2026-10-09 sobre 55295f2c084142e26c8d6383854c2bf9affb8978, sem concorrência observada no checkout único. Escopo: histórico de metadados e saída com rascunho. Devolução a este workstream após o merge; os demais paths permanecem aqui.",
+  "updatedAt": "2026-10-09"
 }

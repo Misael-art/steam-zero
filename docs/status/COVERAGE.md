@@ -17,15 +17,15 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 558 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 561 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 36 | 19 | hw |  |
 | SZ-AURA-CONTRACTS | 38 | 3 | 3 | unit |  |
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
-| SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 10 | 4 | dev |  |
+| SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 11 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 315 | 85 | 49 | hw |  |
+| SZ-AURA-LAUNCHER | 315 | 86 | 50 | hw |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -41,7 +41,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-VISUAL-RICH-SURFACE | 11 | 12 | 10 | hw |  |
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
 | SZ-CAST-LAN | 6 | 3 | 3 | unit |  |
-| SZ-COMPONENT-LIFECYCLE | 30 | 23 | 19 | hw |  |
+| SZ-COMPONENT-LIFECYCLE | 30 | 24 | 20 | hw |  |
 | SZ-CONTROLS-INPUT-PROFILES | 16 | 8 | 4 | hw |  |
 | SZ-EMULATION-ENHANCEMENTS | 24 | 11 | 10 | unit |  |
 | SZ-EMULATION-HIGH-END-RUNTIME-READINESS | 5 | 6 | 3 | unit |  |
@@ -61,12 +61,12 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-RETROFE | 6 | 3 | 2 | dev |  |
 | SZ-FRONTEND-SRM | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
-| SZ-GAMEMODE-READINESS | 9 | 7 | 2 | hw |  |
+| SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
 | SZ-GOVERNANCE-STATUS | 22 | 26 | 15 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
-| SZ-LIBRARY-CANONICAL | 169 | 29 | 13 | hw |  |
+| SZ-LIBRARY-CANONICAL | 169 | 30 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
 | SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 15 | 8 | dev |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 6 | 3 | hw |  |
@@ -85,21 +85,21 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PLATFORM-REQUIREMENT-SCOPE | 7 | 5 | 3 | unit |  |
 | SZ-PLATFORM-VITA-CATALOG | 5 | 11 | 5 | hw |  |
 | SZ-PROJECT-DESIGN-AUDIT | 12 | 25 | 6 | dev |  |
-| SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 8 | 2 | unit |  |
+| SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 9 | 3 | unit |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 71 | 32 | 12 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 71 | 33 | 13 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
-| SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 8 | 3 | dev |  |
+| SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 4 | 4 | dev |  |
-| SZ-THEME-ENGINE | 186 | 82 | 62 | hw |  |
+| SZ-THEME-ENGINE | 186 | 83 | 63 | hw |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 17 | 9 | hw |  |
-| SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 18 | 10 | hw |  |
-| SZ-THEME-IMPORT-RETROFE | 15 | 25 | 13 | hw |  |
-| SZ-THEME-IMPORT-SURFACE | 10 | 19 | 10 | unit |  |
-| SZ-THEME-STUDIO | 169 | 77 | 56 | hw |  |
-| SZ-UI-DESKTOP-AUDIT | 837 | 197 | 114 | dev |  |
+| SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 19 | 11 | hw |  |
+| SZ-THEME-IMPORT-RETROFE | 15 | 26 | 14 | hw |  |
+| SZ-THEME-IMPORT-SURFACE | 10 | 20 | 11 | unit |  |
+| SZ-THEME-STUDIO | 172 | 79 | 58 | hw |  |
+| SZ-UI-DESKTOP-AUDIT | 837 | 198 | 115 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 

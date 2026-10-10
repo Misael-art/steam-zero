@@ -534,7 +534,7 @@ Item {
             chooseCombo("effectTypeToAdd", "vignette")
             click("effectAdd")
             tryVerify(function() { return effects("focusedCover").length === baseEffects + 2 }, 3000)
-            typeInto("effectParam_" + (baseEffects + 1) + "_strength", "0.9")
+            typeNumber("effectParam_" + (baseEffects + 1) + "_strength", 0.9)
             tryVerify(function() {
                 return effects("focusedCover")[baseEffects + 1].strength === 0.9
             }, 3000, "o parâmetro da vinheta não chegou ao documento")

@@ -20,7 +20,7 @@
     "tests/unit/test_desktop_dashboard.py",
     "docs/09-operations/evidence/2026-09-22-gamemode-readonly"
   ],
-  "scopeDigest": "337d07db5a66955b29920870bd3a53618588c2e6ecbf57ac38c785563ecabab1",
+  "scopeDigest": "a1dad66238406e10851288688d6332f837b3f5e1ba174a07750b30d0be1e592c",
   "dependsOn": [
     "SZ-JOB-RECOVERY-DOCTOR"
   ],
@@ -76,12 +76,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tools/run_tests_isolated.py",
+      "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
+      "result": "passed"
     }
   ],
   "nextAction": "HARD-EXTERNAL-SUBITEM: validar daemon, autorização e efeitos em uma sessão real com o operador; sem permissão/convergência não iniciar gamemoded, alterar grupos, governor ou split-lock.",
   "activeWorkstreams": [
     "WS-2026-09-GAMEMODE-READINESS-G29"
   ],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-09",
   "notes": "O software está integrado e instalado. A leitura no host encontrou o binário, mas não conseguiu provar daemon, autorização ou efeitos; portanto a capacidade permanece unknown/degraded. Nenhuma mutação administrativa foi executada."
 }

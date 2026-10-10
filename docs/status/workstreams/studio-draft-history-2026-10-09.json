@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
+  "item": "SZ-THEME-STUDIO",
+  "branch": "codex/d5-studio-draft-history-2026-10-09",
+  "baseRef": "55295f2c084142e26c8d6383854c2bf9affb8978",
+  "owner": "claude-d5-studio",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/ui/qml/ThemeEditorPanel.qml",
+    "tests/qml/check_theme_editor_asset_recipes.qml",
+    "docs/status/items/theme-studio.json",
+    "tests/qml/check_theme_authoring_e2e.qml",
+    "tests/qml/check_theme_editor_draft_guard.qml",
+    "tests/integration/test_theme_editor_draft_guard.py",
+    "docs/status/workstreams/studio-draft-history-2026-10-09.json",
+    "src/steamzero/ui/qml/Main.qml",
+    "tests/qml/check_main_theme_draft_close.qml"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Handoffs seriais recebidos em 2026-10-09 por autorização do operador na thread: três paths da WS-2026-10-JOURNEY-LAUNCHER-SESSION e Main.qml da WS-2026-10-R05-COMPONENT-OPERATION-TRACE. Guarda de saída cobre o botão Fechar e o fechamento da janela da Central; trocar de seção mantém a sessão viva e não perde o rascunho. Pendem CI no SHA final, merge e validação por teclado na release instalada. Devolver os quatro paths após o merge.",
+  "updatedAt": "2026-10-09"
+}

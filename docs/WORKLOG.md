@@ -14733,3 +14733,21 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Provado na janela do checkout, só por teclado: lançar, pausar (processo suspenso), cancelar saída, confirmar saída sem retomar, zero órfãos, retorno ao Cinema e saves idênticos por SHA-256. A release instalada não contém essas correções.
 - Integral em dc1d92ce (C.UTF-8): 6706 passed, 47 skipped, 1 failed, sendo a falha a consistência de digests, revalidada em seguida. Uma execução anterior em 56224f1f foi interrompida de propósito por ter ficado obsoleta.
 - CI da candidata em 302781c8 reprovou apenas no job Python 3.11; novo run segue no commit final.
+
+## 2026-10-09 (cont. 2) — Studio: histórico de metadados e saída com rascunho
+
+- Estado encontrado: `main` = `origin/main` = 55295f2c (fetch), PR #254 mesclado, CI de push 37938826016 verde, candidata 2.0.0rc1-55295f2c0841 preparada e conferida por verify-bundle. Instalação autorizada pelo operador na thread, mas não executada: o classificador de permissões do executor barrou o comando. Host segue em 2.0.0rc1-213124ed513b.
+- Branch `codex/d5-studio-draft-history-2026-10-09`, WS-2026-10-STUDIO-DRAFT-HISTORY; handoff serial de três paths da WS Jornada autorizado pelo operador na thread, a devolver após o merge.
+- `ThemeEditorPanel.qml`: `setMetadata` consome o `history` do documento canônico; Fechar com rascunho ou pedido em voo abre Salvar/Descartar/Continuar editando; save falho preserva o rascunho; o cancelamento de sessão descartada sobrevive à abertura de outro tema. O e2e de autoria passa em pt_BR (o harness digitava `0.9` literal).
+- Harness novo reprova contra o painel de 55295f2c. Integral em C.UTF-8: 6707 passed, 47 skipped, 1 failed (`test_committed_catalog_and_generated_views_are_consistent`); ruff, format (701), mypy (303), independence, boundaries e diff-check passaram.
+- `status-check` reprovado em seis digests de outros itens (SZ-AURA-LAUNCHER, SZ-ROADMAP-CONTINUATION, SZ-THEME-ENGINE, SZ-THEME-IMPORT-RETROFE, SZ-THEME-IMPORT-SURFACE, SZ-UI-DESKTOP-AUDIT) cujo escopo inclui o painel ou os arquivos de status; nenhum foi renovado.
+- Aberto: GAP-THEME-STUDIO-DRAFT-GUARD-ROUTE-ESCAPE (troca de rota e Escape dependem de `Main.qml`, outro claim). Sem push, sem instalação, sem launch de jogo, sem captura. Um `git stash`/`pop` imediato do próprio arquivo foi usado uma vez para isolar um travamento do harness.
+
+## 2026-10-09 (cont. 3) — Candidata instalada, Studio no compacto e digests
+
+- Candidata 2.0.0rc1-55295f2c0841 instalada pelo operador pelo fluxo governado (rollback 2.0.0rc1-213124ed513b). Readback do executor: `current`, CLI, Launcher e daemon na release nova; PNG real do Cinema; `emulation readiness` no primeiro registro de 25 plataformas: 18 jogáveis, 7 bloqueadas com código. Jornadas por teclado na instalada não verificadas: a sessão de teclado do portal foi barrada pelo classificador de permissões do executor.
+- Diagnóstico sem correção: Vita responde `E-API-SCHEMA` citando `eden` porque, sem emulador lançável declarado, a resolução cai no padrão global; `adapters/emulation.py` pertence à WS Biblioteca.
+- Commits cda103ae, 1b1847dc e 5c085750: fechar a janela da Central com rascunho pergunta antes; no compacto o editor ganhou alternador Editar/Pré-visualizar, título em linha própria e atalhos de seção; rótulos em português em movimento e parâmetros de efeito; receitas herdam a paleta do tema em edição. Handoff serial de `Main.qml` (WS R05) autorizado pelo operador na thread.
+- Integral em 5c085750 (C.UTF-8): 6708 passed, 47 skipped, 1 failed (consistência de digests). Duas execuções anteriores foram interrompidas de propósito por terem ficado obsoletas. Ruff, format (701), mypy (303), independence e boundaries passaram.
+- 14 digests revalidados com essa integral por autorização do operador ("faça tudo"), com o limite do delta registrado em cada item; status-check OK. Nenhum eixo promovido.
+- Aberto: valores de seletores em inglês, prévia sem cena do tema, validação por teclado na instalada, nova candidata para levar o lote ao host.
