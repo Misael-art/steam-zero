@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-JOURNEY-PLATFORM-PROJECTION",
+  "item": "SZ-AURA-LAUNCHER",
+  "branch": "codex/journey-platform-projection-2026-10-10",
+  "baseRef": "003a8c5a6d846944df877540089a97d2af01dc66",
+  "owner": "grok-journey-platform-projection",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/adapters/journey_public.py",
+    "tests/unit/test_launcher_journey_runtime.py",
+    "docs/status/items/aura-launcher.json",
+    "docs/status/items/roadmap-continuation-2026-09-26.json",
+    "docs/status/workstreams/journey-platform-projection-2026-10-10.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "A projeção pública de library.games publica o id de plataforma do catálogo e só usa systemId como fallback. Integral local: 6723 passed, 47 skipped, 0 failed; escritor externo deixou a atribuição degradada e o guard não foi alterado. A correção permanece local nesta branch. A release instalada 2.0.0rc1-003a8c5a6d84 continua com o defeito. Push, merge e instalação exigem autorização explícita. O digest de SZ-ROADMAP-CONTINUATION muda só porque o registro da frente Jornada entrou no escopo desse item. Depois do merge, devolver os quatro paths à WS-2026-10-JOURNEY-LAUNCHER-SESSION. Não promover eixo nem declarar a jornada física.",
+  "updatedAt": "2026-10-10"
+}
