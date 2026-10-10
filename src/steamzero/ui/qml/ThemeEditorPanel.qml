@@ -1070,6 +1070,18 @@ Rectangle {
         return "#000000"
     }
 
+    /// Rótulo legível do campo de keyframe. O identificador técnico continua no
+    /// objectName e no documento; o usuário lê o que o campo faz.
+    function motionFieldLabel(field) {
+        const labels = {
+            "opacity": qsTr("Opacidade"),
+            "scale": qsTr("Escala"),
+            "translateX": qsTr("Deslocar X"),
+            "translateY": qsTr("Deslocar Y")
+        }
+        return labels[field] || field
+    }
+
     function formatEffectNumber(value, locale, decimals) {
         let formatted = Number(value).toLocaleString(locale, "f", decimals)
         const sample = Number(1.1).toLocaleString(locale, "f", 1)
@@ -2479,15 +2491,22 @@ Rectangle {
         Rectangle {
             color: panel.raisedColor
             Layout.fillWidth: true
-            Layout.minimumHeight: 56
+            // No compacto o título ganha a própria linha; antes os cinco botões o
+            // espremiam até sumir e o usuário não via qual tema estava editando.
+            Layout.preferredHeight: Math.max(56, editorHeader.implicitHeight + 12)
             border.color: panel.borderColor
             border.width: 1
 
-            RowLayout {
-                anchors.fill: parent
+            GridLayout {
+                id: editorHeader
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: 20
                 anchors.rightMargin: 20
-                spacing: 12
+                columns: panel.compactLayout ? 1 : 2
+                columnSpacing: 12
+                rowSpacing: 4
 
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -2509,149 +2528,218 @@ Rectangle {
                     }
                 }
 
-                Label {
-                    visible: panel.editorReadOnly
-                    text: qsTr("Apenas leitura")
-                    color: panel.amberColor
-                    font.pixelSize: Math.round(12 * panel.visualScale)
-                    font.weight: Font.Medium
-                    padding: 6
-                    background: Rectangle {
+                RowLayout {
+                    objectName: "themeEditorActions"
+                    spacing: 12
+                    Layout.fillWidth: panel.compactLayout
+
+                    Label {
+                        visible: panel.editorReadOnly
+                        text: qsTr("Apenas leitura")
                         color: panel.amberColor
-                        opacity: 0.15
-                        radius: 4
+                        font.pixelSize: Math.round(12 * panel.visualScale)
+                        font.weight: Font.Medium
+                        padding: 6
+                        background: Rectangle {
+                            color: panel.amberColor
+                            opacity: 0.15
+                            radius: 4
+                        }
                     }
-                }
 
-                Label {
-                    visible: panel.editorDirty
-                    text: qsTr("Não salvo")
-                    color: panel.amberColor
-                    font.pixelSize: Math.round(11 * panel.visualScale)
-                    font.italic: true
-                }
+                    Label {
+                        visible: panel.editorDirty
+                        text: qsTr("Não salvo")
+                        color: panel.amberColor
+                        font.pixelSize: Math.round(11 * panel.visualScale)
+                        font.italic: true
+                    }
 
-                Button {
-                    objectName: "themeEditorUndo"
-                    text: qsTr("Desfazer")
-                    enabled: !panel.editorReadOnly && panel.editorHistory.canUndo === true
-                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
-                    implicitWidth: 90
-                    Accessible.name: text
-                    onClicked: panel.editorUndo()
-                    background: Rectangle {
-                        color: parent.enabled ? panel.surfaceColor : panel.borderColor
-                        radius: 6
-                        border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
-                        border.width: parent.activeFocus ? 2 : 1
+                    Button {
+                        objectName: "themeEditorUndo"
+                        text: qsTr("Desfazer")
+                        enabled: !panel.editorReadOnly && panel.editorHistory.canUndo === true
+                        implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                        implicitWidth: 90
+                        Accessible.name: text
+                        onClicked: panel.editorUndo()
+                        background: Rectangle {
+                            color: parent.enabled ? panel.surfaceColor : panel.borderColor
+                            radius: 6
+                            border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
+                            border.width: parent.activeFocus ? 2 : 1
+                        }
+                        contentItem: Label {
+                            text: parent.text
+                            color: parent.enabled ? panel.cyanColor : panel.mutedColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
-                    contentItem: Label {
-                        text: parent.text
-                        color: parent.enabled ? panel.cyanColor : panel.mutedColor
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                }
 
-                Button {
-                    objectName: "themeEditorRedo"
-                    text: qsTr("Refazer")
-                    enabled: !panel.editorReadOnly && panel.editorHistory.canRedo === true
-                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
-                    implicitWidth: 90
-                    Accessible.name: text
-                    onClicked: panel.editorRedo()
-                    background: Rectangle {
-                        color: parent.enabled ? panel.surfaceColor : panel.borderColor
-                        radius: 6
-                        border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
-                        border.width: parent.activeFocus ? 2 : 1
+                    Button {
+                        objectName: "themeEditorRedo"
+                        text: qsTr("Refazer")
+                        enabled: !panel.editorReadOnly && panel.editorHistory.canRedo === true
+                        implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                        implicitWidth: 90
+                        Accessible.name: text
+                        onClicked: panel.editorRedo()
+                        background: Rectangle {
+                            color: parent.enabled ? panel.surfaceColor : panel.borderColor
+                            radius: 6
+                            border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
+                            border.width: parent.activeFocus ? 2 : 1
+                        }
+                        contentItem: Label {
+                            text: parent.text
+                            color: parent.enabled ? panel.cyanColor : panel.mutedColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
-                    contentItem: Label {
-                        text: parent.text
-                        color: parent.enabled ? panel.cyanColor : panel.mutedColor
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                }
 
-                Button {
-                    objectName: "themeEditorSave"
-                    text: qsTr("Salvar")
-                    enabled: !panel.editorReadOnly && panel.editorDirty
-                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
-                    implicitWidth: 90
-                    onClicked: {
-                        panel.requestEditorMutation("theme.editor.save",
-                            {sessionId: panel.editorSessionId, overwrite: true},
-                            function(r) {
-                                panel._applyEditorResult(r)
-                                panel.editorDirty = false
-                                panel.refreshThemeList()
-                            })
+                    Button {
+                        objectName: "themeEditorSave"
+                        text: qsTr("Salvar")
+                        enabled: !panel.editorReadOnly && panel.editorDirty
+                        implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                        implicitWidth: 90
+                        onClicked: {
+                            panel.requestEditorMutation("theme.editor.save",
+                                {sessionId: panel.editorSessionId, overwrite: true},
+                                function(r) {
+                                    panel._applyEditorResult(r)
+                                    panel.editorDirty = false
+                                    panel.refreshThemeList()
+                                })
+                        }
+                        background: Rectangle {
+                            color: parent.enabled ? panel.cyanColor : panel.borderColor
+                            radius: 6
+                            border.color: parent.activeFocus ? panel.textColor : "transparent"
+                            border.width: parent.activeFocus ? 2 : 0
+                        }
+                        contentItem: Label {
+                            text: parent.text
+                            color: parent.enabled ? "#071019" : panel.mutedColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            font.weight: parent.enabled ? Font.Medium : Font.Normal
+                        }
                     }
-                    background: Rectangle {
-                        color: parent.enabled ? panel.cyanColor : panel.borderColor
-                        radius: 6
-                        border.color: parent.activeFocus ? panel.textColor : "transparent"
-                        border.width: parent.activeFocus ? 2 : 0
-                    }
-                    contentItem: Label {
-                        text: parent.text
-                        color: parent.enabled ? "#071019" : panel.mutedColor
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        font.weight: parent.enabled ? Font.Medium : Font.Normal
-                    }
-                }
 
-                Button {
-                    objectName: "themeEditorExport"
-                    text: qsTr("Exportar")
-                    enabled: panel.editorSessionId !== ""
-                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
-                    implicitWidth: 90
-                    Accessible.name: text
-                    onClicked: panel.beginExport()
-                    background: Rectangle {
-                        color: parent.enabled ? panel.surfaceColor : panel.borderColor
-                        radius: 6
-                        border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
-                        border.width: 1
+                    Button {
+                        objectName: "themeEditorExport"
+                        text: qsTr("Exportar")
+                        enabled: panel.editorSessionId !== ""
+                        implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                        implicitWidth: 90
+                        Accessible.name: text
+                        onClicked: panel.beginExport()
+                        background: Rectangle {
+                            color: parent.enabled ? panel.surfaceColor : panel.borderColor
+                            radius: 6
+                            border.color: parent.activeFocus ? panel.cyanColor : panel.borderColor
+                            border.width: 1
+                        }
+                        contentItem: Label {
+                            text: parent.text
+                            color: parent.enabled ? panel.cyanColor : panel.mutedColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
-                    contentItem: Label {
-                        text: parent.text
-                        color: parent.enabled ? panel.cyanColor : panel.mutedColor
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                }
 
-                Button {
-                    objectName: "themeEditorClose"
-                    text: qsTr("Fechar")
-                    implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
-                    implicitWidth: 80
-                    Accessible.name: text
-                    onClicked: panel.requestCloseEditor()
-                    background: Rectangle {
-                        color: parent.hovered ? panel.redColor : panel.surfaceColor
-                        opacity: parent.hovered ? 0.15 : 1.0
-                        radius: 6
-                        border.color: parent.activeFocus ? panel.redColor : panel.borderColor
-                        border.width: parent.activeFocus ? 2 : 1
-                    }
-                    contentItem: Label {
-                        text: parent.text
-                        color: panel.redColor
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                    Button {
+                        objectName: "themeEditorClose"
+                        text: qsTr("Fechar")
+                        implicitHeight: Math.max(panel.minimumInteractiveTarget, 36)
+                        implicitWidth: 80
+                        Accessible.name: text
+                        onClicked: panel.requestCloseEditor()
+                        background: Rectangle {
+                            color: parent.hovered ? panel.redColor : panel.surfaceColor
+                            opacity: parent.hovered ? 0.15 : 1.0
+                            radius: 6
+                            border.color: parent.activeFocus ? panel.redColor : panel.borderColor
+                            border.width: parent.activeFocus ? 2 : 1
+                        }
+                        contentItem: Label {
+                            text: parent.text
+                            color: panel.redColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
                 }
             }
         }
 
         // -- editor body ---------------------------------------------------
+        // No compacto não cabem edição e prévia lado a lado. Antes a prévia sumia e
+        // os controles ficavam presos a metade da largura; agora cada uma ocupa a
+        // tela inteira e o usuário alterna entre elas.
+        TabBar {
+            id: compactPaneTabs
+            objectName: "themeEditorCompactPane"
+            visible: panel.compactLayout
+            Layout.fillWidth: true
+            background: Rectangle { color: panel.surfaceColor }
+            TabButton {
+                id: paneEditTab
+                text: qsTr("Editar")
+                implicitHeight: panel.minimumInteractiveTarget
+                Accessible.name: qsTr("Mostrar os controles de edição")
+                background: Rectangle {
+                    color: parent.checked ? panel.raisedColor : panel.surfaceColor
+                    border.color: parent.activeFocus ? panel.textColor : panel.borderColor
+                    border.width: parent.activeFocus ? 2 : 1
+                    Rectangle {
+                        visible: parent.parent.checked
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        height: 3
+                        color: panel.cyanColor
+                    }
+                }
+                contentItem: Label {
+                    text: parent.text
+                    color: parent.checked ? panel.textColor : panel.mutedColor
+                    font.weight: parent.checked ? Font.Medium : Font.Normal
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+            TabButton {
+                id: panePreviewTab
+                text: qsTr("Pré-visualizar")
+                implicitHeight: panel.minimumInteractiveTarget
+                Accessible.name: qsTr("Mostrar a pré-visualização e as receitas de asset")
+                background: Rectangle {
+                    color: parent.checked ? panel.raisedColor : panel.surfaceColor
+                    border.color: parent.activeFocus ? panel.textColor : panel.borderColor
+                    border.width: parent.activeFocus ? 2 : 1
+                    Rectangle {
+                        visible: parent.parent.checked
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        height: 3
+                        color: panel.cyanColor
+                    }
+                }
+                contentItem: Label {
+                    text: parent.text
+                    color: parent.checked ? panel.textColor : panel.mutedColor
+                    font.weight: parent.checked ? Font.Medium : Font.Normal
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
+
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -2660,8 +2748,10 @@ Rectangle {
             // LEFT: token editor
             ScrollView {
                 id: tokenScroll
+                visible: !panel.compactLayout || compactPaneTabs.currentIndex === 0
                 Layout.fillHeight: true
-                Layout.preferredWidth: panel.compactLayout ? parent.width * 0.5 : 380
+                Layout.fillWidth: panel.compactLayout
+                Layout.preferredWidth: panel.compactLayout ? -1 : 380
                 Layout.minimumWidth: 280
                 clip: true
                 contentWidth: availableWidth
@@ -3220,14 +3310,24 @@ Rectangle {
                                 Layout.maximumWidth: motionColumn.width
                                 Layout.preferredHeight: childrenRect.height
                                 spacing: 8
-                                AuthCombo {
-                                    id: motionStateCombo
-                                    objectName: "motionStateName"
-                                    requestedImplicitHeight: 40
-                                    Accessible.name: qsTr("Estado do keyframe")
-                                    model: panel.motionStateOptions
-                                    currentIndex: model.indexOf(panel.motionStateName)
-                                    onActivated: panel.motionStateName = currentText
+                                Row {
+                                    spacing: 6
+                                    Label {
+                                        text: qsTr("Estado")
+                                        color: panel.mutedColor
+                                        font.pixelSize: Math.round(11 * panel.visualScale)
+                                        height: panel.minimumInteractiveTarget
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+                                    AuthCombo {
+                                        id: motionStateCombo
+                                        objectName: "motionStateName"
+                                        requestedImplicitHeight: 40
+                                        Accessible.name: qsTr("Estado do keyframe")
+                                        model: panel.motionStateOptions
+                                        currentIndex: model.indexOf(panel.motionStateName)
+                                        onActivated: panel.motionStateName = currentText
+                                    }
                                 }
                                 Repeater {
                                     model: ["opacity", "scale", "translateX", "translateY"]
@@ -3237,7 +3337,7 @@ Rectangle {
                                         spacing: 4
                                         Label {
                                             anchors.verticalCenter: parent.verticalCenter
-                                            text: keyframeRow.modelData
+                                            text: panel.motionFieldLabel(keyframeRow.modelData)
                                             color: panel.mutedColor
                                             font.pixelSize: Math.round(11 * panel.visualScale)
                                         }
@@ -3337,19 +3437,29 @@ Rectangle {
                                     requestedImplicitHeight: 40
                                     onClicked: panel.editMotion("add_clip", panel.motionTimelineName, {value: {state: panel.motionStateName, duration: 240}})
                                 }
-                                AuthRangeSpinBox {
-                                    objectName: "motionTimelineRepeat"
-                                    Accessible.name: qsTr("Repetições da timeline")
-                                    rangeMinimum: Number((panel.editorMotionSchema.repeat || {}).minimum || 0)
-                                    rangeMaximum: Number((panel.editorMotionSchema.repeat || {}).maximum || 8)
-                                    rangeStep: Number((panel.editorMotionSchema.repeat || {}).step || 1)
-                                    rangeDecimals: 0
-                                    fieldName: qsTr("Repetições")
-                                    requestedImplicitWidth: 64
-                                    declaredValue: Number(panel.repeatText(panel.motionTimelineName))
-                                    onValueCommitted: function(nextValue) {
-                                        panel.editMotion("set_timeline", panel.motionTimelineName,
-                                            {field: "repeat", value: nextValue})
+                                Row {
+                                    spacing: 6
+                                    Label {
+                                        text: qsTr("Repetições")
+                                        color: panel.mutedColor
+                                        font.pixelSize: Math.round(11 * panel.visualScale)
+                                        height: panel.minimumInteractiveTarget
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+                                    AuthRangeSpinBox {
+                                        objectName: "motionTimelineRepeat"
+                                        Accessible.name: qsTr("Repetições da timeline")
+                                        rangeMinimum: Number((panel.editorMotionSchema.repeat || {}).minimum || 0)
+                                        rangeMaximum: Number((panel.editorMotionSchema.repeat || {}).maximum || 8)
+                                        rangeStep: Number((panel.editorMotionSchema.repeat || {}).step || 1)
+                                        rangeDecimals: 0
+                                        fieldName: qsTr("Repetições")
+                                        requestedImplicitWidth: 64
+                                        declaredValue: Number(panel.repeatText(panel.motionTimelineName))
+                                        onValueCommitted: function(nextValue) {
+                                            panel.editMotion("set_timeline", panel.motionTimelineName,
+                                                {field: "repeat", value: nextValue})
+                                        }
                                     }
                                 }
                                 AuthButton {
@@ -3402,20 +3512,30 @@ Rectangle {
                                         color: panel.textColor
                                         font.pixelSize: Math.round(12 * panel.visualScale)
                                     }
-                                    AuthRangeSpinBox {
-                                        objectName: "motionClipDuration_" + clipRow.index
-                                        visible: clipRow.modelData.state !== undefined
-                                        Accessible.name: qsTr("Duração do clip") + " " + (clipRow.index + 1)
-                                        rangeMinimum: Number((panel.editorMotionSchema.duration || {}).minimum || 0)
-                                        rangeMaximum: Number((panel.editorMotionSchema.duration || {}).maximum || 2000)
-                                        rangeStep: Number((panel.editorMotionSchema.duration || {}).step || 1)
-                                        rangeDecimals: 0
-                                        fieldName: qsTr("Duração")
-                                        requestedImplicitWidth: 72
-                                        declaredValue: Number(clipRow.modelData.duration)
-                                        onValueCommitted: function(nextValue) {
-                                            panel.editMotion("set_clip", panel.motionTimelineName,
-                                                {index: clipRow.index, field: "duration", value: nextValue})
+                                    Row {
+                                        spacing: 6
+                                        Label {
+                                            text: qsTr("Duração (ms)")
+                                            color: panel.mutedColor
+                                            font.pixelSize: Math.round(11 * panel.visualScale)
+                                            height: panel.minimumInteractiveTarget
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                        AuthRangeSpinBox {
+                                            objectName: "motionClipDuration_" + clipRow.index
+                                            visible: clipRow.modelData.state !== undefined
+                                            Accessible.name: qsTr("Duração do clip") + " " + (clipRow.index + 1)
+                                            rangeMinimum: Number((panel.editorMotionSchema.duration || {}).minimum || 0)
+                                            rangeMaximum: Number((panel.editorMotionSchema.duration || {}).maximum || 2000)
+                                            rangeStep: Number((panel.editorMotionSchema.duration || {}).step || 1)
+                                            rangeDecimals: 0
+                                            fieldName: qsTr("Duração")
+                                            requestedImplicitWidth: 72
+                                            declaredValue: Number(clipRow.modelData.duration)
+                                            onValueCommitted: function(nextValue) {
+                                                panel.editMotion("set_clip", panel.motionTimelineName,
+                                                    {index: clipRow.index, field: "duration", value: nextValue})
+                                            }
                                         }
                                     }
                                     AuthButton {
@@ -3575,7 +3695,7 @@ Rectangle {
                 Layout.minimumWidth: 0
                 Layout.maximumWidth: Math.max(0,
                     panel.width - parent.x - x - 16)
-                visible: !panel.compactLayout
+                visible: !panel.compactLayout || compactPaneTabs.currentIndex === 1
                 clip: true
                 contentWidth: availableWidth
                 contentHeight: livePreviewContent.implicitHeight + 48

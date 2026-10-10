@@ -215,6 +215,35 @@ Window {
             check(panel.requestCloseEditor() === true, "fechar limpo não pode perguntar")
             check(panel.editorSessionId === "", "fechar limpo não encerrou")
             check(panel.draftExitDialogOpen === false, "fechar limpo abriu o diálogo")
+        },
+        function() {
+            // 7. Compacto: o título continua visível e edição e prévia se alternam em
+            //    largura total; antes a prévia sumia e metade da tela ficava vazia.
+            open("s4")
+            harness.width = 640
+            panel.compactLayout = true
+        },
+        function() {
+            const tabs = find(panel, "themeEditorCompactPane")
+            const actions = find(panel, "themeEditorActions")
+            check(tabs !== null && tabs.visible === true, "alternador Editar/Pré-visualizar ausente")
+            check(actions !== null && actions.x + actions.width <= panel.width + 1,
+                  "ações do cabeçalho estouram a largura compacta")
+            check(actions !== null && actions.y > 20, "título não ganhou linha própria no compacto")
+            check(tabs.contentChildren[1].height >= 48, "alvo do alternador menor que 48 px")
+            tabs.currentIndex = 1
+        },
+        function() {
+            const tabs = find(panel, "themeEditorCompactPane")
+            check(tabs.currentIndex === 1, "alternador não mudou para a prévia")
+            tabs.currentIndex = 0
+            panel.compactLayout = false
+            harness.width = 1100
+        },
+        function() {
+            const tabs = find(panel, "themeEditorCompactPane")
+            check(tabs.visible === false, "alternador compacto apareceu no desktop")
+            panel._closeEditor()
         }
     ]
 
