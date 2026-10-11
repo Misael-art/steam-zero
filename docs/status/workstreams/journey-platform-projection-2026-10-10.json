@@ -10,8 +10,14 @@
   "exclusivePaths": [
     "src/steamzero/adapters/journey_public.py",
     "tests/unit/test_launcher_journey_runtime.py",
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "tests/qml/launcher/check_launcher_journey.qml",
+    "src/steamzero/launcher/journey_runtime.py",
+    "src/steamzero/adapters/journey_studio.py",
+    "tests/unit/test_journey_studio.py",
     "docs/status/items/aura-launcher.json",
     "docs/status/items/roadmap-continuation-2026-09-26.json",
+    "docs/status/items/ui-desktop-audit.json",
     "docs/status/workstreams/journey-platform-projection-2026-10-10.json"
   ],
   "sharedPaths": [
@@ -20,6 +26,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "A projeção pública de library.games publica o id de plataforma do catálogo e só usa systemId como fallback. Integral local: 6723 passed, 47 skipped, 0 failed; escritor externo deixou a atribuição degradada e o guard não foi alterado. A correção permanece local nesta branch. A release instalada 2.0.0rc1-003a8c5a6d84 continua com o defeito. Push, merge e instalação exigem autorização explícita. O digest de SZ-ROADMAP-CONTINUATION muda só porque o registro da frente Jornada entrou no escopo desse item. Depois do merge, devolver os quatro paths à WS-2026-10-JOURNEY-LAUNCHER-SESSION. Não promover eixo nem declarar a jornada física.",
-  "updatedAt": "2026-10-10"
+  "nextAction": "A projeção pública de library.games publica o id de plataforma do catálogo e só usa systemId como fallback. A barra cabe em duas linhas e a lista do harness de 300 px volta a ter altura. Os combos de jogos não listam todo escalar público. A prévia agrupada segue as facetas. Integral deste lote em 2026-10-11: 6725 passed, 47 skipped, 0 failed em 3348.95 s; state home inalterado. A integral da projeção foi 6723/47/0 com escritor externo. A integral da barra sem limite de altura permanece vermelha. A release 2.0.0rc1-003a8c5a6d84 continua sem o lote. Merge e instalação exigem autorização explícita. Depois do merge, devolver journey_public.py, o teste de runtime e check_launcher_journey.qml à WS-2026-10-JOURNEY-LAUNCHER-SESSION; LauncherJourney.qml, journey_runtime.py, journey_studio.py e test_journey_studio.py à WS-2026-10-JOURNEY-COMPLETE-TEMPLATE. Não promover eixo nem declarar a jornada física.",
+  "updatedAt": "2026-10-11"
 }

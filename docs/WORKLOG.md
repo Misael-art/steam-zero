@@ -14777,3 +14777,13 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Integral única: pytest 6723 passed, 47 skipped, 0 failed em 2523.81 s. O runner saiu 0. O state home real mudou na janela (`state.db-shm`, `state.db-wal`, `logs/core.jsonl`, `state.db`). O guard emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER`; o escritor externo inclui `steamzero-core` pid 1030750 da release instalada, já ativo antes da janela. Atribuição degradada. O daemon não foi encerrado e o guard não foi enfraquecido.
 - Handoff serial, antes da edição: `journey_public.py`, `test_launcher_journey_runtime.py`, `aura-launcher.json` e `roadmap-continuation-2026-09-26.json` saem da WS-2026-10-JOURNEY-LAUNCHER-SESSION para WS-2026-10-JOURNEY-PLATFORM-PROJECTION. O digest do roadmap mudou só por esse registro. Nenhum eixo promovido.
 - Aberto: a release instalada não contém a correção. Gêneros, Anos e a sessão de jogo continuam sem prova física desta correção. Push e instalação exigem autorização explícita.
+
+## 2026-10-11 — Barra de facetas, conjunto publicado e prévia agrupada
+
+- Branch `codex/journey-platform-projection-2026-10-10`. Release instalada permanece `2.0.0rc1-003a8c5a6d84`. Sem merge e sem instalação.
+- A integral da barra sem limite de altura falhou e permanece vermelha: `journeyResultList.height` ficou 0 no stage de 300 px (6722 passed, 47 skipped, 1 failed em `test_complete_facets_qml_selects_and_returns_through_the_real_bridge`).
+- A barra passa a caber em duas linhas e rola o restante. Os combos de jogos ficam no conjunto padrão mais `groupBy` e filtros; uma fonte sem esses campos, como Plataformas, conserva os próprios escalares. A prévia agrupada só anuncia limite quando as facetas são cortadas, não quando as linhas de jogo é que foram fatiadas.
+- Prova focal antes da suíte: runtime, studio, template, e2e do launcher e os dois harnesses QML passaram. Ruff, format (703), mypy (303), independência, fronteiras e status-check passaram.
+- Integral única: pytest 6725 passed, 47 skipped, 0 failed em 3348.95 s. O runner saiu 0. O state home real não mudou (12929 arquivos, 2111 diretórios, 1411159186 bytes). Esta janela não emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER`.
+- Handoff serial para WS-2026-10-JOURNEY-PLATFORM-PROJECTION: `journey_runtime.py`, `journey_studio.py` e `tests/unit/test_journey_studio.py` saem de WS-2026-10-JOURNEY-COMPLETE-TEMPLATE. `check_launcher_journey.qml` sai da WS de sessão. `ui-desktop-audit.json` sai de R06 só porque `LauncherJourney.qml` está sob `src/steamzero/ui`. Nenhum achado de auditoria nem eixo foi promovido.
+- Aberto: a release instalada não contém o lote. Gêneros, Anos, a sessão de jogo e os gaps físicos continuam sem prova nesta release. Merge e instalação exigem autorização explícita.
