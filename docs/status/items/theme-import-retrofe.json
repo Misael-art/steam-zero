@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "ready",
   "distribution": "installed",
-  "scopeDigest": "ac68ab235e33598dda150911a516fe922e3468e4acca0fc04917c3dde84db207",
+  "scopeDigest": "b1ff384b3fcae871ebdccedd65bcf0ae4a537c544a4fed36dcec7f7d3f010f5b",
   "scopePaths": [
     "src/steamzero/adapters/desktop_contracts.py",
     "src/steamzero/adapters/desktop_dashboard.py",
@@ -202,6 +202,6 @@
   ],
   "nextAction": "Manter a entrada RetroFE instalada e documentar explicitamente que inspeção/importação não promove ativação automática da cena.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-10",
-  "notes": "A rota QML RetroFE oferece origem por pasta/XML, inspeção de layouts, relatório de cobertura/degradação, créditos/licença e confirmação explícita. A aplicação valida a licença, recusa assets ausentes ou symlinkados, grava blobs por conteúdo e publica sidecar de custódia junto ao IR; a cena continua sem ativação automática. A release 2.0.0rc1-435f9108eeb7 foi instalada e convergida no host, com rollback 2.0.0rc1-b09908a58261. 2026-10-02: renovacao de escopo por alteracao restrita aos inspetores de autoria do Theme Studio. Importacao ES-DE/RetroFE, dialogs do shell e eixos deste item nao foram alterados nem promovidos. Em 2026-10-02, os controles compartilhados ganharam alvo mínimo efetivo de 48 px. O diálogo RetroFE mudou visualmente nos quatro viewports; os goldens foram atualizados após inspeção e a rodada combinada ES-DE/RetroFE passou 13/13. A rodada vermelha contra as baselines antigas permanece registrada; isso não certifica input físico ou release. Em 2026-10-02, as baselines de RetroFE foram atualizadas após inspeção da captura causada pela nova entrada Abrir Jornadas no fundo do ThemeEditorPanel. O modal manteve geometria/conteúdo; o teste combinado passou 13/13 em Qt offscreen. Esta renovação não promove instalação física nem release."
+  "updatedAt": "2026-10-11",
+  "notes": "A rota QML RetroFE oferece origem por pasta/XML, inspeção de layouts, relatório de cobertura/degradação, créditos/licença e confirmação explícita. A aplicação valida a licença, recusa assets ausentes ou symlinkados, grava blobs por conteúdo e publica sidecar de custódia junto ao IR; a cena continua sem ativação automática. A release 2.0.0rc1-435f9108eeb7 foi instalada e convergida no host, com rollback 2.0.0rc1-b09908a58261. 2026-10-02: renovacao de escopo por alteracao restrita aos inspetores de autoria do Theme Studio. Importacao ES-DE/RetroFE, dialogs do shell e eixos deste item nao foram alterados nem promovidos. Em 2026-10-02, os controles compartilhados ganharam alvo mínimo efetivo de 48 px. O diálogo RetroFE mudou visualmente nos quatro viewports; os goldens foram atualizados após inspeção e a rodada combinada ES-DE/RetroFE passou 13/13. A rodada vermelha contra as baselines antigas permanece registrada; isso não certifica input físico ou release. Em 2026-10-02, as baselines de RetroFE foram atualizadas após inspeção da captura causada pela nova entrada Abrir Jornadas no fundo do ThemeEditorPanel. O modal manteve geometria/conteúdo; o teste combinado passou 13/13 em Qt offscreen. Esta renovação não promove instalação física nem release.\n\n2026-10-11: scopeDigest renovado porque src/steamzero/adapters/desktop_ui.py passa a publicar na Jornada o catálogo que o Launcher executa, em vez do recorte editorial. Nenhum eixo deste item foi promovido e a Home editorial não mudou."
 }

@@ -131,7 +131,15 @@ def project_game_row(record: dict[str, Any], *, source: str) -> dict[str, Any] |
         row["genre"] = genres[0]
     elif isinstance(record.get("genre"), str):
         row["genre"] = str(record["genre"])[:256]
-    platform_id = row.get("platformId") or row.get("systemId")
+    # Menu rows use the catalog platform id. systemId is the core id and must
+    # not replace it; otherwise a platform filter matches no projected game.
+    catalog_platform_id: str | None = None
+    for key in ("platformId", "platform"):
+        candidate = record.get(key)
+        if isinstance(candidate, str) and candidate:
+            catalog_platform_id = candidate[:128]
+            break
+    platform_id = catalog_platform_id if catalog_platform_id is not None else row.get("systemId")
     platform_label = record.get("platformLabel") or record.get("platformName")
     if isinstance(platform_id, str):
         row["platformId"] = platform_id[:128]

@@ -5,6 +5,7 @@ import QtQuick.Layouts
 
 FocusScope {
     id: journey
+    clip: true
 
     property var view: null
     property var requestFunction: null
@@ -398,48 +399,76 @@ FocusScope {
             }
         }
 
-        RowLayout {
+        Item {
+            id: facetHost
             objectName: "journeyFacets"
+            // Two rows leave a positive list height in the 300px facet harness.
+            // Extra facets scroll inside the bar instead of covering the results.
+            readonly property int facetBarLimit: journey.minimumInteractiveTarget * 2 + 10
             Layout.fillWidth: true
-            spacing: 10
-            Repeater {
-                model: journey.facets
-                delegate: ComboBox {
-                    required property var modelData
-                    objectName: "journeyFacet_" + String(modelData.fieldId)
-                    Layout.fillWidth: true
-                    Layout.minimumWidth: 150
-                    Layout.minimumHeight: journey.minimumInteractiveTarget
-                    Accessible.name: String(modelData.label || modelData.fieldId)
-                    textRole: "label"
-                    model: modelData.options || []
-                    currentIndex: {
-                        const options = modelData.options || []
-                        for (let i = 0; i < options.length; ++i) {
-                            const option = options[i]
-                            if (!modelData.selected && option.kind === "all")
-                                return i
-                            if (modelData.selected && modelData.selectedValue === null
-                                    && option.kind === "unknown")
-                                return i
-                            if (modelData.selected && option.kind === "value"
-                                    && option.value === modelData.selectedValue)
-                                return i
+            Layout.minimumHeight: journey.minimumInteractiveTarget
+            Layout.maximumHeight: facetBarLimit
+            implicitHeight: Math.min(
+                Math.max(facetFlow.implicitHeight, journey.minimumInteractiveTarget),
+                facetBarLimit)
+            Layout.preferredHeight: implicitHeight
+            clip: true
+
+            Flickable {
+                id: facetScroll
+                anchors.fill: parent
+                contentWidth: width
+                contentHeight: facetFlow.implicitHeight
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                flickableDirection: Flickable.VerticalFlick
+
+                Flow {
+                    id: facetFlow
+                    width: Math.max(facetScroll.width, 1)
+                    spacing: 10
+
+                    Repeater {
+                        model: journey.facets
+                        delegate: ComboBox {
+                            required property var modelData
+                            objectName: "journeyFacet_" + String(modelData.fieldId)
+                            width: 180
+                            implicitHeight: journey.minimumInteractiveTarget
+                            Accessible.name: String(modelData.label || modelData.fieldId)
+                            textRole: "label"
+                            model: modelData.options || []
+                            currentIndex: {
+                                const options = modelData.options || []
+                                for (let i = 0; i < options.length; ++i) {
+                                    const option = options[i]
+                                    if (!modelData.selected && option.kind === "all")
+                                        return i
+                                    if (modelData.selected && modelData.selectedValue === null
+                                            && option.kind === "unknown")
+                                        return i
+                                    if (modelData.selected && option.kind === "value"
+                                            && option.value === modelData.selectedValue)
+                                        return i
+                                }
+                                return 0
+                            }
+                            enabled: !journey.busy && count > 1
+                            onActivated: journey.chooseFacet(
+                                String(modelData.fieldId), model[currentIndex])
                         }
-                        return 0
                     }
-                    enabled: !journey.busy && count > 1
-                    onActivated: journey.chooseFacet(String(modelData.fieldId), model[currentIndex])
+                    Button {
+                        objectName: "journeyBack"
+                        text: qsTr("Voltar")
+                        Accessible.name: text
+                        enabled: !journey.busy && view && view.canGoBack === true
+                        implicitHeight: journey.minimumInteractiveTarget
+                        onClicked: journey.back()
+                    }
                 }
-            }
-            Item { Layout.fillWidth: true }
-            Button {
-                objectName: "journeyBack"
-                text: qsTr("Voltar")
-                Accessible.name: text
-                enabled: !journey.busy && view && view.canGoBack === true
-                Layout.minimumHeight: journey.minimumInteractiveTarget
-                onClicked: journey.back()
+
+                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
             }
         }
 
@@ -512,6 +541,7 @@ FocusScope {
             visible: items.length > 0 && (!journey.cinemaMode || journey.cinemaScene === null)
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.minimumHeight: 62
             clip: true
             spacing: 8
             model: journey.items

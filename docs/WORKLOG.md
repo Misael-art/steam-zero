@@ -14768,3 +14768,32 @@ Checkout unico preservado em codex/r05-component-operation-trace-2026-10-05, HEA
 - Integral única, `LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q`: pytest 6720 passed, 47 skipped, 1 failed em 2974.89 s. A falha é só `test_committed_catalog_and_generated_views_are_consistent`. O runner saiu 1, não 86. Resultado vermelho preservado nesta entrada.
 - Interferência externa, separada do produto: durante a janela o state home ganhou 352 bytes em `logs/core.jsonl` e `state.db`. Escritor anterior à janela, pid 1614761, `steamzero-core` da release instalada, eventos `session.environment.changed` (power, displays, network). O guard emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER` e deixou a atribuição degradada. O processo não foi encerrado e o guard não foi enfraquecido.
 - Cinco digests revalidados depois da suíte (SZ-AURA-LAUNCHER, SZ-ROADMAP-CONTINUATION, SZ-THEME-ENGINE, SZ-THEME-STUDIO, SZ-UI-DESKTOP-AUDIT). Nenhum eixo promovido. Sem merge, sem instalação, sem gameplay físico.
+
+## 2026-10-10 (cont. 2) — platformId do catálogo na projeção pública
+
+- Branch `codex/journey-platform-projection-2026-10-10`, base `003a8c5a6d846944df877540089a97d2af01dc66`. Release instalada permanece `2.0.0rc1-003a8c5a6d84`. Sem push, sem merge, sem instalação.
+- Defeito reproduzido na release instalada: Gêneros e Anos abriam vazios. `project_game_row` publicava `systemId` no campo `platformId`, e o menu de plataformas usa o id do catálogo. A correção prefere `platformId`, depois `platform`, e só então `systemId`.
+- Prova focal: 27 passed na bateria da jornada e 8 passed em `tests/unit/test_launcher_journey_runtime.py`, inclusive o join do catálogo com core `famicom` e plataforma `nes-famicom`. Ruff, format, mypy (303), independência e fronteiras passaram.
+- Integral única: pytest 6723 passed, 47 skipped, 0 failed em 2523.81 s. O runner saiu 0. O state home real mudou na janela (`state.db-shm`, `state.db-wal`, `logs/core.jsonl`, `state.db`). O guard emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER`; o escritor externo inclui `steamzero-core` pid 1030750 da release instalada, já ativo antes da janela. Atribuição degradada. O daemon não foi encerrado e o guard não foi enfraquecido.
+- Handoff serial, antes da edição: `journey_public.py`, `test_launcher_journey_runtime.py`, `aura-launcher.json` e `roadmap-continuation-2026-09-26.json` saem da WS-2026-10-JOURNEY-LAUNCHER-SESSION para WS-2026-10-JOURNEY-PLATFORM-PROJECTION. O digest do roadmap mudou só por esse registro. Nenhum eixo promovido.
+- Aberto: a release instalada não contém a correção. Gêneros, Anos e a sessão de jogo continuam sem prova física desta correção. Push e instalação exigem autorização explícita.
+
+## 2026-10-11 — Barra de facetas, conjunto publicado e prévia agrupada
+
+- Branch `codex/journey-platform-projection-2026-10-10`. Release instalada permanece `2.0.0rc1-003a8c5a6d84`. Sem merge e sem instalação.
+- A integral da barra sem limite de altura falhou e permanece vermelha: `journeyResultList.height` ficou 0 no stage de 300 px (6722 passed, 47 skipped, 1 failed em `test_complete_facets_qml_selects_and_returns_through_the_real_bridge`).
+- A barra passa a caber em duas linhas e rola o restante. Os combos de jogos ficam no conjunto padrão mais `groupBy` e filtros; uma fonte sem esses campos, como Plataformas, conserva os próprios escalares. A prévia agrupada só anuncia limite quando as facetas são cortadas, não quando as linhas de jogo é que foram fatiadas.
+- Prova focal antes da suíte: runtime, studio, template, e2e do launcher e os dois harnesses QML passaram. Ruff, format (703), mypy (303), independência, fronteiras e status-check passaram.
+- Integral única: pytest 6725 passed, 47 skipped, 0 failed em 3348.95 s. O runner saiu 0. O state home real não mudou (12929 arquivos, 2111 diretórios, 1411159186 bytes). Esta janela não emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER`.
+- Handoff serial para WS-2026-10-JOURNEY-PLATFORM-PROJECTION: `journey_runtime.py`, `journey_studio.py` e `tests/unit/test_journey_studio.py` saem de WS-2026-10-JOURNEY-COMPLETE-TEMPLATE. `check_launcher_journey.qml` sai da WS de sessão. `ui-desktop-audit.json` sai de R06 só porque `LauncherJourney.qml` está sob `src/steamzero/ui`. Nenhum achado de auditoria nem eixo foi promovido.
+- Aberto: a release instalada não contém o lote. Gêneros, Anos, a sessão de jogo e os gaps físicos continuam sem prova nesta release. Merge e instalação exigem autorização explícita.
+
+## 2026-10-11 (cont.) — Prévia da Jornada no catálogo do Launcher
+
+- Branch `codex/journey-platform-projection-2026-10-10`. Release instalada permanece `2.0.0rc1-003a8c5a6d84`. Sem merge e sem instalação.
+- A prévia da Jornada lia o recorte editorial do loader (1145 jogos) mais 7 da Steam e mostrava 1152. O Launcher executa 1163 da biblioteca mais os mesmos 7, total 1170, em 28 plataformas. Os 18 jogos a menos são recusas do loader, não ids fora do registro e não a Steam. A Home editorial continua no loader. A prévia passa a seguir o catálogo que o Launcher executa. Catálogo vazio ou ilegível mantém o fallback editorial mais steamGameplay. Um `journeyCatalog` explícito e vazio não revive linhas editoriais.
+- O catálogo de emulação é memoizado por caminho, mtime e tamanho. Esse memo guarda só as linhas de emulação. A Steam é relida a cada publicação e não entra no memo. Falha da Steam publica só a emulação. Catálogo de emulação vazio não anexa a Steam sozinha.
+- Prova focal: 20 passed em `test_launcher_journey_runtime.py` e `test_experience_journey_bridge_e2e.py`. State home inalterado.
+- Integral única: pytest 6730 passed, 47 skipped, 0 failed em 3173.61 s. O runner saiu 0. O state home real não mudou (12929 arquivos, 2111 diretórios, 1411159186 bytes). Esta janela não emitiu `W-TEST-REAL-STATE-EXTERNAL-WRITER`. Duas linhas `ipc connect failed` depois do resumo do pytest não falharam o runner. A integral da barra sem limite de altura permanece vermelha. As anteriores 6725/47/0 e 6723/47/0 com escritor externo permanecem como estavam.
+- Handoff serial: `desktop_ui.py` sai de WS-2026-10-JOURNEY-COMPLETE-TEMPLATE para WS-2026-10-JOURNEY-PLATFORM-PROJECTION. Sete digests que incluem esse arquivo foram renovados. Nenhum eixo foi promovido. A Home editorial não mudou.
+- Aberto: a release instalada não contém o lote. Gêneros, Anos, a sessão de jogo e os gaps físicos continuam sem prova nesta release. Merge e instalação exigem autorização explícita. Gêneros e anos continuam ausentes na biblioteca; Desconhecido é a faceta honesta.

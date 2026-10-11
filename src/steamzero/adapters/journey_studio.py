@@ -345,7 +345,20 @@ class JourneyStudioService:
             {"values": dict(group["values"]), "count": int(group["count"])}
             for group in result.groups[:MAX_PREVIEW_ROWS]
         ]
-        truncated = result.result_count > len(preview_rows)
+        group_by = [field for field in menu.get("groupBy", []) if isinstance(field, str) and field]
+        rows_truncated = result.result_count > len(preview_rows)
+        groups_truncated = len(result.groups) > len(groups)
+        # Grouped menus are complete when every facet is present. Slicing the
+        # underlying game rows must not say the preview stopped at 64 records.
+        truncated = groups_truncated if group_by else rows_truncated
+        if groups_truncated:
+            diagnostic_message = f"Prévia limitada a {len(groups)} de {len(result.groups)} facetas."
+        elif truncated:
+            diagnostic_message = (
+                f"Prévia limitada a {MAX_PREVIEW_ROWS} de {result.result_count} registros."
+            )
+        else:
+            diagnostic_message = result.diagnostic_message
         return {
             "menuId": menu_id,
             "readModelId": menu["source"]["readModelId"],
@@ -358,17 +371,13 @@ class JourneyStudioService:
             "previewLimit": MAX_PREVIEW_ROWS,
             "truncated": truncated,
             "groups": groups,
-            "groupsTruncated": len(result.groups) > len(groups),
+            "groupsTruncated": groups_truncated,
             "unknownValueCounts": dict(result.unknown_value_counts),
             "recoveryAction": ("refine-filters" if truncated else result.recovery_action),
             "diagnosticCode": (
                 "JOURNEY-PREVIEW-TRUNCATED" if truncated else result.diagnostic_code
             ),
-            "diagnosticMessage": (
-                f"Prévia limitada a {MAX_PREVIEW_ROWS} de {result.result_count} registros."
-                if truncated
-                else result.diagnostic_message
-            ),
+            "diagnosticMessage": diagnostic_message,
         }
 
     def coverage(

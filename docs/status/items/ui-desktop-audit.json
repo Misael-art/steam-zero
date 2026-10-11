@@ -105,7 +105,7 @@
     "tools/ui_dialog_probe.qml",
     "tools/ui_scenario_fixtures.py"
   ],
-  "scopeDigest": "8cb5062a7c67057bc34c1f56d2994e92891be17f2ee37d742b25fb9913ff7c74",
+  "scopeDigest": "eeb4b885042e5866b4a8bb1b9b71f5874ee066c564668462380705acfaad46fd",
   "dependsOn": [],
   "knownGaps": [
     "GAP-UI-LIVE-LAUNCHER-ROUTING",
@@ -1373,5 +1373,5 @@
     "WS-2026-10-R06-HOME-COUNT-UNIVERSE"
   ],
   "updatedAt": "2026-10-10",
-  "notes": "Continuidade 2026-10-05: R06 recebeu baseline read-only da release instalada e patch na Home para nao misturar catalogo publicado com universo escaneado. A validacao foi offscreen em QML; a release instalada nao foi atualizada e a captura oficial segue bloqueada."
+  "notes": "Continuidade 2026-10-05: R06 recebeu baseline read-only da release instalada e patch na Home para nao misturar catalogo publicado com universo escaneado. A validacao foi offscreen em QML; a release instalada nao foi atualizada e a captura oficial segue bloqueada. 2026-10-10: scopeDigest renovado somente porque LauncherJourney.qml limita a barra de facetas a duas linhas dentro da janela. Nenhum achado desta auditoria foi promovido ou encerrado."
 }

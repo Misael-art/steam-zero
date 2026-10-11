@@ -8,17 +8,12 @@
   "owner": "grok-journey-complete-template",
   "state": "active",
   "exclusivePaths": [
-    "src/steamzero/adapters/journey_studio.py",
     "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
     "tests/integration/test_experience_journey_bridge_e2e.py",
     "src/steamzero/adapters/desktop_contracts.py",
-    "src/steamzero/adapters/desktop_ui.py",
     "tests/qml/check_experience_journey_bridge_e2e.qml",
     "tests/unit/test_journey_complete_template.py",
     "docs/status/workstreams/journey-complete-template-2026-10-10.json",
-    "tests/unit/test_journey_studio.py",
-    "src/steamzero/launcher/journey_runtime.py",
-    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
     "src/steamzero/domain/experience_journey.py",
     "tests/integration/test_journey_complete_facets.py",
     "tests/qml/check_journey_complete_facets.qml"
@@ -29,6 +24,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Facetas distintas de Gêneros e Anos estão no template, no runtime e nas duas UIs. A integral de 2026-10-10 ficou 6720 passed, 47 skipped, 1 failed (digests, revalidados em seguida); o daemon instalado escreveu o state home e não foi encerrado. Sem merge, sem instalação e sem prova física. Devolver os paths à WS Jornada após o merge.",
-  "updatedAt": "2026-10-10"
+  "nextAction": "Facetas distintas de Gêneros e Anos estão no template, no runtime e nas duas UIs. A integral de 2026-10-10 ficou 6720 passed, 47 skipped, 1 failed (digests, revalidados em seguida); o daemon instalado escreveu o state home e não foi encerrado. Sem merge, sem instalação e sem prova física. Devolver os paths à WS Jornada após o merge. Handoff serial de 2026-10-10, depois do merge de #256, autorizado na thread para a barra de facetas caber na janela: src/steamzero/ui/qml/launcher/LauncherJourney.qml sai deste claim para WS-2026-10-JOURNEY-PLATFORM-PROJECTION, branch codex/journey-platform-projection-2026-10-10. Devolução após o merge desse lote. Handoff serial de 2026-10-10, autorizado na thread para fechar as lacunas de código enquanto a instalação fica suspensa: journey_runtime.py, journey_studio.py e tests/unit/test_journey_studio.py saem deste claim para WS-2026-10-JOURNEY-PLATFORM-PROJECTION. Devolução após o merge desse lote. Handoff serial de 2026-10-11, autorizado na thread para a prévia da Jornada usar o mesmo catálogo que o Launcher executa: src/steamzero/adapters/desktop_ui.py sai deste claim para WS-2026-10-JOURNEY-PLATFORM-PROJECTION, branch codex/journey-platform-projection-2026-10-10. A Home editorial não muda. Devolução após o merge desse lote.",
+  "updatedAt": "2026-10-11"
 }

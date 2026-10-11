@@ -366,5 +366,44 @@ Item {
             compare(harness.requests[harness.requests.length - 1].confirmed, true)
             compare(journey.message.indexOf("aguardando") >= 0, true)
         }
+
+        function test_many_facets_stay_inside_the_window() {
+            const facets = []
+            for (let i = 0; i < 12; ++i) {
+                facets.push({
+                    "fieldId": "field" + i,
+                    "label": "Campo " + i,
+                    "type": "string",
+                    "selected": false,
+                    "options": [{"kind": "all", "label": "Todos", "count": 0}]
+                })
+            }
+            journey.view = Object.assign({}, harness.nextView, {
+                "menuId": "genres",
+                "menuName": "Gêneros",
+                "generation": 8,
+                "items": [],
+                "resultCount": 0,
+                "totalCount": 12,
+                "canGoBack": true,
+                "facets": facets
+            })
+            const bar = findChild(journey, "journeyFacets")
+            const count = findChild(journey, "journeyResultCount")
+            const empty = findChild(journey, "journeyEmptyTitle")
+            const last = findChild(journey, "journeyFacet_field11")
+            verify(bar !== null && count !== null && empty !== null && last !== null)
+            tryVerify(function() { return bar.width > 0 && last.width > 0 && empty.width > 0 })
+            verify(bar.width <= journey.width)
+            const countPos = count.mapToItem(journey, 0, 0)
+            const emptyPos = empty.mapToItem(journey, 0, 0)
+            const lastPos = last.mapToItem(journey, 0, 0)
+            verify(countPos.x >= 0)
+            verify(countPos.x + count.width <= journey.width + 1)
+            verify(emptyPos.x >= -1)
+            verify(emptyPos.x + empty.width <= journey.width + 1)
+            verify(lastPos.x >= 0)
+            verify(lastPos.x + last.width <= journey.width + 1)
+        }
     }
 }

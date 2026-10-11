@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-JOURNEY-PLATFORM-PROJECTION",
+  "item": "SZ-AURA-LAUNCHER",
+  "branch": "codex/journey-platform-projection-2026-10-10",
+  "baseRef": "003a8c5a6d846944df877540089a97d2af01dc66",
+  "owner": "grok-journey-platform-projection",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/adapters/journey_public.py",
+    "tests/unit/test_launcher_journey_runtime.py",
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "tests/qml/launcher/check_launcher_journey.qml",
+    "src/steamzero/launcher/journey_runtime.py",
+    "src/steamzero/adapters/journey_studio.py",
+    "src/steamzero/adapters/desktop_ui.py",
+    "tests/unit/test_journey_studio.py",
+    "docs/status/items/aura-launcher.json",
+    "docs/status/items/roadmap-continuation-2026-09-26.json",
+    "docs/status/items/ui-desktop-audit.json",
+    "docs/status/workstreams/journey-platform-projection-2026-10-10.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "A projeção pública de library.games publica o id de plataforma do catálogo e só usa systemId como fallback. A barra cabe em duas linhas. Os combos de jogos ficam no conjunto padrão. A prévia agrupada segue as facetas. A prévia da Jornada passa a usar o catálogo que o Launcher executa: 1163 jogos da biblioteca mais 7 da Steam, total 1170. O recorte editorial continua em 1145 e, com a Steam, mostrava 1152. A Home editorial não muda. Prova focal de 2026-10-11: 20 passed; state home inalterado. Integral deste delta em 2026-10-11: pytest 6730 passed, 47 skipped, 0 failed em 3173.61 s; runner saiu 0; state home inalterado (12929 arquivos, 2111 diretórios, 1411159186 bytes); sem W-TEST-REAL-STATE-EXTERNAL-WRITER. As integrais anteriores permanecem como estavam: 6725/47/0, 6723/47/0 com escritor externo, e a barra sem limite de altura vermelha. A release 2.0.0rc1-003a8c5a6d84 continua sem o lote. Merge e instalação exigem autorização explícita. Depois do merge, devolver journey_public.py, o teste de runtime e check_launcher_journey.qml à WS-2026-10-JOURNEY-LAUNCHER-SESSION; LauncherJourney.qml, journey_runtime.py, journey_studio.py, test_journey_studio.py e desktop_ui.py à WS-2026-10-JOURNEY-COMPLETE-TEMPLATE. Não promover eixo nem declarar a jornada física.",
+  "updatedAt": "2026-10-11"
+}

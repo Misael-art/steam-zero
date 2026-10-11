@@ -10,7 +10,6 @@
   "exclusivePaths": [
     "src/steamzero/ui/qml/EditorialHome.qml",
     "tests/qml/check_editorial_home.qml",
-    "docs/status/items/ui-desktop-audit.json",
     "docs/status/workstreams/r06-home-count-universe-2026-10-05.json"
   ],
   "sharedPaths": [
@@ -19,6 +18,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "R06 core commit 7299b745 criado; focused QML e gates de código passaram. A suíte integral reporta 6676/47/1 pela consistência de digests/views externos. Aguardar candidata autorizada e captura oficial para operação visual.",
+  "nextAction": "R06 core commit 7299b745 criado; focused QML e gates de código passaram. A suíte integral reporta 6676/47/1 pela consistência de digests/views externos. Aguardar candidata autorizada e captura oficial para operação visual. Handoff serial de 2026-10-10: docs/status/items/ui-desktop-audit.json sai deste claim para WS-2026-10-JOURNEY-PLATFORM-PROJECTION só para renovar o digest, porque LauncherJourney.qml está sob src/steamzero/ui. Nenhum comportamento da Home editorial mudou. Devolução após o merge.",
   "updatedAt": "2026-10-07"
 }

@@ -30,6 +30,47 @@ _DEFAULT_FACETS = (
     "availability",
 )
 _NON_FACET_FIELDS = frozenset({"id", "gameId", "title", "name", "source"})
+_FACET_SCALAR_TYPES = frozenset({"string", "integer", "number", "boolean"})
+
+
+def _facet_field_ids(menu: Mapping[str, Any], fields: Mapping[str, str]) -> list[str]:
+    """Choose the combos a menu shows.
+
+    Game sources keep the default facets plus that menu's groupBy and filters.
+    Listing every other public scalar makes the bar wider than the window.
+    A source with none of the defaults, such as platforms, keeps its own scalars.
+    """
+
+    def accept(field_id: object, *, allow_list: bool) -> str | None:
+        if not isinstance(field_id, str) or not field_id:
+            return None
+        if field_id in _NON_FACET_FIELDS or field_id not in fields:
+            return None
+        field_type = fields[field_id]
+        allowed = _FACET_SCALAR_TYPES | ({"string[]"} if allow_list else frozenset())
+        if field_type not in allowed:
+            return None
+        return field_id
+
+    ordered: list[str] = []
+
+    def add(field_id: object, *, allow_list: bool) -> None:
+        accepted = accept(field_id, allow_list=allow_list)
+        if accepted is not None and accepted not in ordered:
+            ordered.append(accepted)
+
+    for field_id in _DEFAULT_FACETS:
+        add(field_id, allow_list=False)
+    for field_id in menu.get("groupBy", []):
+        add(field_id, allow_list=True)
+    for item_filter in menu.get("filters", []):
+        if isinstance(item_filter, Mapping):
+            add(item_filter.get("fieldId", ""), allow_list=True)
+    if ordered:
+        return ordered
+    for field_id in fields:
+        add(field_id, allow_list=False)
+    return ordered
 
 
 def facet_items(
@@ -691,26 +732,7 @@ class JourneyRuntime:
         rows: Sequence[Mapping[str, Any]] | None,
         active_filters: Mapping[str, Any],
     ) -> list[dict[str, Any]]:
-        field_ids = [
-            field_id
-            for field_id in _DEFAULT_FACETS
-            if field_id in fields and field_id not in _NON_FACET_FIELDS
-        ]
-        field_ids.extend(
-            field_id
-            for field_id, field_type in fields.items()
-            if field_id not in _NON_FACET_FIELDS
-            and field_id not in field_ids
-            and field_type in {"string", "integer", "number", "boolean"}
-        )
-        for item_filter in menu.get("filters", []):
-            field_id = str(item_filter.get("fieldId", ""))
-            if (
-                field_id in fields
-                and field_id not in _NON_FACET_FIELDS
-                and field_id not in field_ids
-            ):
-                field_ids.append(field_id)
+        field_ids = _facet_field_ids(menu, fields)
         facets: list[dict[str, Any]] = []
         for field_id in field_ids:
             other_context = [
