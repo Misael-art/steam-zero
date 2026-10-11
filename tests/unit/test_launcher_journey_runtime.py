@@ -9,7 +9,7 @@ from steamzero.adapters.launcher_catalog import CatalogGame
 from steamzero.core.errors import SteamZeroError
 from steamzero.domain.experience_journey import JourneyDocument, JourneyStore
 from steamzero.launcher.app import _search_catalog_records
-from steamzero.launcher.journey_runtime import JourneyRuntime
+from steamzero.launcher.journey_runtime import JourneyRuntime, _facet_field_ids
 
 
 def _journey() -> JourneyDocument:
@@ -229,6 +229,46 @@ def test_saved_runtime_executes_shared_menu_routes_and_restores_origin_context()
     assert selected_year["connectionId"] == "years-to-games"
     assert selected_year["view"]["menuId"] == "games"
     assert len([menu for menu in runtime.document.menus if menu["id"] == "games"]) == 1
+
+
+def test_facets_use_the_default_set_instead_of_every_public_scalar() -> None:
+    runtime = _runtime()
+    platforms = runtime.current()
+    assert {facet["fieldId"] for facet in platforms["facets"]} == {
+        "shortName",
+        "state",
+        "gameCount",
+    }
+
+    genres = _event(runtime, "select", record_id="nes-famicom")["view"]
+    shown = {facet["fieldId"] for facet in genres["facets"]}
+    fields = journey_public_field_types()
+    expected = {
+        field_id
+        for field_id in (
+            "platformId",
+            "genre",
+            "year",
+            "developer",
+            "publisher",
+            "family",
+            "emulatorId",
+            "availability",
+        )
+        if field_id in fields and fields[field_id] in {"string", "integer", "number", "boolean"}
+    }
+    assert shown == expected
+    assert {"description", "size", "container", "rating"}.isdisjoint(shown)
+
+    menu = {
+        "groupBy": ["series"],
+        "filters": [{"fieldId": "region", "operator": "equals", "value": "jp"}],
+    }
+    chosen = _facet_field_ids(menu, fields)
+    assert "series" in chosen
+    assert "region" in chosen
+    assert "genre" in chosen
+    assert "description" not in chosen
 
 
 def test_facets_are_typed_unknowns_and_stale_events_cannot_rewrite_the_route() -> None:

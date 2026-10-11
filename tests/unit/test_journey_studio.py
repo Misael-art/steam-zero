@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from jsonschema import ValidationError
 
-from steamzero.adapters.journey_studio import JourneyStudioService
+from steamzero.adapters.journey_studio import MAX_PREVIEW_ROWS, JourneyStudioService
 from steamzero.domain.experience_journey import (
     JourneyDocument,
     JourneyStore,
@@ -424,3 +424,81 @@ def test_custom_bezel_survives_history_save_reopen_and_journey_copy(tmp_path: Pa
         "version": "1.2.3",
         "state": "version-locked",
     }
+
+
+def test_grouped_preview_truncation_follows_facets_not_sliced_rows(tmp_path: Path) -> None:
+    service = JourneyStudioService(tmp_path / "journeys")
+    created = service.create(name="Prévia agrupada", template="complete")
+    session_id = str(created["sessionId"])
+    published = {
+        "id": "string",
+        "title": "string",
+        "platformId": "string",
+        "genre": "string",
+        "year": "integer",
+    }
+    models = {
+        "library.games": published,
+        "library.platforms": {"id": "string", "name": "string"},
+    }
+    one_genre = [
+        {
+            "id": f"emulation:game-{index}",
+            "title": f"Game {index}",
+            "platformId": "nes-famicom",
+            "genre": "Action",
+            "year": 1986,
+        }
+        for index in range(MAX_PREVIEW_ROWS + 6)
+    ]
+    complete = service.preview_menu(
+        session_id,
+        "genres",
+        rows=one_genre,
+        published_fields=published,
+        published_read_models=models,
+    )
+    assert complete["resultCount"] == MAX_PREVIEW_ROWS + 6
+    assert len(complete["rows"]) == MAX_PREVIEW_ROWS
+    assert complete["groups"] == [{"values": {"genre": "Action"}, "count": MAX_PREVIEW_ROWS + 6}]
+    assert complete["groupsTruncated"] is False
+    assert complete["truncated"] is False
+    assert complete["diagnosticCode"] != "JOURNEY-PREVIEW-TRUNCATED"
+    assert "registros" not in complete["diagnosticMessage"]
+
+    many_genres = [
+        {
+            "id": f"emulation:game-{index}",
+            "title": f"Game {index}",
+            "platformId": "nes-famicom",
+            "genre": f"Genre {index}",
+            "year": 1986,
+        }
+        for index in range(MAX_PREVIEW_ROWS + 6)
+    ]
+    limited = service.preview_menu(
+        session_id,
+        "genres",
+        rows=many_genres,
+        published_fields=published,
+        published_read_models=models,
+    )
+    assert limited["groupsTruncated"] is True
+    assert limited["truncated"] is True
+    assert limited["diagnosticCode"] == "JOURNEY-PREVIEW-TRUNCATED"
+    assert limited["diagnosticMessage"] == (
+        f"Prévia limitada a {MAX_PREVIEW_ROWS} de {MAX_PREVIEW_ROWS + 6} facetas."
+    )
+
+    flat = service.preview_menu(
+        session_id,
+        "games",
+        rows=one_genre,
+        published_fields=published,
+        published_read_models=models,
+    )
+    assert flat["groups"] == [{"values": {}, "count": MAX_PREVIEW_ROWS + 6}]
+    assert flat["truncated"] is True
+    assert flat["diagnosticMessage"] == (
+        f"Prévia limitada a {MAX_PREVIEW_ROWS} de {MAX_PREVIEW_ROWS + 6} registros."
+    )
