@@ -34,7 +34,7 @@ from steamzero.adapters.desktop_kde import (
     logout_desktop_session,
     toggle_virtual_keyboard,
 )
-from steamzero.adapters.journey_public import game_record_public_field_types
+from steamzero.adapters.journey_public import game_record_public_field_types, project_game_row
 from steamzero.adapters.journey_studio import (
     JOURNEY_TEMPLATES,
     MAX_PREVIEW_ROWS,
@@ -63,6 +63,8 @@ _MAX_BODY = 64 * 1024
 _QT_QUICK_BACKEND = "software"
 _QT_QUICK_EFFECTS_MINIMUM = (6, 5)
 _QML_VERSION_PATTERN = re.compile(r"(?:Qml Runtime|Qt)\s+(\d+)\.(\d+)")
+_launcher_catalog_lock = threading.Lock()
+_launcher_catalog_memo: tuple[tuple[str, int, int], list[dict[str, Any]]] | None = None
 
 # Status HTTP por código do catálogo. O default é CONFLICT: erro de domínio que
 # recusa a operação no estado atual. Só o que é de fato malformado vira 400 e só
@@ -233,6 +235,163 @@ def _project_journey_game(
     return row
 
 
+def _journey_game_field_types(field_types: Mapping[str, str]) -> dict[str, str]:
+    return {
+        **field_types,
+        "id": "string",
+        "gameId": "string",
+        "title": "string",
+        "name": "string",
+        "source": "string",
+        "platformId": "string",
+        "platformName": "string",
+        "year": "integer",
+        "genre": "string",
+    }
+
+
+def _public_launcher_record(
+    game: Any,
+    source: Mapping[str, Any] | None,
+    *,
+    kind: str,
+) -> dict[str, Any]:
+    """Keep the public fields of one Launcher catalog row.
+
+    The library cache also carries paths and fingerprints. Those stay out of
+    the journey read model. platformId is the catalog id the Launcher uses.
+    """
+    allowed = set(game_record_public_field_types())
+    allowed.update({"year", "genre"})
+    record: dict[str, Any] = {}
+    if source is not None:
+        for key, value in source.items():
+            if key in allowed:
+                record[key] = value
+    record["id"] = game.id
+    record["name"] = game.title
+    record["title"] = game.title
+    record["platform"] = game.platform
+    record["platformId"] = game.platform
+    if game.platform_label:
+        record["platformLabel"] = game.platform_label
+    record["source"] = kind
+    return record
+
+
+def _emulation_catalog_records() -> list[dict[str, Any]]:
+    global _launcher_catalog_memo
+    from steamzero.adapters.launcher_catalog import catalog_games
+    from steamzero.launcher.app import _read_library_payload, canonical_library_path
+
+    path = canonical_library_path()
+    try:
+        stamp = path.stat()
+        key = (str(path), stamp.st_mtime_ns, stamp.st_size)
+    except OSError:
+        key = None
+    with _launcher_catalog_lock:
+        memo = _launcher_catalog_memo
+        if key is not None and memo is not None and memo[0] == key:
+            return [dict(row) for row in memo[1]]
+    library, _envelope = _read_library_payload(None)
+    by_id = {str(record.get("id")): record for record in library if record.get("id")}
+    rows = [
+        _public_launcher_record(game, by_id.get(game.id), kind="emulation")
+        for game in catalog_games(library)
+    ]
+    if key is not None:
+        with _launcher_catalog_lock:
+            _launcher_catalog_memo = (key, [dict(row) for row in rows])
+    return rows
+
+
+def _launcher_journey_catalog() -> list[dict[str, Any]] | None:
+    """Return the catalog the Launcher executes, or None when it is empty.
+
+    The editorial slice drops games the library loader rejects. An empty read
+    keeps the injected dashboard rows so an isolated test does not replace
+    them with a missing cache.
+    """
+    try:
+        emulation = _emulation_catalog_records()
+    except Exception:
+        return None
+    if not emulation:
+        return None
+    steam_rows: list[dict[str, Any]] = []
+    try:
+        from steamzero.adapters.launcher_steam import steam_catalog_games
+
+        steam_rows.extend(
+            _public_launcher_record(game, None, kind="steam") for game in steam_catalog_games()
+        )
+    except Exception:
+        steam_rows = []
+    return [*emulation, *steam_rows]
+
+
+def _snapshot_with_launcher_catalog(dashboard_snapshot: Mapping[str, Any]) -> dict[str, Any]:
+    """Copy the dashboard and attach the Launcher catalog when it has games.
+
+    The copy keeps the status payload and the editorial home free of this list.
+    """
+    snapshot = dict(dashboard_snapshot)
+    if not isinstance(snapshot.get("journeyCatalog"), list):
+        catalog = _launcher_journey_catalog()
+        if catalog:
+            snapshot["journeyCatalog"] = catalog
+    return snapshot
+
+
+def _project_journey_catalog(
+    catalog: list[Any],
+    field_types: Mapping[str, str],
+    platform_fields: Mapping[str, str],
+) -> dict[str, dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    platform_rows: dict[str, dict[str, Any]] = {}
+    raw_count = 0
+    for record in catalog:
+        if not isinstance(record, Mapping):
+            continue
+        raw_count += 1
+        source_name = "steam" if record.get("source") == "steam" else "emulation"
+        projected = project_game_row(dict(record), source=source_name)
+        if projected is None:
+            continue
+        rows.append(projected)
+        platform_id = projected.get("platformId")
+        if not isinstance(platform_id, str) or not platform_id:
+            platform_id = "outros"
+        label = projected.get("platformName") or platform_id
+        bucket = platform_rows.get(platform_id)
+        if bucket is None:
+            bucket = {
+                "id": platform_id[:128],
+                "name": str(label)[:256],
+                "shortName": str(label)[:128],
+                "state": "available",
+                "gameCount": 0,
+            }
+            platform_rows[platform_id] = bucket
+        bucket["gameCount"] += 1
+    over_budget = raw_count > MAX_PUBLIC_RECORDS
+    return {
+        "library.games": {
+            "rows": None if over_budget else rows,
+            "fields": _journey_game_field_types(field_types),
+            "state": ("budget-exceeded" if over_budget else "ready" if rows else "empty"),
+            "totalRecordCount": raw_count,
+        },
+        "library.platforms": {
+            "rows": None if over_budget else list(platform_rows.values()),
+            "fields": dict(platform_fields),
+            "state": ("budget-exceeded" if over_budget else "ready" if platform_rows else "empty"),
+        },
+    }
+
+
 def _project_journey_read_models(
     dashboard: Mapping[str, Any] | None,
 ) -> dict[str, dict[str, Any]]:
@@ -264,6 +423,12 @@ def _project_journey_read_models(
             },
             "library.platforms": {"rows": None, "fields": platform_fields, "state": "unavailable"},
         }
+
+    # An explicit launcher catalog is authoritative. The editorial slice stays
+    # on the dashboard for the home and is not the journey source.
+    catalog = dashboard.get("journeyCatalog")
+    if isinstance(catalog, list):
+        return _project_journey_catalog(catalog, field_types, platform_fields)
 
     emulation = dashboard.get("emulation")
     editorial_platforms = (
@@ -429,7 +594,8 @@ class DesktopControlServer(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), DesktopControlHandler)
 
     def publish_journey_read_models(self, dashboard_snapshot: Mapping[str, Any]) -> None:
-        projected = _project_journey_read_models(dashboard_snapshot)
+        snapshot = _snapshot_with_launcher_catalog(dashboard_snapshot)
+        projected = _project_journey_read_models(snapshot)
         with self._journey_read_models_lock:
             self._journey_read_models = projected
 

@@ -531,3 +531,186 @@ def test_stage_bezel_distinguishes_inheritance_missing_incompatible_and_availabl
     unsupported = runtime.stage_bezel("bezel")
     assert unsupported["state"] == "unavailable"
     assert unsupported["resourceId"] == resource_id
+
+
+def test_journey_catalog_includes_games_the_editorial_slice_omits(monkeypatch) -> None:
+    from steamzero.adapters import desktop_ui
+
+    catalog = [
+        {
+            "id": "kept",
+            "name": "Kept",
+            "title": "Kept",
+            "platform": "nes-famicom",
+            "platformId": "nes-famicom",
+            "platformLabel": "NES / Famicom",
+            "systemId": "famicom",
+            "source": "emulation",
+            "path": "roms/kept.nes",
+        },
+        {
+            "id": "omitted",
+            "name": "Omitted",
+            "title": "Omitted",
+            "platform": "nes-famicom",
+            "platformId": "nes-famicom",
+            "platformLabel": "NES / Famicom",
+            "source": "emulation",
+        },
+        {
+            "id": "steam-1",
+            "name": "Steam Game",
+            "title": "Steam Game",
+            "platform": "steam",
+            "platformId": "steam",
+            "source": "steam",
+        },
+    ]
+    monkeypatch.setattr(desktop_ui, "_launcher_journey_catalog", lambda: catalog)
+    dashboard = {
+        "emulation": {
+            "editorialPlatforms": [
+                {
+                    "id": "nes-famicom",
+                    "name": "NES / Famicom",
+                    "shortName": "NES",
+                    "state": "ready",
+                    "games": [{"id": "kept", "name": "Kept"}],
+                }
+            ]
+        },
+        "steamGameplay": {"games": [{"id": "steam-extra", "name": "Extra"}]},
+    }
+    snapshot = desktop_ui._snapshot_with_launcher_catalog(dashboard)
+    projected = desktop_ui._project_journey_read_models(snapshot)
+
+    assert "journeyCatalog" not in dashboard
+    assert len(dashboard["emulation"]["editorialPlatforms"][0]["games"]) == 1
+    rows = projected["library.games"]["rows"]
+    assert projected["library.games"]["totalRecordCount"] == 3
+    by_id = {row["gameId"]: row for row in rows}
+    assert set(by_id) == {"kept", "omitted", "steam-1"}
+    assert by_id["kept"]["platformId"] == "nes-famicom"
+    assert by_id["kept"]["systemId"] == "famicom"
+    assert "path" not in by_id["kept"]
+    assert "genre" not in by_id["omitted"]
+    assert "year" not in by_id["omitted"]
+    counts = {row["id"]: row["gameCount"] for row in projected["library.platforms"]["rows"]}
+    assert counts == {"nes-famicom": 2, "steam": 1}
+
+
+def test_journey_read_model_without_catalog_keeps_editorial_and_steam() -> None:
+    from steamzero.adapters.desktop_ui import _project_journey_read_models
+
+    projected = _project_journey_read_models(
+        {
+            "emulation": {
+                "editorialPlatforms": [
+                    {
+                        "id": "nes",
+                        "name": "NES",
+                        "shortName": "NES",
+                        "state": "ready",
+                        "games": [{"id": "rom-001", "name": "Synthetic"}],
+                    }
+                ]
+            },
+            "steamGameplay": {"games": [{"id": "steam-001", "name": "Synthetic Steam"}]},
+        }
+    )
+
+    assert projected["library.games"]["totalRecordCount"] == 2
+    assert {row["gameId"] for row in projected["library.games"]["rows"]} == {
+        "rom-001",
+        "steam-001",
+    }
+
+
+def test_explicit_empty_journey_catalog_does_not_revive_editorial_rows() -> None:
+    from steamzero.adapters.desktop_ui import _project_journey_read_models
+
+    projected = _project_journey_read_models(
+        {
+            "journeyCatalog": [],
+            "emulation": {
+                "editorialPlatforms": [
+                    {
+                        "id": "nes",
+                        "name": "NES",
+                        "games": [{"id": "rom-001", "name": "Synthetic"}],
+                    }
+                ]
+            },
+            "steamGameplay": {"games": [{"id": "steam-001", "name": "Synthetic Steam"}]},
+        }
+    )
+
+    assert projected["library.games"]["rows"] == []
+    assert projected["library.games"]["state"] == "empty"
+    assert projected["library.games"]["totalRecordCount"] == 0
+    assert projected["library.platforms"]["rows"] == []
+
+
+def test_launcher_catalog_reads_base_games_without_private_paths(
+    tmp_path: Path, monkeypatch
+) -> None:
+    import json
+
+    from steamzero.adapters import desktop_ui
+
+    data = tmp_path / "xdg"
+    cache = data / "steamzero" / "emulation-library-cache-v1.json"
+    cache.parent.mkdir(parents=True)
+    cache.write_text(
+        json.dumps(
+            {
+                "schemaVersion": 1,
+                "games": [
+                    {
+                        "id": "kept",
+                        "name": "Kept",
+                        "platform": "nes-famicom",
+                        "contentKind": "base",
+                        "path": "roms/kept.nes",
+                        "systemId": "famicom",
+                        "fingerprint": "secret",
+                    },
+                    {
+                        "id": "update-1",
+                        "name": "Update",
+                        "platform": "nes-famicom",
+                        "contentKind": "update",
+                        "path": "roms/update.nes",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("XDG_DATA_HOME", str(data))
+    monkeypatch.setattr(desktop_ui, "_launcher_catalog_memo", None)
+    monkeypatch.setattr(
+        "steamzero.adapters.launcher_steam.steam_catalog_games",
+        lambda: (CatalogGame(id="steam-1", title="Steam Game", platform="steam", kind="steam"),),
+    )
+
+    catalog = desktop_ui._launcher_journey_catalog()
+
+    assert catalog is not None
+    by_id = {row["id"]: row for row in catalog}
+    assert set(by_id) == {"kept", "steam-1"}
+    assert by_id["kept"]["platformId"] == "nes-famicom"
+    assert by_id["kept"]["systemId"] == "famicom"
+    assert "path" not in by_id["kept"]
+    assert "fingerprint" not in by_id["kept"]
+    assert "genre" not in by_id["kept"]
+    assert by_id["steam-1"]["source"] == "steam"
+
+
+def test_missing_launcher_library_does_not_invent_a_catalog(tmp_path: Path, monkeypatch) -> None:
+    from steamzero.adapters import desktop_ui
+
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "empty"))
+    monkeypatch.setattr(desktop_ui, "_launcher_catalog_memo", None)
+
+    assert desktop_ui._launcher_journey_catalog() is None
