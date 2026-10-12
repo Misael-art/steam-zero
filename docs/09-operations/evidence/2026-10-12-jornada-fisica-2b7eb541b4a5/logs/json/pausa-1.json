@@ -1,0 +1,413 @@
+{
+ "http": 200,
+ "body": {
+  "gameId": "ea96c3db21fee70bb568bfd6",
+  "sessionId": "01M4RWDW5187AC8661RVXSW266",
+  "state": "suspended",
+  "attempt": {
+   "requestId": "01M4RWDSFQ7GEXTN1BQYDBRH7D",
+   "state": "confirmed",
+   "sessionId": "01M4RWDW5187AC8661RVXSW266"
+  },
+  "overlay": {
+   "sessionId": "01M4RWDW5187AC8661RVXSW266",
+   "gameId": "ea96c3db21fee70bb568bfd6",
+   "state": "suspended",
+   "visible": true,
+   "focusedAction": "saveState",
+   "actions": [
+    {
+     "id": "volume",
+     "label": "Volume",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "volume"
+    },
+    {
+     "id": "mute",
+     "label": "Silenciar",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "mute"
+    },
+    {
+     "id": "brightness",
+     "label": "Brilho",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "brightness"
+    },
+    {
+     "id": "screenshot",
+     "label": "Capturar tela",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "screenshot"
+    },
+    {
+     "id": "saveState",
+     "label": "Galeria de saves",
+     "enabled": true,
+     "reason": "",
+     "operation": "saveState"
+    },
+    {
+     "id": "loadState",
+     "label": "Carregar save",
+     "enabled": false,
+     "reason": "Nenhum save-state foi criado para esta sessão.",
+     "operation": "loadState"
+    },
+    {
+     "id": "disc",
+     "label": "Trocar disco",
+     "enabled": false,
+     "reason": "O adapter não declarou suporte para esta ação.",
+     "operation": "disc"
+    },
+    {
+     "id": "fastForward",
+     "label": "Avançar rápido",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "fastForward"
+    },
+    {
+     "id": "rewind",
+     "label": "Rebobinar",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "rewind"
+    },
+    {
+     "id": "pause",
+     "label": "Retomar",
+     "enabled": true,
+     "reason": "",
+     "operation": "resume"
+    },
+    {
+     "id": "exit",
+     "label": "Sair do jogo",
+     "enabled": true,
+     "reason": "",
+     "operation": "exit"
+    },
+    {
+     "id": "control",
+     "label": "Controles",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "control"
+    },
+    {
+     "id": "achievement",
+     "label": "Conquistas",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "achievement"
+    },
+    {
+     "id": "network",
+     "label": "Rede",
+     "enabled": false,
+     "reason": "Esta ação ainda não possui adapter de sessão.",
+     "operation": "network"
+    }
+   ],
+   "saveStates": {
+    "schemaVersion": 1,
+    "state": "empty",
+    "available": false,
+    "saveAvailable": true,
+    "loadAvailable": false,
+    "reason": "Nenhum save-state foi criado para esta sessão.",
+    "entries": []
+   },
+   "peripherals": {
+    "schemaVersion": 1,
+    "state": "ready",
+    "available": true,
+    "discs": [],
+    "activeDisc": null,
+    "bezels": [
+     {
+      "id": "aura-default",
+      "label": "AURA Cinema",
+      "assetUrl": "asset://bezels/aura-bezel.svg",
+      "available": true,
+      "selected": true,
+      "reason": "Configuração da sessão enviada no launch; o runtime e os pixels do overlay ainda não foram confirmados.",
+      "compatible": true,
+      "applied": false,
+      "origin": "aura",
+      "version": "1.1.0",
+      "license": "GPL-3.0-or-later",
+      "applyMode": "next-launch",
+      "executionState": "launch-configured-unconfirmed"
+     }
+    ],
+    "fade": {
+     "phase": "idle",
+     "progress": 0.0,
+     "durationMs": 180,
+     "reducedMotion": false
+    },
+    "reason": ""
+   },
+   "criticalError": null,
+   "diagnostic": null,
+   "journeyAppearance": {
+    "journeyId": "org.steamzero.journey-bc4d258a",
+    "stageId": "pause",
+    "appearanceState": "inherit-aura",
+    "appearance": {
+     "mode": "inherit-aura"
+    },
+    "diagnosticCode": "",
+    "diagnosticMessage": "",
+    "theme": {
+     "schemaVersion": 1,
+     "themeId": "org.steamzero.default",
+     "themeVersion": "1.1.0",
+     "highContrast": false,
+     "reducedMotion": false,
+     "resolved": {
+      "color": {
+       "background": "#e7eceb",
+       "sidebar": "#d8dfdf",
+       "surface": "#f4f7f5",
+       "surfaceRaised": "#ffffff",
+       "surfaceSelected": "#dce8e8",
+       "border": "#aebdbe",
+       "text": "#16212a",
+       "textMuted": "#53616b",
+       "textDisabled": "#5c6a70",
+       "accent": "#006f99",
+       "accentStrong": "#005471",
+       "success": "#167a45",
+       "successSurface": "#dff3e7",
+       "warning": "#9a5a00",
+       "warningSurface": "#fff0d5",
+       "danger": "#ae2634",
+       "dangerSurface": "#fbe2e5",
+       "focus": "#006f99"
+      },
+      "geometry": {
+       "radiusSmall": 6,
+       "radiusMedium": 10,
+       "radiusLarge": 16,
+       "borderWidth": 1,
+       "focusWidth": 2,
+       "minimumTarget": 48,
+       "spacingSmall": 8,
+       "spacingMedium": 16,
+       "spacingLarge": 24
+      },
+      "typography": {
+       "scale": 1.0,
+       "weightBody": 400,
+       "weightStrong": 600,
+       "weightHeading": 700,
+       "display": 36,
+       "heading": 24,
+       "title": 20,
+       "body": 16,
+       "metadata": 14,
+       "badge": 12,
+       "caption": 12,
+       "controlHint": 14,
+       "diagnostic": 14
+      },
+      "motion": {
+       "durationFast": 120,
+       "durationNormal": 180,
+       "durationLong": 300,
+       "hoverIntensity": 0.05,
+       "focusIntensity": 0.1
+      },
+      "stateVariants": {
+       "focusedScale": 1.05,
+       "peripheralOpacity": 0.58,
+       "selectedOpacity": 1.0
+      },
+      "interaction": {
+       "focusVisible": true,
+       "minimumTarget": 48
+      },
+      "accessibility": {
+       "systemOverrides": true
+      },
+      "performance": {
+       "defaultTier": "cinematic"
+      }
+     },
+     "assets": {},
+     "effects": {
+      "contextualBackdrop": [
+       {
+        "type": "blur",
+        "parameters": {
+         "radius": 14.0
+        },
+        "capability": "graphics.effect.blur",
+        "cost": "high"
+       },
+       {
+        "type": "saturation",
+        "parameters": {
+         "amount": -0.38
+        },
+        "capability": "graphics.effect.saturation",
+        "cost": "low"
+       },
+       {
+        "type": "colorize",
+        "parameters": {
+         "color": "#10212c",
+         "strength": 0.28
+        },
+        "capability": "graphics.effect.colorize",
+        "cost": "medium"
+       },
+       {
+        "type": "vignette",
+        "parameters": {
+         "color": "#071019",
+         "strength": 0.11
+        },
+        "capability": "graphics.effect.colorize",
+        "cost": "high"
+       }
+      ],
+      "focusedCover": [
+       {
+        "type": "shadow",
+        "parameters": {
+         "color": "#071019",
+         "opacity": 0.42,
+         "blur": 9.0,
+         "offsetX": 0.0,
+         "offsetY": 3.0
+        },
+        "capability": "graphics.effect.shadow",
+        "cost": "medium"
+       },
+       {
+        "type": "glow",
+        "parameters": {
+         "color": "#13bdf2",
+         "strength": 0.06,
+         "blur": 6.0
+        },
+        "capability": "graphics.effect.glow",
+        "cost": "high"
+       }
+      ],
+      "peripheralCover": [
+       {
+        "type": "saturation",
+        "parameters": {
+         "amount": -0.58
+        },
+        "capability": "graphics.effect.saturation",
+        "cost": "low"
+       },
+       {
+        "type": "opacity",
+        "parameters": {
+         "amount": 0.58
+        },
+        "capability": "graphics.effect.saturation",
+        "cost": "low"
+       }
+      ]
+     },
+     "mediaRecipes": {
+      "contextualBackdrop": {
+       "sourceOrder": [
+        "hero",
+        "fanart",
+        "cover",
+        "screenshot",
+        "banner",
+        "platformArt",
+        "geometric"
+       ],
+       "fit": "crop",
+       "focalX": 0.5,
+       "focalY": 0.5,
+       "maxDecodeWidth": 1920,
+       "effectStack": "contextualBackdrop"
+      },
+      "focusedCover": {
+       "sourceOrder": [
+        "cover",
+        "hero",
+        "screenshot",
+        "platformArt",
+        "geometric"
+       ],
+       "fit": "contain",
+       "focalX": 0.5,
+       "focalY": 0.5,
+       "maxDecodeWidth": 1024,
+       "effectStack": "focusedCover"
+      },
+      "peripheralCover": {
+       "sourceOrder": [
+        "cover",
+        "hero",
+        "screenshot",
+        "platformArt",
+        "geometric"
+       ],
+       "fit": "contain",
+       "focalX": 0.5,
+       "focalY": 0.5,
+       "maxDecodeWidth": 512,
+       "effectStack": "peripheralCover"
+      }
+     },
+     "assetRecipes": {},
+     "assetRecipeSelection": null,
+     "sceneLayouts": null,
+     "dynamicPalette": null,
+     "glass": null,
+     "sceneMotion": null,
+     "sceneSurfaces": {
+      "schemaVersion": 1,
+      "slots": {
+       "bezel": {
+        "component": "sessionBezel"
+       }
+      },
+      "components": {
+       "sessionBezel": {
+        "kind": "bezel",
+        "source": "session.peripherals.bezels"
+       }
+      }
+     },
+     "sceneContainers": null,
+     "effectDiagnostics": [],
+     "assetRecipeDiagnostics": [],
+     "requestedThemeId": "org.steamzero.default",
+     "resolutionState": "resolved",
+     "resolutionDiagnostic": "",
+     "sceneResolutionState": "omitted",
+     "sceneDiagnostic": ""
+    }
+   },
+   "journeyBezel": {
+    "journeyId": "org.steamzero.journey-bc4d258a",
+    "stageId": "bezel",
+    "resourceId": "aura-default",
+    "state": "inherited-aura",
+    "applyMode": "next-launch",
+    "diagnosticCode": "",
+    "diagnosticMessage": ""
+   }
+  }
+ }
+}

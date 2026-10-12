@@ -1,0 +1,11 @@
+{
+ "http": 409,
+ "body": {
+  "error": {
+   "code": "LAUNCHER-LAUNCH-FAILED-001",
+   "cause": "Não foi possível preparar o lançamento.",
+   "impact": "O Launcher não confirmou o início do jogo.",
+   "nextAction": "Verifique o emulador e os requisitos na central e tente novamente."
+  }
+ }
+}

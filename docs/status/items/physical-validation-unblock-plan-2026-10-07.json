@@ -15,7 +15,9 @@
     "docs/status/workstreams/physical-validation-unblock-plan-2026-10-07.json",
     "docs/diagnostics/2026-10-07-diagnostico-jornadas-reais-ux.md",
     "docs/diagnostics/2026-10-07-HANDOFF-continuacao.md",
-    "docs/status/workstreams/diagnostico-jornadas-ux-2026-10-07.json"
+    "docs/status/workstreams/diagnostico-jornadas-ux-2026-10-07.json",
+    "docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5",
+    "docs/status/workstreams/jornada-fisica-bateria-2026-10-12.json"
   ],
   "dependsOn": [
     "SZ-ROADMAP-CONTINUATION"
@@ -38,10 +40,18 @@
       "reference": "docs/09-operations/evidence/2026-10-07-physical-validation-unblock/README.md",
       "command": "Reconciliacao documental das rodadas 06-07/10 com matriz R01-R17 e inspeção estatica de pyproject.toml; sem execucao de casos fisicos nem promocao de produtos.",
       "result": "recorded"
+    },
+    {
+      "kind": "hardware",
+      "reference": "docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/README.md",
+      "command": "Bateria fisica da jornada executada na release instalada 2.0.0rc1-2b7eb541b4a5 (sourceCommit 2b7eb541b4a54f0930927a2b0f92cb45776ae4c7, bundle 20d5187c9f195f32..., run 38125415210) no host misael-jupiter. Decisao do operador: pular reinstalacao e validar a candidata ja ativa; nenhum tools/release_host.py install, nenhum bigsudo, nenhuma escrita em /opt, /usr/local, /etc ou /boot. 15 criterios: 9 demonstrados, 4 parciais, 2 abertos. Matriz por criterio (comportamento, evidencia, release, limite) no README; capturas, logs, JSON do read-model e protecoes conferidas em logs/14.",
+      "result": "partial"
     }
   ],
-  "nextAction": "D0: preservar e fechar R05/R06 com o owner, atribuir dez digests e negociar handoffs por arquivo. D1-D4: captura/input no backend real, entry point steamzero-launcher, preflight de save/input e provider-bytes-consumo-gameplay-retorno; D5-D8 completam autoria, UX e candidata autorizada.",
-  "activeWorkstreams": [],
-  "updatedAt": "2026-10-09",
-  "notes": "Custodia documental do plano D0-D8, nao novo produto ou catalogo concorrente. Registro local nao commitado; branch atual e trabalho alheio preservados. Relatos fisicos nao reexecutados; nenhum eixo de capacidade promovido. Fechamento de governanca global depende do owner dos arquivos e digests existentes."
+  "nextAction": "D0: preservar e fechar R05/R06 com o owner, atribuir dez digests e negociar handoffs por arquivo. Rodada fisica 2026-10-12: as oito capacidades mantidas abertas no README da matriz so podem avancar com mao de obra do operador, porque injecao de entrada GUI esta proibida neste host e a ponte de leitura nao substitui a prova visual. Prioridade: corrigir em lote governado as tres alturas abertas (D-17 lancamento recusado sem causa, D-23 sessao presa apos saveState em pausa, D-26 save recusado que escreve o arquivo) e so depois reexecutar B-7 retorno com foco e rolagem, B-10 fades, C-4 recuperacao de sessao presa pelo produto, os 22 adapters nao testados e a entrada de gamepad/touch do Deck. Instalacao governada, rollback e ciclo de servico (A-2/A-3) seguem nao executados. D5-D8 completam autoria, UX e candidata autorizada.",
+  "activeWorkstreams": [
+    "WS-2026-10-JORNADA-FISICA-BATERIA"
+  ],
+  "updatedAt": "2026-10-12",
+  "notes": "Custodia documental do plano D0-D8 e das rodadas fisicas, nao novo produto ou catalogo concorrente. Rodada 2026-10-12 na candidata ativa: a jornada fisica NAO e declarada entregue. Ficam abertos o retorno com foco e rolagem (B-7), os fades (B-10) e a recuperacao de sessao presa (C-4); ficam parciais a heranca AURA (D-06/D-24), lancar jogo real (D-17), pause/resume (D-23) e confirmar saida (D-15). Tres defeitos de severidade alta seguem abertos (D-17, D-23, D-26). Instalacao governada, integridade e caminho de rollback nao foram executados nesta sessao. Nenhum eixo de capacidade promovido; os quatro gaps permanecem, porque gamepad e touch do Deck seguem sem prova e o backend de captura e input deixou de poder ser exercido por injecao de entrada neste host."
 }

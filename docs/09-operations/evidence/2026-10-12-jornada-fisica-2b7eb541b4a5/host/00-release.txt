@@ -1,0 +1,5 @@
+2026-10-12T15:43:55-03:00
+release_ativa=/opt/steamzero/releases/2.0.0rc1-2b7eb541b4a5
+cli_version=2.0.0rc1
+launcher_entry=/usr/local/bin/steamzero-launcher
+host_manager=/usr/local/sbin/steamzero-host

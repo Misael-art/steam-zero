@@ -77,7 +77,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-MULTIDISC-MATERIALIZATION-INGESTION | 4 | 6 | 4 | unit |  |
 | SZ-MULTIDISC-SESSION-DISC-IDENTITY | 9 | 4 | 3 | hw |  |
 | SZ-ONLINE-P2P | 37 | 2 | 1 | none |  |
-| SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 6 | 1 | 0 | none |  |
+| SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 200 | 2 | 0 | none |  |
 | SZ-PLATFORM-CORE-PER-SYSTEM | 78 | 6 | 4 | unit |  |
 | SZ-PLATFORM-PS4-CATALOG | 6 | 3 | 3 | unit |  |
 | SZ-PLATFORM-PS4-PHYSICAL-INSTALL | 8 | 3 | 2 | dev |  |

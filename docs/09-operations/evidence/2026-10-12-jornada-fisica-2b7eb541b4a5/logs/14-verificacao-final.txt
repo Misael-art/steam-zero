@@ -1,0 +1,51 @@
+Verificação final de preservação e restauração — 2026-10-12T18:25:52-03:00
+==========================================================================
+Release em prova: 2.0.0rc1-2b7eb541b4a5 · host misael-jupiter
+Este arquivo existe para que qualquer pessoa re-execute os comandos e confira os
+mesmos valores. Nada aqui foi confirmado "de memória": cada linha é saída de comando.
+
+1) SAVES DE TERCEIROS NÃO ALTERADOS (política: não sobrescrever configurações de terceiros)
+   Baseline: bloco "== saves/states RetroArch (protegidos) ==" em host/02-baseline-protecao.txt
+   (10 hashes, tomados ANTES de qualquer lançamento desta bateria).
+   Comando (reprodutível):
+     awk '/== saves\/states RetroArch \(protegidos\) ==/{f=1;next} f&&/^[0-9a-f]{64}  /{print}' \
+       host/02-baseline-protecao.txt | sha256sum -c -
+   Resultado: 10/10 SUCESSO, 0 FALHA.
+   Abrange os .srm de Mesen/mGBA/Opera/Snes9x em
+   ~/.var/app/org.libretro.RetroArch/config/retroarch/saves/ e os dois
+   states/Genesis Plus GX/1969 (Homebrew) (SMS).state1{,.png}.
+
+2) ÁRVORE DE SAVE-STATES DO STEAMZERO — delta atribuível, nada pré-existente tocado
+   find ~/.local/share/steamzero/saves/states -type f | wc -l                -> 21
+   find … -type f -newermt "2026-10-12 00:00" | wc -l                        ->  6   (só a bateria)
+   find … -type f ! -newermt "2026-10-12 00:00" | wc -l                      -> 15   (pré-existentes, intactos)
+   Os 6 com mtime de hoje (e nenhum nome colidia com arquivo existente):
+     17:29  Genesis Plus GX/Addams Family, The (USA, Europe) (Translated PtBr).state{,.png}
+     17:51  mGBA/Castlevania Legends (USA, Europe) (Translated PtBr).state{,.png}
+     17:58  Mesen/Batman - Return of the Joker (USA) (Translated PtBr).state1{,.png}
+            ^ estes dois últimos existem POR CAUSA DE D-26 (operação recusada que escreveu depois).
+   Reconciliação de contagens entre os três baselines:
+     logs/07-baseline-lancamento.txt (17:16, pré-bateria): 14 arquivos nos cores + 1 em .backups
+     logs/baseline-saves-antes-gb.txt (antes do Game Boy): 17 = 15 + os 2 do Addams Family
+     logs/json/gb-saves-depois.txt: byte-idêntico ao baseline do item anterior (diff vazio) — foi
+            tirado antes do save do mGBA, portanto NÃO prova o save do mGBA; a prova do mGBA é
+            logs/json/gb-save-3.json + logs/delta-saves-novos.txt.
+     agora: 21 = 17 + 2 (mGBA) + 2 (Mesen/D-26)  ->  delta total da bateria = 6 = logs/delta-saves-novos.txt
+   Limite: não foi tomado sha256 por arquivo dos 15 pré-existentes no fim da bateria; a preservação
+   deles está provada por mtime anterior a 2026-10-12 e por ausência de sobrescrita de nomes, e a
+   integridade por conteúdo está provada apenas para os 10 arquivos protegidos do item 1.
+
+3) PREFERÊNCIAS RESTAURADAS (confere com logs/05-journeys-baseline.txt)
+   active.json                          2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18  == baseline
+   org.steamzero.journey-4095b915…json  d7c114f9548712f3ba2ee269735aa1a078d8eaf131c1c93c8cd619440ab1b53f  == baseline (não tocado)
+   org.steamzero.journey-bc4d258a…json  81d313df04895d29f57eada940fba01773375d341e1ee2c41e6e0fb808001ae0  (jornada de teste, inerte, NÃO ativa)
+
+4) PROCESSOS / JANELAS
+   pgrep -c retroarch                                       -> 0
+   pgrep -fa 'LauncherMain.qml|steamzero-launcher'          -> vazio (a instância que EU abri foi fechada)
+   pgrep -fa 'qml6.*steamzero/ui/qml/Main.qml'              -> 1  (Central pid 977262, do usuário, preservada)
+
+5) HOST IMUTADO
+   /opt/steamzero/current -> releases/2.0.0rc1-2b7eb541b4a5, link de 2026-10-11 06:06:19 (inalterado; a
+   candidata já era ativa antes da prova). Nenhuma escrita em /opt, /usr/local, /etc ou /boot; nenhum
+   bigsudo; nenhum rollback; nenhum ciclo de serviço (ver logs/13, bloco "ESTA SESSÃO NÃO INSTALOU NADA").

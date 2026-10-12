@@ -1,0 +1,151 @@
+Defeitos registrados — jornada física 2.0.0rc1-2b7eb541b4a5
+===========================================================
+D-01…D-05 estão em logs/06-journey-studio.md (Studio de Jornadas). Este arquivo abre a
+numeração em D-06 e corrige afirmações anteriores desta mesma sessão onde a medição foi
+refeita. Severidade: [alta] impede uso normal / perde ou corrompe estado; [média] degrada;
+[baixa] atrito.
+
+D-06 [média] Herdar AURA não resolve AURA: o read-model devolve org.steamzero.default claro.
+  Em /model e no overlay, appearance.mode="inherit-aura" resolve para
+  themeId="org.steamzero.default" (background #e7eceb), não para o tema AURA publicado na
+  release (/opt/steamzero/releases/2.0.0rc1-2b7eb541b4a5/…/themes/org.steamzero.aura).
+  Evidência: logs/json/gb-overlay-pos-save.json (journeyAppearance.theme),
+  capturas/L30-overlay-sessao-gb.png.
+
+D-07 [média] O tema aplicado muda por menu, não por jornada.
+  Reproduzido em Plataformas↔Jogos e de novo em Jogos com filtro nes-famicom: a barra
+  lateral e o fundo alternam claro/escuro ao trocar de menu sem nenhuma intervenção de tema.
+  Evidência: capturas L17…L20, L28, logs/07-baseline-lancamento.txt.
+
+D-08 [média] Bloqueio de lançamento não aparece na sobreposição de jornada.
+  POST /launch devolve 409 estruturado (code/cause/impact/nextAction) e o overlay continua
+  mostrando o rodapé normal, sem mensagem. Evidência: logs/json/E-launch-attempt.json,
+  logs/json/nes-relancamento.json.
+
+D-09 [média] 18 entradas navegáveis não lançáveis (contagem corrigida).
+  A contagem anterior desta sessão ("1132 lançáveis / 31 não lançáveis") estava errada: foi
+  produzida por uma réplica manual do filtro. Chamando o próprio
+  EmulationController._load_library_cache() (harness/sz_launchable.py, spawn bloqueado por
+  asserção) o valor autoritativo é cache=1163, lançáveis=1145, não lançáveis=18.
+  Evidência: logs/08-portao-lancamento.txt, logs/json/library-launchable.json.
+  As 18 aparecem na lista e só falham ao tentar lançar (E-TX-STALE-PLAN via 409).
+
+D-10 [baixa] Dica do rodapé fica oculta pelos botões de sessão.
+  Em 1280x801 a linha de atalhos é cortada quando as ações de sessão aparecem.
+  Evidência: capturas/L22-acoes-de-sessao-ativas.png, L24, L26.
+
+D-12 [média] Botões de sessão ficam desabilitados até "Atualizar".
+  Com sessão em execução o rodapé mostrava Pausar/Salvar/Sair sem FOCUSABLE/ENABLED; só
+  depois do botão "Atualizar" (ok|button|Atualizar) é que passaram a habilitar.
+  Evidência: logs/json/acessibilidade-lancador-sessao.txt, capturas/L22.
+
+D-15 [média] Saída confirmada pela UI recusa com "estado observado: unknown".
+  O caminho do botão exigiu confirmação e ainda assim foi recusado; o encerramento só
+  completou pela rota da ponte (POST /session/action exit confirmed=true → closing→closed).
+  Evidência: logs/json/pos-saida.json, logs/json/exit-confirmado-ponte.json.
+
+D-16 [RETIRADO — medição anterior estava errada] "Bezel configurado e ausente dos pixels".
+  A medição antiga comparava os pixels da captura com os tokens de tema AURA (#38bdf8,
+  #6ee7f9, #a78bfa, tolerância 26) e não com as cores do artefato realmente gerado, por isso
+  deu 0 px. Refeita contra as 40 cores opacas mais frequentes do próprio aura-bezel.png
+  (1920x1080) escrito pela produto em
+  ~/.config/steamzero/retroarch/sessions/<sessão>/, a moldura está presente nas capturas:
+  L21 (Mega Drive) 4752 amostras ~0,4% da área; L29 (Game Boy) ~0,3% — logs/10-bezel-pixels.txt.
+  Confirmação visual: L21 e L31 mostram a moldura ciano→violeta ao redor da saída do jogo.
+  O read-model também reporta journeyBezel state="inherited-aura", resourceId="aura-default",
+  applyMode="next-launch", sem código de diagnóstico (logs/json/gb-overlay-pos-save.json).
+  Permanece em aberto apenas FADE: fade.phase="idle" em todas as leituras; nenhuma captura
+  pegou fase não-idle, então entrada/saída com fade continua NÃO DEMONSTRADA.
+
+D-17 [alta] Lançamento recusado sem causa observável em lugar nenhum.
+  Título: '89 Dennou Kyuusei Uranai (Japan) (zip), NES/Mesen. game_readiness → playable=true,
+  code=""; POST /launch → 409 LAUNCHER-LAUNCH-FAILED-001 "Não foi possível preparar o
+  lançamento." Reproduzido duas vezes, a segunda sem nenhuma outra sessão ativa
+  (logs/json/nes-launch-direto.json 17:38:34, logs/json/nes-relancamento.json 17:46:24).
+  Nenhum vestígio do motivo em: event_log (nenhuma linha de sessão — a sessão chega a ser
+  criada e fechada sem transição registrada), ~/.config/steamzero/retroarch/sessions/
+  (diretório vazio/ausente), stdout/stderr do launcher (/tmp/sz-launcher.log, 95 bytes),
+  ~/.local/state/steamzero/logs/core.jsonl (nada no instante). O núcleo mesen_libretro.so
+  está instalado e o mesmo núcleo lança outro título NES com sucesso (item 3 de
+  logs/11-bateria-por-sistema.txt), então a falha é específica do título — e o produto não
+  diz nem isso. O nextAction ("Verifique o emulador e os requisitos na central") aponta para
+  um caminho que não contém o diagnóstico.
+
+D-19 [média] Dois controles acessíveis chamados "Jogar" na mesma janela.
+  A página de jornada e a página de jogo subjacente expõem o mesmo nome acessível; a busca
+  por nome acionou o controle errado e relançou o jogo Mega Drive já aberto
+  (sessão 01M4RXB8A45DY9NA0C0SX9Y0XD). Custo real: uma sessão extra e uma captura a refazer.
+
+D-20 [baixa] saveState pela ponte exige "slot" mas o botão é oferecido sem ele.
+  POST /session/action actionId=saveState sem slot → 409 AURA-SESSION-ADAPTER-003
+  "slot de save-state inválido" (logs/json/gb-save-2.json), com o overlay declarando
+  saveState enabled=true. Com slot=0 aceito e confirmado (logs/json/gb-save-3.json).
+  A rota /journey/event valida a mesma faixa e dá mensagem melhor ("entre 0 e 999",
+  recoveryAction=choose-valid-slot — launcher_ui.py:466); a rota de sessão não.
+
+D-21 [baixa] Miniatura do save-state existe no disco e não aparece no read-model.
+  Após o save, states/mGBA/Castlevania Legends…state.png (6418 bytes) foi criado, mas o
+  overlay reporta thumbnailUrl="" e thumbnailFallback=true (logs/json/gb-overlay-pos-save.json,
+  saveStates.entries[0]).
+
+D-22 [média] Sessão ativa sem item selecionado deixa o rodapé sem nenhuma ação.
+  Com a sessão 01M4RYBPZ3X9PXX1JY37FEQ69H suspensa e o /model em selected=None/focus=None,
+  todas as capacidades vieram indisponíveis com "Selecione um jogo com uma sessão
+  observável." — inclusive Retomar e Sair, que o OSD oferecia habilitados na mesma janela.
+  O usuário não tem como retomar/sair pelo rodapé sem antes reencontrar e selecionar o jogo.
+
+D-23 [alta] saveState com a sessão suspensa trava a sessão de forma irrecuperável pelo produto.
+  Efeito completo e timestamps em logs/11-bateria-por-sistema.txt item 6. Resumo:
+  aceito→recusado (409 "o dono da sessão não respondeu") e, a partir daí, resume e exit
+  passam a devolver o mesmo 409 para sempre; SIGTERM não mata o emulador; SIGKILL deixa
+  zumbi sem reap; o observer não detecta a morte e a sessão fica presa em "suspended".
+  Causa provável: a pausa SIGSTOPa a árvore do flatpak inteira (bwrap externo T<s, bwrap
+  interno T, retroarch T) e o pedido de save fica pendurado no canal de controle; retomar
+  exige continuar o supervisor externo, o que o produto nunca faz.
+  Recuperação exigiu kill -CONT manual no bwrap externo (18:02:06 → closing → closed).
+  A armadilha é alcançável pela UI: o OSD mostra "Galeria de saves" habilitada com a sessão
+  suspensa.
+
+D-24 [média] "Herdar AURA neste menu" gera E-THEME-NOT-FOUND na Central.
+  No editor de aparência (Temas → Editar aparência → menu Plataformas), o botão respondeu com
+  o aviso "Tema não encontrado — O tema solicitado não existe no catálogo ou seu diretório
+  foi removido. Impacto: A operação foi recusada; nenhuma mudança foi feita."
+  (capturas/L36-apos-herdar-aura.png). O tema org.steamzero.aura existe no pacote da release
+  (themes/org.steamzero.aura/theme.json) mas não há entrada em
+  ~/.local/share/steamzero/themes/ — o catálogo do host só contém org.esde.* e dois
+  org.steamzero.<ULID>.
+
+D-25 [baixa] Estado "não salvo" aparece mesmo quando a operação foi recusada.
+  Imediatamente depois do E-THEME-NOT-FOUND (que afirma "nenhuma mudança foi feita") a
+  barra passou de "Salvar" (desabilitado) para "Salvar · não salvo" (habilitado) e Desfazer
+  habilitou (capturas/L35 vs L36; árvore AT-SPI dumpada na sessão).
+
+D-26 [alta] Operação recusada produz efeito depois — a recusa não é atômica.
+  O mesmo saveState slot 1 recusado com accepted=false escreveu
+  states/Mesen/Batman - Return of the Joker (USA) (Translated PtBr).state1{,.png} no momento
+  em que o processo foi continuado manualmente (mtime 17:58:21; recusa registrada em
+  logs/json/nes3-save-suspenso.json às ~17:55:1x). O read-model da sessão nunca mostrou o
+  slot ocupado e o usuário não tem como saber que um save foi escrito por uma operação que o
+  produto disse ter recusado.
+
+Correções de registro feitas nesta sessão
+  · D-09: contagem corrigida de 1132/31 para 1145/18, obtida pelo próprio método do produto.
+  · D-16: retirado; o bezel AURA está renderizado e medido (ver acima).
+  · D-17: reenquadrado de "NES não lança" para "título específico do NES recusa sem causa
+    observável", depois que um segundo título NES/Mesen lançou com saída real na tela.
+  · "resume" não é actionId da rota /session/action (o id é "pause", alternável); o 409
+    AURA-OSD-ACTION-002 observado foi erro de operador e está anotado para não virar defeito.
+  · capturas/L34-central-estado-atual.png NÃO é evidência: sz_focus confirmou o foco na
+    janela da Central e ainda assim a captura pegou outra janela do desktop (um app Tk de
+    terceiros, "MT5 Extração"). Motivo: o harness usa `spectacle -a` (janela ATIVA no momento
+    do disparo) e a uuid passada como argumento posicional é ignorada — em desktop
+    compartilhado a janela ativa pode trocar entre o foco confirmado e o disparo. As
+    capturas L35…L39 da Central foram refeitas por `spectacle -a` logo depois de reativar a
+    janela e conferidas visualmente uma a uma.
+  · capturas/L27-retorno-com-foco-e-rolagem.png é byte-idêntica a L26 (mesmo sha256
+    bcc7ef04…): a prova visual do retorno com foco/rolagem NÃO é independente. A evidência
+    do retorno continua sendo o read-model (focus=item:emulation:938fa6d460ece97282294b32,
+    scroll=151.0, generation 6) e precisa ser recapturada antes de qualquer alegação visual.
+    CORREÇÃO A ESTA CORREÇÃO (ver logs/15 item 3): o read-model acima foi lido ao vivo pela
+    ponte mas NUNCA foi persistido — não existe em logs/json/. O critério fica ABERTO, sem
+    prova arquivada de espécie nenhuma, com receita de re-captura em logs/15.

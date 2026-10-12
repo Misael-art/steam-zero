@@ -1,0 +1,17 @@
+/home/misael/.local/share/steamzero/saves/states/.backups/1969 (Homebrew) (SMS).slot3.state
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state3
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state3.png
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state4
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state4.png
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/Addams Family, The (USA, Europe) (Translated PtBr).state
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/Addams Family, The (USA, Europe) (Translated PtBr).state.png
+/home/misael/.local/share/steamzero/saves/states/Mesen/'89 Dennou Kyuusei Uranai (Japan).state
+/home/misael/.local/share/steamzero/saves/states/Mesen/'89 Dennou Kyuusei Uranai (Japan).state.png
+/home/misael/.local/share/steamzero/saves/states/Mesen/Aladdin (Music Replacement + Button Fix + improvement).state
+/home/misael/.local/share/steamzero/saves/states/Mesen/Aladdin (Music Replacement + Button Fix + improvement).state.png
+/home/misael/.local/share/steamzero/saves/states/Mesen/Blaster Master (USA) (Translated PtBr).state1
+/home/misael/.local/share/steamzero/saves/states/Mesen/Blaster Master (USA) (Translated PtBr).state1.png
+/home/misael/.local/share/steamzero/saves/states/Snes9x/46 Okunen Monogatari - Harukanaru Eden e (Japan) (Translated En).state31
+/home/misael/.local/share/steamzero/saves/states/Snes9x/46 Okunen Monogatari - Harukanaru Eden e (Japan) (Translated En).state31.png
+/home/misael/.local/share/steamzero/saves/states/Snes9x/Seiken Densetsu 3 (Japan) (Translated PtBr).state3
+/home/misael/.local/share/steamzero/saves/states/Snes9x/Seiken Densetsu 3 (Japan) (Translated PtBr).state3.png
