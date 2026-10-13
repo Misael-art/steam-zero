@@ -128,6 +128,50 @@ D-26 [alta] Operação recusada produz efeito depois — a recusa não é atômi
   slot ocupado e o usuário não tem como saber que um save foi escrito por uma operação que o
   produto disse ter recusado.
 
+D-27 [média] A mesma ação é publicada com `enabled` contraditório; a versão habilitada não
+  executa nada e alega sucesso.
+  `requirements.verify` sai duas vezes do backend: no workspace como "Validar requisitos",
+  `enabled=false` com o motivo "Validação pela interface ainda não está conectada ao serviço."
+  (domain/emulation_workspace.py:734) e no adapter como "Validar novamente", `enabled` padrão
+  `true` (adapters/emulation.py:5691). O clique em qualquer das duas cai no ramo
+  ui/qml/Main.qml:1567-1570, que **não emite requisição nenhuma**: chama `refreshStatus(...)`
+  e mostra "Ambiente de emulação verificado". Ou seja, a própria tela declara que a validação
+  não tem serviço e, ainda assim, um botão com o mesmo id habilitado produz mensagem de sucesso.
+  `firmware.import` tem a mesma contradição (workspace `enabled=false` :689 × adapter
+  `enabled=true` :5687). Severidade média: não perde estado, mas a interface afirma algo que não
+  aconteceu — e o motivo literal do produto diz o contrário.
+  Evidência: logs/18-censo-controles-backend.txt (eixos A/B), logs/json/censo-controles-backend.json.
+
+D-28 [média] O OSD de sessão publica 10 ações que o backend de sessão não aceita, e esconde 5
+  que ele aceita.
+  Nas 14 capturas de overlay arquivadas, `achievement`, `brightness`, `control`, `disc`,
+  `fastForward`, `mute`, `network`, `rewind`, `screenshot` e `volume` aparecem sempre com
+  `enabled=false`; nove delas com o motivo literal do produto "Esta ação ainda não possui adapter
+  de sessão." (o `disc` com "O adapter não declarou suporte para esta ação."). Nenhuma das dez está
+  no conjunto aceito por adapters/session_control.py:395-412. Ao contrário, `listDiscs`,
+  `listPeripherals`, `listSaveStates`, `resume` e `swapDisc` são aceitos pelo backend e nunca
+  aparecem como ação de OSD. Custo: uma fileira de botões permanentemente inertes na sobreposição
+  do jogo — é a forma mais concreta da "informação/botão sem backend" perguntada pelo operador.
+  Evidência: logs/18 eixo C, logs/json/*.json (read-models de overlay).
+
+D-29 [média] Combinações de tokens dos temas publicados ficam abaixo de AA — 43 casos medidos.
+  Não é o D-01 (que é do componente): aqui a própria paleta do tema não sustenta o texto sobre o
+  fundo dele. Contagem por tema em logs/19-auditoria-de-cores.txt. Os exemplos que importam:
+  · `success` 2,92:1 e 3,28:1, `warning` 2,87:1 e 3,22:1, `danger` 2,34:1 e 2,63:1 **sobre o fundo**
+    nos dois temas do host derivados do default — as três cores de status só atingem 4,5:1 dentro
+    dos painéis `*Surface` que as acompanham; usadas soltas (badge, texto de estado, ícone) reprovam.
+  · `org.steamzero.steamdeck`: `accent` 2,91:1 sobre o fundo e o anel de **`focus` com o mesmo
+    valor 2,91:1**, abaixo do mínimo de 3:1 para elemento não textual — em tema de gamepad isto é
+    o indicador de onde está o foco.
+  · `accentStrong` 3,53:1 no AURA do pacote.
+  · `border` 1,44–1,63:1 e `sidebar` 1,03–1,36:1 em **todos** os temas mensuráveis: a barra lateral
+    não se distingue do fundo por cor.
+  Limites: razão de contraste não é veredito WCAG por si (depende de tamanho/papel/estado); os
+  `textDisabled` reprovados (3,76:1/3,90:1) são explicitamente isentos pelo critério 1.4.3 para
+  estado inativo e estão registrados como contexto, não como violação. `Esquema de cor` /
+  `Escolher cor` não foram exercitados — se o editor **produz** combinações piores, continua aberto.
+  Evidência: logs/19 (tabela completa por tema e o rollup de 43).
+
 Correções de registro feitas nesta sessão
   · D-09: contagem corrigida de 1132/31 para 1145/18, obtida pelo próprio método do produto.
   · D-16: retirado; o bezel AURA está renderizado e medido (ver acima).

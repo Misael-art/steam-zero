@@ -49,3 +49,15 @@ mesmos valores. Nada aqui foi confirmado "de memória": cada linha é saída de 
    /opt/steamzero/current -> releases/2.0.0rc1-2b7eb541b4a5, link de 2026-10-11 06:06:19 (inalterado; a
    candidata já era ativa antes da prova). Nenhuma escrita em /opt, /usr/local, /etc ou /boot; nenhum
    bigsudo; nenhum rollback; nenhum ciclo de serviço (ver logs/13, bloco "ESTA SESSÃO NÃO INSTALOU NADA").
+
+6) REPRODUTIBILIDADE DOS DOIS REGISTROS ADICIONAIS DA RODADA (verificado 2026-10-13 00:02, depois do
+   registro original em 2026-10-12 22:48/23:01)
+   python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_censo.py .   -> rc=0
+   python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_cores.py     -> rc=0
+   sha256sum -c dos três artefatos reescritos: 3/3 SUCESSO — saída byte-idêntica, sem data/hora
+   embutida nos artefatos.
+     logs/18-censo-controles-backend.txt        9d8816c36c30d4ed…
+     logs/19-auditoria-de-cores.txt             e6e747535e27f31f…
+     logs/json/censo-controles-backend.json     23500fa63b965e32…
+   Ambos os harnesses são de somente leitura sobre o pacote instalado e o catálogo de temas do host:
+   nenhuma escrita em /opt, nenhum clique, nenhuma injeção de entrada.

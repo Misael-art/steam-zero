@@ -70,6 +70,34 @@ Toda linha abaixo foi executada na mesma release: `2.0.0rc1-2b7eb541b4a5`.
 | D-4 delta registrado e preferências restauradas | **DEMONSTRADO** — delta com sha256 por arquivo; restauração conferida por hash | `logs/13`, `logs/14` item 3 | 2.0.0rc1-2b7eb541b4a5 | ver limite de D-3/B-15 sobre resíduo |
 | D-5 não provocar falhas | **DEMONSTRADO** — nenhum serviço parado, nenhuma configuração de host alterada, `/opt/steamzero/current` intacto (link de 2026-10-11 06:06) | `host/00-release.txt`, `logs/14` item 5 | 2.0.0rc1-2b7eb541b4a5 | a intervenção do incidente D-23 (`kill -CONT` em processos **já** parados pela pausa do produto) foi recuperação, não provocação — registrada linha a linha em `logs/11` item 6 |
 
+## E. Censo de controles × fiação de backend (pergunta do operador: "botões sem backend")
+
+Executado **somente por leitura** sobre o código do pacote instalado + a árvore AT-SPI arquivada +
+os read-models capturados. Não é bateria física: não prova runtime, prova fiação. `harness/sz_censo.py`,
+saída em `logs/18-censo-controles-backend.txt`, linhas em `logs/json/censo-controles-backend.json`.
+
+| critério | comportamento observado | evidência | release | limite |
+|---|---|---|---|---|
+| E-1 registro de contratos da central | **DEMONSTRADO (estático)** — 154 contratos; **148 com endpoint e 148/148 com porta implementada no verbo declarado** (127 POST em `_dispatch`, 21 GET em `do_GET`). Os 6 sem endpoint são decisão explícita do produto, cada um com `enabled=false`, `applicable=false` e `reason` literal (`component.open-config`, `component.rollback`, `component.recover`, `sync.status`, `profiles.history`, `session.recovery`) | `logs/18` eixo A, `logs/json/censo-controles-backend.json` | 2.0.0rc1-2b7eb541b4a5 | refuta "dezenas de botões sem backend" **no nível de contrato**; não diz nada sobre o que a porta faz (D-17 tem porta e resultado inútil). Uma versão anterior deste censo usou regex no `plan_action` e **subcontou portas** — refeita por AST; a régua antiga está descartada |
+| E-2 catálogo de ações de emulação | **DEMONSTRADO (estático)** — 79 publicações / 58 ids: **76 com porta**, 1 sem (`feature.planned`, que já nasce `enabled=false` com motivo) e 2 não resolvidas estaticamente (o prefixo do id vem de variável) | `logs/18` eixo B | 2.0.0rc1-2b7eb541b4a5 | `enabled` de várias ações é expressão condicionada ao acervo do host (`EXPR:...`), registrada e não resolvida |
+| E-3 contradição de publicação (D-27) | **DEMONSTRADO (estático)** — `requirements.verify` e `firmware.import` saem duas vezes com `enabled` oposto (workspace `false` :689/:734 × adapter `true` :5687/:5691); o clique em `requirements.verify` cai em `Main.qml:1567-1570`, que **não emite requisição** e mostra "Ambiente de emulação verificado" | `logs/18` item 3, `logs/12` D-27 | 2.0.0rc1-2b7eb541b4a5 | fiação lida no fonte; o sucesso falso **não foi observado na tela** (injeção de GUI banida neste host). Causa e caminho completos, veredito runtime em aberto |
+| E-4 OSD de sessão × backend de sessão (D-28) | **DEMONSTRADO** — nas 14 capturas de overlay, `achievement`, `brightness`, `control`, `disc`, `fastForward`, `mute`, `network`, `rewind`, `screenshot`, `volume` sempre `enabled=false` (9 com "Esta ação ainda não possui adapter de sessão."); nenhum dos 10 está no conjunto aceito por `session_control.py:395-412`. Ao contrário, `listDiscs`, `listPeripherals`, `listSaveStates`, `resume`, `swapDisc` são aceitos e nunca viram botão | `logs/18` eixo C, `logs/json/*.json` | 2.0.0rc1-2b7eb541b4a5 | vale para as 14 capturas desta release; uma ação sem adapter pode existir em outra |
+| E-5 causa do D-20 (saveState sem slot) | **DEMONSTRADO (estático)** — a galeria que fornece o `slot` só abre se já existir save (`LauncherSessionOverlay.qml:205-212`); sem save, o toque usa o caminho genérico `actionRequested` (`:227`) → `LauncherMain.qml:876-878` envia `slot=undefined` → `session_control.py:449` exige `int` 0..999 → 409 `AURA-SESSION-ADAPTER-003` | `logs/18` item 5, `logs/json/gb-save-2.json` (recusa), `gb-save-3.json` (aceito com `slot=0`) | 2.0.0rc1-2b7eb541b4a5 | o 409 observado veio do **payload pela ponte**, igual ao que o botão produz; o botão nesse estado não foi clicado |
+| E-6 exposição acessível da Central | **MEDIDO** — 622 controles acionáveis (dedup papel+nome) em 3270 nós: 55 visíveis, **546 com ENABLED sem VISIBLE/SHOWING**, 21 inertes | `logs/18` eixo D, `logs/17` (árvore crua) | 2.0.0rc1-2b7eb541b4a5 | **não é contagem de defeito**: a Central empilha páginas numa janela só, então a maioria é aba não aberta. O defeito continua sendo o caso específico medido em D-03 (`Usar tema` invisível e acionável). 404 nomes sem string correspondente no QML = limitação do casamento por nome, não controle fantasma |
+
+## F. Auditoria de cores (pergunta do operador: "as cores precisam de ajustes")
+
+`harness/sz_cores.py` → `logs/19-auditoria-de-cores.txt`. Contraste WCAG 2.1 recomputado dos
+`tokens.color` de 4 temas do pacote + 6 do host, com `extends` resolvido, confrontados com as
+estáticas do estilo medidas em pixels em `logs/06` (#FCFCFC habilitado / #E3E5E7 desabilitado).
+
+| critério | comportamento observado | evidência | release | limite |
+|---|---|---|---|---|
+| F-1 amplitude da classe D-01 | **MEDIDO** — `DarkButton` (`ui/qml/DarkButton.qml:1-40`) é `QQC.Button` **sem `background`**: o rótulo vem de `palette.buttonText` do pai, o fundo vem do estilo. Amplitude: **28 instâncias de `DarkButton`, 245 de `QQC.Button` cru, 73 bindings de `palette.buttonText` em 11 arquivos**; 22 arquivos pintam `background` próprio e escapam | `logs/19` §Amplitude | 2.0.0rc1-2b7eb541b4a5 | contagem de código, não de tela; quantos desses estão visíveis numa dada captura não foi medido |
+| F-2 tema escuro × fundo do estilo | **DEMONSTRADO** — previsão por token **reproduz a medição em pixels**: `text #f5f7ff` × #FCFCFC = **1,04:1**, exatamente o 1,04:1 medido do botão `Reinstalar` em `logs/06`; AURA do pacote 1,15:1 | `logs/19` §Veredito 2 e §Conciliação | 2.0.0rc1-2b7eb541b4a5 | nos desabilitados a previsão é **otimista ~0,9:1** (2,93 previsto × 2,02/2,05 medidos): a cor real vem de `palette.disabled.buttonText`, só observável em runtime. Divergência registrada, não resolvida |
+| F-3 tokens semânticos dos temas (D-29) | **MEDIDO** — **43 reprovações**: `success` 2,92–3,28:1, `warning` 2,87–3,22:1, `danger` 2,34–2,63:1 sobre o fundo nos temas do host; `accent` e o anel de **`focus` 2,91:1** no `steamdeck` (abaixo do mínimo de 3:1 não textual); `accentStrong` 3,53:1 no AURA; `border` 1,44–1,63:1 e `sidebar` 1,03–1,36:1 em **todos** os temas mensuráveis | `logs/19` rollup, `logs/12` D-29 | 2.0.0rc1-2b7eb541b4a5 | razão de contraste não é veredito WCAG por si (tamanho/papel/estado); `textDisabled` 3,76/3,90:1 é **isento** pelo critério 1.4.3 para estado inativo e está registrado como contexto |
+| F-4 cobertura de tokens | **DEMONSTRADO** — os 6 temas mensuráveis definem as mesmas 18 chaves do `org.steamzero.default` após `extends`: **nenhuma lacuna**. Os 4 `org.esde.*` do host não têm `tokens.color` (pacotes de ativos) e ficam fora da medida | `logs/19` por tema | 2.0.0rc1-2b7eb541b4a5 | — |
+
 ## Capacidades mantidas abertas (não demonstradas)
 
 1. **Fades** (B-10) — nunca observados fora de `fade.phase="idle"`.
@@ -86,11 +114,21 @@ Toda linha abaixo foi executada na mesma release: `2.0.0rc1-2b7eb541b4a5`.
    **arquivo inexistente** nesta evidência, logo fica sem número e sem prova arquivada.
 8. **Instalação governada, rollback e ciclo de serviço** (A-2/A-3) — não executados por decisão
    do operador; nada nesta sessão autoriza concluir que o fluxo de instalação funcione.
+9. **Seletor de tema na UI** — as ações `Esquema de cor` / `Escolher cor` da Central nunca foram
+   exercitadas; os 43 contrastes de `logs/19` e o D-29 vêm dos `theme.json` publicados no host e
+   no pacote da release, **não** de uma troca de tema pela interface. Que um tema aplicado pela UI
+   produza exatamente essas cores é inferência, não observação.
+10. **Efeitos em runtime dos achados estáticos do censo** — E-1…E-6 e D-27/D-28 são fiação de
+    código e read-models; a injeção de entrada GUI está banida neste host, então nenhum dos
+    botões que o censo aponta com defeito de fiação foi clicado para confirmar o sintoma.
 
 ## Defeitos
 
-D-01…D-05 em `logs/06-journey-studio.md`; D-06…D-26 em `logs/12-defeitos-registrados.txt`
-(altas: D-17, D-23, D-26). A adenda `logs/15-adenda-de-registro.txt` restaura os números
+D-01…D-05 em `logs/06-journey-studio.md`; D-06…D-29 em `logs/12-defeitos-registrados.txt`
+(altas: D-17, D-23, D-26). D-27/D-28/D-29 vêm do censo de controles × backend (`logs/18`) e da
+auditoria de cores (`logs/19`) — os três de severidade média, derivados de fiação de código ou de
+medida estática, sem sintoma de runtime confirmado por clique. A adenda
+`logs/15-adenda-de-registro.txt` restaura os números
 D-11/D-13 (duplicatas de D-10/D-21), refuta D-14, **retira D-18** com a checagem de código que o
 substituiu por D-19, e corrige a base de evidência da linha B-7.
 
@@ -108,11 +146,14 @@ filtro), **D-17 reenquadrado** de "NES não lança" para "título específico re
 | `host/00`,`01`,`02` | release ativa, daemon/units/doctor em duas passagens, baseline de proteção |
 | `logs/03` | provisionamento de input/captura e o incidente de foco em desktop compartilhado |
 | `logs/05`,`06`,`07`,`08`,`09` | baseline de jornadas, bateria do Studio (D-01…D-05), baseline de saves, portão de lançamento (1145/18), readiness dos 25 sistemas |
-| `logs/10`,`11`,`12`,`13` | medição de pixels do bezel, bateria por sistema + incidente, defeitos D-06…D-26, delta e restauração |
-| `logs/14`,`15`,`16` | verificação final reprodutível (comandos e saídas), adenda de registro (D-11/D-13/D-14/D-18, `logs/04` ausente, base de B-7) e auditoria das 83 capturas |
-| `logs/json/` (57 JSON + 3 listas) | read-models brutos de `/model`, `/session`, `/session/action` e respostas HTTP |
+| `logs/10`,`11`,`12`,`13` | medição de pixels do bezel, bateria por sistema + incidente, defeitos D-06…D-29, delta e restauração |
+| `logs/14`,`15`,`16` | verificação final reprodutível (comandos e saídas; o bloco 6 revalida por `sha256sum -c` os artefatos de `logs/18`/`logs/19`), adenda de registro (D-11/D-13/D-14/D-18, `logs/04` ausente, base de B-7) e auditoria das 83 capturas |
+| `logs/17` | árvore AT-SPI da Central após a bateria (622 controles; base da linha E-6) |
+| `logs/18` | censo de controles × fiação de backend (eixos A–D; origem de E-1…E-6 e de D-27/D-28) |
+| `logs/19` | auditoria de cores: contraste WCAG 2.1 recomputed dos `theme.json` (origem de F-1…F-4 e D-29) |
+| `logs/json/` (58 JSON + 3 listas) | read-models brutos de `/model`, `/session`, `/session/action` e respostas HTTP, incluindo `censo-controles-backend.json` |
 | `capturas/` (83 PNGs) + `manifest.tsv` (86 linhas · 68 sha256 distintos) | capturas reais com timestamp, release, sha256 e resolução; 13 grupos de frame repetido auditados em `logs/16` |
-| `harness/` | `sz-harness.sh`, `sz_press.py`, `sz_api.py`, `sz_contrast.py`, `sz_readiness.py`, `sz_launchable.py`, `sz_states.py`, `sz_grab.py`, `sz_focused.py` |
+| `harness/` | `sz-harness.sh`, `sz_press.py`, `sz_api.py`, `sz_contrast.py`, `sz_readiness.py`, `sz_launchable.py`, `sz_states.py`, `sz_grab.py`, `sz_focused.py`, `sz_censo.py`, `sz_cores.py` |
 
 ## Condição de execução: injeção de entrada neste host
 
