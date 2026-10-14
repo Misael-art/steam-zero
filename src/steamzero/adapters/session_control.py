@@ -253,6 +253,17 @@ class SessionControlOwner:
         self._peripheral_control.load_state(slot)
         return self._require_current()
 
+    def state_path(self, slot: int) -> Path:
+        """O destino que um `saveState` deste slot escreveria — nomeado pelo adapter.
+
+        D-26: a recusa de um pedido já despachado precisa dizer *onde* o arquivo pode
+        ter ficado. A sufixação pertence ao adapter (`state_path`); reimplementá-la
+        aqui daria ao produto um segundo dono do nome.
+        """
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece save-state")
+        return self._peripheral_control.state_path(slot)
+
     def list_discs(self) -> Mapping[str, Any]:
         if self._peripheral_control is None:
             raise RuntimeError("o adapter desta sessão não oferece troca de disco")
@@ -450,6 +461,10 @@ class SessionControlServer:
                 "diagnostic": DIAG_CONTROL_REQUEST,
                 "detail": "A ação da sessão não é permitida.",
             }
+        # Duas metades de falha dentro do mesmo `try` (D-26): o que quebra antes de
+        # chamar o adapter não teve nenhum efeito; o que quebra depois pode ter
+        # escrito o arquivo do slot mesmo assim.
+        dispatched_slot: int | None = None
         try:
             if action == "pause":
                 record = self.owner.suspend()
@@ -488,6 +503,10 @@ class SessionControlServer:
                 slot = request.get("slot")
                 if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot <= 999:
                     raise ValueError("slot de save-state inválido")
+                if action == "saveState":
+                    # D-26: a partir desta linha o pedido já foi entregue ao adapter;
+                    # a recusa deixa de poder afirmar que nada aconteceu.
+                    dispatched_slot = slot
                 record = (
                     self.owner.save_state(slot)
                     if action == "saveState"
@@ -500,13 +519,33 @@ class SessionControlServer:
                 record = self.owner.swap_disc(disc_id)
         except Exception:
             current = self.owner.current
-            return {
+            refusal: dict[str, Any] = {
                 "accepted": False,
                 "state": current.state if current is not None else "unknown",
                 "diagnostic": DIAG_CONTROL_FAILED,
                 "detail": "A operação da sessão falhou; atualize o overlay e tente novamente.",
             }
+            written = self._possible_save_write(dispatched_slot)
+            if written is not None:
+                refusal["written"] = written
+            return refusal
         return {"accepted": True, "state": record.state}
+
+    def _possible_save_write(self, slot: int | None) -> dict[str, Any] | None:
+        """O que uma recusa de `saveState` não pode negar: o arquivo que ela pode ter escrito.
+
+        `None` é a resposta honesta quando o pedido **não** chegou ao adapter (slot
+        inválido, sessão ausente, sessão sem save-state) ou quando o destino não é
+        resolvível: sem caminho declarável, o corpo fica exatamente como era, e um
+        diagnóstico nunca pode destruir a recusa que ele tenta completar.
+        """
+        if slot is None:
+            return None
+        try:
+            state_path = self.owner.state_path(slot)
+            return {"slot": slot, "path": str(state_path), "exists": state_path.is_file()}
+        except Exception:
+            return None
 
 
 class RemoteSessionControl:

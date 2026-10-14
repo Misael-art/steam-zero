@@ -49,6 +49,8 @@ class SessionPeripheralControl(Protocol):
 
     def load_state(self, slot: int) -> SessionPeripheralRecord: ...
 
+    def state_path(self, slot: int) -> Path: ...
+
     def list_discs(self) -> Mapping[str, Any]: ...
 
     def swap_disc(self, disc_id: str) -> SessionPeripheralRecord: ...
@@ -268,7 +270,7 @@ class RetroArchSessionPeripheral:
     def list_save_states(self) -> Mapping[str, Any]:
         entries: list[dict[str, Any]] = []
         for slot in range(MAX_SLOT + 1):
-            path = self._state_path(slot)
+            path = self.state_path(slot)
             try:
                 stat = path.stat()
             except OSError:
@@ -296,7 +298,7 @@ class RetroArchSessionPeripheral:
         self._require_slot(slot)
         self._select_state_slot(slot)
         fs.ensure_dir(self._state_root, mode=0o700)
-        current = self._state_path(slot)
+        current = self.state_path(slot)
         if current.is_file() and not current.is_symlink() and current.stat().st_size > 0:
             fs.copy_file_atomic(current, self._backup_path(slot))
         self._send_command("SAVE_STATE")
@@ -305,7 +307,7 @@ class RetroArchSessionPeripheral:
 
     def load_state(self, slot: int) -> SessionPeripheralRecord:
         self._require_slot(slot)
-        if not self._state_path(slot).is_file():
+        if not self.state_path(slot).is_file():
             raise RuntimeError("o slot de save-state ainda não existe")
         self._send_command(f"LOAD_STATE_SLOT {slot}")
         self._state_slot = slot
@@ -431,7 +433,13 @@ class RetroArchSessionPeripheral:
         self._active_disc = target
         return self._record()
 
-    def _state_path(self, slot: int) -> Path:
+    def state_path(self, slot: int) -> Path:
+        """Destino canônico do slot: a única autoridade de nomenclatura do save-state.
+
+        Promovido de `_state_path` para o protocolo `SessionPeripheralControl`: quem
+        recusa um pedido já despachado precisa nomear o arquivo que pode ter ficado
+        no disco (D-26), e um segundo construtor de nome seria um segundo dono.
+        """
         stem = self._content_path.name.rsplit(".", 1)[0]
         suffix = ".state" if slot == 0 else f".state{slot}"
         state_directory = self._state_root
@@ -450,7 +458,7 @@ class RetroArchSessionPeripheral:
 
     def _wait_for_state(self, slot: int) -> None:
         for _ in range(10):
-            path = self._state_path(slot)
+            path = self.state_path(slot)
             if path.is_file() and not path.is_symlink() and path.stat().st_size > 0:
                 return
             self._sleep(0.1)

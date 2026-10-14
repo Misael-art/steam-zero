@@ -25,6 +25,7 @@ from steamzero.adapters.session_control import (
 )
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
 from steamzero.adapters.session_peripherals import SessionPeripheralControl
+from steamzero.core import paths
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
@@ -607,3 +608,111 @@ def test_vanished_client_does_not_kill_the_control_channel(tmp_path: Path) -> No
         assert data["state"] == "ready"
     finally:
         server.close()
+
+
+class _LateWriteControl:
+    """O emulador aceita o pedido e o processo morre antes da confirmação."""
+
+    def save_state(self, slot: int) -> None:
+        raise RuntimeError("o dono da sessão não respondeu")
+
+    def state_path(self, slot: int) -> Path:
+        return paths.saves_dir() / "states" / "Mesen" / f"Jogo de Teste.state{slot}"
+
+
+def _refuse_save_state(
+    tmp_path: Path, slot: int, *, peripheral_control: SessionPeripheralControl | None = None
+) -> dict[str, Any]:
+    """Despacha um `saveState` pelo `_dispatch` do canal e devolve a recusa publicada."""
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=peripheral_control
+    )
+    try:
+        return server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": slot}
+        )
+    finally:
+        server.close()
+
+
+def test_refused_save_state_after_dispatch_declares_the_possible_file(tmp_path: Path) -> None:
+    """D-26: o `saveState` recusado dos logs/12 escreveu o slot 1 e o produto negou tudo."""
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=_LateWriteControl()
+    )
+    try:
+        result = server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": 1}
+        )
+    finally:
+        server.close()
+    assert result["accepted"] is False
+    assert set(result) >= {"diagnostic", "detail", "written"}
+    assert result["written"]["slot"] == 1
+    written_path = Path(result["written"]["path"])
+    # O destino vem do adapter (state_path); aqui se afirma a raiz gerenciada e a
+    # sufixação por slot, não um caminho montado pelo teste.
+    assert written_path.is_relative_to(paths.saves_dir() / "states")
+    assert written_path.name.endswith(".state1")
+
+
+def test_refused_save_state_before_dispatch_declares_nothing(tmp_path: Path) -> None:
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    try:
+        result = server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": 5_000}
+        )
+    finally:
+        server.close()
+    assert result["accepted"] is False
+    assert "written" not in result  # validou antes de enviar: efeito garantidamente ausente
+
+
+def test_refused_save_state_declares_exists_when_the_file_landed(tmp_path: Path) -> None:
+    """O pior caso medido: o arquivo chegou apesar da recusa — a recusa tem de dizer isso.
+
+    É a asserção que separa "talvez tenha sido escrito" de "foi escrito": o produto
+    consulta o disco uma vez e publica `exists: true` com o destino do adapter. O
+    read-model da galeria já lê o mesmo `state_path` (o sufixo `.state1` existe em
+    disco), então o slot ocupado aparece em vez de fingir vazio.
+    """
+    control = _LateWriteControl()
+    landed = control.state_path(1)
+    landed.parent.mkdir(parents=True, exist_ok=True)
+    landed.write_bytes(b"escrito depois da recusa")
+    try:
+        result = _refuse_save_state(tmp_path, 1, peripheral_control=control)
+        assert result["accepted"] is False
+        assert result["written"] == {
+            "slot": 1,
+            "path": str(landed),
+            "exists": True,
+        }
+    finally:
+        landed.unlink()
+
+
+def test_refused_save_state_without_a_peripheral_offers_no_path(tmp_path: Path) -> None:
+    """Uma sessão sem adapter de save-state não pode ter escrito nada: nada de `written`."""
+    result = _refuse_save_state(tmp_path, 1)
+    assert result["accepted"] is False
+    assert "written" not in result
+
+
+def test_unresolvable_state_path_does_not_destroy_the_refusal(tmp_path: Path) -> None:
+    """O diagnóstico de efeito não pode custar a própria recusa nem mentir um caminho."""
+
+    class _BlindWriteControl:
+        def save_state(self, slot: int) -> None:
+            raise RuntimeError("o emulador não respondeu")
+
+        def state_path(self, slot: int) -> Path:
+            raise OSError("o adapter não conhece o próprio destino")
+
+    result = _refuse_save_state(tmp_path, 1, peripheral_control=_BlindWriteControl())
+    assert result["accepted"] is False
+    assert result["diagnostic"] == "AURA-SESSION-CONTROL-FAILED-003"
+    assert "written" not in result
