@@ -57,20 +57,27 @@ COMPONENT_KINDS = frozenset(
     }
 )
 WIDGET_KINDS = frozenset({"clock", "statistics"})
+# D-28 (7b): o vocabulário de tema espelha os ids que a sessão publica
+# (OSD_ACTIONS de domain/session_overlay.py). `volume`, `brightness`,
+# `control`, `achievement` e `network` saem como itens de ação por ausência de
+# porta no backend de sessão; `volume`/`brightness` continuam válidos apenas
+# como fontes de binding de progresso em _PROGRESS_BINDING — conceito distinto
+# de item declarável, regulado pelo teste de fronteira em test_scene_surfaces.
 OSD_ITEMS = frozenset(
     {
-        "volume",
         "mute",
-        "brightness",
         "screenshot",
         "saveState",
         "loadState",
+        "listSaveStates",
+        "swapDisc",
+        "listDiscs",
+        "listPeripherals",
         "fastForward",
         "rewind",
         "pause",
-        "control",
-        "achievement",
-        "network",
+        "resume",
+        "exit",
     }
 )
 _IDENTIFIER = re.compile(r"^[a-z][a-zA-Z0-9]{0,63}$")
@@ -686,7 +693,9 @@ def _bezel_entries(
 
 def _default_component(slot: str) -> SurfaceComponent:
     kind = _DEFAULT_KIND.get(slot, "emptyState")
-    items = ("volume", "pause") if kind == "osd" else ()
+    # D-28 (7b): a amostra padrão do OSD só pode conter itens do vocabulário
+    # vigente; `volume` perdeu a porta e saiu também daqui (não é binding).
+    items = ("mute", "pause") if kind == "osd" else ()
     return SurfaceComponent(id="fallback" + slot[0].upper() + slot[1:], kind=kind, items=items)
 
 

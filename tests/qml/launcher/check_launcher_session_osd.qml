@@ -79,6 +79,37 @@ Item {
         "diagnostic": null
     })
 
+    // D-28 (7b): tema que declara items filtra a fileira ( LauncherSessionOverlay
+    // ::_visibleActions ). O vocabulário re-sincronizado precisa admitir os ids
+    // recém-publicados — swapDisc tem porta real no backend e não pode mais
+    // sumir da renderização; exit, não declarado pelo tema, deve ser filtrado.
+    readonly property var themedModel: ({
+        "sessionId": "session-1",
+        "gameId": "celeste",
+        "state": "running",
+        "visible": true,
+        "focusedAction": "swapDisc",
+        "actions": [
+            {"id": "mute", "label": "Silenciar", "enabled": true, "reason": ""},
+            {"id": "swapDisc", "label": "Trocar disco", "enabled": true, "reason": ""},
+            {"id": "exit", "label": "Sair do jogo", "enabled": true, "reason": ""}
+        ],
+        "journeyAppearance": {
+            "stageId": "osd",
+            "theme": {
+                "sceneSurfaces": {
+                    "schemaVersion": 1,
+                    "slots": { "osd": { "component": "themedOsd" } },
+                    "components": {
+                        "themedOsd": { "kind": "osd", "items": ["mute", "swapDisc"] }
+                    }
+                }
+            }
+        },
+        "criticalError": null,
+        "diagnostic": null
+    })
+
     LauncherSessionOverlay {
         id: overlay
         anchors.fill: parent
@@ -158,6 +189,23 @@ Item {
                           "nenhum dispatch extra pode sair do OSD com a sessão suspensa")
             harness.check(overlay.localError.indexOf("retome antes de salvar") >= 0,
                           "a cena precisa mostrar o motivo da recusa antes de qualquer efeito")
+
+            overlay.setModel(harness.themedModel)
+            var themedIds = []
+            for (var themedIndex = 0; themedIndex < overlay.actions.length; ++themedIndex) {
+                themedIds.push(String(overlay.actions[themedIndex].id))
+            }
+            harness.check(overlay.actions.length === 2
+                          && themedIds.indexOf("mute") >= 0
+                          && themedIds.indexOf("swapDisc") >= 0,
+                          "fileira filtrada pelo tema deve mostrar as ações com porta, incluindo a recém-publicada swapDisc (D-28)")
+            harness.check(themedIds.indexOf("exit") < 0,
+                          "id de ação não declarado pelo tema precisa ser filtrado da fileira")
+            harness.check(overlay.focusAction("swapDisc"),
+                          "swapDisc declarado pelo tema precisa ser focável na fileira filtrada")
+            harness.check(overlay.activateFocused() === true
+                          && harness.dispatched[harness.dispatched.length - 1] === "swapDisc",
+                          "swapDisc precisa voltar ao host com o id semântico preservado")
 
             harness.check(overlay.closeOverlay(), "fechar o OSD precisa ser acionável")
             harness.check(!overlay.visible && harness.closed,
