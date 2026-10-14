@@ -11,12 +11,13 @@ sinaliza processos diretamente.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import signal
 import socket
 import struct
 import threading
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
@@ -43,6 +44,8 @@ E_SESSION_CHANNEL_SUSPENDED = "E-SESSION-CHANNEL-SUSPENDED"
 CHANNEL_READY_STATES = frozenset({"launching", "running"})
 CHANNEL_LIVE_ACTIONS = frozenset({"saveState", "loadState", "swapDisc"})
 
+_log = logging.getLogger(__name__)
+
 StoreFactory = Callable[[], StateStore]
 SignalProcess = Callable[[int, int], None]
 ReadStartTicks = Callable[[int], int | None]
@@ -55,6 +58,15 @@ class SessionControlRecord:
     id: str
     game_id: str
     state: str
+
+
+@dataclass(frozen=True)
+class _StoppedGroup:
+    """Um grupo que a pausa deste dono parou, com a identidade do momento da pausa."""
+
+    pid: int
+    start_ticks: int
+    identity: tuple[int, int]
 
 
 def _bounded_text(value: Any, *, limit: int = 128) -> str:
@@ -113,6 +125,7 @@ class SessionControlOwner:
         read_process_group_identity: ReadProcessGroupIdentity | None = None,
         signal_process: SignalProcess | None = None,
         peripheral_control: SessionPeripheralControl | None = None,
+        supervised_pids: Sequence[int] = (),
     ) -> None:
         self.session_id = session_id
         self.game_id = game_id
@@ -123,12 +136,25 @@ class SessionControlOwner:
         self._read_process_group_identity = read_process_group_identity or _process_group_identity
         self._signal_process = signal_process or os.killpg
         self._peripheral_control = peripheral_control
+        # D-23/C-4 (unidade 3a): líderes dos grupos supervisionados que este dono
+        # conhece para esta sessão. O `suspend` só para os que verificam; o `resume`
+        # e o `request_exit` continuam exatamente esse conjunto gravado.
+        self._supervised_pids = tuple(
+            dict.fromkeys(
+                value
+                for value in (int(candidate) for candidate in supervised_pids)
+                if value > 1 and value != pid
+            )
+        )
         self._lock = threading.RLock()
         # The request owner lives for the session. Keep partial two-signal exit
         # progress so a failed SIGCONT can be retried without sending SIGTERM
         # twice. A new owner that only observes `closing` returns it unchanged.
         self._exit_stage = "idle"
         self._exit_was_suspended = False
+        # Mesmo motivo do estágio de saída: o registro é da vida deste dono, em
+        # memória, e guarda só o que a pausa dele realmente parou.
+        self._stopped_groups: tuple[_StoppedGroup, ...] = ()
 
     @property
     def current(self) -> SessionControlRecord | None:
@@ -185,6 +211,11 @@ class SessionControlOwner:
                     still_owned = self._verify_process_identity(row, allow_exited=True)
                     if still_owned:
                         self._send_exit_signal(signal.SIGCONT)
+                    # D-23/C-4: o SIGTERM já alcançou o grupo da sessão; os outros
+                    # grupos que esta pausa parou precisam do SIGCONT para que o TERM
+                    # pendente neles seja entregue — é o supervisor externo medido em
+                    # logs/11, que só saiu do `T` com kill -CONT manual.
+                    self._continue_supervised_groups()
                     self._exit_stage = "complete"
             updated = self.current
         if updated is None:
@@ -223,6 +254,76 @@ class SessionControlOwner:
             raise RuntimeError(
                 "o pedido de encerramento falhou; atualize a sessão e tente novamente"
             ) from exc
+
+    def _group_evidence(self, pid: int) -> _StoppedGroup | None:
+        """Prova de identidade de um grupo supervisionado, ou ``None`` quando não é sinalizável.
+
+        ``read_process_group_identity`` devolve ``(pgid, sid)`` de **um** pid: se ele
+        não lidera o próprio grupo, ``killpg`` atingiria o grupo de outro processo — e
+        um pid reutilizado é exatamente esse caso. Nenhum sinal sai sem essa prova.
+        """
+        ticks = self._read_start_ticks(pid)
+        if ticks is None:
+            _log.warning("grupo supervisionado %s sem start-time: nenhum sinal enviado", pid)
+            return None
+        identity = self._read_process_group_identity(pid)
+        if identity is None or int(identity[0]) != pid:
+            _log.warning(
+                "grupo supervisionado %s não lidera o próprio grupo (%r): nenhum sinal",
+                pid,
+                identity,
+            )
+            return None
+        return _StoppedGroup(
+            pid=pid, start_ticks=ticks, identity=(int(identity[0]), int(identity[1]))
+        )
+
+    def _stop_supervised_groups(self) -> tuple[_StoppedGroup, ...]:
+        """Pausa cada grupo supervisionado verificável e devolve o que foi parado de fato."""
+        stopped: list[_StoppedGroup] = []
+        for pid in self._supervised_pids:
+            evidence = self._group_evidence(pid)
+            if evidence is None:
+                continue
+            try:
+                self._signal_process(pid, signal.SIGSTOP)
+            except OSError:
+                _log.warning("o grupo supervisionado %s não pôde ser suspenso", pid)
+                continue
+            stopped.append(evidence)
+        return tuple(stopped)
+
+    def _continue_supervised_groups(self) -> None:
+        """Continua exatamente o conjunto que a pausa deste dono parou (D-23/C-4).
+
+        Cada pid gravado é re-verificado antes do sinal: start-time ou ``(pgid, sid)``
+        diferentes querem dizer outro processo no mesmo pid, que não é nosso para
+        continuar. Um grupo que sumiu não derruba a retomada dos demais — foi a forma
+        como a árvore medida em ``logs/11`` item 6 ficou parada: o produto só sinalizava
+        o líder, e um líder morto (zumbi sem reap) abortava o caminho inteiro.
+        """
+        with self._lock:
+            stopped, self._stopped_groups = self._stopped_groups, ()
+        for group in stopped:
+            if not self._still_the_same_group(group):
+                _log.warning(
+                    "grupo supervisionado %s mudou de identidade: nenhum SIGCONT enviado",
+                    group.pid,
+                )
+                continue
+            try:
+                self._signal_process(group.pid, signal.SIGCONT)
+            except OSError:
+                _log.warning("não foi possível continuar o grupo supervisionado %s", group.pid)
+
+    def _still_the_same_group(self, group: _StoppedGroup) -> bool:
+        ticks = self._read_start_ticks(group.pid)
+        if ticks is None or int(ticks) != group.start_ticks:
+            return False
+        identity = self._read_process_group_identity(group.pid)
+        if identity is None:
+            return False
+        return (int(identity[0]), int(identity[1])) == group.identity
 
     def list_save_states(self) -> Mapping[str, Any]:
         if self._peripheral_control is None:
@@ -296,6 +397,10 @@ class SessionControlOwner:
                 store.transition_game_session(self.session_id, intermediate)
                 try:
                     self._signal_process(self.pid, signum)
+                    if signum == signal.SIGSTOP:
+                        # O registro é do que esta pausa parou de fato: um grupo
+                        # supervisionado não verificável fica fora dos dois lados.
+                        self._stopped_groups = self._stop_supervised_groups()
                 except OSError:
                     store.transition_game_session(
                         self.session_id,
@@ -304,6 +409,8 @@ class SessionControlOwner:
                         failure_code=DIAG_CONTROL_FAILED,
                     )
                     raise RuntimeError("não foi possível controlar o processo da sessão") from None
+                if signum == signal.SIGCONT:
+                    self._continue_supervised_groups()
                 store.transition_game_session(self.session_id, target)
             updated = self.current
         if updated is None:

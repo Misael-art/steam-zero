@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import signal
 import socket
@@ -397,20 +398,47 @@ def _owner_and_server(
     *,
     signals: list[tuple[int, int]],
     peripheral_control: SessionPeripheralControl | None = None,
+    supervised_pids: tuple[int, ...] = (),
+    unverifiable_pids: tuple[int, ...] = (),
 ) -> tuple[SessionControlOwner, SessionControlServer, str, str]:
-    """Dono + canal reais, com os sinais gravados em `signals` em vez de enviados."""
+    """Dono + canal reais, com os sinais gravados em `signals` em vez de enviados.
+
+    `supervised_pids` são os pids dos grupos supervisionados que a unidade 3a registra
+    no `suspend`: falsos de propósito, porque nada aqui sinaliza um processo real.
+    `unverifiable_pids` ficam registrados mas não lideram o próprio grupo — o conjunto
+    de sinais é o que prova que um pid assim nunca é sinalizado.
+    """
     database = tmp_path / "state.db"
     session_id, game_id = _seed_session(database)
+    own_pid = os.getpid()
+    synthetic_ticks = {pid: 900_000 + index for index, pid in enumerate(supervised_pids)}
+
+    def read_start_ticks(pid: int) -> int | None:
+        if pid == own_pid:
+            return _start_ticks(pid)
+        return synthetic_ticks.get(pid)
+
+    def read_process_group_identity(pid: int) -> tuple[int, int] | None:
+        if pid == own_pid:
+            return (pid, pid)
+        if pid in unverifiable_pids:
+            # Vivo, porém em grupo de outro processo: o killpg atingiria outro jogo.
+            return (pid + 1, pid)
+        if pid in synthetic_ticks:
+            return (pid, pid)
+        return None
+
     owner = SessionControlOwner(
         session_id,
         game_id,
-        os.getpid(),
-        _start_ticks(os.getpid()),
+        own_pid,
+        _start_ticks(own_pid),
         store_factory=lambda: StateStore(database),
-        read_start_ticks=_start_ticks,
-        read_process_group_identity=lambda pid: (pid, pid),
+        read_start_ticks=read_start_ticks,
+        read_process_group_identity=read_process_group_identity,
         signal_process=lambda pid, signum: signals.append((pid, int(signum))),
         peripheral_control=peripheral_control,
+        supervised_pids=supervised_pids,
     )
     server = SessionControlServer(owner, control_path(session_id, root=tmp_path.parent))
     server.start()
@@ -462,3 +490,119 @@ def test_save_state_while_suspended_never_reaches_the_control_channel(
         assert signals == []  # nem um sinal escondido atrás do pedido
     finally:
         server.close()
+
+
+def test_resume_continues_every_group_the_pause_stopped(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """C-4/D-23: retomar tem de alcançar o supervisor externo que a pausa parou."""
+    signals: list[tuple[int, int]] = []
+    supervised = (900_001, 900_002)
+    foreign_group = 900_003
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path,
+        signals=signals,
+        supervised_pids=(*supervised, foreign_group),
+        unverifiable_pids=(foreign_group,),
+    )
+    remote = resolve_remote_session_control(
+        session_id,
+        game_id,
+        observe=lambda sid: observe_game_session(tmp_path / "state.db", sid),
+        root=tmp_path.parent,
+    )
+    assert remote is not None
+    try:
+        with caplog.at_level(logging.WARNING, logger="steamzero.adapters.session_control"):
+            remote.suspend()
+        stopped = {pid for pid, _ in signals}
+        # Não-vacuidade: sem o registro, `stopped` seria só o pid da sessão e a
+        # igualdade abaixo passaria sem provar nada — é exatamente o caso medido em
+        # `logs/11` item 6, em que o bwrap externo ficou em `T` e o produto não o
+        # alcançava.
+        assert set(supervised) <= stopped
+        assert foreign_group not in stopped
+        assert str(foreign_group) in caplog.text  # a recusa de sinalizar é registrada
+        signals.clear()
+
+        remote.resume()
+
+        assert {pid for pid, _ in signals} == stopped
+        assert all(int(sig) == signal.SIGCONT for _, sig in signals)
+    finally:
+        server.close()
+
+
+def test_resume_skips_a_supervised_pid_that_changed_identity(tmp_path: Path) -> None:
+    """3a: reuso de PID não ganha sinal — só continua quem a pausa parou verificando."""
+    database = tmp_path / "state.db"
+    session_id, game_id = _seed_session(database)
+    own_pid = os.getpid()
+    supervised = (900_010, 900_011)
+    ticks: dict[int, int | None] = {
+        own_pid: _start_ticks(own_pid),
+        900_010: 71,
+        900_011: 72,
+    }
+    identities: dict[int, tuple[int, int] | None] = {
+        own_pid: (own_pid, own_pid),
+        900_010: (900_010, 900_010),
+        900_011: (900_011, 900_011),
+    }
+    signals: list[tuple[int, int]] = []
+    owner = SessionControlOwner(
+        session_id,
+        game_id,
+        own_pid,
+        ticks[own_pid],
+        store_factory=lambda: StateStore(database),
+        read_start_ticks=lambda pid: ticks.get(pid),
+        read_process_group_identity=lambda pid: identities.get(pid),
+        signal_process=lambda pid, signum: signals.append((pid, int(signum))),
+        supervised_pids=supervised,
+    )
+
+    owner.suspend()
+    assert {pid for pid, _ in signals} == {own_pid, *supervised}
+    signals.clear()
+
+    # 900_011 saiu e o pid foi reutilizado por outro processo, de outro grupo.
+    ticks[900_011] = 99
+    identities[900_011] = (5_000, 5_000)
+
+    assert owner.resume().state == "running"
+
+    resumed = {pid for pid, _ in signals}
+    assert resumed == {own_pid, 900_010}
+    assert all(int(signum) == signal.SIGCONT for _, signum in signals)
+
+
+def test_request_exit_continues_the_recorded_supervised_groups(tmp_path: Path) -> None:
+    """D-23: o encerramento de uma sessão suspensa continua o conjunto parado, não só o líder."""
+    database = tmp_path / "state.db"
+    session_id, game_id = _seed_session(database)
+    own_pid = os.getpid()
+    ticks: dict[int, int | None] = {own_pid: _start_ticks(own_pid), 900_020: 81}
+    signals: list[tuple[int, int]] = []
+    owner = SessionControlOwner(
+        session_id,
+        game_id,
+        own_pid,
+        ticks[own_pid],
+        store_factory=lambda: StateStore(database),
+        read_start_ticks=lambda pid: ticks.get(pid),
+        read_process_group_identity=lambda pid: (pid, pid) if pid in ticks else None,
+        signal_process=lambda pid, signum: signals.append((pid, int(signum))),
+        supervised_pids=(900_020,),
+    )
+
+    owner.suspend()
+    signals.clear()
+
+    assert owner.request_exit(confirmed=True).state == "closing"
+
+    assert signals == [
+        (own_pid, signal.SIGTERM),
+        (own_pid, signal.SIGCONT),
+        (900_020, signal.SIGCONT),
+    ]
