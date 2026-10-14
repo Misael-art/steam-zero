@@ -101,3 +101,85 @@ Condição de devolução (o que continua aberto)
 - Reversão: reverter o commit `fix(session): retomar a arvore supervisionada que a pausa parou
   (D-23/C-4)` devolve o comportamento anterior; sem `supervised_pids` registrado, o caminho de
   produção é o mesmo de antes, e os três testes novos desaparecem com o commit.
+
+Rodada de correção 1 (2026-10-14) — a causa raiz afirmada pelo plano era falsa
+==============================================================================
+Uma investigação somente-leitura, com evidência `file:line`, estabeleceu que o diagnóstico do
+brief ("o supervisor externo fica **fora** do grupo sinalizado; `resume` não o alcança") **não
+se sustenta**. A intenção aprovada (3a — retomar o que se parou) permanece; o mecanismo é outro.
+
+O que a medição mostra
+----------------------
+1. **O canal não é servido de dentro da árvore parada.** `SessionControlOwner`/
+   `SessionControlServer` são construídos no processo CLI lançado pelo launcher
+   (`adapters/emulation.py:1892-1907`; cadeia `launcher/app.py:385-402` →
+   `adapters/launcher_receipt.py:223-238`, `Popen(..., start_new_session=True)` →
+   `cli/main.py:1331-1344`). A árvore do jogo é **filha** desse processo
+   (`emulation.py:1854` `_spawn` → `emulation.py:469-478` `Popen(..., start_new_session=True)`,
+   argv `flatpak run`). Logo o `suspend` do produto sempre completou.
+2. **O sinal já era de grupo.** `session_control.py:399` (estado `2a87a93c`) chama
+   `self._signal_process(self.pid, signum)`, cujo default é `os.killpg` (`:137`), e o portão em
+   `:246` exige que o pid gravado seja o líder `(pgid, sid)` — portanto o `bwrap externo`, o
+   `bwrap interno` e o `retroarch` medidos em `logs/11:84-85` (todos `T` na **mesma** árvore/
+   grupo) já eram alcançados pelo SIGSTOP/SIGCONT existentes. O `supervised_pids` de 3a não
+   acrescentava nada de alcançável: `_group_evidence` (`:270`) descarta qualquer candidato com
+   `pgid != pid`, e o `grep` sobre `src/` mostra que os únicos chamadores não-vazios eram os
+   testes (`tests/unit/test_session_control.py:441,505,562,596`). `launcher_session.py` é um
+   observer read-only de uma única linha (`:25-29`, `:43-52`), ao contrário do que o brief
+   afirmava ao mandar "registrar os pids" ali.
+3. **A causa real do wedge medido é o próprio servidor do canal matar o ouvinte quando um
+   cliente expira.** A resposta é escrita **depois** do sinal, por um servidor serial
+   (`_serve` em `session_control.py:455-480`, `listen(4)`, timeout do cliente 1,0 s em `:637`),
+   e o `connection.sendall` (`:480`) vivia **fora** do `try` (`:470-478`). Um cliente que já
+   expirou fecha o pipe → `BrokenPipeError` escapa do `_serve` → o `with server:` fecha o socket
+   de escuta. O arquivo `.sock` sobrevive (só `close()` o remove, `:452-453`),
+   `resolve_remote_session_control` continua encontrando-o (`endpoint.is_socket()` em `:731`) e
+   todo `pause`/`resume`/`exit` seguinte vira `ECONNREFUSED` → `RuntimeError("o dono da sessão
+   não respondeu")` → o mesmo 409 para sempre. `logs/11:75-79` registra o `saveState` 409 e,
+   depois dele, `resume`×3 e `exit`×2 devolvendo o mesmo 409 ("mesma causa"). A árvore também
+   fica parada
+   porque o watcher do processo bloqueia em `os.waitpid` (`emulation.py:507-509`,
+   `:2151-2155`) sobre um processo em `T` — sem pedido novo que o destrave.
+
+O que a rodada de correção mudou
+--------------------------------
+- **Removido** o mecanismo inalcançável de `2a87a93c`: o parâmetro `supervised_pids`,
+  `_stop_supervised_groups`, `_continue_supervised_groups`, `_stopped_groups`/`_StoppedGroup` e
+  os três testes que os exercitavam com pids falsos. Não é "apagar teste para ficar verde": a
+  cobertura foi **redirecionada** para a propriedade que o incidente realmente exige.
+- **Prova de que o grupo do líder basta** (`test_resume_continues_the_group_the_pause_stopped`):
+  `resume` após `suspend` sinaliza `SIGCONT` o mesmo grupo que a pausa parou, e o default de
+  produção é `os.killpg` (assertado); `test_resume_never_signals_a_recycled_or_stale_group_leader`
+  trava que identidade reciclada/stale `(pgid, sid)` é recusada **antes** de qualquer sinal —
+  nunca um sinal real a processo alheio (padrão `signal_process` injetado do arquivo).
+- **Canal vivo quando um cliente expira** (fix em `_serve`): toda a troca por conexão —
+  inclusive a escrita da resposta — está dentro da fronteira de falha da **conexão**; um
+  `BrokenPipeError`/EPIPE mata aquela conexão, não o ouvinte. Provado com **sockets reais**
+  sobre `tmp_path` (`test_vanished_client_does_not_kill_the_control_channel`): um cliente real
+  conecta, envia e desaparece antes de ler (handler lento de propósito); um **segundo** cliente
+  novo, no mesmo caminho `.sock`, ainda recebe resposta normal. Antes do fix o teste falha com
+  exatamente a assinatura medida: `ConnectionRefusedError` →
+  `RuntimeError("o dono da sessão não respondeu")`.
+- **Prosa corrigida**: o comentário de módulo e o docstring de `_refuse_if_not_live` em
+  `session_control.py` (texto da Tarefa 2: "o canal é servido pela árvore que a pausa para")
+  passaram a dizer a verdade — o gate vale porque um pedido entregue a um emulador parado fica
+  **enfileirado e executa depois** contra a recusa já publicada (é o saveState de `logs/11:89-90`
+  escrito no `kill -CONT` manual), e porque o handler lento é o que expira o cliente.
+
+O que permanece da decisão original
+----------------------------------
+- A unidade aprovada pelo operador **é a mesma (3a — retomar o que se parou)**; o que mudou foi
+  o mecanismo, não a intenção: retomar tudo o que a pausa parou continua sendo o contrato, e ele
+  já é cumprido pelo sinal de grupo do líder verificado.
+- **3b continua rejeitada** e a questão de ADR (quem registra/observa a árvore do flatpak, se
+  algum dia for necessário além do sinal de grupo) permanece aberta como estava.
+
+C-4 NÃO é declarada fechada
+---------------------------
+O fechamento físico de C-4 exige uma sessão presa real no host e a re-execução física/GUI **não**
+está autorizada nesta rodada (AGENTS.md §1/§9; plano, "Sem injeção de entrada GUI"). O que esta
+rodada entrega é a causa corrigida com prova automatizada: o wedge do canal (a causa real
+medida) não reabre mais o socket; a retomada da árvore é do grupo verificado; e o canal sobrevive
+ao cliente expirado. A linha C-4 da matriz permanece **parcial/aberto** até re-execução física.
+Reversão: reverter o commit `fix(session): manter o canal vivo quando um cliente expira e
+corrigir a causa de D-23 (C-4)` devolve o estado de `2a87a93c`.

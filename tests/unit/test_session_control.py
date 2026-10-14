@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-import logging
+import json
 import os
 import signal
 import socket
@@ -398,47 +398,20 @@ def _owner_and_server(
     *,
     signals: list[tuple[int, int]],
     peripheral_control: SessionPeripheralControl | None = None,
-    supervised_pids: tuple[int, ...] = (),
-    unverifiable_pids: tuple[int, ...] = (),
 ) -> tuple[SessionControlOwner, SessionControlServer, str, str]:
-    """Dono + canal reais, com os sinais gravados em `signals` em vez de enviados.
-
-    `supervised_pids` são os pids dos grupos supervisionados que a unidade 3a registra
-    no `suspend`: falsos de propósito, porque nada aqui sinaliza um processo real.
-    `unverifiable_pids` ficam registrados mas não lideram o próprio grupo — o conjunto
-    de sinais é o que prova que um pid assim nunca é sinalizado.
-    """
+    """Dono + canal reais, com os sinais gravados em `signals` em vez de enviados."""
     database = tmp_path / "state.db"
     session_id, game_id = _seed_session(database)
-    own_pid = os.getpid()
-    synthetic_ticks = {pid: 900_000 + index for index, pid in enumerate(supervised_pids)}
-
-    def read_start_ticks(pid: int) -> int | None:
-        if pid == own_pid:
-            return _start_ticks(pid)
-        return synthetic_ticks.get(pid)
-
-    def read_process_group_identity(pid: int) -> tuple[int, int] | None:
-        if pid == own_pid:
-            return (pid, pid)
-        if pid in unverifiable_pids:
-            # Vivo, porém em grupo de outro processo: o killpg atingiria outro jogo.
-            return (pid + 1, pid)
-        if pid in synthetic_ticks:
-            return (pid, pid)
-        return None
-
     owner = SessionControlOwner(
         session_id,
         game_id,
-        own_pid,
-        _start_ticks(own_pid),
+        os.getpid(),
+        _start_ticks(os.getpid()),
         store_factory=lambda: StateStore(database),
-        read_start_ticks=read_start_ticks,
-        read_process_group_identity=read_process_group_identity,
+        read_start_ticks=_start_ticks,
+        read_process_group_identity=lambda pid: (pid, pid),
         signal_process=lambda pid, signum: signals.append((pid, int(signum))),
         peripheral_control=peripheral_control,
-        supervised_pids=supervised_pids,
     )
     server = SessionControlServer(owner, control_path(session_id, root=tmp_path.parent))
     server.start()
@@ -492,19 +465,19 @@ def test_save_state_while_suspended_never_reaches_the_control_channel(
         server.close()
 
 
-def test_resume_continues_every_group_the_pause_stopped(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
-) -> None:
-    """C-4/D-23: retomar tem de alcançar o supervisor externo que a pausa parou."""
+def test_resume_continues_the_group_the_pause_stopped(tmp_path: Path) -> None:
+    """C-4/D-23: retomar alcança a árvore inteira que a pausa parou — o grupo, não só o líder.
+
+    A causa afirmada pelo plano era falsa: o produto **já** sinaliza o grupo completo.
+    `signal_process` default é `os.killpg` (este arquivo), `_verify_process_identity`
+    exige que o pid gravado seja o líder `(pgid, sid)` — e o jogo é criado com
+    `start_new_session=True` (`adapters/emulation.py` `_spawn_detached`), então o
+    `flatpak run` e seus `bwrap` externo/interno e retroarch (todos `T` em `logs/11`
+    item 6) estão dentro do mesmo grupo que o `SIGSTOP` da pausa atingiu. O `resume`
+    refaz exatamente esse caminho: o mesmo grupo, agora com `SIGCONT`.
+    """
     signals: list[tuple[int, int]] = []
-    supervised = (900_001, 900_002)
-    foreign_group = 900_003
-    _owner, server, session_id, game_id = _owner_and_server(
-        tmp_path,
-        signals=signals,
-        supervised_pids=(*supervised, foreign_group),
-        unverifiable_pids=(foreign_group,),
-    )
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
     remote = resolve_remote_session_control(
         session_id,
         game_id,
@@ -513,96 +486,124 @@ def test_resume_continues_every_group_the_pause_stopped(
     )
     assert remote is not None
     try:
-        with caplog.at_level(logging.WARNING, logger="steamzero.adapters.session_control"):
-            remote.suspend()
-        stopped = {pid for pid, _ in signals}
-        # Não-vacuidade: sem o registro, `stopped` seria só o pid da sessão e a
-        # igualdade abaixo passaria sem provar nada — é exatamente o caso medido em
-        # `logs/11` item 6, em que o bwrap externo ficou em `T` e o produto não o
-        # alcançava.
-        assert set(supervised) <= stopped
-        assert foreign_group not in stopped
-        assert str(foreign_group) in caplog.text  # a recusa de sinalizar é registrada
+        remote.suspend()
+        stopped = list(signals)
+        # Não-vacuidade: a pausa sinalizou o grupo do líder gravado — o pid da
+        # sessão, verificado como `(pid, pid)` antes de qualquer sinal.
+        assert stopped == [(os.getpid(), int(signal.SIGSTOP))]
         signals.clear()
 
         remote.resume()
 
-        assert {pid for pid, _ in signals} == stopped
+        assert {pid for pid, _ in signals} == {pid for pid, _ in stopped}
         assert all(int(sig) == signal.SIGCONT for _, sig in signals)
     finally:
         server.close()
 
+    # O caminho de produção sinaliza o **grupo**: sem injeção, o hook é `os.killpg`,
+    # e é isso que faz um único SIGCONT alcançar a árvore do flatpak inteira.
+    production_owner = SessionControlOwner(
+        session_id,
+        game_id,
+        os.getpid(),
+        _start_ticks(os.getpid()),
+        store_factory=lambda: StateStore(tmp_path / "state.db"),
+        read_start_ticks=_start_ticks,
+    )
+    assert production_owner._signal_process is os.killpg
 
-def test_resume_skips_a_supervised_pid_that_changed_identity(tmp_path: Path) -> None:
-    """3a: reuso de PID não ganha sinal — só continua quem a pausa parou verificando."""
+
+def test_resume_never_signals_a_recycled_or_stale_group_leader(tmp_path: Path) -> None:
+    """C-4/D-23: identidade re-verificada antes do sinal — pid reciclado ou grupo
+    que não é mais o do líder gravado nunca recebe `SIGCONT`.
+    """
     database = tmp_path / "state.db"
     session_id, game_id = _seed_session(database)
     own_pid = os.getpid()
-    supervised = (900_010, 900_011)
-    ticks: dict[int, int | None] = {
-        own_pid: _start_ticks(own_pid),
-        900_010: 71,
-        900_011: 72,
-    }
-    identities: dict[int, tuple[int, int] | None] = {
-        own_pid: (own_pid, own_pid),
-        900_010: (900_010, 900_010),
-        900_011: (900_011, 900_011),
-    }
+    original_ticks = _start_ticks(own_pid)
+    ticks: dict[int, int | None] = {own_pid: original_ticks}
+    identities: dict[int, tuple[int, int] | None] = {own_pid: (own_pid, own_pid)}
     signals: list[tuple[int, int]] = []
     owner = SessionControlOwner(
         session_id,
         game_id,
         own_pid,
-        ticks[own_pid],
+        original_ticks,
         store_factory=lambda: StateStore(database),
         read_start_ticks=lambda pid: ticks.get(pid),
         read_process_group_identity=lambda pid: identities.get(pid),
         signal_process=lambda pid, signum: signals.append((pid, int(signum))),
-        supervised_pids=supervised,
     )
 
     owner.suspend()
-    assert {pid for pid, _ in signals} == {own_pid, *supervised}
+    assert signals == [(own_pid, int(signal.SIGSTOP))]
     signals.clear()
 
-    # 900_011 saiu e o pid foi reutilizado por outro processo, de outro grupo.
-    ticks[900_011] = 99
-    identities[900_011] = (5_000, 5_000)
+    # Reuso de PID: o mesmo número passou a ser outro processo.
+    ticks[own_pid] = original_ticks + 1
+    with pytest.raises(RuntimeError, match="identidade"):
+        owner.resume()
+    assert signals == []  # nenhum sinal saiu
+    ticks[own_pid] = original_ticks
 
-    assert owner.resume().state == "running"
+    # O líder gravado saiu e `(pgid, sid)` deixou de ser o grupo que ele criou:
+    # sinalizá-lo atingiria processos de fora da sessão.
+    identities[own_pid] = (own_pid + 1, own_pid + 1)
+    with pytest.raises(RuntimeError, match="grupo"):
+        owner.resume()
+    assert signals == []
 
-    resumed = {pid for pid, _ in signals}
-    assert resumed == {own_pid, 900_010}
-    assert all(int(signum) == signal.SIGCONT for _, signum in signals)
+    # Estado intacto: as recusas não moveram a sessão.
+    current = owner.current
+    assert current is not None and current.state == "suspended"
 
 
-def test_request_exit_continues_the_recorded_supervised_groups(tmp_path: Path) -> None:
-    """D-23: o encerramento de uma sessão suspensa continua o conjunto parado, não só o líder."""
-    database = tmp_path / "state.db"
-    session_id, game_id = _seed_session(database)
-    own_pid = os.getpid()
-    ticks: dict[int, int | None] = {own_pid: _start_ticks(own_pid), 900_020: 81}
+def test_vanished_client_does_not_kill_the_control_channel(tmp_path: Path) -> None:
+    """C-4/D-23: um cliente que expira antes de ler a resposta não pode fechar o ouvinte.
+
+    É a causa medida do D-23, não a que o plano afirmou: o `sendall` da resposta vive
+    fora do `try` do `_serve`, então um `BrokenPipeError` num pipe fechado escapa do
+    laço, o `with server:` fecha o socket de escuta, o arquivo `.sock` sobrevive (só
+    `close()` o remove), `resolve_remote_session_control` continua achando o canal e
+    todo pedido vira `ECONNREFUSED` — o mesmo 409 de `logs/11:87-88` para sempre.
+    Servidor e clientes aqui são sockets reais sobre `tmp_path`: a propriedade é a
+    sobrevivência do ouvinte, e nenhuma falsificação de servidor a prova.
+    """
+
+    class _SlowPeripheral:
+        def list_peripherals(self) -> dict[str, object]:
+            # Um handler lento é o que faz o cliente de 1 s expirar numa sessão presa
+            # (ele conversa com o emulador parado); aqui só garante que o cliente
+            # desapareceu ANTES de o servidor escrever a resposta.
+            time.sleep(0.3)
+            return {"state": "ready"}
+
     signals: list[tuple[int, int]] = []
-    owner = SessionControlOwner(
-        session_id,
-        game_id,
-        own_pid,
-        ticks[own_pid],
-        store_factory=lambda: StateStore(database),
-        read_start_ticks=lambda pid: ticks.get(pid),
-        read_process_group_identity=lambda pid: (pid, pid) if pid in ticks else None,
-        signal_process=lambda pid, signum: signals.append((pid, int(signum))),
-        supervised_pids=(900_020,),
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=cast(Any, _SlowPeripheral())
     )
+    endpoint = str(control_path(session_id, root=tmp_path.parent))
+    try:
+        vanished = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        vanished.connect(endpoint)
+        vanished.sendall(
+            json.dumps(
+                {"sessionId": session_id, "gameId": game_id, "action": "listPeripherals"}
+            ).encode("utf-8")
+            + b"\n"
+        )
+        vanished.close()  # saiu sem ler: o sendall da resposta vai estourar EPIPE
+        time.sleep(0.6)  # margem sobre o handler lento; o sendall já falhou
 
-    owner.suspend()
-    signals.clear()
-
-    assert owner.request_exit(confirmed=True).state == "closing"
-
-    assert signals == [
-        (own_pid, signal.SIGTERM),
-        (own_pid, signal.SIGCONT),
-        (900_020, signal.SIGCONT),
-    ]
+        remote = resolve_remote_session_control(
+            session_id,
+            game_id,
+            observe=lambda sid: observe_game_session(tmp_path / "state.db", sid),
+            root=tmp_path.parent,
+        )
+        assert remote is not None
+        # Um cliente novo, no mesmo caminho de socket, ainda recebe resposta normal.
+        data = remote.list_peripherals()
+        assert data["state"] == "ready"
+    finally:
+        server.close()
