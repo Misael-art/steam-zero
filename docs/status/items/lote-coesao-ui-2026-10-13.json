@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "project-item",
   "id": "SZ-LOTE-COESAO-UI",
-  "title": "Lote de coesao visual e botoes reais (D-17, D-20, D-23, D-26 a D-29)",
+  "title": "Lote de coesao visual e botoes reais (D-06, D-07, D-08, D-10, D-12, D-17, D-19 a D-29)",
   "domain": "ui",
   "implementation": "planned",
   "integration": "isolated",
@@ -32,17 +32,17 @@
     {
       "kind": "diagnostic",
       "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/00-baseline-censo.txt",
-      "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_censo.py . — baseline reproduzido em 2026-10-13 na pre-voo, somente leitura, a partir da raiz do repo. Resultado identico a prova de 2026-10-12: 0 contratos sem endpoint com porta ausente no verbo declarado (de 148), 10 acoes do OSD sem adapter de sessao (D-28) e ids com enabled contraditorio firmware.import/nsz.install/requirements.verify (D-27).",
+      "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_censo.py . — baseline reproduzido em 2026-10-13 no pre-voo, somente leitura, a partir da raiz do repo. Resultado identico a prova de 2026-10-12: 0 contratos sem endpoint com porta ausente no verbo declarado (de 148), 10 acoes do OSD sem adapter de sessao (D-28) e ids com enabled contraditorio firmware.import/nsz.install/requirements.verify (D-27).",
       "result": "recorded"
     },
     {
       "kind": "diagnostic",
       "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/01-baseline-cores.txt",
-      "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_cores.py — baseline reproduzido em 2026-10-13 na pre-voo, somente leitura (le o pacote instalado em /opt e o catalogo do host, nada escreve). Rollup identico a prova de 2026-10-12: 43 reprovacoes semanticas de contraste nos temas medidos.",
+      "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_cores.py — baseline reproduzido em 2026-10-13 no pre-voo, somente leitura (le o pacote instalado em /opt e o catalogo do host, nada escreve). Rollup identico a prova de 2026-10-12: 43 reprovacoes semanticas de contraste nos temas medidos.",
       "result": "recorded"
     }
   ],
-  "nextAction": "Executar os lotes A a D do plano docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md com os handoffs seriais registrados no cartao; nenhuma edicao de codigo antes da Tarefa 1. Promocao de estagio somente com testes focados verdes e gates integrais no checkpoint (Tarefa 14).",
+  "nextAction": "Executar os lotes A a D do plano docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md sobre o mapa inteiro de defeitos desta rodada (D-06, D-07, D-08, D-10, D-12, D-17, D-19 a D-29, conforme a autorevisao do plano), com os handoffs seriais registrados no cartao; nenhuma edicao de codigo antes da Tarefa 1. Promocao de estagio somente com testes focados verdes e gates integrais no checkpoint (Tarefa 14).",
   "activeWorkstreams": [
     "WS-2026-10-LOTE-COESAO-UI"
   ],
