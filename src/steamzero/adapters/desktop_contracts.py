@@ -540,6 +540,14 @@ def handheld_ui_contracts() -> dict[str, Any]:
             confirmation="dialog",
         ),
         _action(
+            "requirements.verify",
+            "Validar requisitos",
+            "/emulation/requirements/verify",
+            service="emulation",
+            screen="emulation",
+            control="requirements-verify",
+        ),
+        _action(
             "library.scan",
             "Escanear biblioteca",
             "/emulation/library/scan",

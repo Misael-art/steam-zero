@@ -908,6 +908,9 @@ class DesktopDashboard:
     def rollback_emulation_action(self, operation_id: str) -> dict[str, Any]:
         return self._emulation.rollback_action(operation_id)
 
+    def verify_emulation_requirements(self) -> dict[str, Any]:
+        return self._emulation.verify_requirements()
+
     def bios_scan(self, source: str) -> dict[str, Any]:
         return self._emulation.bios_scan(Path(source))
 

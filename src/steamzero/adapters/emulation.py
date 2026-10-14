@@ -5009,6 +5009,30 @@ class EmulationController:
         }
         return key, firmware
 
+    def verify_requirements(self, platform_id: str = "switch") -> dict[str, Any]:
+        """Verificação somente leitura dos requisitos da plataforma.
+
+        É a resposta real de ``requirements.verify``: roda EXATAMENTE o mesmo
+        caminho que popula a prontidão no ``snapshot`` (as linhas observadas do
+        host, ``_requirements`` e ``compute_readiness``) e devolve o veredito
+        apurado agora, sem nenhum efeito colateral. A tela mostra o estado
+        verificado, não um sucesso presumido — fechar D-27 pedindo confirmação
+        de uma leitura seria o contrário do que o botão significa.
+        """
+        all_rows = self._emulator_rows()
+        rows = [row for row in all_rows if row["id"] in _SWITCH_EMULATOR_IDS]
+        key_status, firmware_status = self._requirements(rows)
+        state, status_label, readiness = compute_readiness(
+            {"keys": key_status, "firmware": firmware_status}, rows
+        )
+        return {
+            "platform": platform_id,
+            "state": state,
+            "statusLabel": status_label,
+            "requirements": {"keys": key_status, "firmware": firmware_status},
+            "readiness": readiness,
+        }
+
     _PRESERVATION_PREFIX: ClassVar[dict[str, str]] = {
         "save": "game.save",
         "state": "game.state",

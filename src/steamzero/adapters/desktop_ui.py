@@ -922,6 +922,8 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             return self._dashboard().rollback_emulation_action(
                 self._required_string(payload, "operationId")
             )
+        if path == "/emulation/requirements/verify":
+            return self._dashboard().verify_emulation_requirements()
         if path == "/emulation/library/scan":
             return self._dashboard().scan_emulation_library()
         if path == "/emulation/job/status":
