@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-LOTE-COESAO-UI",
+  "item": "SZ-LOTE-COESAO-UI",
+  "branch": "codex/jornada-fisica-bateria-2026-10-12",
+  "baseRef": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
+  "owner": "qoder-lote-coesao-ui",
+  "state": "active",
+  "exclusivePaths": [
+    "docs/09-operations/evidence/2026-10-13-lote-coesao-ui",
+    "docs/status/workstreams/lote-coesao-ui-2026-10-13.json",
+    "docs/status/items/lote-coesao-ui-2026-10-13.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Abrir o lote de coesao visual e botoes reais (plano em docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md) sobre a base codex/jornada-fisica-bateria-2026-10-12 em 2b7eb541b4a54f0930927a2b0f92cb45776ae4c7. Pre-voo executado em 2026-10-13: worktree limpo, liberacao ativa lida somente em /opt/steamzero/current (2.0.0rc1-2b7eb541b4a5, nenhuma mudanca), baseline reproduzido em logs/00-baseline-censo.txt (0 contratos sem endpoint com porta ausente no verbo declarado, de 148) e logs/01-baseline-cores.txt (43 reprovacoes semanticas); os dois numeros coincidem com a regua do plano. Handoffs seriais desta frente (por instrucao do operador na thread atual, origem -> destino, base, escopo, devolucao): (1) origem WS-2026-10-JOURNEY-LAUNCHER-SESSION (branch codex/session-provenance-checkpoint-2026-10-05, base 31564383ac90b53e0ae8ed6696eaa7ca32f8d5ef), destino esta frente: src/steamzero/adapters/session_overlay.py, src/steamzero/adapters/session_control.py, src/steamzero/adapters/launcher_ui.py, src/steamzero/domain/session_overlay.py, src/steamzero/domain/themes.py, src/steamzero/themes/org.steamzero.default/theme.json e os launcher/*.qml deste lote (LauncherMain.qml, LauncherSessionOverlay.qml) cedidos pelo escopo D-17/D-20/D-23/D-26 a D-29; devolucao aquela workstream apos o merge deste lote. (2) origem WS-2026-10-STUDIO-DRAFT-HISTORY (branch codex/d5-studio-draft-history-2026-10-09, base 55295f2c084142e26c8d6383854c2bf9affb8978), destino esta frente: src/steamzero/ui/qml/Main.qml pelo ramo local performEmulationAction (D-27) e nomes acessiveis (D-19); devolucao aquela workstream apos o merge deste lote, respeitando a guarda de rascunho ja entregue por ela. (3) origem WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT (branch codex/library-host-release-caf9d922-2026-09-22, base 621a3389db32ee4796313ace4cd9665014bb52cc), destino esta frente: src/steamzero/adapters/emulation.py pelo catalogo de acoes de emulacao e publicacao de enabled (D-27); devolucao aquela workstream apos o merge deste lote. LauncherJourney.qml (WS-2026-10-JOURNEY-PLATFORM-PROJECTION) NAO e tocado por este lote; se algum tarefa vier a toucha-lo, registrar handoff proprio antes. Os demais paths das frentes reivindicadas permanecem com suas origens. Nenhuma edicao de codigo nesta tarefa; proximo passo: Tarefa 1 (D-17).",
+  "updatedAt": "2026-10-13"
+}

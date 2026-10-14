@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-LOTE-COESAO-UI",
+  "title": "Lote de coesao visual e botoes reais (D-17, D-20, D-23, D-26 a D-29)",
+  "domain": "ui",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "blocked",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/09-operations/evidence/2026-10-13-lote-coesao-ui",
+    "docs/status/workstreams/lote-coesao-ui-2026-10-13.json",
+    "docs/status/items/lote-coesao-ui-2026-10-13.json",
+    "docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md"
+  ],
+  "dependsOn": [
+    "SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN"
+  ],
+  "knownGaps": [
+    "GAP-LOTE-COESAO-ENTREGA",
+    "GAP-PROVA-FISICA-INJECAO-BANIDA"
+  ],
+  "acceptanceCriteria": [
+    "Nenhum controle publicado alega uma acao que o adapter nao executa: o censo registra 0 acoes do OSD sem porta de backend e 0 publicacoes com enabled contraditorio.",
+    "Os 409 de lancamento e as recusas de canal/slot declaram causa e efeito possiveis na resposta, sem escrevar estado que nao executaram.",
+    "A paleta publicada sustenta o proprio texto: a auditoria de cores nao reprova nenhum par semantico dos temas empacotados.",
+    "Cada lote fecha com testes focados verdes, gates integrais no checkpoint e evidencia em docs/09-operations/evidence/2026-10-13-lote-coesao-ui."
+  ],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/00-baseline-censo.txt",
+      "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_censo.py . — baseline reproduzido em 2026-10-13 na pre-voo, somente leitura, a partir da raiz do repo. Resultado identico a prova de 2026-10-12: 0 contratos sem endpoint com porta ausente no verbo declarado (de 148), 10 acoes do OSD sem adapter de sessao (D-28) e ids com enabled contraditorio firmware.import/nsz.install/requirements.verify (D-27).",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/01-baseline-cores.txt",
+      "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_cores.py — baseline reproduzido em 2026-10-13 na pre-voo, somente leitura (le o pacote instalado em /opt e o catalogo do host, nada escreve). Rollup identico a prova de 2026-10-12: 43 reprovacoes semanticas de contraste nos temas medidos.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Executar os lotes A a D do plano docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md com os handoffs seriais registrados no cartao; nenhuma edicao de codigo antes da Tarefa 1. Promocao de estagio somente com testes focados verdes e gates integrais no checkpoint (Tarefa 14).",
+  "activeWorkstreams": [
+    "WS-2026-10-LOTE-COESAO-UI"
+  ],
+  "updatedAt": "2026-10-13",
+  "notes": "Item da rodada de correcao governada aberta em 2026-10-13, dentro das prioridades V1-V4 ja declaradas no prompt canonico; nao cria roadmap paralelo. O pre-voo (Tarefa 0) reprodziu o censo e a auditoria de cores da jornada fisica 2026-10-12 e registrou os dois numeros como regua da rodada (0 e 43, identicos ao esperado). operation=blocked reflete o limite da rodada: sem autorizacao de instalacao, merge ou injecao de entrada GUI neste host, nenhum fecho do lote pode ser promovido acima de verificação unitaria/dev ate a prova fisica autorizada."
+}
