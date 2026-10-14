@@ -212,7 +212,7 @@ Item {
             overlay.appearanceStageRequested("saves")
             return true
         }
-        if (String(action.id) === "disc" && overlay.peripherals
+        if (String(action.id) === "swapDisc" && overlay.peripherals
                 && overlay.peripherals.available === true) {
             overlay.peripheralOpen = true
             peripheralSurface.setModel(overlay.peripherals)

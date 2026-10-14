@@ -880,7 +880,8 @@ Window {
             root.dispatchSessionOverlayAction(actionId, slot)
         }
         onDiscRequested: function(discId) {
-            root.dispatchSessionOverlayAction("disc", undefined, discId)
+            // D-28: o id publicado é o id que o canal aceita (`swapDisc`).
+            root.dispatchSessionOverlayAction("swapDisc", undefined, discId)
         }
         onCloseRequested: root.closeSessionOverlay()
         onAppearanceStageRequested: function(stageId) {

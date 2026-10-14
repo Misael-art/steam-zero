@@ -40,7 +40,33 @@ DIAG_CHANNEL_SUSPENDED = "AURA-SESSION-ADAPTER-007"
 SUSPENDED_CHANNEL_REASON = "A sessão está suspensa; retome antes de salvar."
 SUSPENDED_CHANNEL_DETAIL = "A sessão está suspensa; o pedido não foi enviado ao emulador."
 SUSPENDED_CHANNEL_NEXT_ACTION = "Retome a sessão e tente novamente."
-CHANNEL_SUSPENDED_CAPABILITY_ACTIONS = ("saveState", "loadState", "disc")
+CHANNEL_SUSPENDED_CAPABILITY_ACTIONS = ("saveState", "loadState", "swapDisc")
+# D-28: comandos e leituras que falam com o emulador vivo. Valem o mesmo gate
+# D-23 da gravação de estado — em árvore parada a recusa é publicada antes do
+# toque, nunca uma oferta que enfileira efeito para depois.
+SUSPENDED_COMMAND_REASON = "A sessão está suspensa; retome antes de enviar um pedido ao emulador."
+CHANNEL_SUSPENDED_COMMAND_ACTIONS = (
+    "mute",
+    "screenshot",
+    "fastForward",
+    "rewind",
+    "listSaveStates",
+    "listDiscs",
+    "listPeripherals",
+)
+EPHEMERAL_ACTION_METHODS = {
+    "mute": "toggle_mute",
+    "screenshot": "take_screenshot",
+    "fastForward": "toggle_fast_forward",
+    "rewind": "step_rewind",
+}
+READ_ACTION_METHODS = {
+    "listSaveStates": "list_save_states",
+    "listDiscs": "list_discs",
+    "listPeripherals": "list_peripherals",
+}
+NO_PORT_REASON = "O adapter desta sessão não oferece esta operação."
+NON_ACTIVE_REASON = "A sessão não está em um estado que aceite pedidos ao emulador."
 MAX_DETAIL_LENGTH = 240
 
 
@@ -196,9 +222,28 @@ class SessionOverlayAdapter:
                 else gallery.reason or "Nenhum save-state compatível está disponível."
             ),
         }
-        capabilities["disc"] = {
+        capabilities["swapDisc"] = {
             "available": disc_available,
             "reason": "" if disc_available else peripherals.reason,
+        }
+        for action_id, method_name in EPHEMERAL_ACTION_METHODS.items():
+            method = getattr(control, method_name, None) if control is not None else None
+            available = callable(method) and state in {"running", "suspended"}
+            reason = (
+                "" if available else (NO_PORT_REASON if not callable(method) else NON_ACTIVE_REASON)
+            )
+            capabilities[action_id] = {"available": available, "reason": reason}
+        for action_id, method_name in READ_ACTION_METHODS.items():
+            method = getattr(control, method_name, None) if control is not None else None
+            available = callable(method) and state in {"running", "suspended"}
+            reason = (
+                "" if available else (NO_PORT_REASON if not callable(method) else NON_ACTIVE_REASON)
+            )
+            capabilities[action_id] = {"available": available, "reason": reason}
+        resume_available = control is not None and state == "suspended"
+        capabilities["resume"] = {
+            "available": resume_available,
+            "reason": "" if resume_available else "A sessão não está suspensa para retomar.",
         }
         if state == "suspended":
             # D-23: o canal de uma árvore parada adia o pedido em vez de recusá-lo.
@@ -206,6 +251,8 @@ class SessionOverlayAdapter:
             # foi assim que a "Galeria de saves" travou a sessão da jornada física.
             for action_id in CHANNEL_SUSPENDED_CAPABILITY_ACTIONS:
                 capabilities[action_id] = {"available": False, "reason": SUSPENDED_CHANNEL_REASON}
+            for action_id in CHANNEL_SUSPENDED_COMMAND_ACTIONS:
+                capabilities[action_id] = {"available": False, "reason": SUSPENDED_COMMAND_REASON}
         result_session = {
             "gameId": game_id,
             "sessionId": session_id or None,
@@ -495,7 +542,7 @@ class SessionOverlayAdapter:
             if current is None or current.state not in {"running", "suspended"}:
                 raise ValueError("a sessão não está disponível para save-state")
             return cast(Callable[[int], SessionRecord], method)(slot)
-        if intent.action_id == "disc":
+        if intent.action_id == "swapDisc":
             if not isinstance(disc_id, str) or not disc_id:
                 raise ValueError("disco não informado")
             method = getattr(control, "swap_disc", None)
@@ -505,7 +552,27 @@ class SessionOverlayAdapter:
             if current is None or current.state not in {"running", "suspended"}:
                 raise ValueError("a sessão não está disponível para troca de disco")
             return cast(Callable[[str], SessionRecord], method)(disc_id)
-        if intent.action_id != "pause" or intent.operation not in {"pause", "resume"}:
+        if intent.action_id in EPHEMERAL_ACTION_METHODS:
+            method = getattr(control, EPHEMERAL_ACTION_METHODS[intent.action_id], None)
+            if not callable(method):
+                raise RuntimeError(NO_PORT_REASON)
+            current = control.current
+            if current is None or current.state not in {"running", "suspended"}:
+                raise ValueError(NON_ACTIVE_REASON)
+            return cast(Callable[[], SessionRecord], method)()
+        if intent.action_id in READ_ACTION_METHODS:
+            method = getattr(control, READ_ACTION_METHODS[intent.action_id], None)
+            if not callable(method):
+                raise RuntimeError(NO_PORT_REASON)
+            current = control.current
+            if current is None or current.state not in {"running", "suspended"}:
+                raise ValueError(NON_ACTIVE_REASON)
+            cast(Callable[[], Any], method)()
+            return current
+        if intent.action_id not in {"pause", "resume"} or intent.operation not in {
+            "pause",
+            "resume",
+        }:
             raise ValueError("intent de sessão não allowlisted")
         current = control.current
         if current is None:

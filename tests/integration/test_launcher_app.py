@@ -1120,7 +1120,9 @@ def test_session_route_accepts_a_bounded_save_state_slot(tmp_path: Path) -> None
     with bridge.serving() as base:
         model = _get(f"{base}/session?gameId=game&overlay=1", bridge.token)
         assert model["overlay"]["saveStates"]["entries"][0]["slot"] == 4
-        assert model["overlay"]["actions"][4]["id"] == "saveState"
+        # D-28: a fileira publicada encolheu para os ids com porta no backend;
+        # `saveState` passou à posição 2 (mute, screenshot, saveState).
+        assert model["overlay"]["actions"][2]["id"] == "saveState"
         with urllib.request.urlopen(  # noqa: S310
             urllib.request.Request(  # noqa: S310
                 f"{base}/session/action",

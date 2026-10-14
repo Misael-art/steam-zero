@@ -620,6 +620,108 @@ class _LateWriteControl:
         return paths.saves_dir() / "states" / "Mesen" / f"Jogo de Teste.state{slot}"
 
 
+class _EphemeralCommandControl:
+    """Periférico falso que grava os comandos transitórios recebidos pelo dono."""
+
+    def __init__(self) -> None:
+        self.commands: list[str] = []
+
+    def toggle_mute(self) -> None:
+        self.commands.append("mute")
+
+    def take_screenshot(self) -> None:
+        self.commands.append("screenshot")
+
+    def toggle_fast_forward(self) -> None:
+        self.commands.append("fastForward")
+
+    def step_rewind(self) -> None:
+        self.commands.append("rewind")
+
+
+def test_ephemeral_commands_travel_the_channel_and_reach_the_peripheral(
+    tmp_path: Path,
+) -> None:
+    """D-28: cada ação publicada precisa de porta real no backend; aqui, o caminho completo."""
+    signals: list[tuple[int, int]] = []
+    peripheral = _EphemeralCommandControl()
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=cast(Any, peripheral)
+    )
+    remote = resolve_remote_session_control(
+        session_id,
+        game_id,
+        observe=lambda requested: observe_game_session(tmp_path / "state.db", requested),
+        root=tmp_path.parent,
+    )
+    assert remote is not None
+    try:
+        assert remote.toggle_mute().state == "running"
+        assert remote.take_screenshot().state == "running"
+        assert remote.toggle_fast_forward().state == "running"
+        assert remote.step_rewind().state == "running"
+    finally:
+        server.close()
+    assert peripheral.commands == ["mute", "screenshot", "fastForward", "rewind"]
+
+
+def test_ephemeral_command_while_suspended_never_reaches_the_control_channel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """D-23/D-28: o gate de sessão viva vale para os comandos novos — nada enfileirado."""
+    signals: list[tuple[int, int]] = []
+    connections: list[str] = []
+
+    class SpySocket(socket.socket):
+        def connect(self, address: str) -> None:
+            connections.append(address)
+            super().connect(address)
+
+    def spy(*args: Any, **kwargs: Any) -> socket.socket:
+        return SpySocket(*args, **kwargs)
+
+    monkeypatch.setattr(session_control.socket, "socket", spy)
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=cast(Any, _EphemeralCommandControl())
+    )
+    try:
+        database = tmp_path / "state.db"
+        remote = resolve_remote_session_control(
+            session_id,
+            game_id,
+            observe=lambda sid: observe_game_session(database, sid),
+            root=tmp_path.parent,
+        )
+        assert remote is not None
+        connections.clear()
+        remote.suspend()
+        assert connections == [str(control_path(session_id, root=tmp_path.parent))]
+        signals.clear()
+        connections.clear()
+
+        with pytest.raises(SteamZeroError) as refusal:
+            remote.toggle_mute()
+
+        assert refusal.value.code == "E-SESSION-CHANNEL-SUSPENDED"
+        assert connections == []
+        assert signals == []
+    finally:
+        server.close()
+
+
+def test_channel_refuses_an_action_without_a_backend_port(tmp_path: Path) -> None:
+    """Não-vacuidade da D-28: `volume` não tem porta; o canal recusa, não finge."""
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    try:
+        result = server._dispatch({"sessionId": session_id, "gameId": game_id, "action": "volume"})
+    finally:
+        server.close()
+    assert result["accepted"] is False
+    assert result["diagnostic"] == "AURA-SESSION-CONTROL-REQUEST-002"
+    assert "volume" not in session_control.ACCEPTED_ACTIONS
+
+
 def _refuse_save_state(
     tmp_path: Path, slot: int, *, peripheral_control: SessionPeripheralControl | None = None
 ) -> dict[str, Any]:

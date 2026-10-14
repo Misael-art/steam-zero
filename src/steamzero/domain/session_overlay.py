@@ -16,36 +16,42 @@ from typing import Any
 ACTIVE_SESSION_STATES = frozenset(
     {"launching", "running", "suspending", "suspended", "resuming", "closing"}
 )
+# D-28: cada id publicado aqui precisa de uma porta em ACCEPTED_ACTIONS do
+# backend de sessão (exceto `exit`, que tem rota própria com confirmed=true).
+# Sem porta, o botão é fileira inerte — a divisão medida pela jornada.
+# `brightness`/`control`/`achievement`/`network` foram retirados por ausência
+# de contraparte no host; `volume` por não existir ação discreta honesta para
+# um botão único sem valor/slider; `disc` virou `swapDisc`, o id que o canal
+# já roteava; os `list*`/`resume` eram aceitos e nunca tinham virado botão.
 OSD_ACTIONS = (
-    "volume",
     "mute",
-    "brightness",
     "screenshot",
     "saveState",
     "loadState",
-    "disc",
+    "listSaveStates",
+    "swapDisc",
+    "listDiscs",
+    "listPeripherals",
     "fastForward",
     "rewind",
     "pause",
+    "resume",
     "exit",
-    "control",
-    "achievement",
-    "network",
 )
 _ACTION_LABELS = {
-    "volume": "Volume",
     "mute": "Silenciar",
-    "brightness": "Brilho",
     "screenshot": "Capturar tela",
     "saveState": "Galeria de saves",
     "loadState": "Carregar save",
-    "disc": "Trocar disco",
+    "listSaveStates": "Listar save-states",
+    "swapDisc": "Trocar disco",
+    "listDiscs": "Listar discos",
+    "listPeripherals": "Listar periféricos",
     "fastForward": "Avançar rápido",
     "rewind": "Rebobinar",
+    "pause": "Pausar",
+    "resume": "Retomar",
     "exit": "Sair do jogo",
-    "control": "Controles",
-    "achievement": "Conquistas",
-    "network": "Rede",
 }
 MAX_REASON_LENGTH = 240
 MAX_ACTIONS = len(OSD_ACTIONS)

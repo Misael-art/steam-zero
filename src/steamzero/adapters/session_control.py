@@ -50,7 +50,33 @@ SAVE_STATE_SLOT_RECOVERY = "choose-valid-slot"
 # manual). O gate roda no cliente, antes do connect.
 E_SESSION_CHANNEL_SUSPENDED = "E-SESSION-CHANNEL-SUSPENDED"
 CHANNEL_READY_STATES = frozenset({"launching", "running"})
-CHANNEL_LIVE_ACTIONS = frozenset({"saveState", "loadState", "swapDisc"})
+# D-28: os comandos transitórios conversam com o emulador vivo e valem o mesmo
+# gate D-23 dos save-states: em árvore parada o pedido ficaria enfileirado para
+# executar depois da recusa publicada.
+CHANNEL_LIVE_ACTIONS = frozenset(
+    {"saveState", "loadState", "swapDisc", "mute", "screenshot", "fastForward", "rewind"}
+)
+# D-28: fonte única das portas de ação do backend de sessão. O literal vivia
+# dentro de `_dispatch`; extraído sem mudança de comportamento, ele passa a ser
+# o contrato que o teste de fronteira do OSD compara com `OSD_ACTIONS`: um
+# botão publicado sem porta aqui é a divisão medida pela jornada (D-28).
+ACCEPTED_ACTIONS = frozenset(
+    {
+        "pause",
+        "resume",
+        "exit",
+        "listSaveStates",
+        "saveState",
+        "loadState",
+        "listDiscs",
+        "swapDisc",
+        "listPeripherals",
+        "mute",
+        "screenshot",
+        "fastForward",
+        "rewind",
+    }
+)
 
 _log = logging.getLogger(__name__)
 
@@ -261,6 +287,30 @@ class SessionControlOwner:
         self._peripheral_control.load_state(slot)
         return self._require_current()
 
+    def toggle_mute(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece controle de áudio")
+        self._peripheral_control.toggle_mute()
+        return self._require_current()
+
+    def take_screenshot(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece captura de tela")
+        self._peripheral_control.take_screenshot()
+        return self._require_current()
+
+    def toggle_fast_forward(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece avanço rápido")
+        self._peripheral_control.toggle_fast_forward()
+        return self._require_current()
+
+    def step_rewind(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece rebobinar")
+        self._peripheral_control.step_rewind()
+        return self._require_current()
+
     def state_path(self, slot: int) -> Path:
         """O destino que um `saveState` deste slot escreveria — nomeado pelo adapter.
 
@@ -452,17 +502,7 @@ class SessionControlServer:
                 "diagnostic": DIAG_CONTROL_REQUEST,
                 "detail": "A confirmação só é aceita para o encerramento explícito da sessão.",
             }
-        if action not in {
-            "pause",
-            "resume",
-            "exit",
-            "listSaveStates",
-            "saveState",
-            "loadState",
-            "listDiscs",
-            "swapDisc",
-            "listPeripherals",
-        }:
+        if action not in ACCEPTED_ACTIONS:
             return {
                 "accepted": False,
                 "state": "unknown",
@@ -480,6 +520,14 @@ class SessionControlServer:
                 record = self.owner.resume()
             elif action == "exit":
                 record = self.owner.request_exit(confirmed=True)
+            elif action == "mute":
+                record = self.owner.toggle_mute()
+            elif action == "screenshot":
+                record = self.owner.take_screenshot()
+            elif action == "fastForward":
+                record = self.owner.toggle_fast_forward()
+            elif action == "rewind":
+                record = self.owner.step_rewind()
             elif action == "listSaveStates":
                 current = self.owner.current
                 if current is None:
@@ -700,6 +748,18 @@ class RemoteSessionControl:
     def list_peripherals(self) -> Mapping[str, Any]:
         return self._request_data("listPeripherals")
 
+    def toggle_mute(self) -> SessionControlRecord:
+        return self._request("mute")
+
+    def take_screenshot(self) -> SessionControlRecord:
+        return self._request("screenshot")
+
+    def toggle_fast_forward(self) -> SessionControlRecord:
+        return self._request("fastForward")
+
+    def step_rewind(self) -> SessionControlRecord:
+        return self._request("rewind")
+
 
 def control_path(session_id: str, *, root: Path | None = None) -> Path:
     """Retorna o endpoint derivado de um id ULID, sem aceitar caminhos externos."""
@@ -726,6 +786,7 @@ def resolve_remote_session_control(
 
 
 __all__ = [
+    "ACCEPTED_ACTIONS",
     "CHANNEL_READY_STATES",
     "DIAG_CONTROL_FAILED",
     "DIAG_CONTROL_REQUEST",

@@ -51,6 +51,14 @@ class SessionPeripheralControl(Protocol):
 
     def state_path(self, slot: int) -> Path: ...
 
+    def toggle_mute(self) -> SessionPeripheralRecord: ...
+
+    def take_screenshot(self) -> SessionPeripheralRecord: ...
+
+    def toggle_fast_forward(self) -> SessionPeripheralRecord: ...
+
+    def step_rewind(self) -> SessionPeripheralRecord: ...
+
     def list_discs(self) -> Mapping[str, Any]: ...
 
     def swap_disc(self, disc_id: str) -> SessionPeripheralRecord: ...
@@ -311,6 +319,33 @@ class RetroArchSessionPeripheral:
             raise RuntimeError("o slot de save-state ainda não existe")
         self._send_command(f"LOAD_STATE_SLOT {slot}")
         self._state_slot = slot
+        return self._record()
+
+    # D-28: comandos transitórios publicados pelo OSD. Os tokens são os nomes
+    # exatos da tabela de comandos UDP do RetroArch (command.h, série 1.22 —
+    # a versão do Flatpak instalado), cada um com comportamento documentado e
+    # alcance discreto, sem valor arbitrário inventado pelo adapter:
+    #   MUTE           → "Mute or unmute audio." (alternância)
+    #   SCREENSHOT     → "Take a screenshot." (efeito único)
+    #   FAST_FORWARD   → "Toggle fast-forward." (alternância)
+    #   REWIND         → "Rewind while held (one frame when sent as a
+    #                    command)": um envio por toque, um passo de quadro.
+    # Volume fica fora: `SET_VOLUME` pede grandeza e `VOLUME_UP/DOWN` exigem
+    # dois botões ou estado de leitura — nenhum é o botão único que a UI tem.
+    def toggle_mute(self) -> SessionPeripheralRecord:
+        self._send_command("MUTE")
+        return self._record()
+
+    def take_screenshot(self) -> SessionPeripheralRecord:
+        self._send_command("SCREENSHOT")
+        return self._record()
+
+    def toggle_fast_forward(self) -> SessionPeripheralRecord:
+        self._send_command("FAST_FORWARD")
+        return self._record()
+
+    def step_rewind(self) -> SessionPeripheralRecord:
+        self._send_command("REWIND")
         return self._record()
 
     def list_discs(self) -> Mapping[str, Any]:
