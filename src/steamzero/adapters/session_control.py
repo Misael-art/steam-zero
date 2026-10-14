@@ -37,6 +37,10 @@ CONTROL_DIRECTORY = "session-controls"
 DIAG_CONTROL_UNAVAILABLE = "AURA-SESSION-CONTROL-UNAVAILABLE-001"
 DIAG_CONTROL_REQUEST = "AURA-SESSION-CONTROL-REQUEST-002"
 DIAG_CONTROL_FAILED = "AURA-SESSION-CONTROL-FAILED-003"
+# D-20: a rota /journey/event já recusa o slot fora da faixa com esta frase e esta
+# recuperação (launcher_ui); o canal de sessão e o overlay passam a dizer o mesmo.
+SAVE_STATE_SLOT_DETAIL = "O slot de save-state deve estar entre 0 e 999."
+SAVE_STATE_SLOT_RECOVERY = "choose-valid-slot"
 # D-23: o servidor do canal **não** vive dentro da árvore que a pausa SIGSTOPa —
 # ele roda no processo que lançou o jogo (CLI spawned pelo launcher), que continua
 # respondendo. O gate mesmo assim vale: o handler de uma ação de periférico
@@ -62,6 +66,10 @@ class SessionControlRecord:
     id: str
     game_id: str
     state: str
+
+
+class _InvalidSaveSlot(ValueError):
+    """Slot de save-state fora da faixa: recusa de pedido, não falha de operação."""
 
 
 def _bounded_text(value: Any, *, limit: int = 128) -> str:
@@ -501,8 +509,13 @@ class SessionControlServer:
                 }
             elif action in {"saveState", "loadState"}:
                 slot = request.get("slot")
+                # D-20: o toque de salvar sem galeria chegava sem slot e a recusa
+                # caía no genérico pós-falha. Fora da faixa o canal responde com a
+                # mesma frase e a mesma recuperação da rota /journey/event; o erro
+                # nasce antes de `dispatched_slot`, então a recusa segue podendo
+                # afirmar que nenhum pedido chegou ao adapter (D-26).
                 if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot <= 999:
-                    raise ValueError("slot de save-state inválido")
+                    raise _InvalidSaveSlot(SAVE_STATE_SLOT_DETAIL)
                 if action == "saveState":
                     # D-26: a partir desta linha o pedido já foi entregue ao adapter;
                     # a recusa deixa de poder afirmar que nada aconteceu.
@@ -517,6 +530,14 @@ class SessionControlServer:
                 if not isinstance(disc_id, str):
                     raise ValueError("disco não informado")
                 record = self.owner.swap_disc(disc_id)
+        except _InvalidSaveSlot:
+            return {
+                "accepted": False,
+                "state": "unknown",
+                "diagnostic": DIAG_CONTROL_REQUEST,
+                "detail": SAVE_STATE_SLOT_DETAIL,
+                "recoveryAction": SAVE_STATE_SLOT_RECOVERY,
+            }
         except Exception:
             current = self.owner.current
             refusal: dict[str, Any] = {
@@ -710,6 +731,8 @@ __all__ = [
     "DIAG_CONTROL_REQUEST",
     "DIAG_CONTROL_UNAVAILABLE",
     "E_SESSION_CHANNEL_SUSPENDED",
+    "SAVE_STATE_SLOT_DETAIL",
+    "SAVE_STATE_SLOT_RECOVERY",
     "RemoteSessionControl",
     "SessionControlOwner",
     "SessionControlRecord",

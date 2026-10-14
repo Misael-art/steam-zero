@@ -254,6 +254,22 @@ def test_save_and_load_dispatch_requires_a_bounded_slot_and_same_session() -> No
     assert control.calls == ["save:2", "load:2"]
 
 
+def test_save_state_without_slot_refuses_with_the_unified_range_message() -> None:
+    """D-20: a recusa de slot da rota de sessão diz o mesmo que a /journey/event.
+
+    O texto era o resíduo visível do defeito: o toque sem galeria chegava ao
+    adapter sem slot e o jogador lia "slot de save-state inválido" enquanto a
+    rota de jornada já sabia explicar a faixa e a recuperação.
+    """
+    control = SaveStateControl(FakeSession())
+    result = make_adapter(control).dispatch("game-1", "session-1", "saveState")
+
+    assert result.accepted is False
+    assert result.diagnostic == "AURA-SESSION-ADAPTER-003"
+    assert result.detail == "O slot de save-state deve estar entre 0 e 999."
+    assert control.calls == []
+
+
 def test_dispatch_returns_recoverable_error_when_session_operation_fails() -> None:
     control = FakeControl(FakeSession())
     control.fail = True

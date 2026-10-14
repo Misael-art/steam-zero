@@ -14,6 +14,8 @@ Item {
     property int checks: 0
     property var requested: []
     property bool closed: false
+    property var overlayActionRequests: []
+    property var overlaySaveRequests: []
 
     function check(condition, message) {
         checks += 1
@@ -42,6 +44,25 @@ Item {
         ]
     })
 
+    // D-20: read model de uma sessão cujo adapter não oferece save-state (nenhum
+    // save existente): a galeria não abre e não há slot escolhível na tela.
+    readonly property var noSaveOverlayModel: ({
+        "sessionId": "session-1",
+        "gameId": "castlevania",
+        "state": "running",
+        "visible": true,
+        "focusedAction": "saveState",
+        "actions": [
+            {"id": "saveState", "label": "Salvar estado", "enabled": true, "reason": ""},
+            {"id": "loadState", "label": "Carregar estado", "enabled": true, "reason": ""}
+        ],
+        "saveStates": {"state": "unavailable", "available": false, "saveAvailable": false,
+                       "loadAvailable": false, "reason": "O adapter não oferece save-state.",
+                       "entries": []},
+        "criticalError": null,
+        "diagnostic": null
+    })
+
     LauncherSaveStateGallery {
         id: gallery
         anchors.fill: parent
@@ -49,6 +70,18 @@ Item {
             harness.requested.push({"actionId": actionId, "slot": slot})
         }
         onCloseRequested: harness.closed = true
+    }
+
+    LauncherSessionOverlay {
+        id: sessionOverlay
+        anchors.fill: parent
+        gameTitle: "Castlevania Legends"
+        onActionRequested: function(actionId) {
+            harness.overlayActionRequests.push(actionId)
+        }
+        onSaveStateRequested: function(actionId, slot) {
+            harness.overlaySaveRequests.push({"actionId": actionId, "slot": slot})
+        }
     }
 
     Timer {
@@ -89,6 +122,37 @@ Item {
             harness.check(gallery.entries.length === 0, "fallback sem mídia não pode inventar slots")
             harness.check(gallery.closeGallery(), "fechar a galeria deve ser acionável")
             harness.check(harness.closed, "fechar deve avisar o overlay")
+
+            // D-20: sem galeria, o toque em Salvar estado ainda precisa chegar ao
+            // adapter com um slot inteiro — nunca pelo despacho sem slot, que o
+            // adapter recusa e transforma o toque do jogador em uma recusa.
+            sessionOverlay.openOverlay(harness.noSaveOverlayModel)
+            harness.check(!sessionOverlay.saveGalleryOpen,
+                          "sem save disponível a galeria não pode abrir")
+            harness.check(sessionOverlay.focusAction("saveState"),
+                          "saveState habilitado precisa receber foco mesmo sem galeria")
+            harness.check(sessionOverlay.activateFocused() === true,
+                          "saveState habilitado precisa despachar mesmo sem galeria")
+            harness.check(harness.overlayActionRequests.length === 0,
+                          "saveState sem galeria não pode usar o despacho sem slot (D-20)")
+            harness.check(harness.overlaySaveRequests.length === 1
+                          && harness.overlaySaveRequests[0].actionId === "saveState"
+                          && harness.overlaySaveRequests[0].slot === 0
+                          && Number.isInteger(harness.overlaySaveRequests[0].slot),
+                          "saveState sem galeria deve despachar saveStateRequested com o slot livre padrão 0")
+
+            // loadState sem save existente não tem o que carregar: comportamento
+            // preservado, nenhum slot inventado (D-20 trata só o caminho de salvar).
+            harness.check(sessionOverlay.focusAction("loadState"),
+                          "loadState precisa continuar focável")
+            harness.check(sessionOverlay.activateFocused() === true,
+                          "loadState habilitado precisa despachar")
+            harness.check(harness.overlayActionRequests.length === 1
+                          && harness.overlayActionRequests[0] === "loadState"
+                          && harness.overlaySaveRequests.length === 1,
+                          "loadState mantém o despacho original; slot 0 é exclusivo do fallback de salvar")
+
+            console.info("checks=" + harness.checks + " failures=" + harness.failures)
             Qt.exit(harness.failures === 0 ? 0 : 1)
         }
     }

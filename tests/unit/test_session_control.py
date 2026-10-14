@@ -665,10 +665,21 @@ def test_refused_save_state_before_dispatch_declares_nothing(tmp_path: Path) -> 
         result = server._dispatch(
             {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": 5_000}
         )
+        # D-20: o OSD sem galeria despachava `saveState` sem slot; a recusa do
+        # canal passa a dizer a mesma faixa da rota /journey/event, não o genérico.
+        missing = server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState"}
+        )
     finally:
         server.close()
     assert result["accepted"] is False
     assert "written" not in result  # validou antes de enviar: efeito garantidamente ausente
+    assert result["diagnostic"] == "AURA-SESSION-CONTROL-REQUEST-002"
+    assert result["detail"] == "O slot de save-state deve estar entre 0 e 999."
+    assert result["recoveryAction"] == "choose-valid-slot"
+    assert missing["accepted"] is False
+    assert missing["detail"] == "O slot de save-state deve estar entre 0 e 999."
+    assert "written" not in missing
 
 
 def test_refused_save_state_declares_exists_when_the_file_landed(tmp_path: Path) -> None:

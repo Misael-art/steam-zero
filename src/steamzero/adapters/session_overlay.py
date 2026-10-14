@@ -13,7 +13,10 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Protocol, cast
 
-from steamzero.adapters.session_control import E_SESSION_CHANNEL_SUSPENDED
+from steamzero.adapters.session_control import (
+    E_SESSION_CHANNEL_SUSPENDED,
+    SAVE_STATE_SLOT_DETAIL,
+)
 from steamzero.domain.save_states import resolve_save_state_gallery, unavailable_gallery
 from steamzero.domain.session_overlay import (
     OSD_ACTIONS,
@@ -478,7 +481,9 @@ class SessionOverlayAdapter:
             return cast(Callable[..., SessionRecord], method)(confirmed=True)
         if intent.action_id in {"saveState", "loadState"}:
             if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot <= 999:
-                raise ValueError("slot de save-state inválido")
+                # D-20: mesma frase e faixa da rota /journey/event (launcher_ui);
+                # a recusa da rota de sessão não pode dizer algo diferente.
+                raise ValueError(SAVE_STATE_SLOT_DETAIL)
             method = getattr(
                 control,
                 "save_state" if intent.action_id == "saveState" else "load_state",

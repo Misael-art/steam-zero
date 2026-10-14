@@ -223,6 +223,14 @@ Item {
             exitConfirmation.open()
             return true
         }
+        // D-20: sem save existente a galeria não abre e não há slot escolhível na
+        // tela. O adapter recusa o despacho sem slot, então salvar cai no slot
+        // livre padrão da UI (0) — o mesmo que a galeria oferece quando existe.
+        if (String(action.id) === "saveState") {
+            overlay.localError = ""
+            overlay.saveStateRequested("saveState", 0)
+            return true
+        }
         overlay.localError = ""
         overlay.actionRequested(String(action.id))
         return true
