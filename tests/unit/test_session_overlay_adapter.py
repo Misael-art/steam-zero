@@ -8,10 +8,12 @@ from typing import Any
 
 import pytest
 
+from steamzero.adapters.session_control import E_SESSION_CHANNEL_SUSPENDED
 from steamzero.adapters.session_overlay import (
     DIAG_SESSION_MISMATCH,
     SessionOverlayAdapter,
 )
+from steamzero.core.errors import SteamZeroError
 
 
 @dataclass
@@ -297,3 +299,61 @@ def test_read_model_projects_declared_bezel_and_fade_from_complete_adapter() -> 
         "durationMs": 180,
         "reducedMotion": False,
     }
+
+
+def test_suspended_session_publishes_channel_actions_as_unavailable() -> None:
+    """D-23: a OSD não pode oferecer "Galeria de saves" a uma árvore parada."""
+    control = SaveStateControl(FakeSession(state="suspended"))
+    model = make_adapter(control).read_model("game-1", visible=True)
+
+    capabilities = model["osd"]["capabilities"]
+    for action_id in ("saveState", "loadState"):
+        assert capabilities[action_id] == {
+            "available": False,
+            "reason": "A sessão está suspensa; retome antes de salvar.",
+        }
+
+    disc_control = PeripheralControl(FakeSession(state="suspended"))
+    disc_model = make_adapter(disc_control).read_model("game-1", visible=True)
+    assert disc_model["osd"]["capabilities"]["disc"] == {
+        "available": False,
+        "reason": "A sessão está suspensa; retome antes de salvar.",
+    }
+
+
+def test_dispatch_never_reaches_the_control_on_suspended_session() -> None:
+    """A recusa publicada vale também para o despacho: nada é entregue ao canal parado."""
+    control = SaveStateControl(FakeSession(state="suspended"))
+    saved = make_adapter(control).dispatch("game-1", "session-1", "saveState", slot=2)
+    assert saved.accepted is False
+    assert saved.diagnostic == "AURA-OSD-ACTION-003"
+    assert control.calls == []
+
+    disc_control = PeripheralControl(FakeSession(state="suspended"))
+    swapped = make_adapter(disc_control).dispatch("game-1", "session-1", "disc", disc_id="disc-1")
+    assert swapped.accepted is False
+    assert swapped.diagnostic == "AURA-OSD-ACTION-003"
+    assert disc_control.calls == []
+
+
+class SuspendedChannelSaveControl(SaveStateControl):
+    """Simula a corrida entre a leitura do estado e o gate do cliente (D-23)."""
+
+    def save_state(self, slot: int) -> FakeSession:
+        self.calls.append(f"save:{slot}")
+        raise SteamZeroError(
+            E_SESSION_CHANNEL_SUSPENDED,
+            detail="saveState exige uma sessão viva; o pedido não foi enviado ao emulador.",
+        )
+
+
+def test_channel_suspension_maps_to_structured_refusal_with_next_action() -> None:
+    control = SuspendedChannelSaveControl(FakeSession())
+    result = make_adapter(control).dispatch("game-1", "session-1", "saveState", slot=2)
+
+    assert result.accepted is False
+    assert result.diagnostic == "AURA-SESSION-ADAPTER-007"
+    assert result.detail == "A sessão está suspensa; o pedido não foi enviado ao emulador."
+    body = result.to_dict()
+    assert body["nextAction"] == "Retome a sessão e tente novamente."
+    assert control.calls == ["save:2"]

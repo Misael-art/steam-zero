@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -13,6 +14,7 @@ from typing import Any, cast
 
 import pytest
 
+from steamzero.adapters import session_control
 from steamzero.adapters.launcher_session import observe_game_session
 from steamzero.adapters.session_control import (
     SessionControlOwner,
@@ -21,6 +23,8 @@ from steamzero.adapters.session_control import (
     resolve_remote_session_control,
 )
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
+from steamzero.adapters.session_peripherals import SessionPeripheralControl
+from steamzero.core.errors import SteamZeroError
 from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
 
@@ -386,3 +390,75 @@ def _signal_test_child(
     assert pid == child.pid
     observed.append((pid, signum))
     os.killpg(pid, signum)
+
+
+def _owner_and_server(
+    tmp_path: Path,
+    *,
+    signals: list[tuple[int, int]],
+    peripheral_control: SessionPeripheralControl | None = None,
+) -> tuple[SessionControlOwner, SessionControlServer, str, str]:
+    """Dono + canal reais, com os sinais gravados em `signals` em vez de enviados."""
+    database = tmp_path / "state.db"
+    session_id, game_id = _seed_session(database)
+    owner = SessionControlOwner(
+        session_id,
+        game_id,
+        os.getpid(),
+        _start_ticks(os.getpid()),
+        store_factory=lambda: StateStore(database),
+        read_start_ticks=_start_ticks,
+        read_process_group_identity=lambda pid: (pid, pid),
+        signal_process=lambda pid, signum: signals.append((pid, int(signum))),
+        peripheral_control=peripheral_control,
+    )
+    server = SessionControlServer(owner, control_path(session_id, root=tmp_path.parent))
+    server.start()
+    return owner, server, session_id, game_id
+
+
+def test_save_state_while_suspended_never_reaches_the_control_channel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """D-23: um pedido entregue a uma árvore parada executa depois, contra a recusa publicada."""
+    signals: list[tuple[int, int]] = []
+    connections: list[str] = []
+
+    class SpySocket(socket.socket):
+        """O socket do stdlib usa __slots__; o connect só pode ser observado por subclasse."""
+
+        def connect(self, address: str) -> None:
+            connections.append(address)
+            super().connect(address)
+
+    def spy(*args: Any, **kwargs: Any) -> socket.socket:
+        # `accept()` reconecta a conexão aceita via socket(family, type, proto, fileno=…).
+        return SpySocket(*args, **kwargs)
+
+    monkeypatch.setattr(session_control.socket, "socket", spy)
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    try:
+        database = tmp_path / "state.db"
+        remote = resolve_remote_session_control(
+            session_id,
+            game_id,
+            observe=lambda sid: observe_game_session(database, sid),
+            root=tmp_path.parent,
+        )
+        assert remote is not None
+        connections.clear()  # o resolve/observe do caminho de subida não conta
+        remote.suspend()
+        # O espião precisa ter visto o connect real do pause; sem isso a asserção
+        # vazia abaixo seria satisfeita por um spy desligado.
+        assert connections == [str(control_path(session_id, root=tmp_path.parent))]
+        signals.clear()
+        connections.clear()
+
+        with pytest.raises(SteamZeroError) as refusal:
+            remote.save_state(1)
+
+        assert refusal.value.code == "E-SESSION-CHANNEL-SUSPENDED"
+        assert connections == []  # o socket do canal nunca foi aberto
+        assert signals == []  # nem um sinal escondido atrás do pedido
+    finally:
+        server.close()

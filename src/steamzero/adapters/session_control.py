@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from steamzero.core import fs, paths
+from steamzero.core.errors import SteamZeroError
 from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
 
@@ -35,6 +36,12 @@ CONTROL_DIRECTORY = "session-controls"
 DIAG_CONTROL_UNAVAILABLE = "AURA-SESSION-CONTROL-UNAVAILABLE-001"
 DIAG_CONTROL_REQUEST = "AURA-SESSION-CONTROL-REQUEST-002"
 DIAG_CONTROL_FAILED = "AURA-SESSION-CONTROL-FAILED-003"
+# D-23: o servidor do canal vive dentro da árvore que a pausa SIGSTOPa. Um
+# pedido entregue a um processo parado não é recusado — é adiado e executa
+# contra a recusa que a UI já publicou. O gate roda no cliente, antes do connect.
+E_SESSION_CHANNEL_SUSPENDED = "E-SESSION-CHANNEL-SUSPENDED"
+CHANNEL_READY_STATES = frozenset({"launching", "running"})
+CHANNEL_LIVE_ACTIONS = frozenset({"saveState", "loadState", "swapDisc"})
 
 StoreFactory = Callable[[], StateStore]
 SignalProcess = Callable[[int, int], None]
@@ -499,7 +506,19 @@ class RemoteSessionControl:
             raise RuntimeError("o encerramento da sessão exige confirmação explícita")
         return self._request("exit", confirmed=True)
 
+    def _refuse_if_not_live(self, action: str) -> None:
+        """O canal é servido pela árvore que a pausa para: sem processo vivo, o pedido
+        não é entregue — é adiado e executa depois contra a recusa já publicada."""
+        record = self.current
+        if record is None or record.state not in CHANNEL_READY_STATES:
+            raise SteamZeroError(
+                E_SESSION_CHANNEL_SUSPENDED,
+                detail=f"{action} exige uma sessão viva; o pedido não foi enviado ao emulador.",
+            )
+
     def _request(self, action: str, **extra: Any) -> SessionControlRecord:
+        if action in CHANNEL_LIVE_ACTIONS:
+            self._refuse_if_not_live(action)
         request: dict[str, Any] = {
             "sessionId": self._session_id,
             "gameId": self._game_id,
@@ -543,6 +562,7 @@ class RemoteSessionControl:
         return current
 
     def _request_data(self, action: str) -> Mapping[str, Any]:
+        self._refuse_if_not_live(action)
         request = {
             "sessionId": self._session_id,
             "gameId": self._game_id,
@@ -609,9 +629,11 @@ def resolve_remote_session_control(
 
 
 __all__ = [
+    "CHANNEL_READY_STATES",
     "DIAG_CONTROL_FAILED",
     "DIAG_CONTROL_REQUEST",
     "DIAG_CONTROL_UNAVAILABLE",
+    "E_SESSION_CHANNEL_SUSPENDED",
     "RemoteSessionControl",
     "SessionControlOwner",
     "SessionControlRecord",

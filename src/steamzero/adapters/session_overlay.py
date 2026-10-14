@@ -13,6 +13,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Protocol, cast
 
+from steamzero.adapters.session_control import E_SESSION_CHANNEL_SUSPENDED
 from steamzero.domain.save_states import resolve_save_state_gallery, unavailable_gallery
 from steamzero.domain.session_overlay import (
     OSD_ACTIONS,
@@ -32,6 +33,11 @@ DIAG_ACTION_FAILED = "AURA-SESSION-ADAPTER-003"
 DIAG_INVALID_INTENT = "AURA-SESSION-ADAPTER-004"
 DIAG_EXIT_CONFIRMATION_REQUIRED = "AURA-SESSION-ADAPTER-005"
 DIAG_EXIT_PENDING = "AURA-SESSION-ADAPTER-006"
+DIAG_CHANNEL_SUSPENDED = "AURA-SESSION-ADAPTER-007"
+SUSPENDED_CHANNEL_REASON = "A sessão está suspensa; retome antes de salvar."
+SUSPENDED_CHANNEL_DETAIL = "A sessão está suspensa; o pedido não foi enviado ao emulador."
+SUSPENDED_CHANNEL_NEXT_ACTION = "Retome a sessão e tente novamente."
+CHANNEL_SUSPENDED_CAPABILITY_ACTIONS = ("saveState", "loadState", "disc")
 MAX_DETAIL_LENGTH = 240
 
 
@@ -78,6 +84,7 @@ class SessionActionDispatch:
     diagnostic: str | None = None
     detail: str = ""
     confirmed: bool = False
+    next_action: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {
@@ -94,6 +101,8 @@ class SessionActionDispatch:
             result["slot"] = self.slot
         if self.disc_id is not None:
             result["discId"] = self.disc_id
+        if self.next_action:
+            result["nextAction"] = self.next_action
         return result
 
 
@@ -188,6 +197,12 @@ class SessionOverlayAdapter:
             "available": disc_available,
             "reason": "" if disc_available else peripherals.reason,
         }
+        if state == "suspended":
+            # D-23: o canal de uma árvore parada adia o pedido em vez de recusá-lo.
+            # A superfície publica a recusa antes de a ação parecer alcançável —
+            # foi assim que a "Galeria de saves" travou a sessão da jornada física.
+            for action_id in CHANNEL_SUSPENDED_CAPABILITY_ACTIONS:
+                capabilities[action_id] = {"available": False, "reason": SUSPENDED_CHANNEL_REASON}
         result_session = {
             "gameId": game_id,
             "sessionId": session_id or None,
@@ -291,6 +306,25 @@ class SessionOverlayAdapter:
                 intent, control, slot=slot, disc_id=disc_id, confirmed=confirmed
             )
         except Exception as exc:  # boundary: transforma falha de adapter em estado recuperável
+            if getattr(exc, "code", None) == E_SESSION_CHANNEL_SUSPENDED:
+                # Gate D-23 no cliente: o pedido morreu antes do connect, então o
+                # corpo publicado declara a recusa e a única recuperação possível.
+                return SessionActionDispatch(
+                    accepted=False,
+                    game_id=game_id,
+                    session_id=session_id,
+                    operation=intent.operation,
+                    state=_text(
+                        getattr(control.current, "state", None),
+                        fallback=observed_state,
+                        limit=32,
+                    ),
+                    slot=slot,
+                    disc_id=disc_id,
+                    diagnostic=DIAG_CHANNEL_SUSPENDED,
+                    detail=SUSPENDED_CHANNEL_DETAIL,
+                    next_action=SUSPENDED_CHANNEL_NEXT_ACTION,
+                )
             return SessionActionDispatch(
                 accepted=False,
                 game_id=game_id,
