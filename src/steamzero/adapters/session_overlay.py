@@ -10,8 +10,10 @@ objeto de gerenciador para executar por conta própria.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from pathlib import Path
 from typing import Any, Protocol, cast
+from urllib.parse import quote
 
 from steamzero.adapters.session_control import (
     E_SESSION_CHANNEL_SUSPENDED,
@@ -68,6 +70,33 @@ READ_ACTION_METHODS = {
 NO_PORT_REASON = "O adapter desta sessão não oferece esta operação."
 NON_ACTIVE_REASON = "A sessão não está em um estado que aceite pedidos ao emulador."
 MAX_DETAIL_LENGTH = 240
+# D-21: convenção do emulador — a miniatura nasce ao lado do arquivo canônico
+# do estado, com o sufixo .png acrescentado ao nome dado por ``state_path``.
+SAVE_STATE_THUMBNAIL_SUFFIX = ".png"
+
+
+def _state_thumbnail_url(resolver: Callable[[int], Path], slot: int) -> str | None:
+    """Return the real ``file://`` URL of an already-written thumbnail, or None.
+
+    A miniatura é lida pelo caminho que o próprio controle publica (única
+    autoridade de nomenclatura, promovida na D-26); link simbólico, arquivo
+    ausente ou de zero bytes não cruzam a superfície — o fallback do domínio
+    permanece nesse caso. O ``file://`` com percent-encoding segue a mesma
+    forma das capas e fanarts locais (adapters/launcher_media.py)."""
+
+    try:
+        state_file = Path(str(resolver(slot)))
+    except (OSError, ValueError, TypeError):
+        return None
+    candidate = Path(str(state_file) + SAVE_STATE_THUMBNAIL_SUFFIX)
+    try:
+        if candidate.is_symlink() or not candidate.is_file():
+            return None
+        if candidate.stat().st_size <= 0:
+            return None
+    except OSError:
+        return None
+    return "file://" + quote(str(candidate), safe="/")
 
 
 class SessionRecord(Protocol):
@@ -496,7 +525,42 @@ class SessionOverlayAdapter:
             save_available=active and callable(save),
             load_available=active and callable(load),
         )
+        gallery = SessionOverlayAdapter._publish_written_thumbnails(control, gallery)
         return gallery, active and callable(save), gallery.load_available
+
+    @staticmethod
+    def _publish_written_thumbnails(control: SessionControl, gallery: Any) -> Any:
+        """D-21: where the emulator already wrote the PNG, publish its real URL.
+
+        O domínio mantém o allowlist (``asset://``, ``qrc:/``, ``data:image/``)
+        e devolve ``thumbnailFallback=true`` para qualquer caminho de arquivo —
+        é por isso que a miniatura real nunca chegava à superfície. O adapter,
+        que é o dono do arquivo, resolve a URL depois do sanitize: aqui, e só
+        aqui, o ``file://`` de um PNG verificado do próprio estado vira
+        publicação. Sem porta ``state_path`` ou sem arquivo válido, nada muda.
+        """
+
+        if not gallery.entries:
+            return gallery
+        resolver = getattr(control, "state_path", None)
+        if not callable(resolver):
+            return gallery
+        cast_resolver = cast(Callable[[int], Path], resolver)
+        published: list[Any] = []
+        changed = False
+        for entry in gallery.entries:
+            if not entry.thumbnail_fallback:
+                published.append(entry)
+                continue
+            url = _state_thumbnail_url(cast_resolver, entry.slot)
+            if url is None:
+                published.append(entry)
+                continue
+            published.append(replace(entry, thumbnail_url=url, thumbnail_fallback=False))
+            changed = True
+        if not changed:
+            return gallery
+        return replace(gallery, entries=tuple(published))
 
     def _matching_control(self, session_id: str, game_id: str) -> SessionControl | None:
         control = self._resolve_control(session_id, game_id)
