@@ -593,6 +593,12 @@ class LauncherBridge:
             else None
         )
         game_id = selected.get("gameId") if isinstance(selected, Mapping) else None
+        if not (isinstance(game_id, str) and game_id):
+            # D-22: a sessão acompanhada por esta ponte é a sessão observada do
+            # usuário mesmo quando a vista não tem seleção (ex.: retorno ao
+            # Launcher sem foco em jogo). O rodapé usa a sessão observada, não
+            # a seleção; sem sessão acompanhada o motivo histórico permanece.
+            game_id = self._pending_game
         declared = {
             str(item.get("event"))
             for item in result.get("availableEvents", [])

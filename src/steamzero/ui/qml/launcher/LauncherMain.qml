@@ -125,6 +125,9 @@ Window {
 
     property bool sessionPollPending: false
     property int launchGeneration: 0
+    // Último estado de sessão observado pelo polling: a transição dele é o que
+    // republica as capacidades do rodapé (D-12), sem depender do "Atualizar".
+    property string lastPolledSessionState: ""
     // requestId do POST atual: é ele que autoriza o shell a aceitar uma falha
     // sem sessionId — resposta de tentativa antiga não altera pedido novo.
     property string launchRequestId: ""
@@ -358,6 +361,19 @@ Window {
             try {
                 const observation = JSON.parse(text)
                 shell.observeSession(observation)
+                // D-12: o rodapé consome o snapshot de /model tirado antes do
+                // lançamento; sem isto, Pausar/Salvar/Sair nascem desabilitados
+                // e só o botão "Atualizar" os habilitaria. A transição de
+                // estado observada pelo polling é o evento que republica as
+                // capacidades da sessão observada.
+                const observedState = String(observation.state || "")
+                if (observedState !== root.lastPolledSessionState) {
+                    root.lastPolledSessionState = observedState
+                    if (!root.journeyLaunchActive && journeyLoader.item
+                            && root.model && root.model.journey
+                            && root.model.journey.active === true)
+                        journeyLoader.item.refresh()
+                }
                 // A terminal session owns the return transition. The OSD is a
                 // child surface of the old session and must not remain over
                 // the restored home after the emulator has closed.
