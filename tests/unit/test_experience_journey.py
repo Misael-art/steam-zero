@@ -935,6 +935,36 @@ def test_all_explicit_aura_summary_never_describes_custom_theme() -> None:
     assert custom_summary["requiresPreApplyConfirmation"] is False
 
 
+def test_empty_coverage_summary_is_not_labelled_custom_theme() -> None:
+    # Minor 5: com nenhuma etapa usada a contagem custom e AURA-efetiva é 0; o
+    # resumo não pode afirmar "Tema personalizado em todas as etapas usadas".
+    empty_summary = summarize_theme_coverage([])
+    assert empty_summary["customCount"] == 0
+    assert empty_summary["auraEffectiveCount"] == 0
+    assert empty_summary["requiresPreApplyConfirmation"] is False
+    assert "Tema personalizado" not in empty_summary["label"]
+
+    # Controle não-vazio: uma etapa custom legítima ainda rotula personalizado.
+    single_custom = summarize_theme_coverage(
+        [
+            {
+                "stageId": "menu:x",
+                "appearance": "custom",
+                "sourceThemeId": "org.steamzero.nebula",
+                "sourceVersion": "1.2.0",
+                "declaredThemeId": "org.steamzero.nebula",
+                "declaredThemeVersion": "1.2.0",
+                "reason": "custom-theme",
+                "missingThemeCapabilities": [],
+                "missingSceneElements": [],
+                "providedSceneElements": [],
+            }
+        ]
+    )
+    assert single_custom["label"] == "Tema personalizado em todas as etapas usadas"
+    assert single_custom["customCount"] == 1
+
+
 def test_explicit_aura_version_and_provenance_match_the_packaged_manifest() -> None:
     # A2e (D-06/Tarefa 11): versão, cor e procedência do resumo batem com o
     # manifesto carregado do AURA empacotado (read_builtin_manifest).

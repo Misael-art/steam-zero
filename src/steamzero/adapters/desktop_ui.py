@@ -1547,6 +1547,12 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 and isinstance(appearance.get("themeId"), str)
                 else ""
             )
+            # O resolver só produz sourceThemeId "org.steamzero.aura" quando a
+            # etapa usada declara o modo "inherit-aura"; é exatamente essa a
+            # condição para abrir o AURA empacotado abaixo.
+            inherits_aura = (
+                isinstance(appearance, Mapping) and appearance.get("mode") == "inherit-aura"
+            )
             dashboard = self._dashboard()
             theme_session_ids: list[str] = []
             try:
@@ -1571,13 +1577,17 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                     loaded_by_theme[aura_id] = loaded_aura
                     manifests[aura_id] = _effective_theme_coverage_manifest(loaded_aura)
 
-                    # D-06 (Tarefa 11): depois de d512dc8c um menu inherit-aura
-                    # resolve para o builtin org.steamzero.aura; a ponte abre
-                    # também esse tema para que loaded_by_theme contenha o id
-                    # que o resolver efetivamente produz, sem quebrar o
-                    # fallback default quando o pacote não está no catálogo.
+                    # D-06 (Tarefa 11, limpeza 11d): a prévia só abre o AURA
+                    # empacotado org.steamzero.aura quando a cobertura resolve
+                    # para herança explícita (modo "inherit-aura"), para que
+                    # loaded_by_theme contenha o id que o resolver produz. Menus
+                    # puramente custom ou de herança implícita ficam na base
+                    # org.steamzero.default e não abrem sessão extra no Theme
+                    # Engine. Se o pacote estiver ausente do catálogo o load
+                    # resultante falha adiante em E-COMPONENT-DEGRADED; o default
+                    # não cobre essa etapa.
                     inherited_aura_id = "org.steamzero.aura"
-                    if inherited_aura_id not in loaded_by_theme:
+                    if inherits_aura:
                         try:
                             loaded_inherited = dashboard.editor_load(inherited_aura_id)
                         except SteamZeroError as exc:

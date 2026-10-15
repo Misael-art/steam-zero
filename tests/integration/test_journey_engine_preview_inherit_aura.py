@@ -276,6 +276,11 @@ def test_engine_preview_inherit_aura_loads_packaged_aura_without_degraded_error(
     assert "Tema personalizado" not in summary["label"]
     assert summary["requiresPreApplyConfirmation"] is True
 
+    # Minor 6 (A2e no caminho real): a procedência publicada pela bridge bate com
+    # o manifesto empacotado lido de read_builtin_manifest, não só no teste
+    # unitário com temas montados à mão.
+    assert summary["auraTheme"]["background"] == aura_manifest.tokens["color"]["background"]
+
     # Toda sessão de leitura aberta no Theme Engine foi fechada no finally.
     assert sorted(dashboard.cancelled_theme_sessions) == sorted(dashboard.loaded_theme_sessions)
 

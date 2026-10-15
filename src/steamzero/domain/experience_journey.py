@@ -1717,7 +1717,11 @@ def summarize_theme_coverage(
         for item in coverage
         if item.get("operationCapability") == "unavailable"
     ]
-    if aura_effective_stages:
+    if not coverage:
+        # Minor 5: com nenhuma etapa em uso (customCount e auraEffectiveCount
+        # ambos 0) não se pode afirmar "personalizado" nem "AURA"; rótulo neutro.
+        label = "Nenhuma etapa em uso"
+    elif aura_effective_stages:
         if custom or inherited or fallback:
             label = (
                 f"Tema misto · AURA efetivo em {len(aura_effective_stages)} etapas "
