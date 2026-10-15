@@ -1,3 +1,4 @@
 be5061a1ff68fd146f677c228134d5df93428c23c1f493bd0b8cc6f3eb07e2e8  23-ci-candidate-watch.log
 5890abad9493a29eeebb0675f452d591af186e89fe5f08cbf5fe3240cb7aeac9  24-update-transacao-1470cf48.json
 c0b1ea3aa6d3c1cb44c5f8e466de0d1c790e7088c54907ac28a7e1a09613c24e  25-pos-instalacao-1470cf48.txt
+b589c89201291ec440c103b29a4806fe06beba48b20670b232fc7cfd90545666  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/27-cores-pos-instalacao.txt
