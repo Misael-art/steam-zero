@@ -627,14 +627,25 @@ FocusScope {
             }
         }
 
-        RowLayout {
+        // D-10: a régua da jornada física (853x534 lógico) não cabe uma única
+        // linha com a linha de atalhos inteira (~392px) e as seis ações de
+        // sessão (~502px) — no RowLayout antigo o Label era esmagado a 263px.
+        // O rodapé passa a grid: a linha de atalhos ocupa a primeira linha
+        // inteira (elide nenhuma, corte nenhum) e as ações de sessão ocupam a
+        // linha seguinte, todas visíveis. Nada foi escondido para caber.
+        GridLayout {
+            objectName: "journeyFooter"
             Layout.fillWidth: true
+            columns: 6
+            columnSpacing: 10
+            rowSpacing: 8
             Label {
                 text: journey.supportsEvent("play")
-                    ? qsTr("↑ ↓ navegar · Enter abrir · P jogar · Esc voltar · Ações de sessão ao lado")
-                    : qsTr("↑ ↓ navegar · Enter abrir · Esc voltar · Ações de sessão ao lado")
+                    ? qsTr("↑ ↓ navegar · Enter abrir · P jogar · Esc voltar · Ações de sessão abaixo")
+                    : qsTr("↑ ↓ navegar · Enter abrir · Esc voltar · Ações de sessão abaixo")
                 color: journey.mutedColor
                 Layout.fillWidth: true
+                Layout.columnSpan: 6
             }
             Repeater {
                 model: journey.sessionEvents
