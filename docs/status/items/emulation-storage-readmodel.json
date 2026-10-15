@@ -17,7 +17,7 @@
     "tests/integration/test_emulation_storage.py",
     "tests/integration/test_cli_emulation.py"
   ],
-  "scopeDigest": "4b929835e74f6fc4d824c97d1e3efc1bb4eb8a99cfbabf543c957021f2d23611",
+  "scopeDigest": "acab6aeb637912dda6f13923e0d1be17c23320fbad69a40069731bb99925a432",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL"
   ],

@@ -15,7 +15,7 @@
     "tests/integration/test_launcher_app.py",
     "src/steamzero/adapters/launcher_process.py"
   ],
-  "scopeDigest": "ae0f440423abff6997591340b5910d5c744a04a7def018558403dfa3cab63caf",
+  "scopeDigest": "a23a16d3d70f2b458b97e1daa8cd4877e6006d6c29305ec6d622831bf3ba617c",
   "dependsOn": [],
   "knownGaps": [
     "GAP-LAUNCH-READINESS-INSTALLED-PROOF",

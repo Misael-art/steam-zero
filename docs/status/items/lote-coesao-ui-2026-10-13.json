@@ -40,12 +40,114 @@
       "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/01-baseline-cores.txt",
       "command": "python3 docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/harness/sz_cores.py — baseline reproduzido em 2026-10-13 no pre-voo, somente leitura (le o pacote instalado em /opt e o catalogo do host, nada escreve). Rollup identico a prova de 2026-10-12: 43 reprovacoes semanticas de contraste nos temas medidos.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_app.py",
+      "command": "T1/D-17 — commit 3ff40a98. 409 de lancamento publica diagnosticId (ULID) resolvel no journal core.jsonl sem vazar o texto da excecao; prova de campo na release instalada segue pendente (Ruling P3). Focado da tarefa re-executado na suite integral do checkpoint.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_session_control.py",
+      "command": "T2/D-23 — commit b1289752. Gate CHANNEL_READY_STATES no cliente, antes do connect: acao de canal com sessao suspensa recusada com E-SESSION-CHANNEL-SUSPENDED (connections==0). T3/D-23(C-4) — commits 2a87a93c + 0eb7c776: leitura de cliente expirado nao derruba mais o canal nem o listening socket; obsoleto nao e endpoint vivo.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_session_overlay_adapter.py",
+      "command": "T4/D-26 — commit 8d2b6606: recusa pos-envio de save-state declara o efeito possivel (written/exists) em vez de nega-lo, com duas metades de try. T5/D-20 — commit d8c5205d: saveState so e oferecido com slot valido; mensagem de faixa unificada (SAVE_STATE_SLOT_DETAIL).",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_emulation_workspace.py",
+      "command": "T6/D-27 — commit aa65f5f7: requirements.verify e firmware.import unificados em um unico valor de enabled entre dominio, adapter e contrato desktop (unidade 6b aprovada pelo operador); falso \"Ambiente de emulacao verificado\" removido de Main.qml. Residual registrado: keys.import permanece divergente (item SZ-EMULATION-KEYS-IMPORT-UNIFICATION; logs/08-keys-import-divergencia.txt) e nsz.install segue com enabled contraditorio no censo (preexistente).",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_scene_surfaces.py",
+      "command": "T7/D-28 — commit 1ba96588: OSD so publica acao com porta (ACCEPTED_ACTIONS fonte unica); mute/screenshot/fastForward/rewind ligados a RetroArch UDP; volume recusado e documentado; brightness/achievement/control/network retirados. T7b — commit 75a1c5fb: vocabulario de tema (OSD_ITEMS + schema scene-surfaces-v1) re-sincronizado com o conjunto aceito; as 5 aceitas nunca-botao publicadas.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_theme_token_contrast.py",
+      "command": "T8/T9/D-29 — commits 90bd7468 + 9702e379 + 4f473136: gate WCAG AA dos tokens (Ruling P12, 11 casos pinados 2/2/3/4, tres invariantes travadas) e paletas dos 4 temas do pacote aprovadas \"FACA EM TODOS\" (todos os pins caem;KNOWN_OPEN_AT_MEASURED={}); fronteira regressao/obsoleto nao-vacua verificada na revisao.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_theme_catalog_routes.py",
+      "command": "T10/D-06,D-24 — commit d512dc8c: resolver inherit-aura aponta org.steamzero.aura (experience_journey.py:1605) e trava D-24 no catalogo do host (ja passava no base; mantida como regressao nao-vacua declarada no corpo do commit).",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_journey_engine_preview_inherit_aura.py",
+      "command": "T11/D-06,D-25 — commits 3ecbed11 (duplo carregamento default+aura no engine-preview, resumo distingue heranca explicita/implicita/referencia ausente/custom; cleanup 463155f0) + c12899cd (recusa nao marca documento nao salvo nem habilita undo — trava de invariante; revalidacao fisica L35-vs-L36 pendente). D-07 — commit eb6be927: resolve_journey_theme no launcher trata inherit-aura como AURA empacotado (fechado SO para a variante inherit-aura; menus sem aparencia ficam no default — decisao residual do operador).",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_session_footer_observed.py",
+      "command": "T12/D-12,D-22 — commit 4d4596d2: rodape da sessao usa a sessao observada (regua AT-SPI logs/17 traduzida em enabled/focusPolicy, ponte real + cena offscreen). T12/D-10 — commit 808bf2d9: golden objetivo do D-10 entrou como xfail strict mensurado (263<392 no viewport 853x534); corrigido na T13.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_journey_launch_error_d08.py",
+      "command": "T13 — commits b2d9ee92 (D-10: atalhos cabem com as acoes de sessao visiveis; xfail re-pinado com sanidade anti-vazia), 57cae8d1 (D-08: 409 do lancamento aparece na sobreposicao de jornada), d1340abb (D-21: miniatura real do save-state publicada junto do save-state), 94a0eac8 + bb10331d (D-19: nomes acessiveis distinguiveis para os dois Jogar, prova lendo o controle real; 409 pendente nao revive em refresh). Fix round 1 (bb10331d): 8 passed / 61 deselected nos focados; residual declarado: ramo catch (resposta ilegivel) do refresh nao foi tocado — vai a matriz T15.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/10-censo-pos-lote.txt",
+      "command": "python3 .../harness/sz_censo.py . em 2026-10-15 (HEAD bb10331d): Eixo A 0 contratos com rota ausente no verbo declarado (de 149 com endpoint; o 149o e a rota POST requirements.verify da T6); Eixo B enabled contraditorio 3 para 1 (firmware.import e requirements.verify derrubados por aa65f5f7; nsz.install preexistente fica); Eixo C publicadas sem porta 10 para 6 — a queda de 4 e fastForward/mute/rewind/screenshot (1ba96588, porta RetroArch), e os 6 restantes (achievement/brightness/control/disc/network/volume) so existem nos read-models ARQUIVADOS da jornada 2026-10-12 que o harness le: no codigo atual nenhum e publicado (OSD_ITEMS em scene_surfaces.py:66-82 = 13 ids, todos aceitos no backend). Delta reconciliado commit a commit no relatorio da Tarefa 14.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/11-cores-pos-lote.txt",
+      "command": "python3 .../harness/sz_cores.py em 2026-10-15: total 43, corpo byte-identico ao baseline (diff vazio) — esperado: o harness mede a release INSTALADA 2.0.0rc1-2b7eb541b4a5, que nao foi atualizada nesta fase (Ruling P10 + errata 2026-10-15 no plano). O delta do pacote (11 casos do gate T8 a 0) e provado por tests/unit/test_theme_token_contrast.py verde no HEAD; a fotografia do host instalado fica com linha de limite na matriz T15.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/13-integral-1.log",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests -q em 2026-10-15 sobre HEAD bb10331d congelado: 6802 passed, 47 skipped, 1 failed em 2571.17s (42:51), runner EXIT=1. A unica falha e test_committed_catalog_and_generated_views_are_consistent (paridade preexistente: 41 scopeDigests obsoletos + 1 visao COVERAGE desatualizada — exatamente a divida reservada a este checkpoint; nenhum teste de produto reprovou; nao e regressao deste lote). State home real intacto: real-state before == after (files=12949, directories=2115, bytes=1431075715, max_mtime_ns identico); nenhuma W-TEST-REAL-STATE-EXTERNAL-WRITER.",
+      "result": "partial"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/14-ruff-check.txt",
+      "command": ".venv/bin/ruff check src tools tests — All checks passed (exit 0). Formatacao: logs/15-ruff-format.txt (711 files already formatted, exit 0).",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/16-mypy.txt",
+      "command": ".venv/bin/mypy src — Success: no issues found in 303 source files (exit 0).",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/17-independence.txt",
+      "command": "make independence boundaries — independencia de runtime OK; lint de fronteiras OK (0 violacoes); exit 0.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/20-status-check-depois.txt",
+      "command": "Renovacao governada dos 41 scopeDigests na arvore congelada (antes: logs/18-status-check-antes.txt, 41 erros de digest + COVERAGE desatualizado; traco por traco em logs/19-renovacao-digests.txt) + render --write; make status-check com este item e o cartao ja atualizados sai 0 erros. Paridade revalidada de forma focada apos o ultimo ajuste documental (logs/21-paridade-focada.txt).",
+      "result": "passed"
     }
   ],
-  "nextAction": "Executar os lotes A a D do plano docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md sobre o mapa inteiro de defeitos desta rodada (D-06, D-07, D-08, D-10, D-12, D-17, D-19 a D-29, conforme a autorevisao do plano), com os handoffs seriais registrados no cartao; nenhuma edicao de codigo antes da Tarefa 1. Promocao de estagio somente com testes focados verdes e gates integrais no checkpoint (Tarefa 14).",
+  "nextAction": "Fase 2 (do controlador, com janela bigsudo propria): preparacao de candidato, instalacao governada e bateria fisica §5/§6 sobre o tip deste lote; a liberacao fisica e do operador e nenhum eixo foi promovido aqui. Tarefa 15: matriz do que fica explicitamente aberto (prova visual/campo de D-06/D-07/D-24/D-25/D-17; decisao dos menus sem aparencia; catch do refresh D-08; keys.import; nsz.install; volume/brightness; renomeacao do teste no-fixed-choice — tests/ congelado na Fase 1). Devolucao dos handoffs seriais (1)-(8) aos cartoes cedentes ocorre no merge deste lote; editar JSONs de outras frentes esta fora do limite desta fase e fica registrado como pendencia do operador.",
   "activeWorkstreams": [
     "WS-2026-10-LOTE-COESAO-UI"
   ],
-  "updatedAt": "2026-10-13",
-  "notes": "Item da rodada de correcao governada aberta em 2026-10-13, dentro das prioridades V1-V4 ja declaradas no prompt canonico; nao cria roadmap paralelo. O pre-voo (Tarefa 0) reprodziu o censo e a auditoria de cores da jornada fisica 2026-10-12 e registrou os dois numeros como regua da rodada (0 e 43, identicos ao esperado). operation=blocked reflete o limite da rodada: sem autorizacao de instalacao, merge ou injecao de entrada GUI neste host, nenhum fecho do lote pode ser promovido acima de verificação unitaria/dev ate a prova fisica autorizada."
+  "updatedAt": "2026-10-15",
+  "notes": "Item da rodada de correcao governada aberta em 2026-10-13, dentro das prioridades V1-V4 ja declaradas no prompt canonico; nao cria roadmap paralelo. O pre-voo (Tarefa 0) reprodziu o censo e a auditoria de cores da jornada fisica 2026-10-12 e registrou os dois numeros como regua da rodada (0 e 43, identicos ao esperado). operation=blocked reflete o limite da rodada: sem autorizacao de instalacao, merge ou injecao de entrada GUI neste host, nenhum fecho do lote pode ser promovido acima de verificação unitaria/dev ate a prova fisica autorizada. FECHAMENTO FASE 1 (checkpoint de 2026-10-15): Tarefas 1-13 concluidas com 21 commits funcionais e 5 documentais; censos pos-lote reconciliados commit a commit (Eixo B contraditorios 3 para 1; Eixo C sem-porta 10 para 6, sendo os 6 artefato dos read-models arquivados, nao do codigo atual; cores 43 inalterado porque o medidor le o host instalado — errata datada no plano). Gates integrais una vez no checkpoint (suite 6802/47 com a unica falha sendo a paridade de digests reservada a este checkpoint; ruff/format/mypy/independence verdes). Os 41 scopeDigests foram renovados pela ferramenta na arvore congelada, sem promocao de estagio (verification permanece none: os eixos tocados so tem teste estatico/offscreen; liberacao fisica e decisao do operador). A edicao de ERROR-CATALOG.md (linha E-SESSION-CHANNEL-SUSPENDED, dever da Tarefa 2) nao gerou nova exigencia de digest: o item dono do arquivo (SZ-AGG-CORE) permanece verification=none. Typo 'toucha-lo' do cartao original (T0, c1c881cb) ja nao existe no texto atual (substituido na reescrita dos handoffs de c3ec1827). keys.import ganhou item proprio (SZ-EMULATION-KEYS-IMPORT-UNIFICATION) por exigencia da revisao da Tarefa 6."
 }

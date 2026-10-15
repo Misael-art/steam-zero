@@ -1,0 +1,60 @@
+Renovacao governada dos 41 scopeDigests (Tarefa 14, checkpoint 2026-10-15)
+Arvore: branch codex/jornada-fisica-bateria-2026-10-12 HEAD bb10331d; src/ tools/ tests/ byte-identicos ao HEAD (git status vazio nesses paths) — os itens flagados estao em estado git-clean por escopo.
+Metodo (brief Step 2): para cada item flagado, scopeDigest := o digest que a ferramenta mede no conteudo ATUAL do escopo (campo 'atual' da linha de erro; 'esperado' e o valor obsoleto gravado no JSON). Re-run de `tools/project_status.py check` a cada lote de 8.
+
+--- lote 1: 41 itens flagados no check; renovando os 8 primeiros ---
+SZ-AURA-CINEMA-COMPLETION: valor obsoleto 924197a9837324ac97a45cac2dc80fca3b764cc791c683e19a606ea571231796 -> digest medido no escopo 2b5cd0eca6000c306942a07dfc3d2d4fae0df4bf2f9e5aa1306aeaa7d4539279  (docs/status/items/aura-cinema-completion.json)
+SZ-AURA-ESDE-ACTIVE-SURFACE: valor obsoleto b6179537db74a31985d69671b4dbb041ef6c628c3c4874f03fe9818d491223f6 -> digest medido no escopo 6edfb15cdc67d4c77309eb3a3b7277c1a50734baf3dd2dbe8ceb01bb0a0df3bb  (docs/status/items/aura-esde-active-surface-2026-09-17.json)
+SZ-AURA-ESDE-RUNTIME-BRIDGE: valor obsoleto e3c75db98e50e9248f56acce8848df9b08494feb0ee828a1ff73c996aabc26f3 -> digest medido no escopo d6862b7e109ca2001ba2394ed6961d325ce99583051a712d718ebec9dd8f2bb7  (docs/status/items/aura-esde-runtime-bridge-2026-09-20.json)
+SZ-AURA-LAUNCHER-EXIT: valor obsoleto e441684ed583538eaa9a878f2420575a357c79bab45866a38ac0b00be0f41b2b -> digest medido no escopo 991173487cf78f283d7d413b17670b19b387ded6bf092daf111e3f8163b14f13  (docs/status/items/aura-launcher-exit.json)
+SZ-AURA-LAUNCHER: valor obsoleto a1aac06e8f3a3bd1fe2c6ab6ff7fab2acce7b5cc105460bd03df74c08acf1025 -> digest medido no escopo 1922c83d8aadd84f868b5a60ca2613a7f43c5e8596933f4816a36c2c6f29aff5  (docs/status/items/aura-launcher.json)
+SZ-AURA-SAVE-STATE-GALLERY: valor obsoleto 6fae70383a2979b458498c2fd4bbe8eb91767d91d76c3771a5ac56a5075de9ae -> digest medido no escopo ef1336d36463c01a5313c5f82bf12990e12ee5f09f4467bcf5a60892fe0971b2  (docs/status/items/aura-save-state-gallery.json)
+SZ-AURA-SEARCH-CONTRACT: valor obsoleto fbe46ca68968369d7d5371fa9c2cbdf99c12c4e38c7bbd809cd6b81ff3ae68c1 -> digest medido no escopo c17c3713c5e5f435ca7eaf279ffc8d77c43daa7b1c7f8020732e58afb449f24f  (docs/status/items/aura-search-contract-2026-09-16.json)
+SZ-AURA-SESSION-OSD: valor obsoleto 856dffeaf22355b7c435cd795300cc7440c7783a9cf9747b2d9e9e5708bee4b7 -> digest medido no escopo f0d4a4279c0cbe5fea0f0299912bd6aa3028f385b7557655df8657e62db0c794  (docs/status/items/aura-session-osd.json)
+--- lote 2: 33 itens flagados no check; renovando os 8 primeiros ---
+SZ-AURA-UI: valor obsoleto 261e11da5053cc1ac7dbac3d27c40e7550a002f0465d109ea163c1a20093f319 -> digest medido no escopo 7febf7e6e3b0d434b82435e724d941924e64121fb6b3d79600db3b34251becc4  (docs/status/items/aura-ui.json)
+SZ-AURA-VISUAL-COMPLETION: valor obsoleto c614682cde20ad76c295278827182ac280fbd0f67ee1fc29ecd5ba1a516be78e -> digest medido no escopo 23c75a024784770d093f689bdde5e1a7e511b1bc4b5f728458df878c892f47cb  (docs/status/items/aura-visual-completion-2026-09-15.json)
+SZ-COMPONENT-LIFECYCLE: valor obsoleto 25b1b929336fb0c2de4f12961c25016dc50f8677a4dbcc948b1cdf8f3f7b9f25 -> digest medido no escopo 0d140cbe23a78b5192e6894fc22486549b3e7b9591fb11c5d1a5ed6949311473  (docs/status/items/component-lifecycle.json)
+SZ-EMULATION-PLATFORM-SCOPE: valor obsoleto 4ac497412d700428f008c45fb04bd9d095dbfeb2f74e7b7c6dbc17f3be973f7c -> digest medido no escopo 457e2961068459e34df6f5b7d353f771a18f282e53182e9968debb0a26aa5e23  (docs/status/items/emulation-platform-scope.json)
+SZ-EMULATION-RUNTIME-REMEDIATION: valor obsoleto 74e628130758be46d4011db91e3f8547d9ea73daab6ed34d40065f82c39c1077 -> digest medido no escopo 5e981ce00e95e938b86fdf5f2c36d5a02a2cc08966eaa968440ecbc8c5b1a890  (docs/status/items/emulation-runtime-remediation-2026-09-20.json)
+SZ-EMULATION-STORAGE-MANAGEMENT: valor obsoleto 81eb17f3be4d048a4142aadd8d98bb4b2666b2988d567b719b7904feeb9c6818 -> digest medido no escopo e799ef51b33367b579bf2d53ddeb4451ae40603d911229493a8c7d355a199836  (docs/status/items/emulation-storage-management.json)
+SZ-EMULATION-STORAGE-PLATFORM-SCOPE: valor obsoleto 47525bd0dfbf5bc72ec6d9b485af4c757c526c964afbc5531f57cd456d03b1d5 -> digest medido no escopo c451840d705258fdc93b597dbcd9c9404ee56fd66e393cb246af4e4706819762  (docs/status/items/emulation-storage-platform-scope.json)
+SZ-EMULATION-STORAGE-READMODEL: valor obsoleto 4b929835e74f6fc4d824c97d1e3efc1bb4eb8a99cfbabf543c957021f2d23611 -> digest medido no escopo acab6aeb637912dda6f13923e0d1be17c23320fbad69a40069731bb99925a432  (docs/status/items/emulation-storage-readmodel.json)
+--- lote 3: 25 itens flagados no check; renovando os 8 primeiros ---
+SZ-EMULATION-ENHANCEMENTS: valor obsoleto 2925119df44feeebab2c0953f43d3bc8383c42a1c19b55283ecbe006c5414f53 -> digest medido no escopo 962bbc0830527dba01a83aec26cc43a319d53ba0754933bbcf354ff71c3c1e5c  (docs/status/items/emulator-enhancements.json)
+SZ-GAMEMODE-READINESS: valor obsoleto a1dad66238406e10851288688d6332f837b3f5e1ba174a07750b30d0be1e592c -> digest medido no escopo cb9021e23428e225b4ffca7614cdee1ab3589bd6296d3bab4b4d8dde6a8bd82e  (docs/status/items/gamemode-readiness-g29.json)
+SZ-GOVERNANCE-STATUS: valor obsoleto b89d855dc517bdb86ce57f4042754d4ce1487f303faa0bee20b0be63ede89481 -> digest medido no escopo 6cb86420ebfb0bf9c087b5f769a968180082eda4e2553c2e7e595de101fdef47  (docs/status/items/governance-status.json)
+SZ-EMULATION-HIGH-END-RUNTIME-READINESS: valor obsoleto 961ec12cc59a13978275b972e0195ae3f1252ab81b1983d6e25a28adf4e5dae9 -> digest medido no escopo c61957473599d53fb944d9a380f1d0c339d857fb8edd9a1c3f5c9b53b16d76aa  (docs/status/items/high-end-runtime-readiness-2026-09-20.json)
+SZ-LAUNCH-READINESS-PREPARATION: valor obsoleto ae0f440423abff6997591340b5910d5c744a04a7def018558403dfa3cab63caf -> digest medido no escopo a23a16d3d70f2b458b97e1daa8cd4877e6006d6c29305ec6d622831bf3ba617c  (docs/status/items/launch-readiness-preparation-2026-10-08.json)
+SZ-LIBRARY-CANONICAL: valor obsoleto d9e760b6458e8dc797cd08de7dd869310847ce8a92ec6696ab08c49ee63321dd -> digest medido no escopo 0a5479577c6e0ee86125c399fa732eb3abd27163c315a5e27317a20d2a3994d3  (docs/status/items/library-canonical.json)
+SZ-MAIN-WORKTREE-RECONCILIATION: valor obsoleto 2b4855fe9409fb01e07f12e1a5076d68db337145fcdd31f25813e5097d99ae1e -> digest medido no escopo 9e9c256fbfb147b5ebeb9cc98e3c8dbb2bc2ecc01becd1f867f17df6ecc2b4c4  (docs/status/items/main-reconciliation-2026-09-26.json)
+SZ-MEDIA-AUDIT-PLATFORM-SCOPE: valor obsoleto 5d33e950e3f9784098aed858bc0d9e88317600fa2e7e81bcc187f5d4c3a30188 -> digest medido no escopo 6866e0612e90eded4816cae83c106c8fe1efc44c35821580d2420a5ab5694ff0  (docs/status/items/media-audit-platform-scope.json)
+--- lote 4: 17 itens flagados no check; renovando os 8 primeiros ---
+SZ-MEDIA-PIPELINE-PLATFORM-SCOPE: valor obsoleto 30830ee2fbf3289481a70d77c07f3786da8cf44962856ef5db0d5eb584d4980f -> digest medido no escopo 524fbbef7430dd57337d41454f00b6e0b7c2ad99049e77c6a14dfec79182ae19  (docs/status/items/media-pipeline-platform-scope.json)
+SZ-MEDIA-PROVIDER-PLATFORM-FILTER: valor obsoleto 4712f6b01d155474ad4a1177ac62b3bdea5ee1e13cc0251da4904354bd3a1c31 -> digest medido no escopo 9fffa3f4d52a7054706777fac95b96c729f0dcbdcf4c2794b19005d6d9e0ad07  (docs/status/items/media-provider-platform-filter.json)
+SZ-MULTIDISC-MATERIALIZATION-INGESTION: valor obsoleto ee440a25173e64e08c4ab4faf2ca9fe6d4915533159932d5b50be017d48cf48b -> digest medido no escopo 505e47723cbd246429a10706e0ac1d6e4a34c62a8aa209938e2c9308d3f6cce3  (docs/status/items/multidisc-materialization-ingestion-2026-09-20.json)
+SZ-MULTIDISC-SESSION-DISC-IDENTITY: valor obsoleto 2bd66fb852eaec1e15e043e42b3c7efa87bd13a3dd49b670dd628b8c8480b246 -> digest medido no escopo 7ee03299de567af2084d92f6e0fce92a3cb468998b7624e75aa5a90d58253327  (docs/status/items/multidisc-session-disc-identity.json)
+SZ-PLATFORM-CORE-PER-SYSTEM: valor obsoleto fae86847309a0ae964ef9dee807f707ecea6277872d9d430fc5f76d00aab343b -> digest medido no escopo 7208e64be1b6def27b5a55538ec5698a3bd10ad704a42be1a283b704eb56ee49  (docs/status/items/platform-core-per-system.json)
+SZ-PLATFORM-REQUIREMENT-SCOPE: valor obsoleto a30a5f2d10575e2b385293bddac8c8273156313518ac3dc492bc484e8d1ff353 -> digest medido no escopo 5be90e138ccc0a2bb4495c263c401b70059a91294a029e5b5cc8b251b2a62288  (docs/status/items/platform-requirement-scope.json)
+SZ-PLATFORM-VITA-CATALOG: valor obsoleto 9eb03bec244050ac389afb520306c7889f99805470ae7755e324adec25535def -> digest medido no escopo b135fcbbc209d355865d1a9d4082fbed968a77f546a79dd8a01c5dcc53f027bf  (docs/status/items/platform-vita-catalog.json)
+SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD: valor obsoleto e3c64c69885b44957da9ec8f810fa175aa3424d0ba06c060231ce9832b0726da -> digest medido no escopo 7b5d552a03012065b95d91b36762695e67f00e7349e4c8480c50b00cd1b554b4  (docs/status/items/ps3-official-firmware-download.json)
+--- lote 5: 9 itens flagados no check; renovando os 8 primeiros ---
+SZ-ROADMAP-CONTINUATION: valor obsoleto 35bcdb001164ecb92285d827f4f5984e4596e33df3e06f22901bc37b53f889d2 -> digest medido no escopo ca67e0812a853a9b71ca3cbdcd07f2355401ca34ec7d300d388cb068e0c77efc  (docs/status/items/roadmap-continuation-2026-09-26.json)
+SZ-SYSTEM-DIAGNOSTICS-GUIDANCE: valor obsoleto 0867a68e2cbcd1a6f436260db6da3ee1527a26b012de60dfb5ccf0f43c36eb36 -> digest medido no escopo 7d728cf0a89b49c5a148b1b3f355c7fc71fd83df58a6f5a4c98c419599eb941f  (docs/status/items/system-diagnostics-guidance.json)
+SZ-THEME-ENGINE: valor obsoleto 56837de4b746155af9866ad9389914990c69d51fdada6a8ba8c8aaed0b437ca8 -> digest medido no escopo 6421df1725edb619406fbaf20a0dbd6a293272d271c55c878d5c448368095d74  (docs/status/items/theme-engine.json)
+SZ-THEME-ESDE-SCENE-RENDER: valor obsoleto a0c9f1cb15b23621f21eba00c46817138e1521229499b408f0b1041c128baded -> digest medido no escopo 58ef3d052a0ec8c841c62b32a8535a267f2eb434e32bd374bd2da3c8b533bb8e  (docs/status/items/theme-esde-scene-render.json)
+SZ-THEME-IMPORT-ESDE-LAYOUT: valor obsoleto 1e850ff52cf4078eaefd640a4661dfb02a5491c9cde60573135b6e876b237cda -> digest medido no escopo 9d86d9e92a6aac1a2154867f0547e89880887a8d70dcc0ff81a85b0aad91e29f  (docs/status/items/theme-import-esde-layout.json)
+SZ-THEME-IMPORT-RETROFE: valor obsoleto b1ff384b3fcae871ebdccedd65bcf0ae4a537c544a4fed36dcec7f7d3f010f5b -> digest medido no escopo 3f6419e7d6eb1ef062404d55c9b353757f4f597001195900488a2f9378a270c5  (docs/status/items/theme-import-retrofe.json)
+SZ-THEME-IMPORT-SURFACE: valor obsoleto 5b42fa0e8a219b96914a13ce8c9e1668b908bf86c0834d9f8469082ab101c4c0 -> digest medido no escopo 7f227f94bad6461c893f664a96adb47a842513f936b2e9a1a35fc3f0b62c5a5f  (docs/status/items/theme-import-surface.json)
+SZ-THEME-STUDIO: valor obsoleto a55d2cfe825950b473926ff566269ba736fe7286547ffd9e598f0bede4deab8e -> digest medido no escopo b6c306264623d27c47b591a71c9c73649d5d0268505ffb05549f5981ba2f14e8  (docs/status/items/theme-studio.json)
+--- lote 6: 1 itens flagados no check; renovando os 1 primeiros ---
+SZ-UI-DESKTOP-AUDIT: valor obsoleto eeb4b885042e5866b4a8bb1b9b71f5874ee066c564668462380705acfaad46fd -> digest medido no escopo a921eacebb73566b97e960740e70a226ae9a0cf70aadc6122405870705d93dfe  (docs/status/items/ui-desktop-audit.json)
+
+--- fim: 41 digests renovados em 6 lotes ---
+check final: exit=1
+STATUS-CHECK: FALHOU
+- SZ-LOTE-COESAO-UI: evidencia ausente docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/20-status-check-depois.txt
+- docs/STATUS.md esta desatualizado; execute tools/project_status.py render --write
+- docs/ACTIVE-WORK.md esta desatualizado; execute tools/project_status.py render --write
+- docs/status/COVERAGE.md esta desatualizado; execute tools/project_status.py render --write
+

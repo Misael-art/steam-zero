@@ -54,6 +54,7 @@ Todo erro carrega: `code, title (humano), what (o que aconteceu), impact, probab
 - `E-SAVES-FLUSH-TIMEOUT` emulador não confirmou flush antes da suspensão; checkpoint anterior usado.
 
 ### SESSION / MODE
+- `E-SESSION-CHANNEL-SUSPENDED` a árvore da sessão está parada (suspend/kill -STOP); o pedido de controle do canal (saveState/loadState/swapDisc/mute/screenshot/fastForward/rewind) é recusado no cliente, **antes** do connect, e nunca fica enfileirado para executar depois da recusa publicada (D-23, Tarefa 2; gate em `session_control.py`). Exige retomar a sessão antes de repetir o pedido.
 - `E-SESSION-INTERRUPTED` launcher caiu antes de concluir; exige recuperação explícita.
 - `E-SESSION-LAUNCH-FAILED` processo/runtime falhou antes de concluir o lançamento; o host permanece utilizável.
 - `E-SESSION-ORPHANED` sessão constava ativa, mas o processo já não existe; encerrada como falha no registro pelo reaproveitador de sessões.

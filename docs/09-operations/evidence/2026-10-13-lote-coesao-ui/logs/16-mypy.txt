@@ -1,0 +1,3 @@
+# .venv/bin/mypy src — HEAD bb10331d — 2026-10-15T12:20:44-03:00
+Success: no issues found in 303 source files
+exit=0

@@ -1,0 +1,5 @@
+# make status-check (depois da renovacao dos 41 digests + itens/cartao + render --write) — HEAD bb10331d — 2026-10-15T12:59:00-03:00
+# nota de traco: uma leitura intermediaria reprovo COVERAGE desatualizado + referencia ao proprio logs/20 ainda inexistente (ver logs/19, check final); apos render --write definitivo o check saiu 0. O JSON de evidencia da jornada 2026-10-12 sobrescrito pelo harness sz_censo.py (logs/json/censo-controles-backend.json) foi restaurado ao conteudo de HEAD antes desta gravacao; integridade preservada.
+.venv/bin/python tools/project_status.py check
+STATUS-CHECK: OK
+exit=0

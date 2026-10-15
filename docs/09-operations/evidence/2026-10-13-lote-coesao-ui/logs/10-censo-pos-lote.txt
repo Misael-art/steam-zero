@@ -1,0 +1,82 @@
+# Censo de controles da UI x backend (AST exato, somente leitura)
+# release: 2.0.0rc1-2b7eb541b4a5 | fontes: src/steamzero/adapters/desktop_contracts.py, src/steamzero/adapters/desktop_ui.py, src/steamzero/adapters/emulation.py,
+#          src/steamzero/domain/emulation_workspace.py, src/steamzero/adapters/session_control.py, src/steamzero/ui/qml, docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/17-arvore-atspi-central-pos-bateria.txt, docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/json/*.json
+#POST _dispatch=123  GET do_GET=22  plan_action exatos=42  prefixos=33
+
+## Eixo A — registro de contratos da central
+  PORTA_POST             128
+  PORTA_GET              21
+  SEM_ENDPOINT           6
+
+  contratos sem endpoint (o proprio produto diz por que):
+    component.open-config      enabled=False applicable=False tela=emulators      Nenhum emulador ativo possui argumento oficial comprovado para abrir diretamente a configuração; consult
+    component.rollback         enabled=False applicable=False tela=system         Use o fluxo de revisão e confirmação de rollback do componente.
+    component.recover          enabled=False applicable=False tela=system         Use Inspecionar recuperação, depois Revisar recovery e Confirmar recovery.
+    sync.status                enabled=False applicable=False tela=sync           A fila é somente leitura no snapshot atual; retry/cancel ainda não possuem rota da bridge.
+    profiles.history           enabled=False applicable=False tela=steam          A UI revisa diferenças antes de aplicar e oferece recovery, mas o store não publica uma linha do tempo d
+    session.recovery           enabled=False applicable=False tela=system         A recuperação de sessão pertence ao daemon e ainda não possui contrato Desktop.
+  contratos com rota ausente no verbo declarado: 0 de 149 com endpoint
+
+## Eixo B — catalogo de acoes de emulacao
+  publicacoes=79 ids=58 aceitos por plan_action=42
+  rollup de porta: {'INDIRETA': 2, 'SIM': 76, 'NAO': 1}
+  prefixos aceitos no plan_action: ['cheat.catalog.install:', 'cheat.remove:', 'cheat.state:', 'content.remove:', 'content.state:', 'controls.profile.activate:', 'controls.profile.clear:', 'extras.catalog.search:', 'game.enhancements.clear:', 'game.enhancements.set:', 'game.media.clear:', 'game.media.import:', 'game.media.publish-steam:', 'game.media.search:', 'game.media.select:', 'game.media.unpublish-steam:', 'game.save.backup:', 'game.save.restore:', 'game.shader.backup:', 'game.shader.invalidate:', 'game.shader.restore:', 'game.state.backup:', 'game.state.restore:', 'library.root.audit:', 'library.root.move:', 'library.root.open:', 'library.root.remove:', 'library.root.rename:', 'library.root.scan:', 'mod.catalog.install:', 'mod.catalog.prepare:', 'mod.remove:', 'mod.state:']
+  prefixos tratados no Main.qml: ['cheat.catalog.install:', 'cheat.remove:', 'cheat.state:', 'cloud.launch:', 'content.state:', 'emulator.install:', 'emulator.launch:', 'emulator.repair:', 'emulator.stop:', 'emulator.uninstall:', 'emulator.update:', 'extras.catalog.search:', 'game.delete:', 'game.launch:', 'game.media.clear:', 'game.media.import:', 'game.media.publish-steam:', 'game.media.search:', 'game.media.select:', 'game.media.unpublish-steam:', 'game.save.', 'game.shader.', 'library.root.', 'library.root.audit:', 'media.', 'mod.catalog.install:', 'mod.catalog.prepare:', 'mod.remove:', 'mod.state:', 'platform.open:']
+  publicados SEM porta (1):
+    feature.planned                              enabled=False                      emulation_workspace.py:699 candidatos=['feature.planned']
+  publicados com porta NAO RESOLVIDA estaticamente (2):
+    .backup:                                     emulation.py:5064 prefixo do id vem de variavel: .backup:
+    .restore:                                    emulation.py:5106 prefixo do id vem de variavel: .restore:, :
+  publicados com enabled=false — ausencia auto-declarada (4):
+    feature.planned                              Capacidade ainda não exposta pelo backend.  emulation_workspace.py:699
+    keys.import                                  Importação pela interface ainda não está conectada ao serviço.  emulation_workspace.py:673
+    library.root.media-unavailable:              Nenhum jogo desta raiz está disponível após a varredura.  emulation.py:5395
+    media.import.unavailable                     Adicione um jogo antes de importar mídia.  emulation.py:6000
+  mesmo id com enabled contraditorio: {'nsz.install': ["EXPR:not nsz_ready or keys['status'] == 'ok'", 'True']}
+  aceitos pelo backend e nunca publicados como acao (19):
+    archive.materialize
+    bios.import
+    bios.link
+    cloud.shortcuts.sync
+    content.save.import
+    content.shader.import
+    emulation.global.set-auto-publish-steam
+    emulation.global.set-prefer-native-nca
+    firmware.download
+    game.emulator.clear_default
+    game.emulator.set
+    game.steam.set
+    library.health.scan
+    library.projection.repair
+    library.vita.package
+    multidisc.materialize
+    rom.scan
+    steam.frontend-shortcut.sync
+    steam.shortcuts.sync
+
+## Eixo C — OSD de sessao x session_control
+  luidos em 58 read-models; aceitos pelo backend: exit, fastForward, id, idle, launching, listDiscs, listPeripherals, listSaveStates, loadState, mute, owner, pause, recusado, resume, resuming, rewind, running, saveState, screenshot, state, suspended, suspending, swapDisc, unknown
+    exit             hab=12 desab= 2 backend=sim amostras=14  A saída exige uma sessão controlável e confirmação explícita.
+    pause            hab=12 desab= 2 backend=sim amostras=14  A sessão não está em um estado pausável.
+    saveState        hab=11 desab= 3 backend=sim amostras=14  Nenhuma sessão controlável foi observada. | o dono da sessão não respondeu
+    loadState        hab= 6 desab= 8 backend=sim amostras=14  Nenhum save-state foi criado para esta sessão. | Nenhuma sessão controlável foi observada. | o d
+    achievement      hab= 0 desab=14 backend=NAO amostras=14  Esta ação ainda não possui adapter de sessão.
+    brightness       hab= 0 desab=14 backend=NAO amostras=14  Esta ação ainda não possui adapter de sessão.
+    control          hab= 0 desab=14 backend=NAO amostras=14  Esta ação ainda não possui adapter de sessão.
+    disc             hab= 0 desab=14 backend=NAO amostras=14  Nenhuma sessão controlável foi observada. | O adapter não declarou suporte para esta ação. | o d
+    fastForward      hab= 0 desab=14 backend=sim amostras=14  Esta ação ainda não possui adapter de sessão.
+    mute             hab= 0 desab=14 backend=sim amostras=14  Esta ação ainda não possui adapter de sessão.
+    network          hab= 0 desab=14 backend=NAO amostras=14  Esta ação ainda não possui adapter de sessão.
+    rewind           hab= 0 desab=14 backend=sim amostras=14  Esta ação ainda não possui adapter de sessão.
+    screenshot       hab= 0 desab=14 backend=sim amostras=14  Esta ação ainda não possui adapter de sessão.
+    volume           hab= 0 desab=14 backend=NAO amostras=14  Esta ação ainda não possui adapter de sessão.
+  publicadas sem porta no backend: ['achievement', 'brightness', 'control', 'disc', 'network', 'volume']
+  aceitas e nunca publicadas como acao de OSD: ['id', 'idle', 'launching', 'listDiscs', 'listPeripherals', 'listSaveStates', 'owner', 'recusado', 'resume', 'resuming', 'running', 'state', 'suspended', 'suspending', 'swapDisc', 'unknown']
+
+## Eixo D — arvore AT-SPI arquivada
+  invisivel-acionavel    546
+  visivel                55
+  invisivel-inerte       21
+  nomes acionaveis sem string correspondente no QML: 404
+
+# JSON integral: docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/json/censo-controles-backend.json

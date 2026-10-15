@@ -863,6 +863,18 @@ do host e das combinações contra o fundo estático do componente, que este lot
 componente). **Reconcilie a conta**: cada número que caiu tem de ter o commit e o teste que o derrubaram; número que
 caiu sem teste é alegação.
 
+> **Errata (2026-10-15,checkpoint da Tarefa 14 — marcar, não apagar):** a régua acima, como redigida, não é executável.
+> (1) `sz_cores.py` mede a **release instalada** (`REL=/opt/steamzero/releases/2.0.0rc1-2b7eb541b4a5/.../site-packages/steamzero`),
+> não a árvore deste branch (Ruling P10 do ledger SDD). A Fase 1 deste lote não instala nada, portanto o pós-lote do
+> auditor fica em **43 reprovações** — fotografia do host instalado, não contrato deste lote.
+> (2) A régua REAL do **pacote** é o gate da Tarefa 8 (`tests/unit/test_theme_token_contrast.py`): 11 casos pinados,
+> repartidos 2/2/3/4 entre default/asset-recipes-demo/aura/steamdeck; os outros 32 vêm dos dois temas derivados do host
+> e das combinações contra o fundo estático do componente, que este lote não toca.
+> (3) Na Tarefa 9 o operador aprovou "FACA EM TODOS" e os 11 pins caíram todos (`KNOWN_OPEN_AT_MEASURED = {}`); a
+> fórmula "43 menos os casos dos temas aprovados" não descreve o gate: o delta do pacote é provado pelo gate T8/T9
+> verde em HEAD (0 reprovações nos 11 casos do pacote), e a re-rodada de `sz_cores.py` entra apenas como fotografia
+> do host, com a linha de limite declarada na matriz da Tarefa 15.
+
 - [ ] **Step 2: Gates integrais (uma vez)**
 
 ```bash

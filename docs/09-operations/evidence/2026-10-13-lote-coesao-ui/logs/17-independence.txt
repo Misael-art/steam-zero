@@ -1,0 +1,6 @@
+# make independence boundaries — HEAD bb10331d — 2026-10-15T12:21:32-03:00
+.venv/bin/python tools/check_independence.py
+independência de runtime: OK
+.venv/bin/python tools/lint_boundaries.py --root src
+lint de fronteiras: OK (0 violações)
+exit=0
