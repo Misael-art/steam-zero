@@ -1603,6 +1603,7 @@ def resolve_theme_coverage(
         provided_scene_elements: list[str] = []
         if isinstance(assignment, Mapping) and assignment.get("mode") == "inherit-aura":
             reason = "explicit-choice"
+            source_id = "org.steamzero.aura"
         elif isinstance(assignment, Mapping) and assignment.get("mode") == "custom":
             theme_id = str(assignment.get("themeId", ""))
             declared_theme_id = theme_id

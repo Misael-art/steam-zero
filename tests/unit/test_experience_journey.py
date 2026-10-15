@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from jsonschema import ValidationError
 
+from steamzero.adapters.theme_catalog import read_builtin_manifest
 from steamzero.api import contracts
 from steamzero.domain.experience_journey import (
     MAX_NAVIGATION_HISTORY,
@@ -706,17 +707,65 @@ def test_theme_coverage_explains_aura_omissions_references_and_capabilities() ->
     assert by_id["exitFade"]["missingSceneElements"] == ["sceneMotion.transition:exitFade"]
     assert by_id["pause"]["operationCapability"] == "unavailable"
     assert by_id["saves"]["operationCapability"] == "unavailable"
-    assert all(row["sourceThemeId"] == "org.steamzero.default" for row in coverage[1:])
+    # D-06: a escolha explícita "Herdar AURA" aponta para o AURA empacotado;
+    # herança implícita, referência ausente e incompatibilidade continuam
+    # caindo no fallback org.steamzero.default.
+    assert by_id["menu:platforms"]["sourceThemeId"] == "org.steamzero.nebula"
+    for row in coverage[1:]:
+        expected_source = (
+            "org.steamzero.aura" if row["reason"] == "explicit-choice" else "org.steamzero.default"
+        )
+        assert row["sourceThemeId"] == expected_source, row["stageId"]
     summary = summarize_theme_coverage(coverage)
     assert summary["auraDefaultCount"] == 2
     assert summary["auraExplicitCount"] == 1
     assert summary["auraFallbackCount"] == 2
-    assert summary["auraEffectiveCount"] == 5
+    # auraEffectiveStages são as etapas que resolvem para a fonte default; após
+    # D-06 a etapa herdada explicitamente não conta mais ali (antes: 5).
+    assert summary["auraEffectiveCount"] == 4
     assert summary["requiresPreApplyConfirmation"]
     assert "2 herdadas, 1 escolhidas, 2 em fallback" in summary["label"]
     assert summary["missingReferenceStages"] == ["entryFade"]
     assert summary["incompatibleStages"] == ["exitFade"]
     assert summary["unavailableOperationStages"] == ["pause", "saves"]
+
+
+def test_inherit_aura_coverage_resolves_to_the_packaged_aura_theme() -> None:
+    # D-06 medido: appearance.mode="inherit-aura" resolvia para o default claro
+    # (#e7eceb) no overlay do menu salvo. A escolha explícita de herdar AURA —
+    # em etapa de sessão e em menu — deve resolver para o AURA empacotado.
+    coverage = resolve_theme_coverage(
+        _parsed(),
+        used_stages=["pause", "menu:games"],
+        themes={},
+        aura_version="2.0.0rc1",
+    )
+    pause = coverage[0]
+    assert pause["appearance"] == "inherited"
+    assert pause["reason"] == "explicit-choice"
+    assert pause["sourceThemeId"] == "org.steamzero.aura"
+    assert pause["sourceVersion"] == "2.0.0rc1"
+    # Controle: herança implícita (sem escolha declarada) permanece no default.
+    assert coverage[1]["sourceThemeId"] == "org.steamzero.default"
+
+    raw = _document()
+    raw["menus"][1]["appearance"] = {"mode": "inherit-aura"}
+    menu_coverage = resolve_theme_coverage(
+        JourneyDocument.parse(raw),
+        used_stages=["menu:games"],
+        themes={},
+        aura_version="2.0.0rc1",
+    )
+    assert menu_coverage[0]["sourceThemeId"] == "org.steamzero.aura"
+
+    # O ID resolvido precisa apontar para a paleta escura empacotada (#0b1020),
+    # não para o default claro (#e7eceb) usado nos casos sem escolha explícita.
+    aura_background = read_builtin_manifest("org.steamzero.aura").tokens["color"]["background"]
+    default_background = read_builtin_manifest("org.steamzero.default").tokens["color"][
+        "background"
+    ]
+    assert aura_background == "#0b1020"
+    assert default_background == "#e7eceb"
 
 
 def test_third_party_theme_without_the_additive_bezel_slot_reports_missing_element() -> None:
