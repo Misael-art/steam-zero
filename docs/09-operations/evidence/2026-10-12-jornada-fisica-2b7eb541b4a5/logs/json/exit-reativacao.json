@@ -1,0 +1,14 @@
+{
+ "http": 200,
+ "body": {
+  "accepted": true,
+  "gameId": "ea96c3db21fee70bb568bfd6",
+  "sessionId": "01M4RXB8A45DY9NA0C0SX9Y0XD",
+  "operation": "exit",
+  "state": "closing",
+  "diagnostic": "AURA-SESSION-ADAPTER-006",
+  "detail": "Pedido de encerramento enviado; aguardando o observer confirmar closed.",
+  "confirmed": false,
+  "requestId": "evidence-exit-002"
+ }
+}

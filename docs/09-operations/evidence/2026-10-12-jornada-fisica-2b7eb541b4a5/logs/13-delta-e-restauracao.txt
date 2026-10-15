@@ -1,0 +1,90 @@
+Delta registrado e restauração do contexto original
+====================================================
+Release em prova: 2.0.0rc1-2b7eb541b4a5
+  /opt/steamzero/releases/2.0.0rc1-2b7eb541b4a5 (manifest.json sha256 d78fb2be88e612d3…)
+  bundle: steamzero-2.0.0rc1-py3-none-any.whl sha256 20d5187c9f195f321ab55c8080e101f0a9cef69d…
+  sourceCommit 2b7eb541b4a54f0930927a2b0f92cb45776ae4c7 · run 38125415210 (refs/heads/main)
+  host misael-jupiter · /opt/steamzero/current → link de 2026-10-11 06:06 (inalterado)
+
+ESTA SESSÃO NÃO INSTALOU NADA
+  Nenhuma chamada a tools/release_host.py install, nenhum bigsudo, nenhuma escrita em
+  /opt/steamzero, /usr/local, /etc ou /boot, nenhum rollback, nenhum ciclo de serviço.
+  A candidata 2.0.0rc1-2b7eb541b4a5 já era a release ativa no início da prova (decisão do
+  operador: "Pular reinstalação e validar"). Todo o delta abaixo é dado de usuário escrito
+  pelos próprios fluxos do produto durante a bateria.
+
+ARQUIVOS NOVOS (criados pelo produto; nenhum slot ocupado foi sobrescrito)
+  ~/.local/share/steamzero/saves/states/Genesis Plus GX/
+    Addams Family, The (USA, Europe) (Translated PtBr).state      f6e5b54d997c3fab…
+    Addams Family, The (USA, Europe) (Translated PtBr).state.png
+  ~/.local/share/steamzero/saves/states/mGBA/          (diretório novo, criado aqui)
+    Castlevania Legends (USA, Europe) (Translated PtBr).state     a198dbe1b937c0f9…
+    Castlevania Legends (USA, Europe) (Translated PtBr).state.png
+  ~/.local/share/steamzero/saves/states/Mesen/
+    Batman - Return of the Joker (USA) (Translated PtBr).state1   9de38803699c86ae…
+    Batman - Return of the Joker (USA) (Translated PtBr).state1.png
+    ← estes dois últimos existem POR CAUSA DE D-26: o save foi recusado (accepted=false) e
+      ainda assim foi escrito quando o processo foi continuado. Baseline antes da bateria:
+      logs/baseline-saves-antes-gb.txt (17 arquivos, nenhum em mGBA).
+  ~/.local/state/steamzero/launcher/return.json  (89 bytes, 17:55) — contrato de retorno
+      escrito pelo produto antes de cada lançamento; sobreviveu ao retorno. Deixado no lugar
+      (é o estado normal do produto, não resíduo meu).
+  ~/.config/steamzero/retroarch/sessions/<6 sessões da bateria>  (20 KB no total) — cfg de
+      periféricos + aura-bezel.png por sessão, criados pelo adapter RetroArch.
+  ~/.local/share/steamzero/journeys/org.steamzero.journey-bc4d258a.journey.json
+      "Jornada Bateria 2b7eb541" — jornada criada pela bateria (item "criar completa").
+      sha256 atual 81d313df04895d29…; valor intermediário desta tarde ef92b9f5… (com o menu
+      Plataformas em custom/org.steamzero.aura); agora com Plataformas em inherit-aura.
+      NÃO foi excluída: apagar dado é destrutivo e a autorização cobria validar, não limpar.
+  Registros de sessão/tempo de jogo em ~/.local/state/steamzero/state.db (event_log,
+      game_session) — 6 sessões, todas terminadas em closed.
+  83 capturas em capturas/ + logs/json/ desta evidência (fora da árvore do produto).
+
+PREFERÊNCIAS RESTAURADAS (pelas rotas do próprio produto, na Central)
+  1. Aparência do menu Plataformas: custom/org.steamzero.aura → inherit-aura.
+     Feito no editor de aparência (botão "Herdar AURA neste menu", tecla real SPACE com
+     foco AT-SPI confirmado: ok|button|Herdar AURA neste menu) e gravado com
+     "Salvar · não salvo" (ok|button|Salvar · não salvo).
+     Atenção: o mesmo clique produziu o aviso E-THEME-NOT-FOUND (D-24) e o estado
+     "não salvo" contradizendo o aviso (D-25); ainda assim o arquivo final ficou correto —
+     verificado lendo o JSON, não presumindo.
+  2. Jornada ativa: org.steamzero.journey-bc4d258a → org.steamzero.journey-4095b915
+     ("Jornada fisica 003a8c5a"), pelo seletor "Jornada salva" + botão "Ativar no Launcher"
+     (ok|button|Ativar no Launcher).
+     ~/.local/share/steamzero/journeys/active.json =
+       2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18
+     idêntico ao hash do baseline (logs/05-journeys-baseline.txt). Confirmado por sha256sum,
+     não por memória.
+  3. Instância do Launcher que EU abri (/usr/local/bin/steamzero-launcher, pid 1283444) foi
+     encerrada com SIGTERM; nenhum processo steamzero-launcher nem LauncherMain.qml restante.
+     A Central já em execução (pid 977262, janela "SteamZero — Central de jogos") é do usuário
+     e não foi fechada.
+  4. Processos de emulador: pgrep -c retroarch = 0; nenhuma janela RetroArch. O zumbi do
+     incidente D-23 foi drenado quando o supervisor externo continuou (18:02:06).
+  5. Filtros/seleções do Launcher: a instância que alterou filtros era a minha e foi fechada;
+     o Launcher do usuário não foi tocado.
+  6. VERIFICAÇÃO DE NÃO-MUTAÇÃO (não é restauração: não havia o que restaurar) —
+     PREFERÊNCIA GLOBAL DE TEMA DO USUÁRIO, provada por arquivo e não por memória:
+     ~/.config/steamzero/theme-preference-v1.json
+       { "schemaVersion": 1, "themeId": "org.steamzero.01m2qznd", "themeVersion": "1.0.0",
+         "revision": 17 }
+     mtime 2026-10-07 04:34:09.852815745 -0300 — anterior a esta sessão (que começou 15:43 de
+     2026-10-12). Ou seja: a troca de tema feita no combo do editor de etapas (cenário
+     "personalizar etapa", de "Theme Engine — asset único" para "AURA") escreveu APENAS dentro
+     do JSON da jornada de teste bc4d258a, que está inerte; a preferência global do usuário não
+     mudou de valor nem de revisão.
+
+NÃO RESTAURÁVEL / ABERTO
+  · Os três pares de save-state acima continuam no host. Remover é destrutivo e não foi
+    autorizado; ficam registrados como resíduo da prova.
+  · O arquivo da jornada de teste (bc4d258a) permanece criado e inerte (não ativa).
+  · A captura L27 (retorno com foco/rolagem) é duplicata de L26 e precisa ser refeita se a
+    prova visual daquele critério for exigida.
+  · RESÍDUO DE NAVEGAÇÃO: a Central do usuário (pid 977262) ficou na tela Temas → autoria de
+    Jornadas → aba Composição. Verificado por leitura SOMENTE LEITURA da árvore AT-SPI às
+    18:36:47 (logs/17-arvore-atspi-central-pos-bateria.txt): 0 ocorrências de "não salvo" em
+    3 270 nós, portanto nenhum documento de edição foi deixado suja. Reverter a navegação
+    exigiria nova injeção de entrada, proibida pela diretriz do usuário registrada nesta mesma
+    data (README, seção "Condição de execução") — fica não revertida e declarada.
+  · MANIFEST: 12 PNGs estavam em disco sem linha em capturas/manifest.tsv; foram acrescentados
+    nesta consolidação (timestamp = mtime). Auditoria completa em logs/16.

@@ -19,6 +19,10 @@ FocusScope {
     property var cinemaScene: null
     property var saveGallery: null
     property var pendingExitRecord: null
+    // D-08: o 409 estruturado do lançamento precisa chegar à sobreposição.
+    // Ele nasce no shell (launchErrorText) e é entregue por showLaunchError;
+    // o próximo refresh bem-sucedido o publica em vez de apagar a mensagem.
+    property string pendingLaunchError: ""
     property int saveSlot: 0
     property int minimumInteractiveTarget: 48
     readonly property var items: view && Array.isArray(view.items) ? view.items : []
@@ -172,6 +176,15 @@ FocusScope {
         return true
     }
 
+    function showLaunchError(text) {
+        const detail = String(text || "")
+        if (detail === "")
+            return
+        pendingLaunchError = detail
+        message = detail
+        messageIsError = true
+    }
+
     function refresh() {
         if (typeof requestFunction !== "function")
             return false
@@ -184,6 +197,10 @@ FocusScope {
             if (status !== 200) {
                 message = qsTr("JOURNEY-LAUNCHER-OFFLINE-001\nA Jornada não respondeu. A Home AURA continua disponível.")
                 messageIsError = true
+                // Fix round 1 (D-08): este refresh sobrescreveu `message` sem
+                // consumir o 409 pendente. Deixá-lo vivo faria o erro de uma
+                // recusa antiga ressurgir na primeira janela limpa seguinte.
+                pendingLaunchError = ""
                 return
             }
             try {
@@ -191,10 +208,22 @@ FocusScope {
                 if (!applyView(response)) {
                     message = String(response.diagnosticMessage || qsTr("Nenhuma Jornada ativa."))
                     messageIsError = false
+                    // Mesmo contrato do ramo não-200: a mensagem foi
+                    // substituída por outra causa e o pendente não tem mais
+                    // superfície para ser publicado uma única vez.
+                    pendingLaunchError = ""
                     return
                 }
-                message = ""
-                messageIsError = false
+                if (pendingLaunchError !== "") {
+                    // D-08: a restauração pós-recusa atualiza a view, mas o
+                    // erro da tentativa de lançamento é a publicação da vez.
+                    message = pendingLaunchError
+                    messageIsError = true
+                    pendingLaunchError = ""
+                } else {
+                    message = ""
+                    messageIsError = false
+                }
             } catch (error) {
                 message = qsTr("JOURNEY-LAUNCHER-RESPONSE-002\nA resposta da Jornada está ilegível.")
                 messageIsError = true
@@ -389,8 +418,13 @@ FocusScope {
             }
             Button {
                 objectName: "journeyPlay"
-                text: qsTr("Jogar")
+                // D-19: "Jogar" aqui e "Jogar <título>" na página de jogo eram
+                // uma armadilha de foco — a árvore AT-SPI não dizia qual
+                // control ativa o quê. A jornada retoma o fluxo em andamento,
+                // então nomeia-se pelo fluxo, visível e acessível.
+                text: qsTr("Continuar jornada")
                 Accessible.name: text
+                Accessible.description: qsTr("Retomar o jogo a partir da jornada atual")
                 visible: journey.supportsEvent("play")
                 enabled: !journey.busy && journey.activeItem !== null
                     && !!journey.activeItem.gameId
@@ -627,14 +661,32 @@ FocusScope {
             }
         }
 
-        RowLayout {
+        // D-10: a régua da jornada física (853x534 lógico) não cabe uma única
+        // linha com a linha de atalhos inteira (~392px) e as seis ações de
+        // sessão (~502px) — no RowLayout antigo o Label era esmagado a 263px.
+        // O rodapé passa a grid: a linha de atalhos ocupa a primeira linha
+        // inteira e as ações de sessão ocupam as linhas seguintes, todas
+        // visíveis. Onde as métricas de fonte pedem mais largura do que a
+        // linha disponível (ex.: Qt 6.11 do CI, que fixava o grid em 866 px
+        // numa janela de 853), o Label quebra de verdade e as ações refluem
+        // para três colunas — elisão ou clip apenas esconderiam o corte,
+        // nunca o corrigem.
+        GridLayout {
+            id: journeyFooter
+            objectName: "journeyFooter"
             Layout.fillWidth: true
+            columns: journey.width >= 900 ? 6 : 3
+            columnSpacing: 10
+            rowSpacing: 8
             Label {
                 text: journey.supportsEvent("play")
-                    ? qsTr("↑ ↓ navegar · Enter abrir · P jogar · Esc voltar · Ações de sessão ao lado")
-                    : qsTr("↑ ↓ navegar · Enter abrir · Esc voltar · Ações de sessão ao lado")
+                    ? qsTr("↑ ↓ navegar · Enter abrir · P jogar · Esc voltar · Ações de sessão abaixo")
+                    : qsTr("↑ ↓ navegar · Enter abrir · Esc voltar · Ações de sessão abaixo")
                 color: journey.mutedColor
                 Layout.fillWidth: true
+                Layout.columnSpan: journeyFooter.columns
+                Layout.minimumWidth: 0
+                wrapMode: Text.WordWrap
             }
             Repeater {
                 model: journey.sessionEvents

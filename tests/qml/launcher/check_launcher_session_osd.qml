@@ -59,6 +59,57 @@ Item {
         "diagnostic": "AURA-OSD-ERROR-004"
     })
 
+    // D-23: com a árvore da sessão parada o canal não responde — ele adia. O
+    // read model publicado (adapters/session_overlay.py) entrega exatamente
+    // este modelo: Galeria de saves desabilitada com o motivo da recusa.
+    readonly property var suspendedModel: ({
+        "sessionId": "session-1",
+        "gameId": "celeste",
+        "state": "suspended",
+        "visible": true,
+        "focusedAction": "pause",
+        "actions": [
+            {"id": "pause", "label": "Retomar", "enabled": true, "reason": "",
+             "operation": "resume"},
+            {"id": "saveState", "label": "Galeria de saves", "enabled": false,
+             "reason": "A sessão está suspensa; retome antes de salvar."},
+            {"id": "exit", "label": "Sair do jogo", "enabled": true, "reason": ""}
+        ],
+        "criticalError": null,
+        "diagnostic": null
+    })
+
+    // D-28 (7b): tema que declara items filtra a fileira ( LauncherSessionOverlay
+    // ::_visibleActions ). O vocabulário re-sincronizado precisa admitir os ids
+    // recém-publicados — swapDisc tem porta real no backend e não pode mais
+    // sumir da renderização; exit, não declarado pelo tema, deve ser filtrado.
+    readonly property var themedModel: ({
+        "sessionId": "session-1",
+        "gameId": "celeste",
+        "state": "running",
+        "visible": true,
+        "focusedAction": "swapDisc",
+        "actions": [
+            {"id": "mute", "label": "Silenciar", "enabled": true, "reason": ""},
+            {"id": "swapDisc", "label": "Trocar disco", "enabled": true, "reason": ""},
+            {"id": "exit", "label": "Sair do jogo", "enabled": true, "reason": ""}
+        ],
+        "journeyAppearance": {
+            "stageId": "osd",
+            "theme": {
+                "sceneSurfaces": {
+                    "schemaVersion": 1,
+                    "slots": { "osd": { "component": "themedOsd" } },
+                    "components": {
+                        "themedOsd": { "kind": "osd", "items": ["mute", "swapDisc"] }
+                    }
+                }
+            }
+        },
+        "criticalError": null,
+        "diagnostic": null
+    })
+
     LauncherSessionOverlay {
         id: overlay
         anchors.fill: parent
@@ -115,9 +166,51 @@ Item {
                           "erro crítico precisa bloquear uma ação aparentemente habilitada")
             harness.check(overlay.localError.indexOf("confirme a recuperação") >= 0,
                           "erro crítico precisa manter a orientação de recuperação")
+
+            overlay.setModel(harness.suspendedModel)
+            harness.check(overlay.currentActionId === "pause",
+                          "o foco em Retomar precisa sobreviver à republicação do estado")
+            var saveAction = null
+            for (var saveIndex = 0; saveIndex < overlay.actions.length; ++saveIndex) {
+                if (String(overlay.actions[saveIndex].id) === "saveState")
+                    saveAction = overlay.actions[saveIndex]
+            }
+            harness.check(saveAction !== null && saveAction.enabled === false,
+                          "\"Galeria de saves\" precisa chegar desabilitada à sessão suspensa (D-23)")
+            harness.check(saveAction !== null
+                          && String(saveAction.reason)
+                              === "A sessão está suspensa; retome antes de salvar.",
+                          "o motivo publicado precisa ser exatamente a recusa do canal suspenso")
+            harness.check(overlay.focusAction("saveState"),
+                          "a ação suspensa desabilitada ainda precisa poder receber foco")
+            harness.check(overlay.activateFocused() === false,
+                          "saveState suspenso não pode ser encaminhado ao canal parado")
+            harness.check(harness.dispatched.length === 1,
+                          "nenhum dispatch extra pode sair do OSD com a sessão suspensa")
+            harness.check(overlay.localError.indexOf("retome antes de salvar") >= 0,
+                          "a cena precisa mostrar o motivo da recusa antes de qualquer efeito")
+
+            overlay.setModel(harness.themedModel)
+            var themedIds = []
+            for (var themedIndex = 0; themedIndex < overlay.actions.length; ++themedIndex) {
+                themedIds.push(String(overlay.actions[themedIndex].id))
+            }
+            harness.check(overlay.actions.length === 2
+                          && themedIds.indexOf("mute") >= 0
+                          && themedIds.indexOf("swapDisc") >= 0,
+                          "fileira filtrada pelo tema deve mostrar as ações com porta, incluindo a recém-publicada swapDisc (D-28)")
+            harness.check(themedIds.indexOf("exit") < 0,
+                          "id de ação não declarado pelo tema precisa ser filtrado da fileira")
+            harness.check(overlay.focusAction("swapDisc"),
+                          "swapDisc declarado pelo tema precisa ser focável na fileira filtrada")
+            harness.check(overlay.activateFocused() === true
+                          && harness.dispatched[harness.dispatched.length - 1] === "swapDisc",
+                          "swapDisc precisa voltar ao host com o id semântico preservado")
+
             harness.check(overlay.closeOverlay(), "fechar o OSD precisa ser acionável")
             harness.check(!overlay.visible && harness.closed,
                           "fechar precisa ocultar a superfície e notificar o host")
+            console.info("checks=" + harness.checks + " failures=" + harness.failures)
             Qt.exit(harness.failures === 0 ? 0 : 1)
         }
     }

@@ -689,8 +689,7 @@ def _area_data(
             action=_action(
                 "firmware.import",
                 "Importar firmware",
-                enabled=False,
-                reason="Importação pela interface ainda não está conectada ao serviço.",
+                enabled=True,
                 confirmation=True,
             ),
             installed=firmware["installed"],
@@ -734,8 +733,7 @@ def _area_data(
             "primaryAction": _action(
                 "requirements.verify",
                 "Validar requisitos",
-                enabled=False,
-                reason="Validação pela interface ainda não está conectada ao serviço.",
+                enabled=True,
             ),
         },
     }

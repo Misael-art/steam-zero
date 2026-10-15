@@ -25,6 +25,7 @@ from steamzero.adapters.launcher_catalog import catalog_games, catalog_summary
 from steamzero.adapters.launcher_receipt import spawn_receipt
 from steamzero.adapters.launcher_ui import LauncherBridge
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
+from steamzero.core import paths
 from steamzero.launcher.app import build_sections, build_titles, main
 
 
@@ -202,6 +203,44 @@ def test_launch_failure_is_reported_without_secrets_and_bridge_recovers(tmp_path
         assert "private-path-and-secret" not in json.dumps(body)
         assert _post(f"{base}/launch", bridge.token, payload) == 200
     assert attempts == ["game", "game"]
+
+
+def test_launch_failure_publishes_resolvable_diagnostic_id(
+    tmp_path: Path, isolated_xdg_root: Path
+) -> None:
+    """D-17: um code genérico não pode ser beco sem saída: tem de apontar para o journal."""
+
+    def launch(game: str, focus: str) -> None:
+        raise OSError("private-path-and-secret")
+
+    bridge = LauncherBridge(
+        sections=build_sections([{"id": "game", "title": "Game", "section": "library"}]),
+        context_path=tmp_path / "return.json",
+        on_launch=launch,
+    )
+    with bridge.serving() as base:
+        with pytest.raises(urllib.error.HTTPError) as failure:
+            _post(f"{base}/launch", bridge.token, {"gameId": "game", "focusId": "library:game"})
+        body = json.loads(failure.value.read())
+
+    assert body["error"]["code"] == "LAUNCHER-LAUNCH-FAILED-001"
+    diagnostic_id = body["error"]["diagnosticId"]
+    assert diagnostic_id
+    assert "private-path-and-secret" not in json.dumps(body)
+    journal = paths.core_log()
+    assert journal.is_relative_to(isolated_xdg_root.resolve(strict=True))
+    journal_text = journal.read_text(encoding="utf-8")
+    assert diagnostic_id in journal_text
+    assert "OSError" in journal_text
+    # O id tem de resolver exatamente a uma linha, e aquela linha carrega a
+    # causa truncada — é isso que faz do diagnóstico um rastro, não um número.
+    lines = [json.loads(line) for line in journal_text.splitlines() if diagnostic_id in line]
+    assert len(lines) == 1, "diagnosticId deve resolver a uma única linha do journal"
+    record = lines[0]
+    assert record["event"] == "launcher.launch.failed"
+    assert record["errorType"] == "OSError"
+    assert record["gameId"] == "game"
+    assert "private-path-and-secret" in record["errorDetail"]
 
 
 @pytest.mark.parametrize(
@@ -1081,7 +1120,9 @@ def test_session_route_accepts_a_bounded_save_state_slot(tmp_path: Path) -> None
     with bridge.serving() as base:
         model = _get(f"{base}/session?gameId=game&overlay=1", bridge.token)
         assert model["overlay"]["saveStates"]["entries"][0]["slot"] == 4
-        assert model["overlay"]["actions"][4]["id"] == "saveState"
+        # D-28: a fileira publicada encolheu para os ids com porta no backend;
+        # `saveState` passou à posição 2 (mute, screenshot, saveState).
+        assert model["overlay"]["actions"][2]["id"] == "saveState"
         with urllib.request.urlopen(  # noqa: S310
             urllib.request.Request(  # noqa: S310
                 f"{base}/session/action",

@@ -28,7 +28,7 @@
     "tests/unit/test_component_jobs.py",
     "tests/unit/test_launcher_ui_backend.py"
   ],
-  "scopeDigest": "c614682cde20ad76c295278827182ac280fbd0f67ee1fc29ecd5ba1a516be78e",
+  "scopeDigest": "23c75a024784770d093f689bdde5e1a7e511b1bc4b5f728458df878c892f47cb",
   "dependsOn": [
     "SZ-AURA-CINEMA-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",

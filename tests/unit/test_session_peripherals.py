@@ -331,6 +331,57 @@ def test_retroarch_bounds_save_slots_and_supports_m3u_swap(tmp_path: Path) -> No
     assert commands == ["DISK_EJECT_TOGGLE", "DISK_NEXT", "DISK_EJECT_TOGGLE"]
 
 
+def _ephemeral_adapter(tmp_path: Path, commands: list[str]) -> RetroArchSessionPeripheral:
+    """Adapter real com gravador de comandos: nenhuma linha de teste abre UDP."""
+
+    content = tmp_path / "game.zip"
+    content.write_bytes(b"content")
+    return RetroArchSessionPeripheral(
+        content, tmp_path / "states", send_command=commands.append, sleep=lambda _: None
+    )
+
+
+def test_retroarch_mute_sends_the_documented_toggle_command(tmp_path: Path) -> None:
+    commands: list[str] = []
+    adapter = _ephemeral_adapter(tmp_path, commands)
+
+    result = adapter.toggle_mute()
+
+    assert commands == ["MUTE"]
+    assert result.state == "running"
+
+
+def test_retroarch_screenshot_sends_the_documented_capture_command(tmp_path: Path) -> None:
+    commands: list[str] = []
+    adapter = _ephemeral_adapter(tmp_path, commands)
+
+    result = adapter.take_screenshot()
+
+    assert commands == ["SCREENSHOT"]
+    assert result.state == "running"
+
+
+def test_retroarch_fast_forward_sends_the_documented_toggle_command(tmp_path: Path) -> None:
+    commands: list[str] = []
+    adapter = _ephemeral_adapter(tmp_path, commands)
+
+    result = adapter.toggle_fast_forward()
+
+    assert commands == ["FAST_FORWARD"]
+    assert result.state == "running"
+
+
+def test_retroarch_rewind_sends_one_documented_single_frame_step(tmp_path: Path) -> None:
+    """1.22 documenta `REWIND` como "one frame when sent as a command": um toque, um passo."""
+    commands: list[str] = []
+    adapter = _ephemeral_adapter(tmp_path, commands)
+
+    result = adapter.step_rewind()
+
+    assert commands == ["REWIND"]
+    assert result.state == "running"
+
+
 def test_retroarch_managed_m3u_preserves_stable_disc_identity(tmp_path: Path) -> None:
     first = tmp_path / "converted-disc-one.chd"
     second = tmp_path / "converted-disc-two.chd"

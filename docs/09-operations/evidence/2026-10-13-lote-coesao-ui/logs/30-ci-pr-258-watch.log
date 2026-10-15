@@ -1,0 +1,262 @@
+=== 2026-10-15T18:24:08-03:00 poll 1 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:25:09-03:00 poll 2 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:26:09-03:00 poll 3 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:27:10-03:00 poll 4 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:28:10-03:00 poll 5 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:29:11-03:00 poll 6 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:30:12-03:00 poll 7 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:31:13-03:00 poll 8 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:32:14-03:00 poll 9 :: completed 5/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: in_progress :: null
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:33:14-03:00 poll 10 :: completed 6/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:34:15-03:00 poll 11 :: completed 6/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:35:16-03:00 poll 12 :: completed 6/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: in_progress :: null
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:36:17-03:00 poll 13 :: completed 7/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: in_progress :: null
+=== 2026-10-15T18:37:18-03:00 poll 14 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:38:19-03:00 poll 15 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:39:19-03:00 poll 16 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:40:20-03:00 poll 17 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:41:21-03:00 poll 18 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:42:22-03:00 poll 19 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:43:22-03:00 poll 20 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:44:23-03:00 poll 21 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:45:24-03:00 poll 22 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:46:24-03:00 poll 23 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:47:25-03:00 poll 24 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:48:26-03:00 poll 25 :: completed 8/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: in_progress :: null
+Python 3.12 :: completed :: success
+=== 2026-10-15T18:49:26-03:00 poll 26 :: completed 9/9 ===
+Sourcery review :: completed :: skipped
+Smoke Ubuntu 24.04 :: completed :: success
+Python 3.11 :: completed :: success
+Smoke Manjaro :: completed :: success
+Python 3.14 :: completed :: success
+Wheel limpo, smoke e supply chain :: completed :: success
+Smoke Arch Linux :: completed :: success
+Gate visual QML (Linux) :: completed :: success
+Python 3.12 :: completed :: success
+=== TERMINAL: 9/9 completed em 2026-10-15T18:49:26-03:00 ===
+=== watch finished 2026-10-15T18:49:26-03:00 ===

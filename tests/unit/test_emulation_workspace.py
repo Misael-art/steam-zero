@@ -173,10 +173,19 @@ def test_requirement_kind_is_normalized_and_unwired_actions_are_disabled() -> No
 
     platform = payload["platforms"][0]
     assert platform["requirements"]["keys"]["kind"] == "keys"
-    actions = [
-        card["action"] for card in platform["areaData"]["keysFirmware"]["cards"] if "action" in card
-    ]
-    assert actions and all(not action["enabled"] and action["reason"] for action in actions)
+    actions = {
+        str(card["action"]["id"]): card["action"]
+        for card in platform["areaData"]["keysFirmware"]["cards"]
+        if "action" in card
+    }
+    # keys.import segue sem conexão com o serviço: desabilitado, com motivo.
+    assert actions["keys.import"]["enabled"] is False
+    assert actions["keys.import"]["reason"]
+    # D-27: firmware.import está ligado ao serviço (o adapter e o catálogo o
+    # publicam habilitado). O workspace não pode publicar ``enabled`` divergente
+    # por id entre as superfícies que a UI consome.
+    assert actions["firmware.import"]["enabled"] is True
+    assert actions["firmware.import"]["requiresConfirmation"] is True
 
 
 def _card_for(emulator_rows: list[dict[str, object]]) -> dict[str, object]:

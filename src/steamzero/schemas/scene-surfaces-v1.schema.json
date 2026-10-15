@@ -45,7 +45,7 @@
       "properties": {"component": {"type": "string", "pattern": "^[a-z][a-zA-Z0-9]{0,63}$"}}
     },
     "osdItem": {
-      "enum": ["volume", "mute", "brightness", "screenshot", "saveState", "loadState", "fastForward", "rewind", "pause", "control", "achievement", "network"]
+      "enum": ["mute", "screenshot", "saveState", "loadState", "listSaveStates", "swapDisc", "listDiscs", "listPeripherals", "fastForward", "rewind", "pause", "resume", "exit"]
     },
     "binding": {
       "type": "object",

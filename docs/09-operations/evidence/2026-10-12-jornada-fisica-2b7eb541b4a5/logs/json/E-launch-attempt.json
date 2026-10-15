@@ -1,0 +1,2 @@
+{"error": {"code": "E-TX-STALE-PLAN", "detail": "jogo não encontrado na biblioteca", "impact": "O jogo não foi iniciado.", "canPrepare": false}}
+HTTP=409

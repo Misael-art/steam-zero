@@ -11,6 +11,7 @@ sinaliza processos diretamente.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import signal
 import socket
@@ -23,6 +24,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from steamzero.core import fs, paths
+from steamzero.core.errors import SteamZeroError
 from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
 
@@ -35,6 +37,48 @@ CONTROL_DIRECTORY = "session-controls"
 DIAG_CONTROL_UNAVAILABLE = "AURA-SESSION-CONTROL-UNAVAILABLE-001"
 DIAG_CONTROL_REQUEST = "AURA-SESSION-CONTROL-REQUEST-002"
 DIAG_CONTROL_FAILED = "AURA-SESSION-CONTROL-FAILED-003"
+# D-20: a rota /journey/event já recusa o slot fora da faixa com esta frase e esta
+# recuperação (launcher_ui); o canal de sessão e o overlay passam a dizer o mesmo.
+SAVE_STATE_SLOT_DETAIL = "O slot de save-state deve estar entre 0 e 999."
+SAVE_STATE_SLOT_RECOVERY = "choose-valid-slot"
+# D-23: o servidor do canal **não** vive dentro da árvore que a pausa SIGSTOPa —
+# ele roda no processo que lançou o jogo (CLI spawned pelo launcher), que continua
+# respondendo. O gate mesmo assim vale: o handler de uma ação de periférico
+# conversa com o emulador parado, pendura, o cliente expira em 1 s, e o pedido
+# fica enfileirado para executar **depois** — contra a recusa que a UI já
+# publicou (logs/11:89-90: o saveState "recusado" foi escrito no kill -CONT
+# manual). O gate roda no cliente, antes do connect.
+E_SESSION_CHANNEL_SUSPENDED = "E-SESSION-CHANNEL-SUSPENDED"
+CHANNEL_READY_STATES = frozenset({"launching", "running"})
+# D-28: os comandos transitórios conversam com o emulador vivo e valem o mesmo
+# gate D-23 dos save-states: em árvore parada o pedido ficaria enfileirado para
+# executar depois da recusa publicada.
+CHANNEL_LIVE_ACTIONS = frozenset(
+    {"saveState", "loadState", "swapDisc", "mute", "screenshot", "fastForward", "rewind"}
+)
+# D-28: fonte única das portas de ação do backend de sessão. O literal vivia
+# dentro de `_dispatch`; extraído sem mudança de comportamento, ele passa a ser
+# o contrato que o teste de fronteira do OSD compara com `OSD_ACTIONS`: um
+# botão publicado sem porta aqui é a divisão medida pela jornada (D-28).
+ACCEPTED_ACTIONS = frozenset(
+    {
+        "pause",
+        "resume",
+        "exit",
+        "listSaveStates",
+        "saveState",
+        "loadState",
+        "listDiscs",
+        "swapDisc",
+        "listPeripherals",
+        "mute",
+        "screenshot",
+        "fastForward",
+        "rewind",
+    }
+)
+
+_log = logging.getLogger(__name__)
 
 StoreFactory = Callable[[], StateStore]
 SignalProcess = Callable[[int, int], None]
@@ -48,6 +92,10 @@ class SessionControlRecord:
     id: str
     game_id: str
     state: str
+
+
+class _InvalidSaveSlot(ValueError):
+    """Slot de save-state fora da faixa: recusa de pedido, não falha de operação."""
 
 
 def _bounded_text(value: Any, *, limit: int = 128) -> str:
@@ -114,6 +162,11 @@ class SessionControlOwner:
         self._store_factory = store_factory
         self._read_start_ticks = read_start_ticks
         self._read_process_group_identity = read_process_group_identity or _process_group_identity
+        # Sinal de grupo, não de processo: `killpg` alcança toda a árvore do grupo
+        # liderado por `self.pid` — o `flatpak run` e seus `bwrap`/retroarch medidos
+        # em logs/11 item 6 estão todos ali, porque o jogo é criado com
+        # `start_new_session=True` (`adapters/emulation.py` `_spawn_detached`) e
+        # `_verify_process_identity` exige que `self.pid` seja o líder (pgid, sid).
         self._signal_process = signal_process or os.killpg
         self._peripheral_control = peripheral_control
         self._lock = threading.RLock()
@@ -234,6 +287,41 @@ class SessionControlOwner:
         self._peripheral_control.load_state(slot)
         return self._require_current()
 
+    def toggle_mute(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece controle de áudio")
+        self._peripheral_control.toggle_mute()
+        return self._require_current()
+
+    def take_screenshot(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece captura de tela")
+        self._peripheral_control.take_screenshot()
+        return self._require_current()
+
+    def toggle_fast_forward(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece avanço rápido")
+        self._peripheral_control.toggle_fast_forward()
+        return self._require_current()
+
+    def step_rewind(self) -> SessionControlRecord:
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece rebobinar")
+        self._peripheral_control.step_rewind()
+        return self._require_current()
+
+    def state_path(self, slot: int) -> Path:
+        """O destino que um `saveState` deste slot escreveria — nomeado pelo adapter.
+
+        D-26: a recusa de um pedido já despachado precisa dizer *onde* o arquivo pode
+        ter ficado. A sufixação pertence ao adapter (`state_path`); reimplementá-la
+        aqui daria ao produto um segundo dono do nome.
+        """
+        if self._peripheral_control is None:
+            raise RuntimeError("o adapter desta sessão não oferece save-state")
+        return self._peripheral_control.state_path(slot)
+
     def list_discs(self) -> Mapping[str, Any]:
         if self._peripheral_control is None:
             raise RuntimeError("o adapter desta sessão não oferece troca de disco")
@@ -353,17 +441,39 @@ class SessionControlServer:
                 with connection:
                     if not _peer_is_same_uid(connection):
                         continue
+                    # Toda a troca por conexão tem fronteira de falha própria,
+                    # inclusive a escrita da resposta. Um cliente que expira (timeout
+                    # de 1 s) e fecha o pipe antes de ler faz o `sendall` estourar
+                    # `BrokenPipeError`/EPIPE: isso mata **esta** conexão, nunca o
+                    # ouvinte — se o erro escapasse, o `with server:` abaixo fecharia o
+                    # socket de escuta enquanto o arquivo `.sock` sobreviveria (só
+                    # `close()` o remove), e todo pedido seguinte viraria
+                    # `ECONNREFUSED` → "o dono da sessão não respondeu" para sempre
+                    # (a cadeia medida de D-23 em logs/11:84-94).
                     try:
                         request = json.loads(_read_line(connection).decode("utf-8"))
                         result = self._dispatch(request)
+                        payload = json.dumps(result, ensure_ascii=False, separators=(",", ":"))
+                        connection.sendall(payload[:MAX_CONTROL_RESPONSE].encode("utf-8") + b"\n")
                     except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
-                        result = {
-                            "accepted": False,
-                            "diagnostic": DIAG_CONTROL_REQUEST,
-                            "detail": "A requisição da sessão é inválida.",
-                        }
-                    payload = json.dumps(result, ensure_ascii=False, separators=(",", ":"))
-                    connection.sendall(payload[:MAX_CONTROL_RESPONSE].encode("utf-8") + b"\n")
+                        with suppress(OSError):
+                            refusal = json.dumps(
+                                {
+                                    "accepted": False,
+                                    "diagnostic": DIAG_CONTROL_REQUEST,
+                                    "detail": "A requisição da sessão é inválida.",
+                                },
+                                ensure_ascii=False,
+                                separators=(",", ":"),
+                            )
+                            connection.sendall(
+                                refusal[:MAX_CONTROL_RESPONSE].encode("utf-8") + b"\n"
+                            )
+                    except OSError:
+                        _log.warning(
+                            "o cliente do canal de controle %s desapareceu antes de ler a resposta",
+                            self.owner.session_id,
+                        )
 
     def _dispatch(self, request: Any) -> dict[str, Any]:
         allowed = {"sessionId", "gameId", "action", "slot", "discId", "confirmed"}
@@ -392,23 +502,17 @@ class SessionControlServer:
                 "diagnostic": DIAG_CONTROL_REQUEST,
                 "detail": "A confirmação só é aceita para o encerramento explícito da sessão.",
             }
-        if action not in {
-            "pause",
-            "resume",
-            "exit",
-            "listSaveStates",
-            "saveState",
-            "loadState",
-            "listDiscs",
-            "swapDisc",
-            "listPeripherals",
-        }:
+        if action not in ACCEPTED_ACTIONS:
             return {
                 "accepted": False,
                 "state": "unknown",
                 "diagnostic": DIAG_CONTROL_REQUEST,
                 "detail": "A ação da sessão não é permitida.",
             }
+        # Duas metades de falha dentro do mesmo `try` (D-26): o que quebra antes de
+        # chamar o adapter não teve nenhum efeito; o que quebra depois pode ter
+        # escrito o arquivo do slot mesmo assim.
+        dispatched_slot: int | None = None
         try:
             if action == "pause":
                 record = self.owner.suspend()
@@ -416,6 +520,14 @@ class SessionControlServer:
                 record = self.owner.resume()
             elif action == "exit":
                 record = self.owner.request_exit(confirmed=True)
+            elif action == "mute":
+                record = self.owner.toggle_mute()
+            elif action == "screenshot":
+                record = self.owner.take_screenshot()
+            elif action == "fastForward":
+                record = self.owner.toggle_fast_forward()
+            elif action == "rewind":
+                record = self.owner.step_rewind()
             elif action == "listSaveStates":
                 current = self.owner.current
                 if current is None:
@@ -445,8 +557,17 @@ class SessionControlServer:
                 }
             elif action in {"saveState", "loadState"}:
                 slot = request.get("slot")
+                # D-20: o toque de salvar sem galeria chegava sem slot e a recusa
+                # caía no genérico pós-falha. Fora da faixa o canal responde com a
+                # mesma frase e a mesma recuperação da rota /journey/event; o erro
+                # nasce antes de `dispatched_slot`, então a recusa segue podendo
+                # afirmar que nenhum pedido chegou ao adapter (D-26).
                 if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot <= 999:
-                    raise ValueError("slot de save-state inválido")
+                    raise _InvalidSaveSlot(SAVE_STATE_SLOT_DETAIL)
+                if action == "saveState":
+                    # D-26: a partir desta linha o pedido já foi entregue ao adapter;
+                    # a recusa deixa de poder afirmar que nada aconteceu.
+                    dispatched_slot = slot
                 record = (
                     self.owner.save_state(slot)
                     if action == "saveState"
@@ -457,15 +578,43 @@ class SessionControlServer:
                 if not isinstance(disc_id, str):
                     raise ValueError("disco não informado")
                 record = self.owner.swap_disc(disc_id)
+        except _InvalidSaveSlot:
+            return {
+                "accepted": False,
+                "state": "unknown",
+                "diagnostic": DIAG_CONTROL_REQUEST,
+                "detail": SAVE_STATE_SLOT_DETAIL,
+                "recoveryAction": SAVE_STATE_SLOT_RECOVERY,
+            }
         except Exception:
             current = self.owner.current
-            return {
+            refusal: dict[str, Any] = {
                 "accepted": False,
                 "state": current.state if current is not None else "unknown",
                 "diagnostic": DIAG_CONTROL_FAILED,
                 "detail": "A operação da sessão falhou; atualize o overlay e tente novamente.",
             }
+            written = self._possible_save_write(dispatched_slot)
+            if written is not None:
+                refusal["written"] = written
+            return refusal
         return {"accepted": True, "state": record.state}
+
+    def _possible_save_write(self, slot: int | None) -> dict[str, Any] | None:
+        """O que uma recusa de `saveState` não pode negar: o arquivo que ela pode ter escrito.
+
+        `None` é a resposta honesta quando o pedido **não** chegou ao adapter (slot
+        inválido, sessão ausente, sessão sem save-state) ou quando o destino não é
+        resolvível: sem caminho declarável, o corpo fica exatamente como era, e um
+        diagnóstico nunca pode destruir a recusa que ele tenta completar.
+        """
+        if slot is None:
+            return None
+        try:
+            state_path = self.owner.state_path(slot)
+            return {"slot": slot, "path": str(state_path), "exists": state_path.is_file()}
+        except Exception:
+            return None
 
 
 class RemoteSessionControl:
@@ -499,7 +648,22 @@ class RemoteSessionControl:
             raise RuntimeError("o encerramento da sessão exige confirmação explícita")
         return self._request("exit", confirmed=True)
 
+    def _refuse_if_not_live(self, action: str) -> None:
+        """A pausa não congela o canal — quem atende é o processo dono do ciclo de
+        vida, pai da árvore SIGSTOPada — mas o handler da ação conversa com um
+        emulador parado: o pedido pendura até o timeout do cliente e fica
+        enfileirado para executar depois, contra a recusa já publicada. A recusa
+        no cliente fecha essa fila antes do connect."""
+        record = self.current
+        if record is None or record.state not in CHANNEL_READY_STATES:
+            raise SteamZeroError(
+                E_SESSION_CHANNEL_SUSPENDED,
+                detail=f"{action} exige uma sessão viva; o pedido não foi enviado ao emulador.",
+            )
+
     def _request(self, action: str, **extra: Any) -> SessionControlRecord:
+        if action in CHANNEL_LIVE_ACTIONS:
+            self._refuse_if_not_live(action)
         request: dict[str, Any] = {
             "sessionId": self._session_id,
             "gameId": self._game_id,
@@ -543,6 +707,7 @@ class RemoteSessionControl:
         return current
 
     def _request_data(self, action: str) -> Mapping[str, Any]:
+        self._refuse_if_not_live(action)
         request = {
             "sessionId": self._session_id,
             "gameId": self._game_id,
@@ -583,6 +748,18 @@ class RemoteSessionControl:
     def list_peripherals(self) -> Mapping[str, Any]:
         return self._request_data("listPeripherals")
 
+    def toggle_mute(self) -> SessionControlRecord:
+        return self._request("mute")
+
+    def take_screenshot(self) -> SessionControlRecord:
+        return self._request("screenshot")
+
+    def toggle_fast_forward(self) -> SessionControlRecord:
+        return self._request("fastForward")
+
+    def step_rewind(self) -> SessionControlRecord:
+        return self._request("rewind")
+
 
 def control_path(session_id: str, *, root: Path | None = None) -> Path:
     """Retorna o endpoint derivado de um id ULID, sem aceitar caminhos externos."""
@@ -609,9 +786,14 @@ def resolve_remote_session_control(
 
 
 __all__ = [
+    "ACCEPTED_ACTIONS",
+    "CHANNEL_READY_STATES",
     "DIAG_CONTROL_FAILED",
     "DIAG_CONTROL_REQUEST",
     "DIAG_CONTROL_UNAVAILABLE",
+    "E_SESSION_CHANNEL_SUSPENDED",
+    "SAVE_STATE_SLOT_DETAIL",
+    "SAVE_STATE_SLOT_RECOVERY",
     "RemoteSessionControl",
     "SessionControlOwner",
     "SessionControlRecord",

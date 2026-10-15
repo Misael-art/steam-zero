@@ -1,0 +1,74 @@
+Adenda de registro — lacunas de numeração e auto-correções (2026-10-12, após a bateria)
+======================================================================================
+Este arquivo fecha buracos que um revisor encontraria ao ler logs/12-defeitos-registrados.txt.
+Motivo: a numeração D-06…D-26 foi atribuída ao longo da sessão e quatro números ficaram
+somente no raciocínio de trabalho, sem entrada no arquivo. Eles são restaurados aqui com a
+evidência que os sustentava à época; nada foi re-alegado sem base.
+
+1) Defeitos observados e NÃO listados em logs/12
+   D-11 [baixa] Dica de atalhos cortada quando os botões de sessão aparecem em 1280x801.
+        Restaurado aqui porque a linha existe em logs/12 como D-10 com a mesma descrição:
+        D-10 e D-11 são o MESMO sintoma registrado duas vezes durante a sessão.
+        → VÁLIDO: usar apenas D-10; D-11 é duplicata e não deve ser contado.
+   D-13 [baixa] Miniatura do save-state não publicada no read-model.
+        Idêntico a D-21 ("thumbnailUrl='' e thumbnailFallback=true" após o save do mGBA).
+        → VÁLIDO: usar apenas D-21; D-13 é duplicata.
+   D-14 [candidato, REJEITADO] "O contexto de retorno usaria o último focus/scroll reportado
+        por evento em vez do estado visível."
+        Refutado na própria sessão: o evento de saída carregou o focus/scroll correntes
+        (ver o comentário no código do Launcher: "O foco de saída viaja junto: é ele que o
+        contexto de retorno grava." — LauncherShell.qml:194 na release em prova).
+        → NÃO É DEFEITO. Registrado só para que o número não seja reutilizado.
+   D-18 [candidato, RETIRADO — substituído por D-19] "Jogo reabre sozinho após saída confirmada."
+        Hipótese original: launchJourneyGame dispararia launchFocused() sobre o jogo que a
+        página subjacente já exibia, e não sobre o jogo da jornada.
+        Conferido no código INSTALADO (não no palpite):
+          · /opt/steamzero/releases/2.0.0rc1-2b7eb541b4a5/venv/lib/python3.14/site-packages/
+            steamzero/ui/qml/launcher/LauncherMain.qml:384 launchJourneyGame(gameId, focusId)
+            chama shell.openGame(String(gameId)) ANTES de shell.launchFocused();
+          · LauncherShell.qml:168 openGame faz gamePage = resolveGamePage(gameId) e
+            LauncherShell.qml:181 launchFocused usa gamePage.gameId / sessionGameId.
+            Ou seja, a página é trocada para o gameId da jornada antes do lançamento.
+          · Os dois arquivos da release são byte-idênticos ao checkout
+            (LauncherMain.qml sha256[0:16] 111af613e7da685b; LauncherShell.qml 66e92bb335ec9946).
+        Causa real do relançamento do Addams Family: colisão de nome acessível — dois controles
+        chamados "Jogar" na mesma janela (página de jornada e página de jogo subjacente); a busca
+        por nome acionou o controle da página subjacente. Isso é D-19, já registrado com custo
+        mensurável (sessão extra 01M4RXB8A45DY9NA0C0SX9Y0XD + captura refeita).
+        → D-18 é RETIRADO. O erro foi de automação do operador, não de roteamento do produto.
+
+2) Referência quebrada
+   logs/03-harness-input-captura.md §Diagnóstico item 2 aponta para
+   "logs/04-central-desconectada.md". Esse arquivo NÃO existe neste diretório de evidência.
+   O que se pode afirmar com o que ficou arquivado:
+     · o achado 1 de logs/03 é autossustentado: Down ×2 com foco confirmado na Central
+       produziu PNGs byte-idênticos (sha256 4988b8fe… em 00-foco-confirmado e 00-apos-seta,
+       manifest.tsv 15:51:48 e 15:51:50) — nenhuma resposta visual;
+     · o achado 2 ("Central reportando desconexão do núcleo com daemon convergido") NÃO tem
+       evidência arquivada aqui além do texto. Status: aberto, sem número, precisa ser
+       reproduzido e capturado antes de virar defeito.
+   Consequência para a matriz: a navegação por setas na tela "Início" da Central fica como
+   capacidade NÃO DEMONSTRADA (ver README, linha B-7/limites da Central).
+
+3) Correção material à linha B-7 (retorno com foco e rolagem)
+   A correção de logs/12 afirmava: "a evidência do retorno continua sendo o read-model
+   (focus=item:emulation:938fa6d460ece97282294b32, scroll=151.0, generation 6)".
+   Verificação feita agora: esse read-model NÃO foi persistido — nenhuma das 60 evidências em
+   logs/json/ contém esse focusId ou o valor 151.0 (grep: só
+   logs/json/library-launchable.json menciona o gameId, como item do acervo). Ele foi lido ao
+   vivo pela ponte e ficou apenas na transcrição.
+   · O retorno em si tem evidência arquivada: ~/.local/state/steamzero/launcher/return.json
+     é o contrato que o produto escreve antes de cada lançamento — mas o conteúdo atual é o do
+     ÚLTIMO lançamento (17:55, NES d550f55242a30cdc7297c005), não o do retorno do Mega Drive.
+   · Consequência: B-7 passa a PARCIAL-SEM-EVIDÊNCIA-ARQUIVADA, tratada como ABERTA.
+   · Re-captura necessária (receita, ~2 min, sem mutação de host): abrir o Launcher, navegar com
+     setas até deixar foco/rolagem não-zero em um menu de jogos, gravar `GET /model` para
+     logs/json/retorno-antes.json, lançar, confirmar saída pela ponte, e gravar `GET /model`
+     para logs/json/retorno-depois.json imediatamente antes de qualquer outra tecla; capturar com
+     `spectacle -r` (região) ou re-ativar a janela e disparar `spectacle -a` no mesmo instante,
+     conferindo o PNG antes de prosseguir.
+
+4) Contagens reconciliadas de arquivo de save (comando no logs/14, item 2)
+   pré-bateria 15 (14 nos cores + 1 em .backups) → hoje 21 → delta 6 = logs/delta-saves-novos.txt.
+   Nenhum dos 15 pré-existentes tem mtime em 2026-10-12; os 10 saves de terceiros hashados em
+   host/02 conferem 10/10 SUCESSO no fim.

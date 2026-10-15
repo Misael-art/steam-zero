@@ -922,6 +922,8 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             return self._dashboard().rollback_emulation_action(
                 self._required_string(payload, "operationId")
             )
+        if path == "/emulation/requirements/verify":
+            return self._dashboard().verify_emulation_requirements()
         if path == "/emulation/library/scan":
             return self._dashboard().scan_emulation_library()
         if path == "/emulation/job/status":
@@ -1439,6 +1441,15 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 raise SteamZeroError(
                     "E-API-SCHEMA", detail="documento da Jornada viola o schema público"
                 ) from exc
+            except ValueError as exc:
+                # D-25 (Tarefa 11): toda recusa do editor de aparência é um
+                # refusal estruturado que declara "nenhuma mudança foi feita".
+                # transact só muta depois do parse bem-sucedido do candidato,
+                # então a garantia é real: documento, dirty flag e histórico
+                # permanecem intactos.
+                raise SteamZeroError(
+                    "E-API-SCHEMA", detail=f"{exc}; nenhuma mudança foi feita"
+                ) from exc
         if path == "/journey/studio/save":
             self._require_exact_keys(payload, {"sessionId", "overwrite"})
             overwrite = payload.get("overwrite")
@@ -1536,6 +1547,12 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 and isinstance(appearance.get("themeId"), str)
                 else ""
             )
+            # O resolver só produz sourceThemeId "org.steamzero.aura" quando a
+            # etapa usada declara o modo "inherit-aura"; é exatamente essa a
+            # condição para abrir o AURA empacotado abaixo.
+            inherits_aura = (
+                isinstance(appearance, Mapping) and appearance.get("mode") == "inherit-aura"
+            )
             dashboard = self._dashboard()
             theme_session_ids: list[str] = []
             try:
@@ -1560,7 +1577,48 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                     loaded_by_theme[aura_id] = loaded_aura
                     manifests[aura_id] = _effective_theme_coverage_manifest(loaded_aura)
 
-                    if declared_theme_id and declared_theme_id != aura_id:
+                    # D-06 (Tarefa 11, limpeza 11d): a prévia só abre o AURA
+                    # empacotado org.steamzero.aura quando a cobertura resolve
+                    # para herança explícita (modo "inherit-aura"), para que
+                    # loaded_by_theme contenha o id que o resolver produz. Menus
+                    # puramente custom ou de herança implícita ficam na base
+                    # org.steamzero.default e não abrem sessão extra no Theme
+                    # Engine. Se o pacote estiver ausente do catálogo o load
+                    # resultante falha adiante em E-COMPONENT-DEGRADED; o default
+                    # não cobre essa etapa.
+                    inherited_aura_id = "org.steamzero.aura"
+                    if inherits_aura:
+                        try:
+                            loaded_inherited = dashboard.editor_load(inherited_aura_id)
+                        except SteamZeroError as exc:
+                            if exc.code != "E-THEME-NOT-FOUND":
+                                raise
+                        else:
+                            if not isinstance(loaded_inherited, Mapping):
+                                raise SteamZeroError(
+                                    "E-COMPONENT-DEGRADED",
+                                    detail="Theme Engine não abriu o tema AURA empacotado",
+                                )
+                            inherited_session_id = str(loaded_inherited.get("sessionId") or "")
+                            if inherited_session_id:
+                                theme_session_ids.append(inherited_session_id)
+                            inherited_manifest = loaded_inherited.get("manifest")
+                            if not isinstance(inherited_manifest, Mapping):
+                                raise SteamZeroError(
+                                    "E-COMPONENT-DEGRADED",
+                                    detail="Theme Engine devolveu o manifesto do AURA "
+                                    "empacotado inválido",
+                                )
+                            loaded_by_theme[inherited_aura_id] = loaded_inherited
+                            manifests[inherited_aura_id] = _effective_theme_coverage_manifest(
+                                loaded_inherited
+                            )
+
+                    if (
+                        declared_theme_id
+                        and declared_theme_id != aura_id
+                        and declared_theme_id not in loaded_by_theme
+                    ):
                         try:
                             loaded_custom = dashboard.editor_load(declared_theme_id)
                         except SteamZeroError as exc:
@@ -1659,7 +1717,10 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 raise SteamZeroError("E-API-SCHEMA", detail="usedStages deve ser lista de IDs")
             session = self._control_server.journey_studio.snapshot(session_id)
             document = session["document"]
-            theme_ids = {"org.steamzero.default"}
+            # D-06 (Tarefa 11): o AURA empacotado também é lido para que a
+            # cobertura reporte versão/cor/procedência iguais ao manifesto
+            # carregado nas etapas com herança explícita.
+            theme_ids = {"org.steamzero.default", "org.steamzero.aura"}
             for menu in document.get("menus", []):
                 appearance = menu.get("appearance", {})
                 if appearance.get("mode") == "custom" and isinstance(

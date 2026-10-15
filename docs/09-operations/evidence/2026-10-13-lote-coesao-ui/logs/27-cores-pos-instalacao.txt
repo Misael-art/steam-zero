@@ -1,0 +1,196 @@
+# Auditoria de cores — temas da release instalada e do catálogo do host
+# pacote: /opt/steamzero/releases/2.0.0rc1-1470cf48bf7d/venv/lib/python3.14/site-packages/steamzero/themes | host: /home/misael/.local/share/steamzero/themes
+# estáticas do estilo medidas em pixels (logs/06, harness/sz_contrast.py): botão habilitado #FCFCFC, desabilitado #E3E5E7
+# limiares WCAG 2.1 AA: 4,5:1 texto normal · 3:1 texto grande e elemento não textual
+# referência de cobertura de tokens: org.steamzero.default (18 chaves)
+
+## org.esde.iconic — “Iconic” [host] extends=— tokens=0
+   (sem tokens.color — tema de ativos/importado; nada a medir)
+
+## org.esde.nso-menu — “NSO Menu Interpreted” [host] extends=— tokens=0
+   (sem tokens.color — tema de ativos/importado; nada a medir)
+
+## org.esde.playstation-x — “PlayStation-X” [host] extends=— tokens=0
+   (sem tokens.color — tema de ativos/importado; nada a medir)
+
+## org.esde.xmb-menu — “XMB Menu” [host] extends=— tokens=0
+   (sem tokens.color — tema de ativos/importado; nada a medir)
+
+## org.steamzero.01m2qznd — “AURA ES-DE Physical” [host] extends=org.steamzero.default tokens=18
+   text           vs background        14.70:1  ok               texto normal sobre o fundo
+   text           vs surface           12.40:1  ok               texto normal sobre o painel
+   text           vs surfaceSelected    8.76:1  ok               texto do item selecionado
+   textMuted      vs background         9.15:1  ok               texto secundário sobre o fundo
+   textMuted      vs surface            7.72:1  ok               texto secundário sobre o painel
+   textDisabled   vs background         3.76:1  REPROVADO (< 4.5:1) texto desabilitado sobre o fundo
+   textDisabled   vs surface            3.17:1  REPROVADO (< 4.5:1) texto desabilitado sobre o painel
+   accent         vs background         8.91:1  ok               acentos/links sobre o fundo
+   accent         vs surface            7.52:1  ok               acentos sobre o painel
+   accentStrong   vs background         3.90:1  REPROVADO (< 4.5:1) acento forte sobre o fundo
+   success        vs background         2.92:1  REPROVADO (< 4.5:1) sucesso sobre o fundo
+   success        vs successSurface     4.64:1  ok               sucesso sobre o painel de sucesso
+   warning        vs background         2.87:1  REPROVADO (< 4.5:1) aviso sobre o fundo
+   warning        vs warningSurface     4.87:1  ok               aviso sobre o painel de aviso
+   danger         vs background         2.34:1  REPROVADO (< 4.5:1) erro sobre o fundo
+   danger         vs dangerSurface      5.47:1  ok               erro sobre o painel de erro
+   border         vs background         2.12:1  REPROVADO (< 3.0:1) contorno contra o fundo (não textual)
+   focus          vs background         8.91:1  ok               anel de foco contra o fundo (não textual)
+   sidebar        vs background         1.36:1  REPROVADO (< 3.0:1) sidebar contra o fundo (não textual)
+   -- face do rótulo x estática do estilo (classe D-01) --
+   text           sobre #FCFCFC (fundo real do botão)   1.04:1  REPROVADO   | desabilitado #E3E5E7   1.18:1 REPROVADO
+   textMuted      sobre #FCFCFC (fundo real do botão)   1.68:1  REPROVADO   | desabilitado #E3E5E7   1.36:1 REPROVADO
+   textDisabled   sobre #FCFCFC (fundo real do botão)   4.08:1  REPROVADO   | desabilitado #E3E5E7   3.31:1 REPROVADO
+   accent         sobre #FCFCFC (fundo real do botão)   1.72:1  REPROVADO   | desabilitado #E3E5E7   1.40:1 REPROVADO
+   tokens ausentes vs org.steamzero.default: nenhum
+
+## org.steamzero.01m3w5a8 — “Diagnostico BV134 ESDE” [host] extends=org.steamzero.default tokens=18
+   text           vs background        16.30:1  ok               texto normal sobre o fundo
+   text           vs surface           14.10:1  ok               texto normal sobre o painel
+   text           vs surfaceSelected    9.92:1  ok               texto do item selecionado
+   textMuted      vs background        10.09:1  ok               texto secundário sobre o fundo
+   textMuted      vs surface            8.73:1  ok               texto secundário sobre o painel
+   textDisabled   vs background         3.90:1  REPROVADO (< 4.5:1) texto desabilitado sobre o fundo
+   textDisabled   vs surface            3.37:1  REPROVADO (< 4.5:1) texto desabilitado sobre o painel
+   accent         vs background         4.40:1  REPROVADO (< 4.5:1) acentos/links sobre o fundo
+   accent         vs surface            3.80:1  REPROVADO (< 4.5:1) acentos sobre o painel
+   accentStrong   vs background         2.26:1  REPROVADO (< 4.5:1) acento forte sobre o fundo
+   success        vs background         3.28:1  REPROVADO (< 4.5:1) sucesso sobre o fundo
+   success        vs successSurface     4.64:1  ok               sucesso sobre o painel de sucesso
+   warning        vs background         3.22:1  REPROVADO (< 4.5:1) aviso sobre o fundo
+   warning        vs warningSurface     4.87:1  ok               aviso sobre o painel de aviso
+   danger         vs background         2.63:1  REPROVADO (< 4.5:1) erro sobre o fundo
+   danger         vs dangerSurface      5.47:1  ok               erro sobre o painel de erro
+   border         vs background         2.08:1  REPROVADO (< 3.0:1) contorno contra o fundo (não textual)
+   focus          vs background         4.40:1  ok               anel de foco contra o fundo (não textual)
+   sidebar        vs background         1.00:1  REPROVADO (< 3.0:1) sidebar contra o fundo (não textual)
+   -- face do rótulo x estática do estilo (classe D-01) --
+   text           sobre #FCFCFC (fundo real do botão)   1.05:1  REPROVADO   | desabilitado #E3E5E7   1.17:1 REPROVADO
+   textMuted      sobre #FCFCFC (fundo real do botão)   1.70:1  REPROVADO   | desabilitado #E3E5E7   1.38:1 REPROVADO
+   textDisabled   sobre #FCFCFC (fundo real do botão)   4.41:1  REPROVADO   | desabilitado #E3E5E7   3.58:1 REPROVADO
+   accent         sobre #FCFCFC (fundo real do botão)   3.91:1  REPROVADO   | desabilitado #E3E5E7   3.18:1 REPROVADO
+   tokens ausentes vs org.steamzero.default: nenhum
+
+## org.steamzero.asset-recipes-demo — “Theme Engine — asset único” [pacote] extends=org.steamzero.default tokens=18
+   text           vs background        13.69:1  ok               texto normal sobre o fundo
+   text           vs surface           15.15:1  ok               texto normal sobre o painel
+   text           vs surfaceSelected   13.03:1  ok               texto do item selecionado
+   textMuted      vs background         5.35:1  ok               texto secundário sobre o fundo
+   textMuted      vs surface            5.92:1  ok               texto secundário sobre o painel
+   textDisabled   vs background         4.69:1  ok               texto desabilitado sobre o fundo
+   textDisabled   vs surface            5.19:1  ok               texto desabilitado sobre o painel
+   accent         vs background         4.71:1  ok               acentos/links sobre o fundo
+   accent         vs surface            5.21:1  ok               acentos sobre o painel
+   accentStrong   vs background         7.02:1  ok               acento forte sobre o fundo
+   success        vs background         4.51:1  ok               sucesso sobre o fundo
+   success        vs successSurface     4.64:1  ok               sucesso sobre o painel de sucesso
+   warning        vs background         4.59:1  ok               aviso sobre o fundo
+   warning        vs warningSurface     4.87:1  ok               aviso sobre o painel de aviso
+   danger         vs background         5.63:1  ok               erro sobre o fundo
+   danger         vs dangerSurface      5.47:1  ok               erro sobre o painel de erro
+   border         vs background         3.00:1  ok               contorno contra o fundo (não textual)
+   focus          vs background         4.71:1  ok               anel de foco contra o fundo (não textual)
+   sidebar        vs background         3.00:1  ok               sidebar contra o fundo (não textual)
+   -- face do rótulo x estática do estilo (classe D-01) --
+   text           sobre #FCFCFC (fundo real do botão)  15.93:1  ok   | desabilitado #E3E5E7  12.94:1 ok
+   textMuted      sobre #FCFCFC (fundo real do botão)   6.22:1  ok   | desabilitado #E3E5E7   5.05:1 ok
+   textDisabled   sobre #FCFCFC (fundo real do botão)   5.46:1  ok   | desabilitado #E3E5E7   4.43:1 REPROVADO
+   accent         sobre #FCFCFC (fundo real do botão)   5.48:1  ok   | desabilitado #E3E5E7   4.45:1 REPROVADO
+   tokens ausentes vs org.steamzero.default: nenhum
+
+## org.steamzero.aura — “AURA” [pacote] extends=org.steamzero.default tokens=18
+   text           vs background        16.02:1  ok               texto normal sobre o fundo
+   text           vs surface           14.60:1  ok               texto normal sobre o painel
+   text           vs surfaceSelected   12.81:1  ok               texto do item selecionado
+   textMuted      vs background         6.16:1  ok               texto secundário sobre o fundo
+   textMuted      vs surface            5.62:1  ok               texto secundário sobre o painel
+   textDisabled   vs background         5.48:1  ok               texto desabilitado sobre o fundo
+   textDisabled   vs surface            5.00:1  ok               texto desabilitado sobre o painel
+   accent         vs background        10.48:1  ok               acentos/links sobre o fundo
+   accent         vs surface            9.55:1  ok               acentos sobre o painel
+   accentStrong   vs background         4.55:1  ok               acento forte sobre o fundo
+   success        vs background         9.83:1  ok               sucesso sobre o fundo
+   success        vs successSurface     7.40:1  ok               sucesso sobre o painel de sucesso
+   warning        vs background         9.22:1  ok               aviso sobre o fundo
+   warning        vs warningSurface     6.71:1  ok               aviso sobre o painel de aviso
+   danger         vs background         6.85:1  ok               erro sobre o fundo
+   danger         vs dangerSurface      5.78:1  ok               erro sobre o painel de erro
+   border         vs background         3.00:1  ok               contorno contra o fundo (não textual)
+   focus          vs background        10.48:1  ok               anel de foco contra o fundo (não textual)
+   sidebar        vs background         3.01:1  ok               sidebar contra o fundo (não textual)
+   -- face do rótulo x estática do estilo (classe D-01) --
+   text           sobre #FCFCFC (fundo real do botão)   1.15:1  REPROVADO   | desabilitado #E3E5E7   1.07:1 REPROVADO
+   textMuted      sobre #FCFCFC (fundo real do botão)   2.99:1  REPROVADO   | desabilitado #E3E5E7   2.43:1 REPROVADO
+   textDisabled   sobre #FCFCFC (fundo real do botão)   3.37:1  REPROVADO   | desabilitado #E3E5E7   2.73:1 REPROVADO
+   accent         sobre #FCFCFC (fundo real do botão)   1.76:1  REPROVADO   | desabilitado #E3E5E7   1.43:1 REPROVADO
+   tokens ausentes vs org.steamzero.default: nenhum
+
+## org.steamzero.default — “SteamZero” [pacote] extends=— tokens=18
+   text           vs background        13.69:1  ok               texto normal sobre o fundo
+   text           vs surface           15.15:1  ok               texto normal sobre o painel
+   text           vs surfaceSelected   13.03:1  ok               texto do item selecionado
+   textMuted      vs background         5.35:1  ok               texto secundário sobre o fundo
+   textMuted      vs surface            5.92:1  ok               texto secundário sobre o painel
+   textDisabled   vs background         4.69:1  ok               texto desabilitado sobre o fundo
+   textDisabled   vs surface            5.19:1  ok               texto desabilitado sobre o painel
+   accent         vs background         4.71:1  ok               acentos/links sobre o fundo
+   accent         vs surface            5.21:1  ok               acentos sobre o painel
+   accentStrong   vs background         7.02:1  ok               acento forte sobre o fundo
+   success        vs background         4.51:1  ok               sucesso sobre o fundo
+   success        vs successSurface     4.64:1  ok               sucesso sobre o painel de sucesso
+   warning        vs background         4.59:1  ok               aviso sobre o fundo
+   warning        vs warningSurface     4.87:1  ok               aviso sobre o painel de aviso
+   danger         vs background         5.63:1  ok               erro sobre o fundo
+   danger         vs dangerSurface      5.47:1  ok               erro sobre o painel de erro
+   border         vs background         3.00:1  ok               contorno contra o fundo (não textual)
+   focus          vs background         4.71:1  ok               anel de foco contra o fundo (não textual)
+   sidebar        vs background         3.00:1  ok               sidebar contra o fundo (não textual)
+   -- face do rótulo x estática do estilo (classe D-01) --
+   text           sobre #FCFCFC (fundo real do botão)  15.93:1  ok   | desabilitado #E3E5E7  12.94:1 ok
+   textMuted      sobre #FCFCFC (fundo real do botão)   6.22:1  ok   | desabilitado #E3E5E7   5.05:1 ok
+   textDisabled   sobre #FCFCFC (fundo real do botão)   5.46:1  ok   | desabilitado #E3E5E7   4.43:1 REPROVADO
+   accent         sobre #FCFCFC (fundo real do botão)   5.48:1  ok   | desabilitado #E3E5E7   4.45:1 REPROVADO
+   tokens ausentes vs org.steamzero.default: nenhum
+
+## org.steamzero.steamdeck — “Steam Deck” [pacote] extends=org.steamzero.default tokens=18
+   text           vs background        13.69:1  ok               texto normal sobre o fundo
+   text           vs surface           15.15:1  ok               texto normal sobre o painel
+   text           vs surfaceSelected   13.03:1  ok               texto do item selecionado
+   textMuted      vs background         5.35:1  ok               texto secundário sobre o fundo
+   textMuted      vs surface            5.92:1  ok               texto secundário sobre o painel
+   textDisabled   vs background         4.69:1  ok               texto desabilitado sobre o fundo
+   textDisabled   vs surface            5.19:1  ok               texto desabilitado sobre o painel
+   accent         vs background         4.54:1  ok               acentos/links sobre o fundo
+   accent         vs surface            5.02:1  ok               acentos sobre o painel
+   accentStrong   vs background         5.63:1  ok               acento forte sobre o fundo
+   success        vs background         4.51:1  ok               sucesso sobre o fundo
+   success        vs successSurface     4.64:1  ok               sucesso sobre o painel de sucesso
+   warning        vs background         4.59:1  ok               aviso sobre o fundo
+   warning        vs warningSurface     4.87:1  ok               aviso sobre o painel de aviso
+   danger         vs background         5.63:1  ok               erro sobre o fundo
+   danger         vs dangerSurface      5.47:1  ok               erro sobre o painel de erro
+   border         vs background         3.00:1  ok               contorno contra o fundo (não textual)
+   focus          vs background         3.02:1  ok               anel de foco contra o fundo (não textual)
+   sidebar        vs background         3.00:1  ok               sidebar contra o fundo (não textual)
+   -- face do rótulo x estática do estilo (classe D-01) --
+   text           sobre #FCFCFC (fundo real do botão)  15.93:1  ok   | desabilitado #E3E5E7  12.94:1 ok
+   textMuted      sobre #FCFCFC (fundo real do botão)   6.22:1  ok   | desabilitado #E3E5E7   5.05:1 ok
+   textDisabled   sobre #FCFCFC (fundo real do botão)   5.46:1  ok   | desabilitado #E3E5E7   4.43:1 REPROVADO
+   accent         sobre #FCFCFC (fundo real do botão)   5.28:1  ok   | desabilitado #E3E5E7   4.29:1 REPROVADO
+   tokens ausentes vs org.steamzero.default: nenhum
+
+## Rollup de reprovações
+  total: 30
+  org.steamzero.01m3w5a8              14  textDisabled sobre background 3.90; textDisabled sobre surface 3.37; accent sobre background 4.40; accent sobre surface 3.80; accentStrong sobre background 2.26; success sobre background 3.28
+  org.steamzero.01m2qznd              12  textDisabled sobre background 3.76; textDisabled sobre surface 3.17; accentStrong sobre background 3.90; success sobre background 2.92; warning sobre background 2.87; danger sobre background 2.34
+  org.steamzero.aura                   4  text #e8ecf7 sobre #FCFCFC 1.15; textMuted #8b93a8 sobre #FCFCFC 2.99; textDisabled #808aa3 sobre #FCFCFC 3.37; accent #22d3ee sobre #FCFCFC 1.76
+
+## Amplitude da classe D-01 (medida no QML instalado)
+  instâncias de DarkButton ................ 28
+  instâncias de QQC.Button cru ............ 245
+  bindings de palette.buttonText ......... 73 em 11 arquivos
+  arquivos que pintam background próprio  22 (esses escapam da classe)
+  mecanismo (ui/qml/DarkButton.qml:1-40): o componente é um QQC.Button **sem background**
+  próprio — só define `labelColor` a partir de `palette.buttonText` do pai, com fallback
+  `#16212a` (escuro) quando a paleta não traz cor. Quem pinta o fundo é o estilo, com a
+  estática medida (#FCFCFC habilitado / #E3E5E7 desabilitado). Tema escuro + estilo claro
+  = rótulo claro sobre fundo claro.

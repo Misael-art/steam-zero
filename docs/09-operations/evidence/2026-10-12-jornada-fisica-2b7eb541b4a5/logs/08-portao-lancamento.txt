@@ -1,0 +1,75 @@
+cache=1163 lançáveis=1145 não lançáveis=18 unidentified=0
+
+## não lançáveis (navegáveis no Launcher, recusados pelo portão)
+  amiga                  [zip       ] Super Street Fighter II - The New Challengers (1995)   ev=archive-indexed
+  playstation            [7z        ] Guilty Gear (USA) (Rev 1)                              ev=archive-indexed
+  playstation            [7z        ] Gundam Battle Assault (USA)                            ev=archive-indexed
+  playstation            [7z        ] Gundam Battle Assault 2 (USA)                          ev=archive-indexed
+  playstation            [rar       ] Manic Game Girl                                        ev=archive-indexed
+  playstation            [rar       ] Panzer_Bandit                                          ev=archive-indexed
+  playstation-5          [rar       ] [PS5]_PPSA02929_Dreaming_Sarah                         ev=archive-needs-extraction
+  sega-cd-32x            [7z        ] After Burner (Japan, USA) (Translated PtBr)            ev=archive-needs-extraction
+  sega-cd-32x            [7z        ] Doom 32X Resurrection (v3.1)                           ev=archive-needs-extraction
+  sega-cd-32x            [7z        ] Golden Axe 32X edition (v0.9)                          ev=archive-needs-extraction
+  sega-cd-32x            [7z        ] Kolibri (USA, Europe) (Translated PtBr)                ev=archive-needs-extraction
+  x68000                 [zip       ] Lunatic Fantasy (Japan) [T-En by Pennywise & Eien Ni   ev=archive-indexed
+  x68000                 [zip       ] Red Riding Hood Cha Cha Cha (Japan) [T-En by M.I.J.E   ev=archive-indexed
+  x68000                 [zip       ] Red Riding Hood Cha Cha Cha (Japan) [T-En by M.I.J.E   ev=archive-indexed
+  x68000                 [zip       ] Silk Road 2 (Japan) [T-En by epee v1.01]               ev=archive-indexed
+  x68000                 [zip       ] T-Dragon Quest - Joshou (Japan) [T-En by Helly & MrR   ev=archive-indexed
+  x68000                 [zip       ] ZugyA (Japan) [T-En by M.I.J.E.T. v071112]             ev=archive-indexed
+  xbox-360               [zip       ] game-patches                                           ev=archive-needs-extraction
+
+## lançáveis por sistema (1 exemplo cada)
+  nintendo-handheld      n= 296 formatos={'zip': 226, '7z': 40, 'gb': 30}
+      ex.: 4a91d012bb1f410b1bd52777  2003 Lion King Advance 3 (The King Lion III 2003 Adv  .zip
+  nes-famicom            n= 258 formatos={'zip': 145, 'nes': 32, '7z': 80, 'unf': 1}
+      ex.: c51dbc23e9b3258b761df058  '89 Dennou Kyuusei Uranai (Japan)  .zip
+  master-system          n= 204 formatos={'sms': 51, 'zip': 89, '7z': 64}
+      ex.: ae18c7e53583298461a0edea  1969 (Homebrew) (SMS)  .sms
+  snes                   n= 109 formatos={'7z': 97, 'zip': 12}
+      ex.: b7976c70ca9159a893da2e95  46 Okunen Monogatari - Harukanaru Eden e (Japan) (Tr  .7z
+  mega-drive             n=  81 formatos={'zip': 80, 'md': 1}
+      ex.: ea96c3db21fee70bb568bfd6  Addams Family, The (USA, Europe) (Translated PtBr)  .zip
+  playstation            n=  48 formatos={'chd': 17, 'pbp': 1, 'bin': 27, 'cue-bin': 3}
+      ex.: 724d8cf31854ce06e1d1b746  Alundra (USA) (Translated PtBr)  .chd
+  game-gear              n=  41 formatos={'7z': 10, 'zip': 31}
+      ex.: 0baff14adedefe2ce0c014e9  Aladdin (USA, Europe) (Translated PtBr)  .7z
+  nintendo-3ds           n=  20 formatos={'zip': 1, '3ds': 19}
+      ex.: 7de7a9ca9bd839e3ea60c1a3  100% Pascal Sensei - Kanpeki Paint Bombers (Japan)  .zip
+  sega-saturn            n=  18 formatos={'unknown': 18}
+      ex.: 5c5fd6b29bee06c2f1fb5ff5  Akumajou Dracula X Gekka no Yasoukyoku (Japan) (Tran  .unknown
+  switch                 n=  15 formatos={'nsp': 15}
+      ex.: 0fd1b7954e6eaf474f5e8c8c  Demon Slayer Kimetsu no Yaiba the Hinokami Chronicle  .nsp
+  nintendo-ds            n=  14 formatos={'7z': 14}
+      ex.: 667d01477c9edec3fbb214ed  Castlevania - Dawn of Sorrow (USA) (Translated PtBr)  .7z
+  x68000                 n=   8 formatos={'zip': 8}
+      ex.: 8d9de6959c27073c61493689  Bahnwelt, Die (Japan) [T-En by Non-Directional Trans  .zip
+  playstation-2          n=   6 formatos={'chd': 6}
+      ex.: 7e55ff7c9e416c915fe24acf  Black (USA) (Translated PtBr)  .chd
+  playstation-vita       n=   6 formatos={'zip': 5, 'vita3k-app': 1}
+      ex.: eec1e9a65da4c255fa512757  Dengeki Bunko: Fighting Climax  .zip
+  dreamcast              n=   5 formatos={'cdi': 1, 'chd': 4}
+      ex.: ce0f58274fb598ecb2ec88bf  Capcom vs. SNK Fan Disc (Japan) (Translated En)  .cdi
+  amiga                  n=   4 formatos={'zip': 4}
+      ex.: 2214c3990f34cae7ff468e4a  Street Fighter II - The World Warrior (1992)(U.S. Go  .zip
+  nintendo-console       n=   2 formatos={'iso': 1, 'rvz': 1}
+      ex.: 487f4ba69cad1a5bbc9c7b4c  Legend of Zelda, The - Twilight Princess (USA)  .iso
+  wii-u                  n=   2 formatos={'wua': 2}
+      ex.: 25e7f2c23311057f22000a2d  Nano Assault Neo (US)  .wua
+  playstation-4          n=   2 formatos={'pkg': 2}
+      ex.: 7a01d30c9f6066c3a4c2ecde  PS4_Bloodborne_Game_of_the_Year_Edition_CUSA03173_01  .pkg
+  zx-spectrum            n=   1 formatos={'zip': 1}
+      ex.: ff57999ecd4335125cca627c  ChaseH.Q.(TheHitSquad).tzx  .zip
+  xbox-360               n=   1 formatos={'iso': 1}
+      ex.: 60a48b11d2a8b735adc5c749  FoRZA HORIzon 2 RGX360ART  .iso
+  xbox                   n=   1 formatos={'iso': 1}
+      ex.: 34975ae97b0069663218efea  Outrun 2006 Coast 2 Coast - [Pal Multi 5] Xbox  .iso
+  playstation-3          n=   1 formatos={'iso': 1}
+      ex.: d020a6e215c4af8dd862b978  Ratchet & Clank - A Crack in Time (Europe) (En,Fr,De  .iso
+  neo-geo-cd             n=   1 formatos={'unknown': 1}
+      ex.: 6eb1ac6ba8e2855bde846022  Samurai Spirits - Tales of the Bushido (Japan) [T-En  .unknown
+  three-do               n=   1 formatos={'chd': 1}
+      ex.: 035f65265689f043a88eb025  Yu Yu Hakusho (Japan)  .chd
+
+json: /home/misael/Projects/Steam Zero/Canonical/2026-09-21/docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/json/library-launchable.json

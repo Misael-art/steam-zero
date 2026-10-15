@@ -1,0 +1,2 @@
+2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18  /home/misael/.local/share/steamzero/journeys/active.json
+d7c114f9548712f3ba2ee269735aa1a078d8eaf131c1c93c8cd619440ab1b53f  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-4095b915.journey.json

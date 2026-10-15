@@ -125,6 +125,9 @@ Window {
 
     property bool sessionPollPending: false
     property int launchGeneration: 0
+    // Último estado de sessão observado pelo polling: a transição dele é o que
+    // republica as capacidades do rodapé (D-12), sem depender do "Atualizar".
+    property string lastPolledSessionState: ""
     // requestId do POST atual: é ele que autoriza o shell a aceitar uma falha
     // sem sessionId — resposta de tentativa antiga não altera pedido novo.
     property string launchRequestId: ""
@@ -358,6 +361,19 @@ Window {
             try {
                 const observation = JSON.parse(text)
                 shell.observeSession(observation)
+                // D-12: o rodapé consome o snapshot de /model tirado antes do
+                // lançamento; sem isto, Pausar/Salvar/Sair nascem desabilitados
+                // e só o botão "Atualizar" os habilitaria. A transição de
+                // estado observada pelo polling é o evento que republica as
+                // capacidades da sessão observada.
+                const observedState = String(observation.state || "")
+                if (observedState !== root.lastPolledSessionState) {
+                    root.lastPolledSessionState = observedState
+                    if (!root.journeyLaunchActive && journeyLoader.item
+                            && root.model && root.model.journey
+                            && root.model.journey.active === true)
+                        journeyLoader.item.refresh()
+                }
                 // A terminal session owns the return transition. The OSD is a
                 // child surface of the old session and must not remain over
                 // the restored home after the emulator has closed.
@@ -370,11 +386,16 @@ Window {
         })
     }
 
-    function restoreJourneyAfterLaunch() {
+    function restoreJourneyAfterLaunch(launchError) {
         root.journeyLaunchActive = false
         if (root.model && root.model.journey && root.model.journey.active === true) {
             root.journeyOverlayVisible = true
             if (journeyLoader.item) {
+                // D-08: a recusa estruturada do lançamento (code, motivo,
+                // impacto e a única ação que resolve) tem de sobreviver à
+                // restauração da sobreposição — o refresh seguinte a publica.
+                if (launchError !== undefined && String(launchError) !== "")
+                    journeyLoader.item.showLaunchError(String(launchError))
                 journeyLoader.item.refresh()
                 journeyLoader.item.forceActiveFocus()
             }
@@ -579,7 +600,13 @@ Window {
                     "lastPlayed": null,
                     "initialFocus": "action:play",
                     "actions": [
-                        {"id": "play", "focusId": "action:play", "label": qsTr("Jogar"),
+                        // D-19: o rótulo da ação de lançar carrega o título do
+                        // jogo. A página de ação do LauncherGamePage publica
+                        // `Accessible.name: modelData.label`, então "Jogar
+                        // <título>" vale para a árvore AT-SPI e para a tela —
+                        // e não colide mais com o controle da jornada.
+                        {"id": "play", "focusId": "action:play",
+                         "label": qsTr("Jogar %1").arg(String(item.title || item.id)),
                          "enabled": true, "reason": ""}
                     ]
                 }
@@ -817,10 +844,10 @@ Window {
                                           // a única fonte de confirmação.
                                           root.pollSession()
                                       } else {
-                                          launcherShell.failLaunch(
-                                              root.launchErrorText(status, text))
+                                          const launchDetail = root.launchErrorText(status, text)
+                                          launcherShell.failLaunch(launchDetail)
                                           if (root.journeyLaunchActive)
-                                              root.restoreJourneyAfterLaunch()
+                                              root.restoreJourneyAfterLaunch(launchDetail)
                                       }
                                   })
                 }
@@ -880,7 +907,8 @@ Window {
             root.dispatchSessionOverlayAction(actionId, slot)
         }
         onDiscRequested: function(discId) {
-            root.dispatchSessionOverlayAction("disc", undefined, discId)
+            // D-28: o id publicado é o id que o canal aceita (`swapDisc`).
+            root.dispatchSessionOverlayAction("swapDisc", undefined, discId)
         }
         onCloseRequested: root.closeSessionOverlay()
         onAppearanceStageRequested: function(stageId) {

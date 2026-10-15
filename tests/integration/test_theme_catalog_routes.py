@@ -190,3 +190,30 @@ def test_installing_a_theme_outside_the_catalog_is_refused(
     with pytest.raises(SteamZeroError) as excinfo:
         dashboard.theme_catalog_install("org.esde.slick")
     assert excinfo.value.code == "E-THEME-NOT-FOUND"
+
+
+def test_packaged_builtin_aura_is_visible_to_the_editor_without_a_host_copy(
+    dashboard: DesktopDashboard,
+) -> None:
+    """D-24: o AURA do pacote aparece no catálogo e abre no editor com a
+    paleta própria mesmo quando XDG_DATA_HOME é um tmp vazio.
+
+    A visibilidade vem do recurso empacotado (importlib.resources), não de uma
+    cópia em ``~/.local/share/steamzero/themes`` — esconder o defeito copiando
+    o tema para o estado do usuário é exatamente o que esta trava impede.
+    """
+    from steamzero.core import paths
+
+    assert list(paths.themes_dir().iterdir()) == []
+
+    entry = next(item for item in dashboard.theme_list() if item["id"] == "org.steamzero.aura")
+    assert entry["origin"] == "builtin"
+    assert entry["compatible"] is True
+    assert entry["state"] == "available"
+
+    opened = dashboard.editor_load("org.steamzero.aura")
+    preview = opened["preview"]
+    assert isinstance(preview, dict)
+    resolved = preview["resolved"]
+    assert isinstance(resolved, dict)
+    assert resolved["color"]["background"] == "#0b1020"

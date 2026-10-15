@@ -1,0 +1,39 @@
+keys.import — publicacao divergente entre superficies (medicao no checkpoint T14)
+==================================================================================
+Data: 2026-10-15 · HEAD: bb10331d · arvore congelada (nenhum codigo alterado nesta fase)
+Origem: achado IMPORTANT da revisao da Tarefa 6 (D-27), com acao adiada para este checkpoint.
+
+O que mede
+----------
+O invariante aprovado na Tarefa 6 ("um id, um valor de `enabled` entre superficies") foi
+aplicado aos dois ids nomeados do portao D-27 (`requirements.verify`, `firmware.import`).
+O revisor registrou que `keys.import` e da MESMA classe de defeito, fora dos ids nomeados,
+e que a mensagem de commit "uma publicacao por id" nao pode ser lida como invariante geral
+enquanto `keys.import` divergir. Medicao no HEAD desta branch:
+
+- Superficie 1 — dominio (read-model da Central):
+  `src/steamzero/domain/emulation_workspace.py:673-678` publica
+  `_action("keys.import", ..., enabled=False, reason="Importacao pela interface ainda nao
+  esta conectada ao servico.")`.
+- Superficie 2 — adapter emulacao (cartoes de plataforma):
+  `src/steamzero/adapters/emulation.py:5695-5702` publica `keys.import` via `_action` sem
+  argumento `enabled`; o default de `_action` e `enabled: bool = True`
+  (`src/steamzero/adapters/emulation.py:10186-10190`).
+- Rotas de tratamento no adapter: `emulation.py:3316` (`elif action == "keys.import":`)
+  — a rota existe; o `enabled=False` do dominio e a publicacao `True` do adapter coexistem.
+
+Por que o censo nao sinaliza como contradicao
+----------------------------------------------
+O rollup `mesmo id com enabled contraditorio` do Eixo B (sz_censo.py) compara as publicacoes
+que caem nas suas tabelas fixas; em baseline e pos-lote ele lista apenas `nsz.install`
+(`logs/00-baseline-censo.txt:44`, `logs/10-censo-pos-lote.txt:35`). `keys.import` aparece em
+`publicados com enabled=false — ausencia auto-declarada` (linha de dominio) sem o par do
+adapter na mesma tabela — a limitacao do harness arquivado e declarada, nao corrigida
+(integridade de evidencia; Ruling P10).
+
+Decisao governada
+-----------------
+Registrado como item de status proprio (`docs/status/items/keys-import-publicacao-2026-10-15.json`,
+SZ-EMULATION-KEYS-IMPORT-UNIFICATION), estagio planned/none — a unificacao exige decisao de
+produto (import via UI conectada ou nao) e nao e escopo deste lote. Linha aberta na matriz da
+Tarefa 15. Nenhuma edicao de codigo nesta fase (Fase 1 com src/ tools/ tests/ congelados).

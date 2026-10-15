@@ -1,0 +1,22 @@
+comando: readlink -f /opt/steamzero/current
+/opt/steamzero/releases/2.0.0rc1-1470cf48bf7d
+
+comando: /usr/local/sbin/steamzero-host converge --expect-release 2.0.0rc1-1470cf48bf7d (prova de idempotencia, pos-transacao)
+{"data": {"activatedRelease": "2.0.0rc1-1470cf48bf7d", "attempts": 0, "daemon": {"contractVersion": "2.0", "daemonVersion": "2.0.0rc1", "identity": {"packageVersion": "2.0.0rc1", "releaseId": "2.0.0rc1-1470cf48bf7d", "sourceCommit": "1470cf48bf7df4abdb3876176a7965f81e7c4455", "sourceDirty": false}, "pid": 3479774, "transport": "unix-peercred"}, "detail": "daemon 3479774 confirmou release e executável '2.0.0rc1-1470cf48bf7d'", "expectedRelease": "2.0.0rc1-1470cf48bf7d", "restarted": false, "state": "converged"}, "ok": true}
+
+comando: /usr/local/bin/steamzero doctor
+doctor run: degraded
+  [pass] runtime.python: Python 3.14.7
+  [pass] runtime.provenance: 2.0.0rc1-1470cf48bf7d
+  [pass] service.generation: daemon na release ativada 2.0.0rc1-1470cf48bf7d
+  [pass] state.layout: pastas de estado presentes
+  [pass] state.db.integrity: integrity_check ok
+  [pass] jobs.stale: nenhum job stalado
+  [pass] staging.orphan: nenhum staging órfão
+  [warn] backup.orphan: 9 backup(s) sem operação no banco
+  [warn] journal.orphan: 9 journal(is) sem operação no banco
+  [pass] recovery.pending: 0 operação(ões) não-terminal(is) no journal
+  [warn] deck.input.keys: botões do Deck chegam como teclas: não; considere InputPlumber
+  [warn] boot.direct: unknown: Sem permissão para inspecionar a configuração de boot.
+
+manifest.json (resumo): release=2.0.0rc1-1470cf48bf7d sourceCommit=1470cf48bf7df4abdb3876176a7965f81e7c4455 previousRelease=2.0.0rc1-2b7eb541b4a5 wheelSha256=155158b4dae9dee36eb7cf81aeda428713af1ac8039558f57b32ec921ce4ca3b requirementsSha256=33c7f069591207278a82da262ecbe7a54f161b9d047774c8776f1cb9ab251da0 wheelhouseRunId=38787511945 installedAt=2026-10-15T19:09:37.618218+00:00

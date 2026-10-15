@@ -11,9 +11,9 @@
   "extends": "org.steamzero.default",
   "tokens": {
     "color": {
-      "accent": "#1b9e4a",
+      "accent": "#157a39",
       "accentStrong": "#0f6a30",
-      "focus": "#1b9e4a"
+      "focus": "#1b9b49"
     }
   },
   "assets": {}

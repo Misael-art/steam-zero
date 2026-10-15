@@ -1,0 +1,12 @@
+{
+ "http": 409,
+ "body": {
+  "error": {
+   "code": "LAUNCHER-LAUNCH-FAILED-001",
+   "cause": "Não foi possível preparar o lançamento.",
+   "impact": "O Launcher não confirmou o início do jogo.",
+   "diagnosticId": "01M50K2B2BAVPZ8DZXASDG880B",
+   "nextAction": "Consulte o diagnóstico 01M50K2B2BAVPZ8DZXASDG880B em /home/misael/.local/state/steamzero/logs/core.jsonl e tente novamente."
+  }
+ }
+}

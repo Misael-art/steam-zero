@@ -1,0 +1,58 @@
+Auditoria de capturas — manifest.tsv × disco × sha256
+=====================================================
+Comando de reconciliação (reprodutível, dentro de capturas/):
+  ls -1 *.png | wc -l                                   -> 83 arquivos
+  wc -l manifest.tsv                                    -> 86 linhas
+  cortando a coluna 3: 83 nomes distintos, 0 nomes sem arquivo, 0 arquivos sem linha
+  cortando a coluna 4: 68 sha256 distintos  ->  18 linhas são repetições de imagem
+
+Correção feita ao registrar esta auditoria: 12 PNGs estavam em disco SEM linha no manifest
+(J28-combo-realce-aura, L01-launcher-menu-aura, L05-faceta-genero-aberta e os 9 probe-*).
+Foram acrescentados com timestamp = mtime do arquivo, release, sha256 e resolução. Antes disso
+o manifest tinha 74 linhas para 71 arquivos — ou seja, a contagem "83 capturas" usada em
+logs/13 e logs/14 só passou a ser conferível agora.
+
+Duas linhas com resolução 7018x2160 (J28-combo-realce-aura, probe-tela-cheia): captura do
+compositor com mais de um monitor; não são prova de janela única.
+
+13 grupos de imagem repetida (18 linhas redundantes). O que cada repetição custa por critério:
+
+  4988b8fe…  00-apos-seta · 00-foco-confirmado · probe-c-antes · probe-inicio-antes-tab
+    → é a BASE do achado de logs/03: setas injetadas com foco confirmado não mudaram um pixel.
+       Aqui a repetição É a evidência.
+  ffef990d…  probe-antes-input · probe-antes-seta · probe-depois-input
+    → sonda pré-harness; sem peso de critério.
+  6f3d4aed…  J00-temas-foco · J01-aba-temas
+    → o clique na aba "Temas" não alterou a imagem; a navegação até o Studio é provada pelos
+       passos seguintes (J02…J05), não por este par.
+  c3819bff…  J19-reabrir-outra-jornada · J23-selecionada-bateria
+    → B-4/B-5: a tela é a mesma nos dois momentos; a reabertura fica provada pelo conteúdo do
+       editor descrito em logs/06 e pelo JSON, não por diferença de pixels entre essas duas.
+  bee986e2…  L20-jogos-mega-drive · L22-acoes-de-sessao-ativas
+    → LIMITE REAL: "ações de sessão ativas" não se distinguem em pixels da lista simples.
+       A habilitação real das ações está provada pela árvore AT-SPI
+       (logs/json/acessibilidade-lancador-sessao.txt), não pela captura.
+  68720fc9…  L05-faceta-genero-aberta · L06-faceta-desconhecido-aplicada
+    → LIMITE REAL em B-6: abrir a faceta e aplicar "Desconhecido" renderizam igual. A
+       distinção vem dos read-models (J-current-jogos.json resultCount 4 ×
+       J-volta-generos.json groups [{genre:null,count:4}]).
+  65dcf867…  L07-faceta-genero-valor · L10-voltou-generos
+    → mesmo padrão: valor de faceta e retorno ao menu anterior na mesma imagem.
+  172bf9eb…  L08-enter-aba-menu · L12-menu-jogos · L14-pos-P-4s · L15-botao-jogar
+    → quatro momentos, um frame. O "P" (jogar) e o toque no botão Jogar não têm prova visual
+       independente; o lançamento em si é provado por event_log + janela RetroArch (L21).
+  bcc7ef04…  L26-depois-de-confirmar-saida · L27-retorno-com-foco-e-rolagem
+    → já conhecido: B-7 fica SEM prova visual.
+  b0463127…  L30-overlay-sessao-gb · L33-sessao-suspensa-apos-save
+    → o overlay e o estado suspenso após o save recusado renderizam igual; a diferença está em
+       logs/json/gb-overlay-pos-save.json × nes3-suspended.json.
+  cb6cd5d7…  L38-apos-ativar · L39-jornada-original-restaurada
+    → B-15: o "ativar" e a leitura final são o mesmo frame; a restauração está provada por
+       sha256 de active.json (logs/14 item 3), não por pixels.
+  ee073463…  L01-launcher-menu-aura · L17-reinicio-plataformas
+  c7627b97…  J30-menu-custom-aura · J31-salvo-menu-aura
+    → o "salvar" não muda a tela; provado pelo hash do sidecar.
+
+Regra aplicada na matriz (README): onde o par de capturas é redundante, a coluna "evidência"
+aponta o read-model ou o event_log como prova e a captura fica como contexto. Nenhuma linha da
+matriz alega "prova visual" com captura duplicada.

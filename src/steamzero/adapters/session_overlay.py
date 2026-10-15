@@ -10,9 +10,15 @@ objeto de gerenciador para executar por conta própria.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from pathlib import Path
 from typing import Any, Protocol, cast
+from urllib.parse import quote
 
+from steamzero.adapters.session_control import (
+    E_SESSION_CHANNEL_SUSPENDED,
+    SAVE_STATE_SLOT_DETAIL,
+)
 from steamzero.domain.save_states import resolve_save_state_gallery, unavailable_gallery
 from steamzero.domain.session_overlay import (
     OSD_ACTIONS,
@@ -32,7 +38,65 @@ DIAG_ACTION_FAILED = "AURA-SESSION-ADAPTER-003"
 DIAG_INVALID_INTENT = "AURA-SESSION-ADAPTER-004"
 DIAG_EXIT_CONFIRMATION_REQUIRED = "AURA-SESSION-ADAPTER-005"
 DIAG_EXIT_PENDING = "AURA-SESSION-ADAPTER-006"
+DIAG_CHANNEL_SUSPENDED = "AURA-SESSION-ADAPTER-007"
+SUSPENDED_CHANNEL_REASON = "A sessão está suspensa; retome antes de salvar."
+SUSPENDED_CHANNEL_DETAIL = "A sessão está suspensa; o pedido não foi enviado ao emulador."
+SUSPENDED_CHANNEL_NEXT_ACTION = "Retome a sessão e tente novamente."
+CHANNEL_SUSPENDED_CAPABILITY_ACTIONS = ("saveState", "loadState", "swapDisc")
+# D-28: comandos e leituras que falam com o emulador vivo. Valem o mesmo gate
+# D-23 da gravação de estado — em árvore parada a recusa é publicada antes do
+# toque, nunca uma oferta que enfileira efeito para depois.
+SUSPENDED_COMMAND_REASON = "A sessão está suspensa; retome antes de enviar um pedido ao emulador."
+CHANNEL_SUSPENDED_COMMAND_ACTIONS = (
+    "mute",
+    "screenshot",
+    "fastForward",
+    "rewind",
+    "listSaveStates",
+    "listDiscs",
+    "listPeripherals",
+)
+EPHEMERAL_ACTION_METHODS = {
+    "mute": "toggle_mute",
+    "screenshot": "take_screenshot",
+    "fastForward": "toggle_fast_forward",
+    "rewind": "step_rewind",
+}
+READ_ACTION_METHODS = {
+    "listSaveStates": "list_save_states",
+    "listDiscs": "list_discs",
+    "listPeripherals": "list_peripherals",
+}
+NO_PORT_REASON = "O adapter desta sessão não oferece esta operação."
+NON_ACTIVE_REASON = "A sessão não está em um estado que aceite pedidos ao emulador."
 MAX_DETAIL_LENGTH = 240
+# D-21: convenção do emulador — a miniatura nasce ao lado do arquivo canônico
+# do estado, com o sufixo .png acrescentado ao nome dado por ``state_path``.
+SAVE_STATE_THUMBNAIL_SUFFIX = ".png"
+
+
+def _state_thumbnail_url(resolver: Callable[[int], Path], slot: int) -> str | None:
+    """Return the real ``file://`` URL of an already-written thumbnail, or None.
+
+    A miniatura é lida pelo caminho que o próprio controle publica (única
+    autoridade de nomenclatura, promovida na D-26); link simbólico, arquivo
+    ausente ou de zero bytes não cruzam a superfície — o fallback do domínio
+    permanece nesse caso. O ``file://`` com percent-encoding segue a mesma
+    forma das capas e fanarts locais (adapters/launcher_media.py)."""
+
+    try:
+        state_file = Path(str(resolver(slot)))
+    except (OSError, ValueError, TypeError):
+        return None
+    candidate = Path(str(state_file) + SAVE_STATE_THUMBNAIL_SUFFIX)
+    try:
+        if candidate.is_symlink() or not candidate.is_file():
+            return None
+        if candidate.stat().st_size <= 0:
+            return None
+    except OSError:
+        return None
+    return "file://" + quote(str(candidate), safe="/")
 
 
 class SessionRecord(Protocol):
@@ -78,6 +142,7 @@ class SessionActionDispatch:
     diagnostic: str | None = None
     detail: str = ""
     confirmed: bool = False
+    next_action: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {
@@ -94,6 +159,8 @@ class SessionActionDispatch:
             result["slot"] = self.slot
         if self.disc_id is not None:
             result["discId"] = self.disc_id
+        if self.next_action:
+            result["nextAction"] = self.next_action
         return result
 
 
@@ -184,10 +251,37 @@ class SessionOverlayAdapter:
                 else gallery.reason or "Nenhum save-state compatível está disponível."
             ),
         }
-        capabilities["disc"] = {
+        capabilities["swapDisc"] = {
             "available": disc_available,
             "reason": "" if disc_available else peripherals.reason,
         }
+        for action_id, method_name in EPHEMERAL_ACTION_METHODS.items():
+            method = getattr(control, method_name, None) if control is not None else None
+            available = callable(method) and state in {"running", "suspended"}
+            reason = (
+                "" if available else (NO_PORT_REASON if not callable(method) else NON_ACTIVE_REASON)
+            )
+            capabilities[action_id] = {"available": available, "reason": reason}
+        for action_id, method_name in READ_ACTION_METHODS.items():
+            method = getattr(control, method_name, None) if control is not None else None
+            available = callable(method) and state in {"running", "suspended"}
+            reason = (
+                "" if available else (NO_PORT_REASON if not callable(method) else NON_ACTIVE_REASON)
+            )
+            capabilities[action_id] = {"available": available, "reason": reason}
+        resume_available = control is not None and state == "suspended"
+        capabilities["resume"] = {
+            "available": resume_available,
+            "reason": "" if resume_available else "A sessão não está suspensa para retomar.",
+        }
+        if state == "suspended":
+            # D-23: o canal de uma árvore parada adia o pedido em vez de recusá-lo.
+            # A superfície publica a recusa antes de a ação parecer alcançável —
+            # foi assim que a "Galeria de saves" travou a sessão da jornada física.
+            for action_id in CHANNEL_SUSPENDED_CAPABILITY_ACTIONS:
+                capabilities[action_id] = {"available": False, "reason": SUSPENDED_CHANNEL_REASON}
+            for action_id in CHANNEL_SUSPENDED_COMMAND_ACTIONS:
+                capabilities[action_id] = {"available": False, "reason": SUSPENDED_COMMAND_REASON}
         result_session = {
             "gameId": game_id,
             "sessionId": session_id or None,
@@ -291,6 +385,25 @@ class SessionOverlayAdapter:
                 intent, control, slot=slot, disc_id=disc_id, confirmed=confirmed
             )
         except Exception as exc:  # boundary: transforma falha de adapter em estado recuperável
+            if getattr(exc, "code", None) == E_SESSION_CHANNEL_SUSPENDED:
+                # Gate D-23 no cliente: o pedido morreu antes do connect, então o
+                # corpo publicado declara a recusa e a única recuperação possível.
+                return SessionActionDispatch(
+                    accepted=False,
+                    game_id=game_id,
+                    session_id=session_id,
+                    operation=intent.operation,
+                    state=_text(
+                        getattr(control.current, "state", None),
+                        fallback=observed_state,
+                        limit=32,
+                    ),
+                    slot=slot,
+                    disc_id=disc_id,
+                    diagnostic=DIAG_CHANNEL_SUSPENDED,
+                    detail=SUSPENDED_CHANNEL_DETAIL,
+                    next_action=SUSPENDED_CHANNEL_NEXT_ACTION,
+                )
             return SessionActionDispatch(
                 accepted=False,
                 game_id=game_id,
@@ -412,7 +525,42 @@ class SessionOverlayAdapter:
             save_available=active and callable(save),
             load_available=active and callable(load),
         )
+        gallery = SessionOverlayAdapter._publish_written_thumbnails(control, gallery)
         return gallery, active and callable(save), gallery.load_available
+
+    @staticmethod
+    def _publish_written_thumbnails(control: SessionControl, gallery: Any) -> Any:
+        """D-21: where the emulator already wrote the PNG, publish its real URL.
+
+        O domínio mantém o allowlist (``asset://``, ``qrc:/``, ``data:image/``)
+        e devolve ``thumbnailFallback=true`` para qualquer caminho de arquivo —
+        é por isso que a miniatura real nunca chegava à superfície. O adapter,
+        que é o dono do arquivo, resolve a URL depois do sanitize: aqui, e só
+        aqui, o ``file://`` de um PNG verificado do próprio estado vira
+        publicação. Sem porta ``state_path`` ou sem arquivo válido, nada muda.
+        """
+
+        if not gallery.entries:
+            return gallery
+        resolver = getattr(control, "state_path", None)
+        if not callable(resolver):
+            return gallery
+        cast_resolver = cast(Callable[[int], Path], resolver)
+        published: list[Any] = []
+        changed = False
+        for entry in gallery.entries:
+            if not entry.thumbnail_fallback:
+                published.append(entry)
+                continue
+            url = _state_thumbnail_url(cast_resolver, entry.slot)
+            if url is None:
+                published.append(entry)
+                continue
+            published.append(replace(entry, thumbnail_url=url, thumbnail_fallback=False))
+            changed = True
+        if not changed:
+            return gallery
+        return replace(gallery, entries=tuple(published))
 
     def _matching_control(self, session_id: str, game_id: str) -> SessionControl | None:
         control = self._resolve_control(session_id, game_id)
@@ -444,7 +592,9 @@ class SessionOverlayAdapter:
             return cast(Callable[..., SessionRecord], method)(confirmed=True)
         if intent.action_id in {"saveState", "loadState"}:
             if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot <= 999:
-                raise ValueError("slot de save-state inválido")
+                # D-20: mesma frase e faixa da rota /journey/event (launcher_ui);
+                # a recusa da rota de sessão não pode dizer algo diferente.
+                raise ValueError(SAVE_STATE_SLOT_DETAIL)
             method = getattr(
                 control,
                 "save_state" if intent.action_id == "saveState" else "load_state",
@@ -456,7 +606,7 @@ class SessionOverlayAdapter:
             if current is None or current.state not in {"running", "suspended"}:
                 raise ValueError("a sessão não está disponível para save-state")
             return cast(Callable[[int], SessionRecord], method)(slot)
-        if intent.action_id == "disc":
+        if intent.action_id == "swapDisc":
             if not isinstance(disc_id, str) or not disc_id:
                 raise ValueError("disco não informado")
             method = getattr(control, "swap_disc", None)
@@ -466,7 +616,27 @@ class SessionOverlayAdapter:
             if current is None or current.state not in {"running", "suspended"}:
                 raise ValueError("a sessão não está disponível para troca de disco")
             return cast(Callable[[str], SessionRecord], method)(disc_id)
-        if intent.action_id != "pause" or intent.operation not in {"pause", "resume"}:
+        if intent.action_id in EPHEMERAL_ACTION_METHODS:
+            method = getattr(control, EPHEMERAL_ACTION_METHODS[intent.action_id], None)
+            if not callable(method):
+                raise RuntimeError(NO_PORT_REASON)
+            current = control.current
+            if current is None or current.state not in {"running", "suspended"}:
+                raise ValueError(NON_ACTIVE_REASON)
+            return cast(Callable[[], SessionRecord], method)()
+        if intent.action_id in READ_ACTION_METHODS:
+            method = getattr(control, READ_ACTION_METHODS[intent.action_id], None)
+            if not callable(method):
+                raise RuntimeError(NO_PORT_REASON)
+            current = control.current
+            if current is None or current.state not in {"running", "suspended"}:
+                raise ValueError(NON_ACTIVE_REASON)
+            cast(Callable[[], Any], method)()
+            return current
+        if intent.action_id not in {"pause", "resume"} or intent.operation not in {
+            "pause",
+            "resume",
+        }:
             raise ValueError("intent de sessão não allowlisted")
         current = control.current
         if current is None:

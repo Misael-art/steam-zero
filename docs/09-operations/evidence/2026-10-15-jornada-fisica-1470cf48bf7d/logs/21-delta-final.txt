@@ -1,0 +1,9 @@
+# 21-delta-final — S-10 (2026-10-15T17:18:42-03:00) — bateria interrompida: operador humano ativo no desktop
+## journeys — IGUAIS às baselines (nenhuma escrita desta mão):
+2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18  /home/misael/.local/share/steamzero/journeys/active.json
+d7c114f9548712f3ba2ee269735aa1a078d8eaf131c1c93c8cd619440ab1b53f  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-4095b915.journey.json
+81d313df04895d29f57eada940fba01773375d341e1ee2c41e6e0fb808001ae0  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-bc4d258a.journey.json
+  esperado: 2a37d09a… / d7c114f9… / 81d313df… — CONFIRMADO
+## saves: 21 arquivos, conteúdo idêntico ao baseline (diff vazio; ver delta-saves-novos.txt)
+## preferências: theme-preference-v1.json 9491ce13… == baseline — não tocada
+## processos: qml6=0, steamzero-launcher=0, retroarch=0. Janela {05f2e28a} fechada por kdotool windowclose (caminho normal do KWin).

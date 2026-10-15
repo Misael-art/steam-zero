@@ -1,0 +1,120 @@
+# Linha de base pré-lançamento — 2026-10-12T17:16:07-03:00 — release 2.0.0rc1-2b7eb541b4a5
+
+## saves/states por core (slots ocupados)
+### Fuse
+    0 2026-09-22T08:19 .
+    102 2026-09-22T08:19 ..
+### Genesis Plus GX
+    240 2026-09-15T21:57 .
+    102 2026-09-22T08:19 ..
+    8890 2026-09-15T22:00 1969
+    4949 2026-09-15T22:00 1969
+    8893 2026-09-15T21:48 1969
+    4949 2026-09-15T21:48 1969
+### Mesen
+    600 2026-09-21T11:58 .
+    102 2026-09-22T08:19 ..
+    5039 2026-09-16T18:54 '89
+    3411 2026-09-16T18:54 '89
+    1700 2026-09-17T20:31 Aladdin
+    3922 2026-09-17T20:31 Aladdin
+    1525 2026-09-21T11:58 Blaster
+    1498 2026-09-21T11:58 Blaster
+### mGBA
+    0 2026-09-20T01:15 .
+    102 2026-09-22T08:19 ..
+### Opera
+    0 2026-09-22T08:19 .
+    102 2026-09-22T08:19 ..
+### PUAE
+    0 2026-09-20T11:26 .
+    102 2026-09-22T08:19 ..
+### Snes9x
+    504 2026-09-22T08:25 .
+    102 2026-09-22T08:19 ..
+    13210 2026-09-22T08:25 46
+    247 2026-09-22T08:25 46
+    92917 2026-09-16T11:58 Seiken
+    46901 2026-09-16T11:58 Seiken
+
+## árvore de saves: contagem e hash agregado por core
+   Fuse: arquivos=0 agregado=abcfa6a9d4df344d
+   Genesis Plus GX: arquivos=4 agregado=2eb65d3c1348e545
+   Mesen: arquivos=6 agregado=6614023c12a53c04
+   mGBA: arquivos=0 agregado=abcfa6a9d4df344d
+   Opera: arquivos=0 agregado=abcfa6a9d4df344d
+   PUAE: arquivos=0 agregado=abcfa6a9d4df344d
+   Snes9x: arquivos=4 agregado=8878b2b8b518b842
+
+## sram/sav do acervo (memória interna dos jogos)
+/home/misael/.local/share/steamzero/saves
+/home/misael/.local/share/steamzero/saves/states
+/home/misael/.local/share/steamzero/saves/states/.backups
+/home/misael/.local/share/steamzero/saves/states/Fuse
+/home/misael/.local/share/steamzero/saves/states/Genesis Plus GX
+/home/misael/.local/share/steamzero/saves/states/Mesen
+/home/misael/.local/share/steamzero/saves/states/mGBA
+/home/misael/.local/share/steamzero/saves/states/Opera
+/home/misael/.local/share/steamzero/saves/states/PUAE
+/home/misael/.local/share/steamzero/saves/states/Snes9x
+
+## state do launcher (return.json / sessão)
+total 184
+drwx------ 1 misael misael   0 out 10 14:12 .
+drwx------ 1 misael misael 728 out 12 15:45 ..
+
+## jornada ativa + sidecars (sha256)
+54c71d92588705f49780827a977265e71ef5802eb4da0412b6bf73ca60cb5fd7  /home/misael/.local/share/steamzero/journeys/active.json
+d7c114f9548712f3ba2ee269735aa1a078d8eaf131c1c93c8cd619440ab1b53f  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-4095b915.journey.json
+ef92b9f581b0f51d6d0edf38ae45894d10bf1349d81167f2b2cddaffbed602e7  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-bc4d258a.journey.json
+54c71d92588705f49780827a977265e71ef5802eb4da0412b6bf73ca60cb5fd7  /home/misael/.local/share/steamzero/journeys/active.json
+
+## perfis de controle selecionados
+controls profiles: failed
+  erro E-API-SCHEMA: Parâmetro inválido
+    use --platform <id>
+    ação: Corrija o parâmetro indicado e tente novamente.
+
+## recentes/playtime
+playtime list: ok
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-12T20:16:08.504187+00:00",
+  "totalPlayedSeconds": 21649,
+  "games": [
+    {
+      "gameId": "1f40d4d28a0476a35c8bbaeb",
+      "title": "Aladdin (Music Replacement + Button Fix + improvement)",
+      "coverUrl": "",
+      "source": "emulation",
+      "platformId": "nes-famicom",
+      "playedSeconds": 2718,
+      "sessionCount": 10,
+      "lastPlayedAt": "2026-10-10T01:35:38.325075+00:00",
+      "continueState": "ready",
+      "latestSession": {
+        "sessionId": "01M4HQ73PCQ11DZ1E3KHP4TBC0",
+        "state": "closed",
+        "startedAt": "2026-10-10T01:35:38.325075+00:00",
+        "updatedAt": "2026-10-10T01:35:50.811831+00:00",
+        "finishedAt": "2026-10-10T01:35:50.811677+00:00",
+        "playedSeconds": 12,
+        "durationSource": "observed-monotonic",
+        "failureCode": null
+
+## tema ativo
+theme status: ok
+{
+  "activeId": "org.steamzero.01m2qznd",
+  "activeVersion": "1.0.0",
+  "resolved": {
+    "id": "org.steamzero.01m2qznd",
+    "name": "AURA ES-DE Physical",
+    "version": "1.0.0",
+    "author": "Usuário",
+    "license": "MIT",
+    "description": "Tema editorial SteamZero: superfícies mineral mist e mídia contextual resolvida em runtime.",
+    "highContrast": false,
+    "reducedMotion": false,
+    "tokens": {
+      "color": {

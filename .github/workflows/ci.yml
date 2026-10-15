@@ -239,13 +239,18 @@ jobs:
         # A imagem base do Ubuntu não traz libsqlite3, e o Python portátil do
         # setup-python liga dinamicamente contra ela: sem isto o smoke falha em
         # "import sqlite3" com libsqlite3.so.0 ausente. Arch e Manjaro já a
-        # incluem na base, por isso só o Ubuntu reprovava.
+        # incluem na base. Onde falta, a atualização é completa (-Syu): um
+        # "pacman -Sy sqlite" numa imagem pinada por digest faz upgrade
+        # parcial — a libsqlite3 nova dos repositórios exige GLIBC_2.44 que a
+        # glibc velha da imagem não tem (reprovado no run 38767357898).
         run: |
           if command -v apt-get >/dev/null; then
             apt-get update -qq
             apt-get install -y --no-install-recommends libsqlite3-0 ca-certificates
           elif command -v pacman >/dev/null; then
-            pacman -Sy --noconfirm --needed sqlite ca-certificates
+            if ! ldconfig -p | grep -q 'libsqlite3\.so\.0'; then
+              pacman -Syu --noconfirm sqlite ca-certificates
+            fi
           fi
       - name: Python 3.14 portátil
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0

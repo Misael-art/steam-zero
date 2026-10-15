@@ -797,6 +797,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     if isinstance(appearance, Mapping)
                     and appearance.get("mode") == "custom"
                     and isinstance(appearance.get("themeId"), str)
+                    else "org.steamzero.aura"
+                    if isinstance(appearance, Mapping) and appearance.get("mode") == "inherit-aura"
                     else "org.steamzero.default"
                 )
                 if requested_theme_id not in resolved_themes:

@@ -401,7 +401,7 @@ class JourneyStudioService:
             adapter_capabilities=adapter_capabilities,
             operation_requirements=operation_requirements,
         )
-        return {"stages": coverage, "summary": summarize_theme_coverage(coverage)}
+        return {"stages": coverage, "summary": summarize_theme_coverage(coverage, themes=themes)}
 
     def snapshot(self, session_id: str) -> dict[str, Any]:
         with self._lock:

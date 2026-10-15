@@ -1,0 +1,8 @@
+/home/misael/.config/steamzero/retroarch/sessions
+/home/misael/.config/steamzero/retroarch/sessions/01M4FVEK6KCYKJM9BN3EVAE725
+/home/misael/.config/steamzero/retroarch/sessions/01M4FWZ5D28MTJXXA705QQVGJ4
+/home/misael/.config/steamzero/retroarch/sessions/01M4FX6X7YZK9DZ8FKXGA8BG0D
+/home/misael/.config/steamzero/retroarch/sessions/01M4FZRAFNRP7T9X8S7610YR4A
+/home/misael/.config/steamzero/retroarch/sessions/01M4HQ73PCQ11DZ1E3KHP4TBC0
+/home/misael/.config/steamzero/retroarch/sessions/01M4RWDW5187AC8661RVXSW266
+/home/misael/.config/steamzero/retroarch/sessions/01M4RXB8A45DY9NA0C0SX9Y0XD
