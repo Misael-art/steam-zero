@@ -76,11 +76,11 @@ QtObject {
 
     // Cores — alto contraste sobrepõe quando ativo
     readonly property color background: highContrast ? "#000000" : _get("color", "background", "#e7eceb")
-    readonly property color sidebar: highContrast ? "#000000" : _get("color", "sidebar", "#d8dfdf")
+    readonly property color sidebar: highContrast ? "#000000" : _get("color", "sidebar", "#738c8c")
     readonly property color surface: highContrast ? "#000000" : _get("color", "surface", "#f4f7f5")
     readonly property color surfaceRaised: highContrast ? "#1a1a1a" : _get("color", "surfaceRaised", "#ffffff")
     readonly property color surfaceSelected: highContrast ? "#2a2a2a" : _get("color", "surfaceSelected", "#dce8e8")
-    readonly property color border: highContrast ? "#ffffff" : _get("color", "border", "#aebdbe")
+    readonly property color border: highContrast ? "#ffffff" : _get("color", "border", "#728c8e")
     readonly property color text: highContrast ? "#ffffff" : _get("color", "text", "#16212a")
     readonly property color textMuted: highContrast ? "#e8e8e8" : _get("color", "textMuted", "#53616b")
     readonly property color textDisabled: highContrast ? "#aaaaaa" : _get("color", "textDisabled", "#5c6a70")
@@ -154,11 +154,11 @@ QtObject {
     readonly property var _FALLBACK_TOKENS: ({
         "color": {
             "background": "#e7eceb",
-            "sidebar": "#d8dfdf",
+            "sidebar": "#738c8c",
             "surface": "#f4f7f5",
             "surfaceRaised": "#ffffff",
             "surfaceSelected": "#dce8e8",
-            "border": "#aebdbe",
+            "border": "#728c8e",
             "text": "#16212a",
             "textMuted": "#53616b",
             "textDisabled": "#5c6a70",

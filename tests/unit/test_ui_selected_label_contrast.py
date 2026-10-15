@@ -5,11 +5,16 @@ O delegate de seletor troca o fundo para o acento forte quando `checked`. Antes
 ele deixava o rotulo em `textColor`, e no tema claro isso dava 1,95:1 contra os
 4,5 exigidos: dava para adivinhar "Global", nao para ler.
 
-Nenhuma cor FIXA resolve. No tema claro `text` reprova (1,95) e `background`
-passa (7,02); no escuro e o inverso (4,53 contra 3,53). Por isso o QML escolhe,
-entre os dois, o que contrasta mais com o fundo selecionado — e este teste
-prova a regra contra os tokens REAIS de cada tema empacotado, nao contra um
-exemplo escolhido a dedo.
+A regra do QML escolhe, entre `text` e `background`, o que contrasta mais com o
+fundo selecionado, e este teste prova a escolha contra os tokens REAIS de cada
+tema empacotado, nao contra um exemplo escolhido a dedo.
+
+Medida em 2026-10-14, depois da D-29 (aura `accentStrong` #0e7490 -> #1087a7):
+`text` fixo reprova em todo tema claro (1,95 no default; 2,43 no steamdeck) e
+tambem no aura novo (3,52), entao a escolha calculada continua necessaria.
+`background` fixo passou a limpar os 4,5:1 em todos os quatro temas do pacote
+(4,55 e o pior, no aura) — o guarda de nao-vacuidade abaixo pinca esse fato
+nos dois sentidos: se a paleta voltar a escurecer o acento forte, o guarda pega.
 """
 
 from __future__ import annotations
@@ -75,11 +80,16 @@ def test_selected_label_is_legible_in_every_packaged_theme(theme_id: str) -> Non
 
 
 def test_no_fixed_choice_would_work_for_every_theme() -> None:
-    """Por que a escolha e calculada, e nao uma cor fixa.
+    """Por que a escolha continua calculada, e o que a D-29 mudou.
 
-    Se algum dia UMA das duas passar em todos os temas, esta guarda cai e alguem
-    pode simplificar o QML com seguranca. Enquanto ela reprovar, simplificar
-    reintroduz o defeito.
+    Dois fatos pinados nos dois sentidos (medidos em 2026-10-14, apos o
+    `accentStrong` #1087a7 do aura):
+
+    1. `text` fixo reprova em pelo menos um tema empacotado — a escolha
+       calculada nao pode virar cor fixa clara.
+    2. `background` fixo AGORA passa em todos os quatro. Antes da D-29 ele
+       reprovaria no aura (3,53); se alguem escurecer de novo um acento forte
+       do pacote, este assert cai e a conta volta a ser as duas tintas.
     """
     fixed_text_fails: list[str] = []
     fixed_background_fails: list[str] = []
@@ -91,6 +101,7 @@ def test_no_fixed_choice_would_work_for_every_theme() -> None:
         if contrast_ratio(_rgb(colors["background"]), selected) < WCAG_AA_NORMAL:
             fixed_background_fails.append(theme_id)
     assert fixed_text_fails, "usar sempre `text` passaria em todos os temas; simplifique o QML"
-    assert fixed_background_fails, (
-        "usar sempre `background` passaria em todos os temas; simplifique o QML"
+    assert not fixed_background_fails, (
+        f"`background` voltou a reprovar em {fixed_background_fails} (pior par abaixo de "
+        f"{WCAG_AA_NORMAL}:1); o fundo selecionado do pacote saiu do AA medido em 2026-10-14"
     )

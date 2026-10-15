@@ -26,33 +26,12 @@ PAIRS_TEXT = [
 PAIRS_NONTEXT = [("border", "background"), ("sidebar", "background"), ("focus", "background")]
 EXEMPT = {("textDisabled", "background"), ("textDisabled", "surface")}  # WCAG 1.4.3 estado inativo
 
-# Ruling P12: o gate não entra na suíte vermelho. As 11 reprovações medidas em 2026-10-13
-# (logs/04-t8-medicao-gate.txt) ficam pinadas aqui com o valor exato da ratio() abaixo.
-# Queda abaixo do pin é regressão e falha; par fora da lista que reprova o AA é violação nova
-# e falha; pino cujo tema já limpa o AA é pino obsoleto e falha — a Tarefa 9 corrige as
-# paletas e remove as entradas ao restaurar o texto.
-KNOWN_OPEN_AT_MEASURED: dict[str, dict[tuple[str, str], float]] = {
-    # tema do pacote; (fg, bg) -> razão medida
-    "org.steamzero.default": {
-        ("border", "background"): 1.6258628393900012,
-        ("sidebar", "background"): 1.1322487623069288,
-    },
-    "org.steamzero.asset-recipes-demo": {
-        ("border", "background"): 1.6258628393900012,
-        ("sidebar", "background"): 1.1322487623069288,
-    },
-    "org.steamzero.aura": {
-        ("accentStrong", "background"): 3.5336659870477414,
-        ("border", "background"): 1.439037358729696,
-        ("sidebar", "background"): 1.0261876166181085,
-    },
-    "org.steamzero.steamdeck": {
-        ("accent", "background"): 2.914998485406919,
-        ("border", "background"): 1.6258628393900012,
-        ("sidebar", "background"): 1.1322487623069288,
-        ("focus", "background"): 2.914998485406919,
-    },
-}
+# Ruling P12: o gate não entra na suíte vermelho; abertos honestos ficam pinados aqui com o
+# valor exato da ratio() abaixo. Vazio desde 2026-10-14: a Tarefa 9 aplicou a decisão do
+# operador ("FACA EM TODOS", logs/05-decisao-d29.md) e as quatro paletas do pacote limpam o
+# AA por si. Reprovação nova = vermelho; uma entrada só volta a ser adicionada com aprovação
+# explícita do operador.
+KNOWN_OPEN_AT_MEASURED: dict[str, dict[tuple[str, str], float]] = {}
 PIN_TOLERANCE = 1e-9
 
 
@@ -158,28 +137,38 @@ def test_gate_fails_on_a_theme_below_aa_without_a_pin() -> None:
     assert any("violação nova sem pin" in p for p in problems), problems
 
 
-def test_gate_fails_when_a_pinned_pair_regresses() -> None:
-    """Não-vacuidade (b): par pinado que cai abaixo do valor registrado é regressão."""
+def test_gate_fails_when_a_pinned_pair_regresses(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Não-vacuidade (b): par pinado que cai abaixo do valor registrado é regressão.
+
+    A paleta real agora limpa o AA, então o pin é injetado pelo próprio teste
+    (`monkeypatch.setitem`) sobre a razão medida do par corrigido — o ramo de
+    regressão continua exercitado sem depender de pins reais existentes.
+    """
     real = colors(next(p for p in THEMES if p.parent.name == "org.steamzero.default"))
-    pin = KNOWN_OPEN_AT_MEASURED["org.steamzero.default"][("border", "background")]
-    # Empata o luminance do `border` com o do fundo: a razão despenca para ~1,0 (pin é 1,63).
-    regressed = dict(real, border=real["background"])
     current = ratio(real["border"], real["background"])
+    assert current >= NONTEXT, "a paleta corrigida deveria limpar o AA"
+    pin = {("border", "background"): current}
+    monkeypatch.setitem(KNOWN_OPEN_AT_MEASURED, "org.steamzero.default", pin)
+    # Empata o luminance do `border` com o do fundo: a razão despenca para ~1,0.
+    regressed = dict(real, border=real["background"])
     after = ratio(regressed["border"], regressed["background"])
-    assert current >= pin - 1e-9, "baseline mudou; atualize o pino antes de testar regressão"
-    assert after < pin - 1e-9, "a alteração não produziu regressão mensurável"
+    assert after < current - 1e-9, "a alteração não produziu regressão mensurável"
     problems = check_palette("org.steamzero.default", regressed)
     assert any("regressão" in p for p in problems), problems
 
 
-def test_gate_fails_when_a_pinned_pair_now_clears_aa() -> None:
-    """Não-vacuidade (c): par pinado que passa a limpar o AA é pino obsoleto."""
+def test_gate_fails_when_a_pinned_pair_now_clears_aa(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Não-vacuidade (c): par pinado que passa a limpar o AA é pino obsoleto.
+
+    Reproduz o fechamento da Tarefa 9: `border`/`background` do default media ~1,63
+    antes da correção e hoje limpa o AA; reinjetar o pin histórico deve disparar o
+    ramo de pino obsoleto mesmo com a paleta real verde.
+    """
     real = colors(next(p for p in THEMES if p.parent.name == "org.steamzero.default"))
     pair = ("border", "background")
-    assert pair in KNOWN_OPEN_AT_MEASURED["org.steamzero.default"]
-    # `#000000` sobre o fundo claro do default passa folgado o AA não textual (>= 3,0:1).
-    fixed = dict(real, border="#000000")
-    assert ratio(fixed["border"], fixed["background"]) >= 3.0 + 1e-9
-    problems = check_palette("org.steamzero.default", fixed)
+    assert pair not in KNOWN_OPEN_AT_MEASURED.get("org.steamzero.default", {})
+    assert ratio(real["border"], real["background"]) >= NONTEXT + 1e-9
+    monkeypatch.setitem(KNOWN_OPEN_AT_MEASURED, "org.steamzero.default", {pair: 1.6258628393900012})
+    problems = check_palette("org.steamzero.default", real)
     assert any("pin obsoleto" in p for p in problems), problems
     assert not any("regressão" in p or "violação nova" in p for p in problems), problems

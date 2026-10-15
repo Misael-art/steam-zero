@@ -72,11 +72,11 @@ def merge_scene_surface_books(
 @dataclass(frozen=True)
 class ThemeColorTokens:
     background: str = "#e7eceb"
-    sidebar: str = "#d8dfdf"
+    sidebar: str = "#738c8c"
     surface: str = "#f4f7f5"
     surfaceRaised: str = "#ffffff"
     surfaceSelected: str = "#dce8e8"
-    border: str = "#aebdbe"
+    border: str = "#728c8e"
     text: str = "#16212a"
     textMuted: str = "#53616b"
     textDisabled: str = "#5c6a70"

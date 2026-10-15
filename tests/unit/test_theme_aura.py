@@ -52,7 +52,7 @@ class TestAuraIdentity:
         assert resolved.color.textMuted == "#8b93a8"
         assert resolved.color.accent == "#22d3ee"
         assert resolved.color.focus == "#22d3ee"
-        assert resolved.color.border == "#262f4d"
+        assert resolved.color.border == "#4c5d99"
 
     def test_aura_inherits_default_geometry_and_recipes(self) -> None:
         resolved = ThemeCatalog().resolve(AURA_ID)
