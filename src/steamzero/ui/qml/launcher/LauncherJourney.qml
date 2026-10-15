@@ -410,8 +410,13 @@ FocusScope {
             }
             Button {
                 objectName: "journeyPlay"
-                text: qsTr("Jogar")
+                // D-19: "Jogar" aqui e "Jogar <título>" na página de jogo eram
+                // uma armadilha de foco — a árvore AT-SPI não dizia qual
+                // control ativa o quê. A jornada retoma o fluxo em andamento,
+                // então nomeia-se pelo fluxo, visível e acessível.
+                text: qsTr("Continuar jornada")
                 Accessible.name: text
+                Accessible.description: qsTr("Retomar o jogo a partir da jornada atual")
                 visible: journey.supportsEvent("play")
                 enabled: !journey.busy && journey.activeItem !== null
                     && !!journey.activeItem.gameId

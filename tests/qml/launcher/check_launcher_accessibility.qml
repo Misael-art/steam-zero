@@ -48,6 +48,45 @@ Item {
         sections: harness.sections
     }
 
+    // D-19: dois controles chamados "Jogar" na mesma janela são armadilha de
+    // foco — a árvore AT-SPI não distingue qual ativa o quê. Os nomes
+    // acessíveis de ativação das duas superfícies reais da janela (página de
+    // jornada e página de jogo) precisam ser distinguíveis e únicos por janela.
+    // A prova usa as superfícies do produto, não réplicas de string.
+    readonly property var journeyView: ({
+        "active": true, "journeyId": "d19-prova", "menuId": "games",
+        "menuName": "Jogos", "generation": 0, "resultCount": 1, "totalCount": 1,
+        "items": [{"id": "emulation:celeste", "gameId": "celeste", "title": "Celeste"}],
+        "availableEvents": [{"event": "play", "connectionId": "games-play",
+                             "action": "launch", "label": "Jogar"}],
+        "facets": [], "sessionCapabilities": ({}), "canGoBack": false
+    })
+
+    readonly property var mainModel: ({
+        "focusMap": harness.focusMap,
+        "sections": harness.sections,
+        "catalogSummary": {},
+        // Sem esta chave o Loader da jornada avalia `undefined` para a
+        // propriedade bool `active` e o driver reprova o harness pelo
+        // diagnóstico "Unable to assign". A cena D-19 não usa a jornada
+        // embutida: a sonda de jornada é o LauncherJourney montado acima.
+        "journey": {"active": false},
+        "returnContext": null
+    })
+
+    LauncherJourney {
+        id: journeyProbe
+        objectName: "d19JourneyProbe"
+        visible: false
+        anchors.fill: parent
+        view: harness.journeyView
+    }
+
+    Component {
+        id: mainSceneComponent
+        LauncherMain {}
+    }
+
     function highContrastPayload() {
         return ({"highContrast": true, "visualScale": 1.0, "reducedMotion": false})
     }
@@ -99,6 +138,45 @@ Item {
             harness.check(home._hc("#8b93a8", "#c6d0db") === "#8b93a8",
                           "desligar highContrast restaura a cor muted original")
 
+            // D-19: unicidade por janela sobre as duas superfícies de ativação.
+            var journeyPlay = harness.findByObjectName(journeyProbe, "journeyPlay")
+            harness.check(journeyPlay !== null,
+                          "a página de jornada precisa publicar seu controle de jogar")
+            var journeyName = journeyPlay === null ? "" : String(journeyPlay.Accessible.name)
+
+            var gameName = ""
+            var scene = mainSceneComponent.createObject(harness)
+            harness.check(scene !== null,
+                          "a cena do Launcher precisa instanciar para a prova D-19")
+            if (scene !== null) {
+                scene.model = harness.mainModel
+                var page = scene._resolveGamePage("celeste")
+                harness.check(page !== null && page.actions.length === 1,
+                              "a página de jogo precisa publicar a ação de lançar")
+                if (page !== null && page.actions.length === 1)
+                    gameName = String(page.actions[0].label)
+                scene.destroy()
+            }
+
+            harness.check(journeyName === "Continuar jornada",
+                          "D-19: a jornada nomeia a ação pelo fluxo; obteve \"" + journeyName + "\"")
+            harness.check(gameName === "Jogar Celeste",
+                          "D-19: a página de jogo nomeia a ação com o título; obteve \"" + gameName + "\"")
+
+            var names = [journeyName, gameName]
+            for (var n = 0; n < names.length; ++n) {
+                harness.check(names[n] !== "",
+                              "D-19: nome acessível vazio é armadilha de foco")
+                for (var m = n + 1; m < names.length; ++m)
+                    harness.check(names[n] !== names[m],
+                                  "D-19: dois controles ativáveis compartilham \"" + names[n]
+                                  + "\" na mesma janela")
+            }
+            harness.check(names.indexOf("Jogar") === -1,
+                          "D-19: o nome ambíguo \"Jogar\" puro não pode permanecer na janela")
+
+            console.log("check_launcher_accessibility: " + harness.checkIndex
+                        + " verificações, " + harness.failures + " falhas")
             Qt.exit(harness.failures === 0 ? 0 : 1)
         }
     }

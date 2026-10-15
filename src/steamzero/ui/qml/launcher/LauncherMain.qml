@@ -600,7 +600,13 @@ Window {
                     "lastPlayed": null,
                     "initialFocus": "action:play",
                     "actions": [
-                        {"id": "play", "focusId": "action:play", "label": qsTr("Jogar"),
+                        // D-19: o rótulo da ação de lançar carrega o título do
+                        // jogo. A página de ação do LauncherGamePage publica
+                        // `Accessible.name: modelData.label`, então "Jogar
+                        // <título>" vale para a árvore AT-SPI e para a tela —
+                        // e não colide mais com o controle da jornada.
+                        {"id": "play", "focusId": "action:play",
+                         "label": qsTr("Jogar %1").arg(String(item.title || item.id)),
                          "enabled": true, "reason": ""}
                     ]
                 }
