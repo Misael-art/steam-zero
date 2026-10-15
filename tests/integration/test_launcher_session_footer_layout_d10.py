@@ -17,6 +17,13 @@ régua agora também recusa passe falso: a saída do qmltestrunner precisa mostr
 que a função de medição foi realmente localizada e executada (linha PASS
 específica + totais sem falha). Um harness quebrado reprova alto; xfail
 silencioso não é mais opção.
+
+Segundo re-pin (após o CI): a asserção "largura >= implícita de linha única"
+passava no host mas reproduzia falso-corte no Qt 6.11.2 do CI (implícita 876 >
+alocada 866) — métrica de fonte é ambiente. A régua passa a medir o defeito em
+qualquer ambiente: sem elisão, sem clip, quebra de linha real assumida pelo
+produto, altura cobrindo o texto quebrado por inteiro e a faixa dentro da
+janela.
 """
 
 from __future__ import annotations

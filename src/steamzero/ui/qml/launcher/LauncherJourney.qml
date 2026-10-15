@@ -665,8 +665,10 @@ FocusScope {
         // linha com a linha de atalhos inteira (~392px) e as seis ações de
         // sessão (~502px) — no RowLayout antigo o Label era esmagado a 263px.
         // O rodapé passa a grid: a linha de atalhos ocupa a primeira linha
-        // inteira (elide nenhuma, corte nenhum) e as ações de sessão ocupam a
-        // linha seguinte, todas visíveis. Nada foi escondido para caber.
+        // inteira e as ações de sessão ocupam a linha seguinte, todas
+        // visíveis. Onde as métricas de fonte pedem mais largura do que a
+        // linha disponível (ex.: Qt 6.11 do CI), o Label quebra de verdade —
+        // elisão ou clip apenas esconderiam o corte, nunca o corrigem.
         GridLayout {
             objectName: "journeyFooter"
             Layout.fillWidth: true
@@ -680,6 +682,7 @@ FocusScope {
                 color: journey.mutedColor
                 Layout.fillWidth: true
                 Layout.columnSpan: 6
+                wrapMode: Text.WordWrap
             }
             Repeater {
                 model: journey.sessionEvents

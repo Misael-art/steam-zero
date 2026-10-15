@@ -2,20 +2,18 @@
 // Copyright (C) 2026 SteamZero contributors
 //
 // Golden objetivo do D-10: com as seis ações de sessão visíveis, a linha de
-// atalhos do rodapé precisa caber inteira — sem corte e sem elisão. A
-// evidência da jornada física (capturas L22/L24, janela 1280x801 física com
-// escala de interface 1.5 — o viewport lógico medido na captura é 853x534,
-// onde "Pausar" nasce em ~94px lógicos e a linha de atalhos é cortada em
-// "...· Açõe") mostrou o texto truncado quando Pausar/Retomar/Abrir saves/
-// Salvar estado/Carregar estado/Sair do jogo aparecem. As asserções medem o
-// nó da própria linha de atalhos: largura real >= largura implícita,
-// elide == Text.ElideNone (elisão não é correção — esconde em vez de caber)
-// e o extremo direito do texto dentro da janela. Não há inspeção subjetiva
-// de captura aqui.
-//
-// A correção pertence ao RowLayout do rodapé em LauncherJourney.qml —
-// superfície reservada à Tarefa 13. Este harness é o portão que avisa quando
-// ela aterrissar (XPASS strict re-pina a régua).
+// atalhos do rodapé precisa caber inteira — sem corte, sem elisão e sem
+// transbordar para fora da janela. A evidência da jornada física (capturas
+// L22/L24, janela 1280x801 física com escala de interface 1.5 — o viewport
+// lógico medido na captura é 853x534) mostrou o texto truncado quando
+// Pausar/Retomar/Abrir saves/Salvar estado/Carregar estado/Sair do jogo
+// aparecem. A correção pousou em b2d9ee92 (rodapé em grid de duas linhas); a
+// re-execução no CI (Qt 6.11.2, métricas de fonte maiores: implícita 876 >
+// alocada 866) provou que a régua "largura >= implícita de uma linha" é
+// dependente do ambiente. O portão passa a medir o que o defeito fere em
+// qualquer ambiente: elide == Text.ElideNone, sem clip, quebra de linha real
+// assumida pelo produto, altura que cobre o texto quebrado por inteiro e a
+// faixa dentro da janela. Não há inspeção subjetiva de captura aqui.
 import QtQuick
 import QtQuick.Controls
 import QtTest
@@ -111,21 +109,30 @@ Item {
             // Elision nunca é uma correção para o D-10: o objetivo é CABER.
             verify(shortcut.elide === Text.ElideNone,
                    "a linha de atalhos não pode ser elidida para esconder o corte")
-            // clip true apenas esconderia o problema; sem clip, o texto
-            // transborda sobre os botões. O portão exige que caiba.
-            verify(!shortcut.clip || shortcut.width >= shortcut.implicitWidth,
-                   "com clip, a largura ainda precisa acomodar o texto inteiro")
-
-            // Medida objetiva: o layout deu à linha de atalhos pelo menos a
-            // largura que ela pede (a jornada física media o corte aqui).
-            verify(shortcut.width + 0.5 >= shortcut.implicitWidth,
-                    "D-10: a linha de atalhos fica cortada quando as ações de sessão aparecem ("
-                    + "largura medida " + shortcut.width + " < implícita " + shortcut.implicitWidth + ")")
+            // clip true apenas esconderia o problema. O portão exige caiba.
+            verify(!shortcut.clip,
+                   "a linha de atalhos não pode ser recortada por clip")
+            // Quebra de linha real: com métricas de fonte maiores (ex.: o Qt
+            // 6.11 do CI), a linha inteira não cabe em uma única faixa — sem
+            // wrapMode o texto transbordaria sobre os botões (o corte do D-10
+            // é exatamente transbordar/esconder). O golden exige que o produto
+            // assuma a quebra.
+            verify(shortcut.wrapMode !== Text.NoWrap,
+                   "a linha de atalhos precisa quebrar quando não cabe em uma linha")
+            // Medida objetiva de "cabe inteira": com a quebra ativa, o
+            // implicitHeight já reflete o texto renderizado em N linhas na
+            // largura dada; a altura real precisa cobri-la. Não há inspeção
+            // subjetiva de captura: transbordar verticalmente também é corte.
+            verify(shortcut.height + 0.5 >= shortcut.implicitHeight,
+                   "D-10: a linha de atalhos não é renderizada por inteira ("
+                   + "altura " + shortcut.height + " < implícita " + shortcut.implicitHeight + ")")
 
             // O texto inteiro precisa permanecer dentro da janela 1280x801.
             const origin = shortcut.mapToItem(harness, Qt.point(0, 0))
-            verify(origin.x + shortcut.implicitWidth <= harness.width + 0.5,
-                   "D-10: o fim da linha de atalhos ultrapassa a janela no viewport lógico 853x534")
+            verify(origin.x >= -0.5
+                    && origin.x + shortcut.width <= harness.width + 0.5,
+                   "D-10: a faixa da linha de atalhos ultrapassa a janela no viewport lógico 853x534 ("
+                   + "origem " + origin.x + ", fim " + (origin.x + shortcut.width) + ")")
         }
     }
 }
