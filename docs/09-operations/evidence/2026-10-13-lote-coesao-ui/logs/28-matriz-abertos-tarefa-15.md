@@ -55,8 +55,22 @@ confinada a `tmp_path` por monkeypatch de `paths.saves_dir`); **M-7** (renomeado
 `test_fixed_text_choice_fails_a_theme_while_background_holds` — o nome antigo era literalmente
 falso após a D-29); **M-14** (convenção da colisão de índice 21 registrada no README da rodada
 2026-10-15); **M-16** (ponteiro inline na linha superada de `logs/03-decisao-d23.md`);
-**M-17** (linha acima). Ficam estacionados sem código neste checkpoint: M-1…M-4, M-6, M-8…M-13
-e M-18 — cada um com adjudicação ou diferimento do ledger citados no próprio `logs/29`.
+**M-17** (linha acima). Ficam estacionados sem código neste checkpoint: M-1…M-4, M-6,
+M-8…M-13, M-15 e M-18 — cada um com adjudicação ou diferimento do ledger citados no próprio
+`logs/29`.
+
+**Re-revisão escopada da remediação (2026-10-15)** — um revisor read-only verificou o batch acima
+contra os findings: I-1, M-5, M-7, M-14, M-16 e M-17 **ADDRESSED**, sem quebra crítica, sem
+asserção enfraquecida e sem colisão de posse no novo `scopePaths`. Quatro residuais de prosa foram
+abertos e corrigidos no mesmo checkpoint: a frase de completude contava «as dez» quando a própria
+enumeração dá **onze** linhas que nomeiam origem — (1), (2), (3), (4), a série (5) nas suas três
+linhas (5a)/(5b)/(5c), (6) e as retrospectivas (9), (10), (11), com (5) como cabeçalho de série e
+(7)/(8) sem origem ativa; o handoff novo do cartão JCT estava inserido no meio do bloco (5a) e
+duplicava a frase de devolução; M-15 faltava na lista de estacionados acima; e o cartão cedente JLS
+citava as unidades endossadas sem a cláusula da ratificação da Tarefa 3, que é o que cobre a
+unidade 5 no ledger. Renovaram-se dois `scopeDigest` tornados obsoletos pelas próprias edições de
+prosa mais o `render --write`, na árvore congelada e como última edição de conteúdo; nenhum estágio
+promovido.
 
 ## 4. Estado do host e da entrega
 
