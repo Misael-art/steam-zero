@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 564 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 565 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 36 | 19 | hw |  |
@@ -68,7 +68,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 31 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
-| SZ-LOTE-COESAO-UI | 5 | 2 | 0 | none |  |
+| SZ-LOTE-COESAO-UI | 10 | 2 | 0 | none |  |
 | SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 15 | 8 | dev |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 6 | 3 | hw |  |
 | SZ-MEDIA-PIPELINE-PLATFORM-SCOPE | 3 | 9 | 6 | hw |  |
