@@ -19,6 +19,10 @@ FocusScope {
     property var cinemaScene: null
     property var saveGallery: null
     property var pendingExitRecord: null
+    // D-08: o 409 estruturado do lançamento precisa chegar à sobreposição.
+    // Ele nasce no shell (launchErrorText) e é entregue por showLaunchError;
+    // o próximo refresh bem-sucedido o publica em vez de apagar a mensagem.
+    property string pendingLaunchError: ""
     property int saveSlot: 0
     property int minimumInteractiveTarget: 48
     readonly property var items: view && Array.isArray(view.items) ? view.items : []
@@ -172,6 +176,15 @@ FocusScope {
         return true
     }
 
+    function showLaunchError(text) {
+        const detail = String(text || "")
+        if (detail === "")
+            return
+        pendingLaunchError = detail
+        message = detail
+        messageIsError = true
+    }
+
     function refresh() {
         if (typeof requestFunction !== "function")
             return false
@@ -193,8 +206,16 @@ FocusScope {
                     messageIsError = false
                     return
                 }
-                message = ""
-                messageIsError = false
+                if (pendingLaunchError !== "") {
+                    // D-08: a restauração pós-recusa atualiza a view, mas o
+                    // erro da tentativa de lançamento é a publicação da vez.
+                    message = pendingLaunchError
+                    messageIsError = true
+                    pendingLaunchError = ""
+                } else {
+                    message = ""
+                    messageIsError = false
+                }
             } catch (error) {
                 message = qsTr("JOURNEY-LAUNCHER-RESPONSE-002\nA resposta da Jornada está ilegível.")
                 messageIsError = true

@@ -386,11 +386,16 @@ Window {
         })
     }
 
-    function restoreJourneyAfterLaunch() {
+    function restoreJourneyAfterLaunch(launchError) {
         root.journeyLaunchActive = false
         if (root.model && root.model.journey && root.model.journey.active === true) {
             root.journeyOverlayVisible = true
             if (journeyLoader.item) {
+                // D-08: a recusa estruturada do lançamento (code, motivo,
+                // impacto e a única ação que resolve) tem de sobreviver à
+                // restauração da sobreposição — o refresh seguinte a publica.
+                if (launchError !== undefined && String(launchError) !== "")
+                    journeyLoader.item.showLaunchError(String(launchError))
                 journeyLoader.item.refresh()
                 journeyLoader.item.forceActiveFocus()
             }
@@ -833,10 +838,10 @@ Window {
                                           // a única fonte de confirmação.
                                           root.pollSession()
                                       } else {
-                                          launcherShell.failLaunch(
-                                              root.launchErrorText(status, text))
+                                          const launchDetail = root.launchErrorText(status, text)
+                                          launcherShell.failLaunch(launchDetail)
                                           if (root.journeyLaunchActive)
-                                              root.restoreJourneyAfterLaunch()
+                                              root.restoreJourneyAfterLaunch(launchDetail)
                                       }
                                   })
                 }
