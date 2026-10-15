@@ -197,6 +197,10 @@ FocusScope {
             if (status !== 200) {
                 message = qsTr("JOURNEY-LAUNCHER-OFFLINE-001\nA Jornada não respondeu. A Home AURA continua disponível.")
                 messageIsError = true
+                // Fix round 1 (D-08): este refresh sobrescreveu `message` sem
+                // consumir o 409 pendente. Deixá-lo vivo faria o erro de uma
+                // recusa antiga ressurgir na primeira janela limpa seguinte.
+                pendingLaunchError = ""
                 return
             }
             try {
@@ -204,6 +208,10 @@ FocusScope {
                 if (!applyView(response)) {
                     message = String(response.diagnosticMessage || qsTr("Nenhuma Jornada ativa."))
                     messageIsError = false
+                    // Mesmo contrato do ramo não-200: a mensagem foi
+                    // substituída por outra causa e o pendente não tem mais
+                    // superfície para ser publicado uma única vez.
+                    pendingLaunchError = ""
                     return
                 }
                 if (pendingLaunchError !== "") {

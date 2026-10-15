@@ -87,6 +87,16 @@ Item {
         LauncherMain {}
     }
 
+    // Fix round 1 (D-19): a prova da página de jogo lê o CONTROLE real que
+    // publica o nome acessível (o delegate `gameAction` de LauncherGamePage),
+    // espelhando o lado da jornada (`journeyPlay.Accessible.name`). Ler o
+    // read-model (`page.actions[0].label`) passaria mesmo com a vinculação
+    // label→Accessible removida do produto; ler o controle não passa.
+    Component {
+        id: gamePageComponent
+        LauncherGamePage {}
+    }
+
     function highContrastPayload() {
         return ({"highContrast": true, "visualScale": 1.0, "reducedMotion": false})
     }
@@ -153,8 +163,22 @@ Item {
                 var page = scene._resolveGamePage("celeste")
                 harness.check(page !== null && page.actions.length === 1,
                               "a página de jogo precisa publicar a ação de lançar")
-                if (page !== null && page.actions.length === 1)
-                    gameName = String(page.actions[0].label)
+                if (page !== null && page.actions.length === 1) {
+                    // Renderiza a superfície real do produto com o payload que
+                    // o próprio LauncherMain resolve e lê o nome do CONTROLE
+                    // (`Accessible.name` do delegate `gameAction`), não o dado.
+                    var gameProbe = gamePageComponent.createObject(harness, {"model": page})
+                    harness.check(gameProbe !== null,
+                                  "a página de jogo precisa instanciar para a leitura do controle")
+                    var gameAction = gameProbe === null ? null
+                        : harness.findByObjectName(gameProbe, "gameAction")
+                    harness.check(gameAction !== null,
+                                  "o controle da ação de lançar precisa existir na página de jogo")
+                    if (gameAction !== null)
+                        gameName = String(gameAction.Accessible.name)
+                    if (gameProbe !== null)
+                        gameProbe.destroy()
+                }
                 scene.destroy()
             }
 

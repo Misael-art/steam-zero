@@ -11,6 +11,11 @@ Jornada → POST /journey/event (operationRequest de lançamento) → POST /laun
 sobreposição, que agora precisa publicar ``code``, motivo, impacto e a única
 ação que resolve, sem vazar o texto da exceção.
 
+Fix round 1: a mesma cena prova o ciclo de vida do 409 pendente — publicado
+uma única vez por um refresh limpo, e descartado por refreshs que não o
+consomem (não-200 ou applyView recusado) para não ressurgir em janela sem
+recusa recente.
+
 Como no golden do D-10, o passe não vale por silêncio: a saída do
 qmltestrunner precisa localizar o nó da sobreposição e executar a medição
 (linha PASS específica + totais sem falha); um harness quebrado reprova alto.
@@ -45,9 +50,19 @@ CONFIG = ROOT / "build" / "launcher-journey-launch-error-d08.json"
 HARNESS = ROOT / "tests" / "qml" / "launcher" / "check_launcher_journey_launch_error.qml"
 PRIVATE_DETAIL = "recusa privada /caminho-local/celeste.rom"
 
-_ERROR_PASS = re.compile(
-    r"PASS\s*:\s*\S*::LauncherJourneyLaunchError::"
-    r"test_structured_409_surfaces_on_the_journey_overlay\b"
+_SCENE_PASSES = (
+    re.compile(
+        r"PASS\s*:\s*\S*::LauncherJourneyLaunchError::"
+        r"test_structured_409_surfaces_on_the_journey_overlay\b"
+    ),
+    re.compile(
+        r"PASS\s*:\s*\S*::LauncherJourneyLaunchError::"
+        r"test_pending_launch_error_does_not_resurface_after_a_failed_refresh\b"
+    ),
+    re.compile(
+        r"PASS\s*:\s*\S*::LauncherJourneyLaunchError::"
+        r"test_pending_launch_error_is_cleared_when_apply_view_fails\b"
+    ),
 )
 _TOTALS = re.compile(r"Totals:\s*(\d+) passed,\s*(\d+) failed")
 
@@ -165,18 +180,41 @@ def test_journey_overlay_surfaces_the_structured_launch_error(
     output = (completed.stdout or "") + (completed.stderr or "")
     assert completed.returncode == 0, f"o 409 não chegou à sobreposição:\n{output[-7000:]}"
     assert "FAIL!" not in output, f"assertion QML reprovou:\n{output[-7000:]}"
+    # Saída limpa (mesma diagonal de _assert_qml_clean): um TypeError residual
+    # — como requisição órfã destruída com a cena — reprova o passe.
+    unexpected = [
+        line
+        for line in output.splitlines()
+        if any(
+            needle in line
+            for needle in (
+                "Binding loop",
+                "Unable to assign",
+                "TypeError:",
+                "ReferenceError:",
+                "QFATAL",
+            )
+        )
+    ]
+    assert not unexpected, (
+        "a cena D-08 emitiu diagnósticos QML inesperados:\n"
+        + "\n".join(unexpected)
+        + f"\nsaída:\n{output[-7000:]}"
+    )
     # Guarda anti-vácuo: o passe só vale se a corrida localizou a sobreposição
-    # e percorreu o caminho play → /launch → 409 → restauração até a medição.
-    assert _ERROR_PASS.search(output), (
-        f"a cena D-08 não executou a medição; saída do qmltestrunner:\n{output[-7000:]}"
+    # e percorreu o caminho play → /launch → 409 → restauração até a medição,
+    # incluindo os dois refreshs que não consomem o pendente (fix round 1).
+    missing = [pattern.pattern for pattern in _SCENE_PASSES if not pattern.search(output)]
+    assert not missing, (
+        f"a cena D-08 não executou todas as medições; saída do qmltestrunner:\n{output[-7000:]}"
     )
     totals = _TOTALS.search(output)
     assert totals is not None, (
         f"a cena D-08 não publicou totais de execução;\nsaída:\n{output[-7000:]}"
     )
     passed, failed = (int(value) for value in totals.groups())
-    assert failed == 0 and passed >= 2, (
-        f"D-08: esperado a suíte completa (initTestCase + medição) sem falhas, "
+    assert failed == 0 and passed >= 4, (
+        f"D-08: esperado a suíte completa (initTestCase + três medições) sem falhas, "
         f"obtido {passed} passed, {failed} failed"
     )
 
