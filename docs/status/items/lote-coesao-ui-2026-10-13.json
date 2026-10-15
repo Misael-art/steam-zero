@@ -11,6 +11,7 @@
   "distribution": "not-packaged",
   "scopePaths": [
     "docs/09-operations/evidence/2026-10-13-lote-coesao-ui",
+    "docs/09-operations/evidence/2026-10-15-jornada-fisica-1470cf48bf7d",
     "docs/status/workstreams/lote-coesao-ui-2026-10-13.json",
     "docs/status/items/lote-coesao-ui-2026-10-13.json",
     "docs/diagnostics/2026-10-13-HANDOFF-lote-coesao-ui-e-botoes-reais.md"
@@ -142,9 +143,21 @@
       "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/20-status-check-depois.txt",
       "command": "Renovacao governada dos 41 scopeDigests na arvore congelada (antes: logs/18-status-check-antes.txt, 41 erros de digest + COVERAGE desatualizado; traco por traco em logs/19-renovacao-digests.txt) + render --write; make status-check com este item e o cartao ja atualizados sai 0 erros. Paridade revalidada de forma focada apos o ultimo ajuste documental (logs/21-paridade-focada.txt).",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-15-jornada-fisica-1470cf48bf7d/README.md",
+      "command": "Prova fisica §6 na candidata instalada 2.0.0rc1-1470cf48bf7d (instalacao governada em 2026-10-13 logs/24,25), executada em duas maos: S-1 DEMONSTRADO; S-2 PARCIAL; S-3 ABERTO; S-5 PARCIAL (rodape em 1280x801 fisico + nome AT-SPI integral de 63 chars); S-6 a S-9 NAO EXECUTADOS (corrida de foco com operador humano ativo; bateria parada na borda, conforme brief); S-10 resíduo zero por sha256 (saves 21==baseline, novos=0). Incidente registrado e sanado: gravacao indevida na jornada do usuario 4095b915 na mao 1, restaurada a d7c114f9==baseline e re-verificada por hash na mao 2.",
+      "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/29-revisao-final-do-branch.md",
+      "command": "Revisao final do branch inteiro (leitor somente-leitura, range 2b7eb541..HEAD, 43 commits): APPROVE_WITH_FINDINGS — 0 criticas, 1 importante, 18 menores; integridade de testes confirmada (nenhuma assercao enfraquecida; dois reforcos). I-1 (8 paths de 3 frentes ativas sem cessao registrada + frase de completude falsa na carta) resolvida pelas linhas (9)-(11) da carta do lote e contrapartes lavradas nos cartoes JLS, JCT e SDH em 2026-10-15; M-5 (write do teste confinado a tmp_path), M-7 (renomeacao do teste de contraste), M-14, M-16 e M-17 corrigidos neste checkpoint; demais menores estacionados com decisao em logs/28 §3.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Fase 2 (do controlador, com janela bigsudo propria): preparacao de candidato, instalacao governada e bateria fisica §5/§6 sobre o tip deste lote; a liberacao fisica e do operador e nenhum eixo foi promovido aqui. Tarefa 15: matriz do que fica explicitamente aberto (prova visual/campo de D-06/D-07/D-24/D-25/D-17; decisao dos menus sem aparencia; catch do refresh D-08; keys.import; nsz.install; volume/brightness; renomeacao do teste no-fixed-choice — tests/ congelado na Fase 1). Devolucao dos handoffs seriais (1)-(8) aos cartoes cedentes ocorre no merge deste lote; editar JSONs de outras frentes esta fora do limite desta fase e fica registrado como pendencia do operador.",
+  "nextAction": "Fase 2 (do controlador, com janela bigsudo propria): preparacao de candidato, instalacao governada e bateria fisica §5/§6 sobre o tip deste lote; a liberacao fisica e do operador e nenhum eixo foi promovido aqui. Tarefa 15: matriz do que fica explicitamente aberto (prova visual/campo de D-06/D-07/D-24/D-25/D-17; decisao dos menus sem aparencia; catch do refresh D-08; keys.import; nsz.install; volume/brightness; renomeacao do teste no-fixed-choice — efetuada em 2026-10-15 no checkpoint da revisao final (M-7; agora test_fixed_text_choice_fails_a_theme_while_background_holds)). Devolucao dos handoffs seriais (1)-(8) aos cartoes cedentes ocorre no merge deste lote; editar JSONs de outras frentes esta fora do limite desta fase e fica registrado como pendencia do operador — em 2026-10-15 as contrapartes das linhas retrospectivas (9)-(11) (I-1 da revisao final) foram lavradas nos cartoes JLS, JCT e SDH por esta frente; as demais listagens permanecem decisao do operador.",
   "activeWorkstreams": [
     "WS-2026-10-LOTE-COESAO-UI"
   ],

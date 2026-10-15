@@ -79,7 +79,7 @@ def test_selected_label_is_legible_in_every_packaged_theme(theme_id: str) -> Non
     )
 
 
-def test_no_fixed_choice_would_work_for_every_theme() -> None:
+def test_fixed_text_choice_fails_a_theme_while_background_holds() -> None:
     """Por que a escolha continua calculada, e o que a D-29 mudou.
 
     Dois fatos pinados nos dois sentidos (medidos em 2026-10-14, apos o

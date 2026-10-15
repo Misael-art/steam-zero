@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "f0d4a4279c0cbe5fea0f0299912bd6aa3028f385b7557655df8657e62db0c794",
+  "scopeDigest": "331814381c0e87abe74d5a1a4a52789bfbd35e3089c86f25da87eace5e5c7b2e",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",

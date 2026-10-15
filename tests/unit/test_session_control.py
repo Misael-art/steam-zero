@@ -784,7 +784,9 @@ def test_refused_save_state_before_dispatch_declares_nothing(tmp_path: Path) -> 
     assert "written" not in missing
 
 
-def test_refused_save_state_declares_exists_when_the_file_landed(tmp_path: Path) -> None:
+def test_refused_save_state_declares_exists_when_the_file_landed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """O pior caso medido: o arquivo chegou apesar da recusa — a recusa tem de dizer isso.
 
     É a asserção que separa "talvez tenha sido escrito" de "foi escrito": o produto
@@ -792,6 +794,9 @@ def test_refused_save_state_declares_exists_when_the_file_landed(tmp_path: Path)
     read-model da galeria já lê o mesmo `state_path` (o sufixo `.state1` existe em
     disco), então o slot ocupado aparece em vez de fingir vazio.
     """
+    # O write desta prova fica em tmp_path: sem o redirecionamento, mkdir+write_bytes
+    # cairiam no saves_dir real do usuário (estado home protegido).
+    monkeypatch.setattr(paths, "saves_dir", lambda: tmp_path / "saves")
     control = _LateWriteControl()
     landed = control.state_path(1)
     landed.parent.mkdir(parents=True, exist_ok=True)

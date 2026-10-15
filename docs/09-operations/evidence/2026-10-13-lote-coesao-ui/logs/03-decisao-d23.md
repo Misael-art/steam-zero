@@ -69,7 +69,9 @@ A alternativa rejeitada e por quê
 --------------------------------
 **3b — nunca parar o supervisor: REJEITADA nesta rodada.** Ela muda o que "pausa" significa
 para o usuário (o supervisor continua correndo, e a promessa de "jogo congelado" deixa de
-valer) e altera o contrato do canal de controle, que hoje vive dentro da árvore suspensa.
+valer) e altera o contrato do canal de controle, que hoje vive dentro da árvore suspensa
+[linha superada — ver "Rodada de correção 1 (2026-10-14)" abaixo: a medição file:line mostrou
+que o canal é servido pelo processo CLI que precede a árvore parada, não de dentro dela].
 Mudança de semântica exige ADR próprio; este lote é rodada de correção dentro das
 prioridades já declaradas em `IMPLEMENTATION-PROMPT.md`, não um foro de decisão de produto.
 Nenhuma parte de 3b foi implementada.

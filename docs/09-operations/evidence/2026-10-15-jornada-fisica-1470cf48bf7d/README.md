@@ -13,6 +13,10 @@ desktop**, e S-10 completo. Convenções, proteções e matriz no estilo da roda
   a linha do manifest ficou órfã e o motivo está registrado em `logs/21-s5-rodape.md`.
 - Vereditos: DEMONSTRADO / PARCIAL / ABERTO / REPROVADO / NÃO EXECUTADO. Aparência nunca prova operação:
   cada linha cita PNG **e** read-model/AT-SPI/event_log quando alega comportamento.
+- Numeração (colisão conhecida, preservada de propósito): o índice 21 foi usado pela mão 2 em duas
+  variantes — `logs/21-s5-rodape.md` (registro do cenário S-5) e `logs/21-delta-final.txt` (portão
+  final do S-10). Os arquivos já estavam commitados e citados assim em `logs/19`, `logs/28` e nas
+  cartas; renumerar quebraria as citações. Toda referência a um deles usa o sufixo explícito.
 
 ## A — Preparação, host e proteções
 

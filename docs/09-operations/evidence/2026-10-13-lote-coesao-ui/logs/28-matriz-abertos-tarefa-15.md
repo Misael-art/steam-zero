@@ -43,6 +43,20 @@ terceiros (linha órfã no manifest com motivo em `logs/21-s5-rodape.md`).
 | Ramo `pendingLaunchError` em `LauncherJourney.qml:227-230` | ABERTO | revisão da T12; não exercitado | 1470cf48bf7d | exige lançamento com overlay de erro ativa |
 | D-01…D-05 (Studio de Jornadas) e D-09 (18 entradas não lançáveis) | FORA DO ESCOPO | plano §Autorevisão 1 | 1470cf48bf7d | pertencem às frentes Studio/acervo; registrados, não arrastados |
 | journal/backup orphans (9+9); `boot.direct` permission warn | ABERTO | doctor em `2026-10-13-lote-coesao-ui/logs/25` | 1470cf48bf7d | resíduo certificado; reparo é decisão do operador |
+| semente `dynamicPalette.fallback.darkVibrant:#0e7490` em `org.steamzero.asset-recipes-demo/theme.json:170` fora dos 11 pins e do portão WCAG | DÍVIDA ESTRUTURAL (registrada para o próximo censo não a "redescobrir"; M-17 da revisão final) | `logs/29-revisao-final-do-branch.md` §M-17; ledger T9 | 1470cf48bf7d | o portão valida `tokens.color`, não a semente; validar semente é frente própria |
+
+**Revisão final do branch inteiro (2026-10-15)** — texto integral commitado como
+`logs/29-revisao-final-do-branch.md` (veredito APPROVE_WITH_FINDINGS: 0 críticas, 1 importante,
+18 menores). Corrigidas neste checkpoint: **I-1** (linhas de cessão (9)–(11) na carta do lote e
+contrapartes lavradas nos cartões JLS, JCT e SDH, nomeando os 8 paths com origem, destino, base,
+escopo e devolução; frase de completude da carta corrigida para o conjunto registrado);
+**M-5** (escrita do teste `test_refused_save_state_declares_exists_when_the_file_landed`
+confinada a `tmp_path` por monkeypatch de `paths.saves_dir`); **M-7** (renomeado para
+`test_fixed_text_choice_fails_a_theme_while_background_holds` — o nome antigo era literalmente
+falso após a D-29); **M-14** (convenção da colisão de índice 21 registrada no README da rodada
+2026-10-15); **M-16** (ponteiro inline na linha superada de `logs/03-decisao-d23.md`);
+**M-17** (linha acima). Ficam estacionados sem código neste checkpoint: M-1…M-4, M-6, M-8…M-13
+e M-18 — cada um com adjudicação ou diferimento do ledger citados no próprio `logs/29`.
 
 ## 4. Estado do host e da entrega
 
