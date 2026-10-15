@@ -1,5 +1,5 @@
 # Medicao do gate de contraste (Lote de coesao visual e botoes reais, Tarefa 8).
-# Execucao: 2026-10-13, a partir da raiz do repo. Nenhum theme.json foi alterado nesta execucao.
+# Execucao: 2026-10-14 (HEAD `75a1c5fb`), a partir da raiz do repo. Nenhum theme.json foi alterado nesta execucao.
 # Comando: .venv/bin/python tools/run_tests_isolated.py tests/unit/test_theme_token_contrast.py -q
 # Checkout: branch codex/jornada-fisica-bateria-2026-10-12, HEAD 75a1c5fb.
 # Gate: versao crua do Step 1 do brief (sem lista de pins), sobre os 4 temas do pacote.

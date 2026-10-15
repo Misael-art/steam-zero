@@ -101,16 +101,18 @@ def measured_failures(palette: dict[str, str]) -> list[tuple[str, str, float, fl
     return failures
 
 
-def check_theme(theme: Path) -> None:
-    """Aplica o gate AA ao tema e cobra a lista de pins aberta (Ruling P12)."""
-    palette = colors(theme)
-    theme_id = theme.parent.name
+def check_palette(theme_id: str, palette: dict[str, str]) -> list[str]:
+    """Corpo do gate, separado para os testes de fronteira exercitarem as três invariantes da P12.
+
+    Retorna a lista de problemas; vazia significa verde. Não assere — o chamador decide.
+    """
     pins = KNOWN_OPEN_AT_MEASURED.get(theme_id, {})
     failures = measured_failures(palette)
     failed_pairs = {(fg, bg) for fg, bg, _, _ in failures}
     problems: list[str] = []
     for fg, bg, value, threshold in failures:
-        medida = f"{fg}/{bg} {value:.2f}:1 < {threshold}:1"
+        kind = "" if threshold == TEXT else " (não textual)"
+        medida = f"{fg}/{bg} {value:.2f}:1 < {threshold}:1{kind}"
         if (fg, bg) in pins:
             pin = pins[(fg, bg)]
             if value < pin - PIN_TOLERANCE:
@@ -124,7 +126,24 @@ def check_theme(theme: Path) -> None:
             f"pin obsoleto {fg}/{bg} (pinado em {pin:.2f}:1): "
             "remove the pin; the theme now clears AA"
         )
+    return problems
+
+
+def check_theme(theme: Path) -> None:
+    """Aplica o gate AA ao tema e cobra a lista de pins aberta (Ruling P12)."""
+    theme_id = theme.parent.name
+    problems = check_palette(theme_id, colors(theme))
     assert not problems, f"{theme_id}: " + "; ".join(problems)
+
+
+def test_every_pinned_theme_is_a_package_theme() -> None:
+    """Nenhum pin vive num tema fora do glob: renomear o pacote não apaga a dívida."""
+    globbed = {p.parent.name for p in THEMES}
+    stale_keys = set(KNOWN_OPEN_AT_MEASURED) - globbed
+    assert not stale_keys, (
+        f"pins para temas que não existem mais no pacote: {sorted(stale_keys)}. "
+        "Renomeie/mantenha o pin conforme a decisão do operador na Tarefa 9."
+    )
 
 
 @pytest.mark.parametrize("theme", THEMES, ids=lambda p: p.parent.name)
@@ -132,22 +151,35 @@ def test_semantic_tokens_clear_wcag_aa(theme: Path) -> None:
     check_theme(theme)
 
 
-def test_gate_fails_on_a_theme_below_aa_without_a_pin(tmp_path: Path) -> None:
-    """Não-vacuidade: violação nova sem pin leva o portão inteiro ao vermelho."""
-    tema_dir = tmp_path / "org.steamzero.boundary"
-    tema_dir.mkdir()
-    theme = tema_dir / "theme.json"
-    theme.write_text(
-        json.dumps(
-            {
-                "schemaVersion": 1,
-                "kind": "steamzero-theme-v1",
-                "id": "org.steamzero.boundary",
-                "tokens": {"color": {"background": "#ffffff", "text": "#777777"}},
-            }
-        ),
-        encoding="utf-8",
-    )
-    # #777777 sobre #ffffff mede ~4,02:1 (< 4,5:1) e não está em KNOWN_OPEN_AT_MEASURED.
-    with pytest.raises(AssertionError, match="violação nova sem pin"):
-        check_theme(theme)
+def test_gate_fails_on_a_theme_below_aa_without_a_pin() -> None:
+    """Não-vacuidade (a): violação nova sem pin leva o portão inteiro ao vermelho."""
+    palette = {"background": "#ffffff", "text": "#777777"}  # ~4,48:1 (< 4,5:1), sem pin
+    problems = check_palette("org.steamzero.inventado", palette)
+    assert any("violação nova sem pin" in p for p in problems), problems
+
+
+def test_gate_fails_when_a_pinned_pair_regresses() -> None:
+    """Não-vacuidade (b): par pinado que cai abaixo do valor registrado é regressão."""
+    real = colors(next(p for p in THEMES if p.parent.name == "org.steamzero.default"))
+    pin = KNOWN_OPEN_AT_MEASURED["org.steamzero.default"][("border", "background")]
+    # Empata o luminance do `border` com o do fundo: a razão despenca para ~1,0 (pin é 1,63).
+    regressed = dict(real, border=real["background"])
+    current = ratio(real["border"], real["background"])
+    after = ratio(regressed["border"], regressed["background"])
+    assert current >= pin - 1e-9, "baseline mudou; atualize o pino antes de testar regressão"
+    assert after < pin - 1e-9, "a alteração não produziu regressão mensurável"
+    problems = check_palette("org.steamzero.default", regressed)
+    assert any("regressão" in p for p in problems), problems
+
+
+def test_gate_fails_when_a_pinned_pair_now_clears_aa() -> None:
+    """Não-vacuidade (c): par pinado que passa a limpar o AA é pino obsoleto."""
+    real = colors(next(p for p in THEMES if p.parent.name == "org.steamzero.default"))
+    pair = ("border", "background")
+    assert pair in KNOWN_OPEN_AT_MEASURED["org.steamzero.default"]
+    # `#000000` sobre o fundo claro do default passa folgado o AA não textual (>= 3,0:1).
+    fixed = dict(real, border="#000000")
+    assert ratio(fixed["border"], fixed["background"]) >= 3.0 + 1e-9
+    problems = check_palette("org.steamzero.default", fixed)
+    assert any("pin obsoleto" in p for p in problems), problems
+    assert not any("regressão" in p or "violação nova" in p for p in problems), problems
