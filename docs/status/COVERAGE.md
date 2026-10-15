@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 568 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 572 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 42 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 36 | 19 | hw |  |
@@ -25,7 +25,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 11 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 315 | 96 | 58 | hw |  |
+| SZ-AURA-LAUNCHER | 317 | 96 | 58 | hw |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
