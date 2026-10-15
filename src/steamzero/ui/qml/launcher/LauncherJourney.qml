@@ -665,14 +665,17 @@ FocusScope {
         // linha com a linha de atalhos inteira (~392px) e as seis ações de
         // sessão (~502px) — no RowLayout antigo o Label era esmagado a 263px.
         // O rodapé passa a grid: a linha de atalhos ocupa a primeira linha
-        // inteira e as ações de sessão ocupam a linha seguinte, todas
+        // inteira e as ações de sessão ocupam as linhas seguintes, todas
         // visíveis. Onde as métricas de fonte pedem mais largura do que a
-        // linha disponível (ex.: Qt 6.11 do CI), o Label quebra de verdade —
-        // elisão ou clip apenas esconderiam o corte, nunca o corrigem.
+        // linha disponível (ex.: Qt 6.11 do CI, que fixava o grid em 866 px
+        // numa janela de 853), o Label quebra de verdade e as ações refluem
+        // para três colunas — elisão ou clip apenas esconderiam o corte,
+        // nunca o corrigem.
         GridLayout {
+            id: journeyFooter
             objectName: "journeyFooter"
             Layout.fillWidth: true
-            columns: 6
+            columns: journey.width >= 900 ? 6 : 3
             columnSpacing: 10
             rowSpacing: 8
             Label {
@@ -681,7 +684,8 @@ FocusScope {
                     : qsTr("↑ ↓ navegar · Enter abrir · Esc voltar · Ações de sessão abaixo")
                 color: journey.mutedColor
                 Layout.fillWidth: true
-                Layout.columnSpan: 6
+                Layout.columnSpan: journeyFooter.columns
+                Layout.minimumWidth: 0
                 wrapMode: Text.WordWrap
             }
             Repeater {
