@@ -720,9 +720,9 @@ def test_theme_coverage_explains_aura_omissions_references_and_capabilities() ->
     assert summary["auraDefaultCount"] == 2
     assert summary["auraExplicitCount"] == 1
     assert summary["auraFallbackCount"] == 2
-    # auraEffectiveStages são as etapas que resolvem para a fonte default; após
-    # D-06 a etapa herdada explicitamente não conta mais ali (antes: 5).
-    assert summary["auraEffectiveCount"] == 4
+    # auraEffectiveStages (D-06/Tarefa 11): toda etapa que não exibe o tema
+    # custom declarado — herança explícita, implícita e fallbacks contam.
+    assert summary["auraEffectiveCount"] == 5
     assert summary["requiresPreApplyConfirmation"]
     assert "2 herdadas, 1 escolhidas, 2 em fallback" in summary["label"]
     assert summary["missingReferenceStages"] == ["entryFade"]
@@ -814,3 +814,154 @@ def test_custom_bezel_resource_uri_is_logical_versioned_and_rejects_paths() -> N
         document["sessionStages"].append({"stageId": "bezel", "bezelResource": resource})
         with pytest.raises(ValidationError):
             JourneyDocument.parse(document)
+
+
+def _six_stage_coverage() -> list[dict[str, object]]:
+    """Cobertura do documento padrão com as cinco categorias simultâneas."""
+    return resolve_theme_coverage(
+        _parsed(),
+        used_stages=["menu:platforms", "menu:games", "pause", "saves", "entryFade", "exitFade"],
+        themes={
+            "org.steamzero.nebula": {
+                "version": "1.2.0",
+                "capabilities": ["scene.layout"],
+                "sceneSurfaces": {
+                    "slots": {"library": {"component": "platform-list"}},
+                    "components": {
+                        "platform-list": {
+                            "kind": "gameGrid",
+                            "source": "library.platforms",
+                            "maxItems": 8,
+                        }
+                    },
+                },
+            },
+            "org.steamzero.limited": {"version": "1.0.0", "capabilities": ["scene.layout"]},
+        },
+        aura_version="2.0.0rc1",
+        required_theme_capabilities={"exitFade": ["scene.motion"]},
+        adapter_capabilities=set(),
+        operation_requirements={"pause": ["session.pause"], "saves": ["session.saves.list"]},
+    )
+
+
+def test_theme_coverage_summary_distinguishes_all_five_categories() -> None:
+    # A2c (D-06/Tarefa 11): o resumo distingue, com campos próprios, AURA
+    # explícito, herança implícita, referência ausente, incompatibilidade e
+    # tema personalizado — sem esconder nenhuma categoria atrás de "default".
+    coverage = _six_stage_coverage()
+    summary = summarize_theme_coverage(coverage)
+
+    assert summary["customStages"] == ["menu:platforms"]
+    assert summary["customCount"] == 1
+    assert summary["auraExplicitStages"] == ["pause"]
+    assert summary["auraExplicitCount"] == 1
+    assert summary["auraDefaultStages"] == ["menu:games", "saves"]
+    assert summary["auraDefaultCount"] == 2
+    assert summary["missingReferenceStages"] == ["entryFade"]
+    assert summary["incompatibleStages"] == ["exitFade"]
+    assert summary["auraFallbackStages"] == ["entryFade", "exitFade"]
+
+    # Uma etapa AURA-efetiva é tudo o que não exibe o tema custom declarado
+    # (D-06: a escolha explícita volta a contar; antes da Tarefa 11 eram só as
+    # etapas com fonte default — 4).
+    assert summary["auraEffectiveStages"] == [
+        "menu:games",
+        "pause",
+        "saves",
+        "entryFade",
+        "exitFade",
+    ]
+    assert summary["auraEffectiveCount"] == 5
+    assert summary["requiresPreApplyConfirmation"] is True
+    assert "Tema misto" in summary["label"]
+
+    # As cinco categorias são mutuamente exclusivas.
+    buckets = [
+        set(summary["customStages"]),
+        set(summary["auraExplicitStages"]),
+        set(summary["auraDefaultStages"]),
+        set(summary["missingReferenceStages"]),
+        set(summary["incompatibleStages"]),
+    ]
+    for index, bucket in enumerate(buckets):
+        for other in buckets[index + 1 :]:
+            assert not (bucket & other)
+
+
+def test_all_explicit_aura_summary_never_describes_custom_theme() -> None:
+    # A2d (D-06/Tarefa 11): quando TODAS as etapas usadas escolhem herdar AURA,
+    # o resumo jamais pode dizer "Tema personalizado em todas as etapas usadas"
+    # nem dispensar a confirmação pré-aplicação.
+    raw = _document()
+    for menu in raw["menus"]:
+        menu["appearance"] = {"mode": "inherit-aura"}
+    for stage in raw["sessionStages"]:
+        stage["appearance"] = {"mode": "inherit-aura"}
+    used_stages = [f"menu:{menu['id']}" for menu in raw["menus"]] + [
+        str(stage["stageId"]) for stage in raw["sessionStages"]
+    ]
+    coverage = resolve_theme_coverage(
+        JourneyDocument.parse(raw),
+        used_stages=used_stages,
+        themes={},
+        aura_version="2.0.0rc1",
+    )
+    summary = summarize_theme_coverage(coverage)
+
+    assert summary["auraExplicitStages"] == used_stages
+    assert summary["auraEffectiveStages"] == used_stages
+    assert summary["customStages"] == []
+    assert summary["requiresPreApplyConfirmation"] is True
+    assert "Tema personalizado" not in summary["label"]
+    assert "AURA" in summary["label"]
+    # Controle do extremo oposto: todas custom → o rótulo personalizado é legítimo.
+    custom_only = [
+        {
+            "stageId": "menu:x",
+            "appearance": "custom",
+            "sourceThemeId": "org.steamzero.nebula",
+            "sourceVersion": "1.2.0",
+            "declaredThemeId": "org.steamzero.nebula",
+            "declaredThemeVersion": "1.2.0",
+            "reason": "custom-theme",
+            "missingThemeCapabilities": [],
+            "missingSceneElements": [],
+            "providedSceneElements": [],
+        }
+    ]
+    custom_summary = summarize_theme_coverage(custom_only)
+    assert custom_summary["label"] == "Tema personalizado em todas as etapas usadas"
+    assert custom_summary["requiresPreApplyConfirmation"] is False
+
+
+def test_explicit_aura_version_and_provenance_match_the_packaged_manifest() -> None:
+    # A2e (D-06/Tarefa 11): versão, cor e procedência do resumo batem com o
+    # manifesto carregado do AURA empacotado (read_builtin_manifest).
+    aura = read_builtin_manifest("org.steamzero.aura")
+    themes = {"org.steamzero.aura": aura.to_dict()}
+    coverage = resolve_theme_coverage(
+        _parsed(),
+        used_stages=["pause", "menu:games"],
+        themes=themes,
+        aura_version="2.0.0rc1",
+    )
+    pause, games = coverage
+    assert pause["sourceThemeId"] == "org.steamzero.aura"
+    # A versão declarada no resumo é a do manifesto AURA (1.0.0), não a do tema
+    # default passado como aura_version pela rota.
+    assert pause["sourceVersion"] == aura.version
+    assert games["sourceThemeId"] == "org.steamzero.default"
+    assert games["sourceVersion"] == "2.0.0rc1"
+
+    summary = summarize_theme_coverage(coverage, themes=themes)
+    aura_theme = summary["auraTheme"]
+    assert aura_theme["themeId"] == "org.steamzero.aura"
+    assert aura_theme["version"] == aura.version
+    assert aura_theme["background"] == "#0b1020"
+    assert aura_theme["background"] == aura.tokens["color"]["background"]
+    assert aura_theme["author"] == aura.author
+    assert aura_theme["license"] == aura.license
+
+    # Sem o manifesto disponível, a procedência não é inventada.
+    assert "auraTheme" not in summarize_theme_coverage(coverage)

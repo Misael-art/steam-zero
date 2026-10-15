@@ -1562,7 +1562,44 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                     loaded_by_theme[aura_id] = loaded_aura
                     manifests[aura_id] = _effective_theme_coverage_manifest(loaded_aura)
 
-                    if declared_theme_id and declared_theme_id != aura_id:
+                    # D-06 (Tarefa 11): depois de d512dc8c um menu inherit-aura
+                    # resolve para o builtin org.steamzero.aura; a ponte abre
+                    # também esse tema para que loaded_by_theme contenha o id
+                    # que o resolver efetivamente produz, sem quebrar o
+                    # fallback default quando o pacote não está no catálogo.
+                    inherited_aura_id = "org.steamzero.aura"
+                    if inherited_aura_id not in loaded_by_theme:
+                        try:
+                            loaded_inherited = dashboard.editor_load(inherited_aura_id)
+                        except SteamZeroError as exc:
+                            if exc.code != "E-THEME-NOT-FOUND":
+                                raise
+                        else:
+                            if not isinstance(loaded_inherited, Mapping):
+                                raise SteamZeroError(
+                                    "E-COMPONENT-DEGRADED",
+                                    detail="Theme Engine não abriu o tema AURA empacotado",
+                                )
+                            inherited_session_id = str(loaded_inherited.get("sessionId") or "")
+                            if inherited_session_id:
+                                theme_session_ids.append(inherited_session_id)
+                            inherited_manifest = loaded_inherited.get("manifest")
+                            if not isinstance(inherited_manifest, Mapping):
+                                raise SteamZeroError(
+                                    "E-COMPONENT-DEGRADED",
+                                    detail="Theme Engine devolveu o manifesto do AURA "
+                                    "empacotado inválido",
+                                )
+                            loaded_by_theme[inherited_aura_id] = loaded_inherited
+                            manifests[inherited_aura_id] = _effective_theme_coverage_manifest(
+                                loaded_inherited
+                            )
+
+                    if (
+                        declared_theme_id
+                        and declared_theme_id != aura_id
+                        and declared_theme_id not in loaded_by_theme
+                    ):
                         try:
                             loaded_custom = dashboard.editor_load(declared_theme_id)
                         except SteamZeroError as exc:
@@ -1661,7 +1698,10 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 raise SteamZeroError("E-API-SCHEMA", detail="usedStages deve ser lista de IDs")
             session = self._control_server.journey_studio.snapshot(session_id)
             document = session["document"]
-            theme_ids = {"org.steamzero.default"}
+            # D-06 (Tarefa 11): o AURA empacotado também é lido para que a
+            # cobertura reporte versão/cor/procedência iguais ao manifesto
+            # carregado nas etapas com herança explícita.
+            theme_ids = {"org.steamzero.default", "org.steamzero.aura"}
             for menu in document.get("menus", []):
                 appearance = menu.get("appearance", {})
                 if appearance.get("mode") == "custom" and isinstance(
