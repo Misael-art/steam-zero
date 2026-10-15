@@ -1,0 +1,400 @@
+{
+  "connections": [
+    {
+      "action": "navigate",
+      "bindings": [
+        {
+          "sourceFieldId": "id",
+          "targetFieldId": "platformId"
+        }
+      ],
+      "event": "select",
+      "from": {
+        "id": "platforms",
+        "kind": "menu"
+      },
+      "id": "platforms-genres",
+      "label": "Explorar por gênero",
+      "to": {
+        "id": "genres",
+        "kind": "menu"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "navigate",
+      "bindings": [
+        {
+          "sourceFieldId": "id",
+          "targetFieldId": "platformId"
+        }
+      ],
+      "event": "route",
+      "from": {
+        "id": "platforms",
+        "kind": "menu"
+      },
+      "id": "platforms-years",
+      "label": "Explorar por ano",
+      "to": {
+        "id": "years",
+        "kind": "menu"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "navigate",
+      "bindings": [
+        {
+          "sourceFieldId": "genre",
+          "targetFieldId": "genre"
+        }
+      ],
+      "event": "select",
+      "from": {
+        "id": "genres",
+        "kind": "menu"
+      },
+      "id": "genres-games",
+      "label": "Abrir jogos do gênero",
+      "to": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "navigate",
+      "bindings": [
+        {
+          "sourceFieldId": "year",
+          "targetFieldId": "year"
+        }
+      ],
+      "event": "select",
+      "from": {
+        "id": "years",
+        "kind": "menu"
+      },
+      "id": "years-games",
+      "label": "Abrir jogos do ano",
+      "to": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "back",
+      "bindings": [],
+      "event": "back",
+      "from": {
+        "id": "genres",
+        "kind": "menu"
+      },
+      "id": "genres-back",
+      "label": "Voltar",
+      "to": {
+        "kind": "history"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "back",
+      "bindings": [],
+      "event": "back",
+      "from": {
+        "id": "years",
+        "kind": "menu"
+      },
+      "id": "years-back",
+      "label": "Voltar",
+      "to": {
+        "kind": "history"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "back",
+      "bindings": [],
+      "event": "back",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-back",
+      "label": "Voltar",
+      "to": {
+        "kind": "history"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "launch",
+      "bindings": [],
+      "event": "play",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-play",
+      "label": "Jogar",
+      "to": {
+        "id": "entryFade",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "pause",
+      "bindings": [],
+      "event": "pause",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-pause",
+      "label": "Pausar",
+      "to": {
+        "id": "pause",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "resume",
+      "bindings": [],
+      "event": "resume",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-resume",
+      "label": "Retomar",
+      "to": {
+        "id": "pause",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "open-saves",
+      "bindings": [],
+      "event": "open-saves",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-open-saves",
+      "label": "Abrir saves",
+      "to": {
+        "id": "saves",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "save",
+      "bindings": [],
+      "event": "save",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-save",
+      "label": "Salvar estado",
+      "to": {
+        "id": "saves",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "load",
+      "bindings": [],
+      "event": "load",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-load",
+      "label": "Carregar estado",
+      "to": {
+        "id": "saves",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    },
+    {
+      "action": "exit",
+      "bindings": [],
+      "event": "exit",
+      "from": {
+        "id": "games",
+        "kind": "menu"
+      },
+      "id": "games-exit",
+      "label": "Sair do jogo",
+      "to": {
+        "id": "exitFade",
+        "kind": "stage"
+      },
+      "when": "user-input"
+    }
+  ],
+  "entryMenuId": "platforms",
+  "id": "org.steamzero.journey-bc4d258a",
+  "kind": "steamzero-experience-journey-v2",
+  "menus": [
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "filters": [],
+      "groupBy": [],
+      "id": "platforms",
+      "name": "Plataformas",
+      "sort": [],
+      "source": {
+        "readModelId": "library.platforms"
+      }
+    },
+    {
+      "filters": [],
+      "groupBy": [
+        "genre"
+      ],
+      "id": "genres",
+      "name": "Gêneros",
+      "sort": [
+        {
+          "direction": "ascending",
+          "fieldId": "genre"
+        }
+      ],
+      "source": {
+        "readModelId": "library.games"
+      }
+    },
+    {
+      "filters": [],
+      "groupBy": [
+        "year"
+      ],
+      "id": "years",
+      "name": "Anos",
+      "sort": [
+        {
+          "direction": "descending",
+          "fieldId": "year"
+        }
+      ],
+      "source": {
+        "readModelId": "library.games"
+      }
+    },
+    {
+      "filters": [],
+      "groupBy": [],
+      "id": "games",
+      "name": "Jogos",
+      "sort": [
+        {
+          "direction": "ascending",
+          "fieldId": "title"
+        }
+      ],
+      "source": {
+        "readModelId": "library.games"
+      }
+    }
+  ],
+  "name": "Jornada Bateria 2b7eb541",
+  "organization": [
+    {
+      "id": "menu-platforms",
+      "kind": "menu",
+      "label": "Plataformas",
+      "menuId": "platforms",
+      "parentId": null
+    },
+    {
+      "id": "menu-genres",
+      "kind": "menu",
+      "label": "Gêneros",
+      "menuId": "genres",
+      "parentId": "menu-platforms"
+    },
+    {
+      "id": "menu-years",
+      "kind": "menu",
+      "label": "Anos",
+      "menuId": "years",
+      "parentId": "menu-platforms"
+    },
+    {
+      "id": "menu-games",
+      "kind": "menu",
+      "label": "Jogos",
+      "menuId": "games",
+      "parentId": "menu-genres"
+    }
+  ],
+  "schemaVersion": 2,
+  "sessionStages": [
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "entryFade"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "loading"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "gameplay"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "bezel"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "osd"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "pause"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "saves"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "exitFade"
+    },
+    {
+      "appearance": {
+        "mode": "inherit-aura"
+      },
+      "stageId": "error"
+    }
+  ]
+}

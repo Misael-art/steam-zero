@@ -69,7 +69,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 31 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
-| SZ-LOTE-COESAO-UI | 25 | 19 | 14 | none |  |
+| SZ-LOTE-COESAO-UI | 31 | 19 | 14 | none |  |
 | SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 15 | 8 | dev |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 6 | 3 | hw |  |
 | SZ-MEDIA-PIPELINE-PLATFORM-SCOPE | 3 | 9 | 6 | hw |  |

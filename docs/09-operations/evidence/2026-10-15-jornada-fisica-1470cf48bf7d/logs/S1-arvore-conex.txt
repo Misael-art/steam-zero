@@ -1,0 +1,6 @@
+      label|Contexto: Deck LCD  •  Monitor DP-1 conectado  •  Modo Deskt|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Central desconectada — alterações locais não serão sincroniz|ENABLED,SENSITIVE,FOCUSABLE
+        label|Deck LCD  •  Monitor DP-1 conectado  •  Modo Desktop|ENABLED,SENSITIVE,FOCUSABLE
+      label|Deck LCD  •  Monitor DP-1 conectado  •  Modo Desktop|ENABLED,SENSITIVE,FOCUSABLE
+      label|Deck LCD  •  Monitor DP-1 conectado  •  Modo Desktop|ENABLED,SENSITIVE,FOCUSABLE
+        label|Deck LCD  •  Monitor DP-1 conectado  •  Modo Desktop|ENABLED,SENSITIVE,FOCUSABLE

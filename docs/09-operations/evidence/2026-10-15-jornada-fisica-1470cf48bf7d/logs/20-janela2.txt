@@ -1,0 +1,15 @@
+# 20-janela2 — abertura do Launcher para S-5..S-9 (2026-10-15T17:10:37-03:00)
+## hashes de jornada antes de abrir
+2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18  /home/misael/.local/share/steamzero/journeys/active.json
+d7c114f9548712f3ba2ee269735aa1a078d8eaf131c1c93c8cd619440ab1b53f  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-4095b915.journey.json
+81d313df04895d29f57eada940fba01773375d341e1ee2c41e6e0fb808001ae0  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-bc4d258a.journey.json
+  esperado: 2a37d09a…  d7c114f9…  81d313df…
+launcher pid=3660404  qml6 pid=3660445
+SZ_WIN={05f2e28a-60a3-4049-a192-1728a036e3a8}
+SZ_API=http://127.0.0.1:24339 token_len=43
+## geometria inicial
+Window {05f2e28a-60a3-4049-a192-1728a036e3a8}
+  Position: 0,0
+  Geometry: 948.148148148148x593.3333333333333
+## nome da janela
+SteamZero

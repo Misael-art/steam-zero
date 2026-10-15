@@ -1,0 +1,54 @@
+# S-BASE baseline de proteção (2026-10-15T16:27:30-03:00)
+
+## saves: contagem e sha256 da árvore inteira ~/.local/share/steamzero/saves/
+contagem: 21
+1e24b32cd9ffa2f4e4592af2d9b45a39d8759fe6bad04f0bb7665a10ecccbb5a  /home/misael/.local/share/steamzero/saves/states/.backups/1969 (Homebrew) (SMS).slot3.state
+34db67f2101c29f1611208ef3ecdbe598ef0a98de6d1445853ef467b33a31df2  /home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state3
+3a20beffdd6190fc4ca316a697ac2c54e8d1aa26bca8ab5831403a6ccc389471  /home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state3.png
+0cb491d42a4e79f807119785bcae8331685a90a64125bd5fcb6c9378044f7b1c  /home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state4
+3a20beffdd6190fc4ca316a697ac2c54e8d1aa26bca8ab5831403a6ccc389471  /home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/1969 (Homebrew) (SMS).state4.png
+f6e5b54d997c3fab098b2df67a52e582fdf94bcfa2b96960cc6db339638dfba1  /home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/Addams Family, The (USA, Europe) (Translated PtBr).state
+0ed7b26b91b35f00cac8a9909698a5aeec7f2b425d7f4726a7fb21d0427b3bf4  /home/misael/.local/share/steamzero/saves/states/Genesis Plus GX/Addams Family, The (USA, Europe) (Translated PtBr).state.png
+fefbd54ba117fe4af6ec4e6cfbc4407da33a0840851e004adbffc9708286ebfd  /home/misael/.local/share/steamzero/saves/states/Mesen/'89 Dennou Kyuusei Uranai (Japan).state
+e217eb8af08f0b4f2db6d6846edf7d123cd9996b695b6caa3cb9106362f64f2e  /home/misael/.local/share/steamzero/saves/states/Mesen/'89 Dennou Kyuusei Uranai (Japan).state.png
+60bbf6fdeb4c4278063288b3dbcde622d2789e1417849779fc5b63465fa9e3ae  /home/misael/.local/share/steamzero/saves/states/Mesen/Aladdin (Music Replacement + Button Fix + improvement).state
+a449a0e2c6afc59bb7b071883066cb9f4a1597cd843020a29ce949246c00e27e  /home/misael/.local/share/steamzero/saves/states/Mesen/Aladdin (Music Replacement + Button Fix + improvement).state.png
+9de38803699c86ae0051ed7746e1f048c77496ea111f31d86249ec9b608023ff  /home/misael/.local/share/steamzero/saves/states/Mesen/Batman - Return of the Joker (USA) (Translated PtBr).state1
+a8e43a0f0ea32c87b7cc371b1a87bf3b11de0abbb3aa88dd6a3fa2a7b897ee18  /home/misael/.local/share/steamzero/saves/states/Mesen/Batman - Return of the Joker (USA) (Translated PtBr).state1.png
+689b964b571e9a511fb1eb1c513e3e3bf03e10ea6a4259c3cfede738919b8c3d  /home/misael/.local/share/steamzero/saves/states/Mesen/Blaster Master (USA) (Translated PtBr).state1
+f7ecf114789a6a9b65bc257ff8df166da77325ca381d4c4f4ce3f4b041598f57  /home/misael/.local/share/steamzero/saves/states/Mesen/Blaster Master (USA) (Translated PtBr).state1.png
+a198dbe1b937c0f9ec8b2799d8e41fc83adc37b5ebfe55495154ba77aa239465  /home/misael/.local/share/steamzero/saves/states/mGBA/Castlevania Legends (USA, Europe) (Translated PtBr).state
+2febfe934cf389e81c840f1266b664b127ba493d5a7613b4564b6ccd9f14b830  /home/misael/.local/share/steamzero/saves/states/mGBA/Castlevania Legends (USA, Europe) (Translated PtBr).state.png
+bc39d3953c02c7e2a3e8cacf4c4ba6102ed8f82ecfebe73206fb409df9e0f6f8  /home/misael/.local/share/steamzero/saves/states/Snes9x/46 Okunen Monogatari - Harukanaru Eden e (Japan) (Translated En).state31
+0ed7b26b91b35f00cac8a9909698a5aeec7f2b425d7f4726a7fb21d0427b3bf4  /home/misael/.local/share/steamzero/saves/states/Snes9x/46 Okunen Monogatari - Harukanaru Eden e (Japan) (Translated En).state31.png
+d9b7868d1e97226aa0641881073f89b5aba841fca57af654cea10b0cf68cfba7  /home/misael/.local/share/steamzero/saves/states/Snes9x/Seiken Densetsu 3 (Japan) (Translated PtBr).state3
+131ab774f484c39cc30abe19a4ea3c8e8d1c905df342a6fbb98b3a03ad986bde  /home/misael/.local/share/steamzero/saves/states/Snes9x/Seiken Densetsu 3 (Japan) (Translated PtBr).state3.png
+
+## journeys/active.json
+-rw------- 1 misael misael 114 out 12 18:12 /home/misael/.local/share/steamzero/journeys/active.json
+2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18  /home/misael/.local/share/steamzero/journeys/active.json
+  esperado do baseline histórico: 2a37d09a… — CONFIRMADO igual
+
+## journeys (listagem + sha256 por JSON)
+total 20
+drwx------ 1 misael misael  194 out 12 18:12 .
+drwx------ 1 misael misael  290 out 10 14:07 ..
+-rw------- 1 misael misael  114 out 12 18:12 active.json
+-rw------- 1 misael misael 7566 out 10 14:07 org.steamzero.journey-4095b915.journey.json
+-rw------- 1 misael misael 7594 out 12 18:09 org.steamzero.journey-bc4d258a.journey.json
+d7c114f9548712f3ba2ee269735aa1a078d8eaf131c1c93c8cd619440ab1b53f  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-4095b915.journey.json
+81d313df04895d29f57eada940fba01773375d341e1ee2c41e6e0fb808001ae0  /home/misael/.local/share/steamzero/journeys/org.steamzero.journey-bc4d258a.journey.json
+2a37d09aef08c8c4b2668a1c379bb8996dd4c59207e96d5c4beaf3e496465e18  /home/misael/.local/share/steamzero/journeys/active.json
+
+## jornada de teste org.steamzero.journey-bc4d258a existe (reutilizar, não criar nova, não apagar)
+
+## preferências protegidas em /tmp/bateria-1470/config-baseline/
+total 4
+drwxr-xr-x 2 misael misael  60 out 15 16:27 .
+drwxr-xr-x 3 misael misael  60 out 15 16:27 ..
+-rw------- 1 misael misael 108 out 15 16:27 theme-preference-v1.json
+9491ce13f6fcd72048d10eb0c831026f0a1c94f4efa7582db7d8f1ea9d5c3f25  /home/misael/.config/steamzero/theme-preference-v1.json
+9491ce13f6fcd72048d10eb0c831026f0a1c94f4efa7582db7d8f1ea9d5c3f25  /tmp/bateria-1470/config-baseline/theme-preference-v1.json
+
+## state.db (leitura somente via sqlite; sem mutação)
+-rw-r--r-- 1 misael misael 6705152 out 15 16:15 /home/misael/.local/state/steamzero/state.db
