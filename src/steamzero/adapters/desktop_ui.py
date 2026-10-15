@@ -1441,6 +1441,15 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 raise SteamZeroError(
                     "E-API-SCHEMA", detail="documento da Jornada viola o schema público"
                 ) from exc
+            except ValueError as exc:
+                # D-25 (Tarefa 11): toda recusa do editor de aparência é um
+                # refusal estruturado que declara "nenhuma mudança foi feita".
+                # transact só muta depois do parse bem-sucedido do candidato,
+                # então a garantia é real: documento, dirty flag e histórico
+                # permanecem intactos.
+                raise SteamZeroError(
+                    "E-API-SCHEMA", detail=f"{exc}; nenhuma mudança foi feita"
+                ) from exc
         if path == "/journey/studio/save":
             self._require_exact_keys(payload, {"sessionId", "overwrite"})
             overwrite = payload.get("overwrite")
