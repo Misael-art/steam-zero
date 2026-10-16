@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-PRODUCT-RECOVERY",
+  "item": "SZ-PRODUCT-RECOVERY-2026-10",
+  "branch": "codex/product-recovery-2026-10-16",
+  "baseRef": "6475947c189f2d903b83f7f242a2c5ca535fb14c",
+  "owner": "codex-product-recovery",
+  "state": "closed",
+  "exclusivePaths": [
+    "docs/recovery/2026-10-16",
+    "AGENTS.md",
+    "docs/status/items/product-recovery-2026-10-16.json",
+    "docs/status/workstreams/product-recovery-2026-10-16.json",
+    "docs/status/items/governance-status.json",
+    "docs/status/items/main-reconciliation-2026-09-26.json"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Lote documental concluído; abrir workstream de R0/R1 sobre base de integração válida. Nenhum claim de runtime foi tomado ou devolvido por esta frente.",
+  "updatedAt": "2026-10-16"
+}

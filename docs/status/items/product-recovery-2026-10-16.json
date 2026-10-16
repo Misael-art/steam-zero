@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-PRODUCT-RECOVERY-2026-10",
+  "title": "Recuperação da proposta e plano de entrega das experiências",
+  "domain": "governance",
+  "implementation": "complete",
+  "integration": "feature-branch",
+  "verification": "dev",
+  "operation": "ready",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16",
+    "AGENTS.md"
+  ],
+  "dependsOn": [],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Reconstruir a evolução com evidência de histórico, código e status.",
+    "Definir Central Desktop, Launcher, Theme Engine, Aura e experiências por plataforma sem ambiguidade.",
+    "Entregar backlog sequenciado com critérios de aceite e prompt de continuidade."
+  ],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/baseline.json",
+      "command": "Inspeção read-only de Git, código, 97 itens preexistentes, 64 manifestos e symlink da release; baseline datado sem recertificação.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/recovery/2026-10-16/status-tests.log",
+      "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/unit/test_project_status.py -q — 13 passed, runner 0, state home sem delta.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
+      "command": "Links locais, 32 commits e contagens verificados; cinco eixos antigos preservados. Bateria focal de importação/projeção: 38 passed, 1 skipped.",
+      "result": "passed"
+    }
+  ],
+  "nextAction": "Executar R0/R1 do PLANO.md: inventário atual das ações e jornada Central → plataforma → emulador → requisitos aplicáveis → jogo; coordenar claims antes de editar runtime.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário.",
+  "scopeDigest": "e8075b3a0daaf44fb4a6b2d1c2100d47eb1210ab089436aec64cf70fe1669e47"
+}

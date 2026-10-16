@@ -4,6 +4,21 @@ Regras obrigatórias para qualquer agente (IA ou humano) atuando no SteamZero,
 especialmente em trabalho paralelo. Cada regra existe por causa de um incidente
 real; violar uma delas já quebrou o boot do host em produção.
 
+## Direção vigente do produto desde 2026-10-16
+
+Antes de planejar ou implementar UI, Launcher, temas, emulação ou experiências,
+leia `docs/recovery/2026-10-16/README.md` e `DIRECAO.md` no mesmo diretório.
+Essa direção registra a correção expressa do proprietário: **Central Desktop** e
+**Launcher** são as duas superfícies; **Aura é o tema demonstrativo fullscreen**,
+consumido pela Theme Engine. Ela prevalece sobre definições conflitantes de
+“AURA UI” e “AURA Launcher” em documentos anteriores. `PLANO.md` ordena a
+recuperação e `PROXIMO-AGENTE.md` define a próxima entrega concreta.
+
+Preserve IDs, preferências, contratos técnicos e evidências históricos até uma
+migração explícita. A conclusão deste plano documental não promove capacidades
+de runtime, instalação ou hardware. O catálogo `docs/status/items/` continua
+sendo a fonte do estado atual; o baseline da recuperação é uma fotografia datada.
+
 ## 1. Instalação no host exige autorização explícita
 
 Por padrão, agentes não instalam nem revertem releases no host. A exceção é uma
@@ -205,13 +220,17 @@ segredo indisponível, decisão de produto materialmente ambígua, risco destrut
 fora do escopo ou bloqueio externo comprovado. Quando houver outro item seguro e
 independente no mesmo escopo, registre o bloqueio e prossiga nele autonomamente.
 
-## 10. Taxonomia AURA e dimensão da plataforma de temas
+## 10. Superfícies e dimensão da plataforma de temas
 
 Antes de trabalhar em temas, UI, Launcher, scene graph, assets ou efeitos, leia
-obrigatoriamente `docs/01-product/AURA-SURFACES.md` e
-`docs/01-product/THEME-ENGINE-AND-STUDIO.md`. O projeto possui quatro capacidades
-independentes: **AURA UI**, **AURA Launcher**, **Theme Engine** e **Theme Studio**.
-Código, teste, instalação ou captura de uma delas nunca promove o estado de outra.
+obrigatoriamente `docs/recovery/2026-10-16/DIRECAO.md`. Consulte também
+`docs/01-product/AURA-SURFACES.md` e `docs/01-product/THEME-ENGINE-AND-STUDIO.md`
+pelos contratos técnicos e evidências, aplicando a tabela de definições superadas
+da direção vigente. **Central Desktop**, **Launcher**, **Theme Engine**,
+**Theme Studio** e o tema **Aura** têm aceites independentes. Código, teste,
+instalação ou captura de um deles nunca promove o estado de outro. Aura deve
+executar pelo contrato público de temas fullscreen; a preferência visual da
+Central deve ser independente da seleção de tema do Launcher.
 
 A filosofia normativa é **“renderize, não edite”**: o pacote guarda o asset-fonte
 e uma receita declarativa; variações de cor, contorno, máscara, composição e efeito
