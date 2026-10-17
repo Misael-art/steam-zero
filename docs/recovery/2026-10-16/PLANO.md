@@ -2,6 +2,10 @@
 
 Executar sobre a direção de 2026-10-16, conservando os cinco eixos de status. A ordem abaixo é uma proposta de execução concreta; não representa funcionalidades entregues. Abrir um item e workstream por lote antes da implementação, vinculando os itens existentes indicados. Não encerrar uma jornada apenas porque o componente já estava verde.
 
+## Regime de execução vigente
+
+A orientação posterior do proprietário estabelece [execução centralizada](PROMPT-EXECUCAO-CENTRALIZADA.md): um checkout oficial, uma linha de trabalho e um executor por vez, com instalação e prova física por lote funcional. As dependências abaixo permitem ordenar trabalho, não abrir frentes paralelas.
+
 ## Capacidades componíveis e jornadas adicionais
 
 Este plano incorpora a segunda orientação do proprietário na mesma data. O complemento [ESTADO-E-EXECUCAO.md](ESTADO-E-EXECUCAO.md) define C0–C6 dentro dos marcos R0–R10: composição/Studio, cast amigável, multidisco por drive, saves/replay, melhorias, periféricos e catálogo de plataformas. Não é um roadmap concorrente.
@@ -160,15 +164,15 @@ Toda linha de aceite precisa de cenário, versão do app, runtime, tema/hash qua
 ## Regras de execução dos agentes
 
 1. Um lote fecha uma jornada ou um contrato necessário a ela; deve ter dono e dependências, sem reconstruir subsistemas já suficientes.
-2. Trabalhar na branch própria, respeitar claims e registrar handoffs reais. Caso haja apenas dependência documental, preparar a alteração e integrar serialmente.
+2. Assumir serialmente a linha existente no checkout oficial, respeitar claims e registrar handoffs reais. Não criar branches ou worktrees por lote; integrar mudanças e checkpoints no mesmo diretório.
 3. Baseline → causa → correção mínima completa → testes focados → gates do checkpoint → evidência → status. Usar os comandos com `rtk` conforme a instrução do workspace.
 4. Não trocar sucesso operacional por `enabled=true`, captura offscreen ou existência de endpoint. A porta deve executar e o estado confirmar o efeito.
-5. Separar evidência desta branch, integração, release instalada e hardware. Não copiar autorização de instalação/entrada física de outra sessão.
-6. Não fazer instalação, publicação ou alterações no host neste lote de planejamento. Futuras etapas seguem `AGENTS.md` e autorização vigente.
+5. Separar evidência de código, integração, release instalada e hardware. Usar a autorização de continuidade do programa centralizado e registrar a candidata de cada lote; não importar autorizações de tarefas alheias.
+6. A elaboração documental deste plano não instalou releases. A execução funcional seguinte inclui instalação e prova física autorizadas, pelo fluxo de `AGENTS.md` e do prompt centralizado. Publicação pública permanece fora dessa autorização.
 7. Encerrar o lote com ação seguinte específica e caminho das evidências. Não abrir novos temas ou novas frentes para evitar terminar a jornada atual.
 
 ## Próxima entrega concreta
 
-Iniciar R0/R1 pelo fluxo **Central → plataforma → emulador → requisitos aplicáveis → jogo → preparação → retorno**, usando dois sistemas de requisitos diferentes. Entregar matriz de ações, correção do fallback de requisitos, readback real e testes; preparar a validação física sem presumir autorização de host. Em seguida fechar R2 sobre o mesmo jogo e usar esse mesmo conjunto para R3. Esse encadeamento constrói uma referência completa que os demais sistemas deverão reproduzir.
+Iniciar R0/R1 pelo fluxo **Central → plataforma → emulador → requisitos aplicáveis → jogo → preparação → retorno**, usando dois sistemas de requisitos diferentes. Entregar matriz de ações, correção do fallback de requisitos, readback real e testes; executar a validação física sob a autorização vigente do programa, após os gates e a instalação governada. Em seguida fechar R2 sobre o mesmo jogo e usar esse mesmo conjunto para R3. Esse encadeamento constrói uma referência completa que os demais sistemas deverão reproduzir.
 
 A lista de recursos de cada plataforma vem do [catálogo editorial](EXPERIENCIAS-POR-PLATAFORMA.md). Consultar os critérios C0–C6 antes de promover multidisco, compartilhamento, saves, packs ou acessórios.

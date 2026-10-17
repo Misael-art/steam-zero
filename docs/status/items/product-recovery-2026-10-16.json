@@ -21,7 +21,8 @@
     "Entregar backlog sequenciado com critérios de aceite e prompt de continuidade.",
     "Definir capacidades, ações, fontes e instâncias autoráveis no Studio com contratos e aceites de destino.",
     "Especificar compartilhamento, multidisco por unidade, saves/replay, melhorias e periféricos com limites de suporte comprovado.",
-    "Catalogar as 64 plataformas e destinos PC/web com fontes, dependências, estado e lotes vinculados ao roadmap."
+    "Catalogar as 64 plataformas e destinos PC/web com fontes, dependências, estado e lotes vinculados ao roadmap.",
+    "Entregar prompt operacional uniforme com checkout único, execução serial, instalação/prova física por lote e pendências retomáveis de credencial, equipamento e integração."
   ],
   "evidence": [
     {
@@ -53,11 +54,17 @@
       "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
       "command": "Schema, cobertura dos 64 manifestos e 2 destinos, 29 famílias, 198 propostas, referências de entrega/fontes, Markdown e links locais verificados. Sete jornadas registradas como planned.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/baseline-execucao-centralizada.json",
+      "command": "2026-10-16: um worktree registrado, árvore inicialmente limpa e 16 registros active; inspecionados gates prepare/load_bundle. Prompt e normas alinhados, sem alteração de runtime, claims antigos ou host.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Executar R0/R1 com inventário mínimo de ações/fontes C0; depois fechar o primeiro slice componível e as jornadas C1–C6 conforme ESTADO-E-EXECUCAO.md. Implementação e provas físicas em workstreams próprios.",
+  "nextAction": "Assumir PROMPT-EXECUCAO-CENTRALIZADA.md no checkout oficial e executar R0/R1 com inventário C0; fechar instalação e prova física do lote antes de avançar. Credencial e checkpoint main/CI pendentes devem ser explícitos.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-16",
-  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário.",
-  "scopeDigest": "de1d985f5cc8e0d09a876d839de20446f3daaddeb1a2ac2405ea6f2371c6764b"
+  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
+  "scopeDigest": "88b9a682e1c8881e877d8a4fd7c1577aa3c92cd89a9c287681d2e740e657fe42"
 }

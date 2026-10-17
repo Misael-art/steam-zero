@@ -26,7 +26,7 @@
     "docs/status/workstreams/main-reconciliation-2026-09-26.json",
     "docs/WORKLOG.md"
   ],
-  "scopeDigest": "3a370ff3c4d9717abbb30ff66df3eb31f331b8ba3ca89ffeeae0d52b3385a68e",
+  "scopeDigest": "48121b43fa75b82841819bfd2f62bf885016d711daa58c7cd956ff9b9874d257",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
@@ -147,6 +147,12 @@
       "kind": "diagnostic",
       "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
       "command": "2026-10-16, segunda orientação: AGENTS.md exige capacidades componíveis e catálogo de experiências com evidência. Digest renovado somente por documentação; cinco eixos preservados e runtime não recertificado.",
+      "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md",
+      "command": "2026-10-16, terceira orientação: AGENTS alinha checkout único, execução serial e autorização de instalação/prova física do programa. Digest renovado por mudança normativa; eixos e evidências funcionais anteriores preservados.",
       "result": "recorded"
     }
   ],

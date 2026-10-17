@@ -28,6 +28,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Entrega documental ampliada concluída. Próximo agente: R0/R1 e inventário C0; reservar escopos de implementação e fechar jornadas conforme PLANO.md e ESTADO-E-EXECUCAO.md, sem promover o catálogo editorial a suporte operacional.",
+  "nextAction": "Entrega do prompt concluída. Próximo executor assume serialmente a linha presente no checkout oficial, reconcilia claims pertinentes e implementa R0/R1 até instalação/prova física conforme PROMPT-EXECUCAO-CENTRALIZADA.md.",
   "updatedAt": "2026-10-16"
 }

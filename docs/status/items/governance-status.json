@@ -33,7 +33,7 @@
     "pyproject.toml",
     "docs/09-operations/HANDOFF-2026-08-27.md"
   ],
-  "scopeDigest": "5eda8ce90ac318cb43f719ff74959d494aeb74db76a307be990fe08e5bf3b1cd",
+  "scopeDigest": "d24049bc1380f3de14d46616dee6bf46bd1621e9bff1e5bdf963ea38b37510a7",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -209,6 +209,12 @@
       "kind": "diagnostic",
       "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
       "command": "2026-10-16, segunda orientação: AGENTS.md exige capacidades componíveis e catálogo de experiências com evidência. Digest renovado somente por documentação; cinco eixos preservados e runtime não recertificado.",
+      "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md",
+      "command": "2026-10-16, terceira orientação: AGENTS alinha checkout único, execução serial e autorização de instalação/prova física do programa. Digest renovado por mudança normativa; eixos e evidências funcionais anteriores preservados.",
       "result": "recorded"
     }
   ],

@@ -38,3 +38,7 @@ A segunda orientação do proprietário, na mesma data, acrescenta recursos comp
 O catálogo editorial em JSON tem [schema próprio](catalogo-experiencias.schema.json). Ele não habilita recursos de runtime. Os estados existentes foram preservados no [baseline complementar](baseline-capacidades.json).
 
 As [fontes primárias e seus limites](FONTES-EXPERIENCIAS.md) sustentam a pesquisa por runtime; possibilidades upstream não são provas de integração no SteamZero.
+
+## Continuidade em checkout único
+
+Use o [prompt de execução centralizada](PROMPT-EXECUCAO-CENTRALIZADA.md) para iniciar a implementação. A terceira orientação do proprietário estabelece um executor e um lote funcional por vez no diretório canônico, com instalação e prova real na máquina, pendência explícita de credencial e checkpoint de retomada. A conferência encontrou um único worktree registrado e 16 registros de frentes ativas, não 16 executores comprovados.

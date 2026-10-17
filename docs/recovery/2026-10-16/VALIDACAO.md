@@ -56,3 +56,14 @@ A prova cobre componentes já existentes. Não houve transmissão para receptor 
 No fechamento, os digests dos dois itens antigos que abrangem `AGENTS.md` são renovados exclusivamente pela nova orientação documental, preservando seus cinco eixos. Os gates aplicáveis são `make status-check` e `git diff --check`, além das verificações estruturais descritas acima. A suíte funcional integral não é aplicável a esta mudança exclusivamente documental.
 
 A conferência final encontrou a coluna de referências ausente na apresentação PC/web e a acrescentou. Uma execução intermediária de status-check, antes da renovação dos três digests, acusou esses digests obsoletos; o gate de fechamento foi executado após a regeneração.
+
+
+## Prompt de execução centralizada
+
+Terceira orientação do proprietário, em 2026-10-16, sobre `431348c0`. `git worktree list --porcelain` mostrou **um único worktree registrado**, no diretório canônico; `git status --short --branch` mostrou árvore limpa antes da edição. O catálogo tinha **16 workstreams active**, sem inferência de agentes vivos. O [baseline específico](baseline-execucao-centralizada.json) preserva caminho, SHA e IDs. Não foi realizado censo de clones não registrados nem remoção de diretórios/branches.
+
+O prompt operacional define assunção serial da linha existente, um executor/lote funcional por vez, ciclo de instalação/prova física e retomada de pendências. AGENTS, PLANO e PROXIMO-AGENTE foram alinhados para que a antiga obrigação de abrir branch por agente ou apenas preparar instalação não contradiga a orientação atual. A autorização de instalação do programa foi registrada; autorização de push/integração remota continua distinta.
+
+A inspeção de `tools/release_host.py::prepare` confirmou que o fluxo atual exige HEAD igual ao tip de `origin/main`, árvore limpa, CI aprovado e bundle correspondente. `load_bundle` verifica a referência de procedência. O prompt registra esse checkpoint, sem alterar o controlador nem oferecer bypass. A prova funcional futura continua sujeita a preflights e a equipamento/acesso efetivamente disponíveis.
+
+Validação desta entrega: links locais, coerência de referências normativas, preservação dos cinco eixos dos itens preexistentes, `make status-check` e `git diff --check`. Testes funcionais não repetidos: somente documentação/governança alterada. Não houve instalação, interação com desktop, nova captura, rollback, publicação ou push nesta entrega do prompt. Os 71 testes da ampliação anterior permanecem evidência daquela execução, não uma nova bateria desta rodada.

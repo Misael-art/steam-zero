@@ -14864,3 +14864,14 @@ Catálogo editorial com schema: 64 manifestos e 2 destinos adicionais, 29 famíl
 Verificação: 71 testes focais passaram em 1,67 s, runner 0 e state home idêntico; schema, IDs/caminhos dos manifestos, referências, Markdown e links conferidos. Uma coluna ausente na apresentação PC/web foi corrigida. Status-check intermediário acusou três digests ainda não renovados; após renovação e render, STATUS-CHECK: OK. Gates documentais não substituem prova física. Digests de governança/reconciliação renovados somente pela mudança normativa de AGENTS, sem alteração dos cinco eixos existentes.
 
 Nenhuma instalação, rollback, publicação, push, sessão de jogo ou interação com desktop nesta ampliação. Última leitura nesta tarefa: current `2.0.0rc1-1470cf48bf7d`, diretório anterior `2.0.0rc1-2b7eb541b4a5` presente; não é prova de rollback. Próxima implementação: R0/R1 com inventário C0 e primeiro slice componível; cast e multidisco seguem em lotes próprios antes da expansão Wii U. Cada agente deve reivindicar seus arquivos e provar o resultado antes de promover status.
+
+
+## 2026-10-16 — Prompt de execução centralizada e validação no host
+
+Terceira orientação do proprietário: um diretório oficial, execução sequencial e instalação/prova real de cada lote funcional, com pendência explícita de senha/acesso. Conferência em `431348c0`: um worktree registrado no checkout canônico e árvore limpa; 16 workstreams active no catálogo, sem inferir agentes vivos. Nenhum worktree/branch removido, criado ou reconciliado nesta entrega.
+
+Criado `docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md`; AGENTS, PLANO e PROXIMO-AGENTE alinhados à assunção serial da linha existente, sem branch por lote. Prompt define checkpoint de contexto, retomada de credenciais, preservação do desktop/dados e prova instalada antes da próxima implementação. A autorização do proprietário cobre instalação/atualização e interação de teste do programa; não concede publicação pública ou integração remota por inferência.
+
+Inspeção confirmou que `tools/release_host.py::prepare` exige HEAD no tip exato de origin/main, CI aprovado e artefato com procedência. Essa dependência está explicitada no prompt com pendência remota específica quando faltar autorização, sem bypass e sem novos checkouts. Baseline de registros em `baseline-execucao-centralizada.json`.
+
+Verificação: links e referências normativas conferidos, cinco eixos de todos os itens preservados, digests normativos renovados e STATUS-CHECK: OK. Mudança exclusivamente documental; nenhuma nova bateria funcional, instalação, rollback, interação de UI, publicação ou push. Última leitura de host da tarefa permanece current `2.0.0rc1-1470cf48bf7d`, com diretório anterior `2.0.0rc1-2b7eb541b4a5`; rollback não comprovado. Próxima ação: assumir o prompt e fechar R0/R1 até prova física, resolvendo apenas pendências concretas do operador.

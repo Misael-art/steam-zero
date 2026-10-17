@@ -26,12 +26,40 @@ migração explícita. A conclusão deste plano documental não promove capacida
 de runtime, instalação ou hardware. O catálogo `docs/status/items/` continua
 sendo a fonte do estado atual; o baseline da recuperação é uma fotografia datada.
 
+## Execução centralizada por orientação do proprietário em 2026-10-16
+
+O diretório oficial de desenvolvimento é
+`/home/misael/Projects/Steam Zero/Canonical/2026-09-21`.
+Leia `docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md` para assumir a
+continuidade. O proprietário determinou um único checkout, um executor e um lote
+funcional por vez. Não crie worktrees/clones de desenvolvimento ou branches por
+lote. A regra geral de branch própria abaixo cede, neste programa, à assunção
+serial da linha já existente, com procedência e handoff registrados. Workstreams
+continuam registrando escopo e estado, sem exigir diretórios ou branches novos.
+
+O proprietário autorizou implementar, preparar artefatos, instalar/atualizar e
+testar os lotes deste programa na própria máquina. Ao assumir essa continuidade,
+registre a autorização e a candidata concreta; não peça novamente permissão de
+instalação a cada lote. Isso supre o pedido de build necessário à instalação.
+A interação de UI para prova está abrangida, preservando dados e evitando entrada
+no desktop ocupado. Senha, janela de teste e ação física do operador geram
+pendência explícita e retomável. Preflights, tokens, CI, ownership e preservação
+de dados permanecem obrigatórios. Autorização de instalação não concede push,
+merge, publicação pública ou mudança de proteção remota; o prompt descreve o
+checkpoint de main/CI e como tratar a autorização remota que faltar.
+
+Este regime específico prevalece sobre instruções antigas de abrir nova branch
+por agente ou de apenas preparar a prova física sem instalação autorizada.
+Não se aplica a tarefas alheias ao programa, nem elimina o fluxo governado de
+instalação e recuperação das seções seguintes.
+
 ## 1. Instalação no host exige autorização explícita
 
 Por padrão, agentes não instalam nem revertem releases no host. A exceção é uma
 autorização explícita do operador, na thread atual, para instalar ou atualizar o
-SteamZero com `bigsudo`. Essa autorização vale somente para a release, branch e
-sessão indicadas; não se transfere para outros agentes ou trabalhos futuros.
+SteamZero com `bigsudo`. Fora do programa de execução centralizada acima, essa
+autorização vale somente para a release, branch e sessão indicadas; não se
+transfere para outros agentes ou trabalhos futuros.
 
 Quando autorizado, o agente pode executar exclusivamente `bigsudo
 /usr/bin/python3 tools/install_host.py install/rollback ...` e as verificações
@@ -70,8 +98,11 @@ ação do operador, depois que o agente declarar o host pronto para o teste.
 
 ## 2. Trabalhe só na sua branch e nos seus arquivos
 
-- Crie sua branch a partir da base que o operador indicar e trabalhe SOMENTE nela.
-  Nunca commite em branch de outro agente nem em branch já mergeada.
+- No programa centralizado, assuma serialmente a linha existente conforme a
+  seção acima. Nos demais trabalhos, crie sua branch a partir da base indicada
+  pelo operador e trabalhe SOMENTE nela.
+  Fora da assunção serial autorizada, nunca commite em branch de outro agente
+  nem em branch já mergeada.
 - Respeite o escopo de arquivos da sua tarefa. Se precisar mudar algo fora dele,
   registre no relatório final em vez de editar.
 - Arquivo compartilhado entre frentes (ex.: `desktop_dashboard.py`, QML consumido
@@ -198,9 +229,10 @@ Cada item deve seguir este ciclo, sem pular etapas aplicáveis:
 9. avançar imediatamente ao próximo item elegível.
 
 Push, publicação, instalação, rollback e qualquer outra ação externa ou
-privilegiada não são implicitamente autorizados por esta seção. A thread atual
-deve conceder a autorização exigida, com o escopo definido pelas seções
-anteriores. Depois de concedida, o agente não volta a pedir confirmação entre
+privilegiada não são implicitamente autorizados por esta seção. A autorização
+deve vir do proprietário, com o escopo definido pelas seções anteriores; a
+continuidade centralizada segue a autorização específica acima. Depois de
+concedida, o agente não volta a pedir confirmação entre
 passos já abrangidos; tokens de confirmação continuam sendo obtidos e usados
 exatamente como o fluxo governado exigir. Sem autorização, o agente conclui tudo
 o que for seguro até os gates e o commit local, registra o bloqueio exato e não
