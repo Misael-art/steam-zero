@@ -197,6 +197,7 @@ class TestEmulatorRows:
             registry.get("playstation"),
             facts_for=only_fallback,
             core_present_for=lambda _core: True,
+            bios_present_for=lambda _platform, _adapter, _name: True,
         )
         assert platform["defaultEmulatorId"] == "retroarch"
         assert platform["primaryEmulator"]["id"] == "retroarch"

@@ -196,13 +196,14 @@ class TestBiosRequirementsAreProjected:
         assert "kick40068.A1200" in str(bios["detail"])
 
     def test_requirement_is_unverified_without_a_probe(self) -> None:
-        """Sem leitura do host não há como afirmar ausência: declara sem bloquear."""
+        """Sem leitura, BIOS não é ausente nem válida; preparação fica pendente."""
         payload = build_emulation_workspace(emulator_facts=_installed, core_present=lambda _c: True)
         amiga = self._platform(payload, "amiga")
         bios = amiga["requirements"]["bios"]  # type: ignore[index]
         assert bios["status"] == "unverified"
         assert bios["blocksPlay"] is False
-        assert amiga["launchable"] is True
+        assert amiga["launchable"] is False
+        assert "verificada" in str(amiga["launchReason"])
 
     def test_emulator_row_carries_required_and_present(self) -> None:
         payload = build_emulation_workspace(
@@ -238,6 +239,27 @@ class TestBiosRequirementsAreProjected:
         assert len(_others(payload)) >= 30, "a central continua navegável"
         amiga = self._platform(payload, "amiga")
         assert amiga["launchable"] is False, "ausência não provada por leitura falha"
+        bios = amiga["requirements"]["bios"]
+        assert bios["status"] == "unverified"
+        assert bios["installed"] is None
+        assert "biosPresent" not in amiga["emulators"][0]
+
+    def test_bios_probe_is_read_once_per_emulator(self) -> None:
+        calls: list[tuple[str, str, str]] = []
+
+        def present(platform: str, adapter: str, name: str) -> bool:
+            calls.append((platform, adapter, name))
+            return True
+
+        self._platform(
+            build_emulation_workspace(
+                emulator_facts=_installed,
+                core_present=lambda _c: True,
+                bios_present=present,
+            ),
+            "amiga",
+        )
+        assert calls.count(("amiga", "retroarch", "kick34005.A500")) == 1
 
     def test_composed_bios_payload_still_validates(self) -> None:
         build_emulation_workspace(

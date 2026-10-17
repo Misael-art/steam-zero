@@ -86,7 +86,25 @@ def test_switch_area_excludes_other_platform_games(
         for platform in platforms
         if any(game["id"] == "nes-1" for game in platform["games"])
     )
-    assert nes_platform["games"] == [mixed[1]]
+    assert len(nes_platform["games"]) == 1
+    nes = nes_platform["games"][0]
+    assert {key: nes[key] for key in mixed[1]} == mixed[1]
+    assert nes["playAction"]["enabled"] is False
+    assert nes["playAction"]["reason"] == "arquivo do jogo mudou ou não está acessível"
+    assert nes["emulatorId"] is None
+    assert nes_platform["requirements"] == {}
+    scopes = {scope["id"]: scope for scope in nes_platform["scopes"]}
+    assert scopes["game"]["enabled"] is True
+    assert scopes["emulator"]["enabled"] is True
+    emulator = nes_platform["emulators"][0]
+    assert emulator["actions"]
+    assert emulator["action"] in emulator["actions"]
+    assert all(
+        action["id"].endswith(":retroarch") or action["id"] == "library.root.add"
+        for action in emulator["actions"]
+    )
+    assert emulator["launch"]["core"] == "mesen"
+    assert emulator["platform"] == "nes-famicom"
 
 
 def test_global_media_job_processes_only_switch_games(

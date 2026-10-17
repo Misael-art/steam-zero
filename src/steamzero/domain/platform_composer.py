@@ -96,6 +96,8 @@ def _launch_readiness(
         return False, "o emulador desta plataforma não está instalado"
     if profile.requires_core and not core_present:
         return False, f"o core {profile.core} não está instalado no RetroArch"
+    if profile.requires_bios and bios_present is None:
+        return False, f"a BIOS de {platform_label} · {adapter_id} ainda não foi verificada"
     if profile.requires_bios and bios_present is False:
         # BIOS é conteúdo do próprio usuário: declaramos a exigência e a
         # verificamos pelo store central; nunca a obtemos nem baixamos. O
@@ -116,7 +118,7 @@ def _bios_presence(
     """Presença de cada BIOS exigida no store central; ``None`` quando não lida.
 
     A falha de UMA sondagem degrada apenas este requisito (AGENTS.md §8): a
-    ausência não pode ser provada, então o requisito sai como ausente — nunca
+    ausência não pode ser provada, então o requisito sai como desconhecido — nunca
     derruba a composição da central.
     """
     if probe is None:
@@ -126,7 +128,7 @@ def _bios_presence(
         try:
             result[name] = bool(probe(platform_id, adapter_id, name))
         except Exception:
-            result[name] = False
+            return None
     return result
 
 
@@ -273,6 +275,7 @@ def compose_platform(
             row["iconAsset"] = facts.icon_asset
         if facts.version:
             row["version"] = facts.version
+        bios_present: dict[str, bool] | None = None
         if profile is not None:
             row["launch"] = profile.to_dict()
             if profile.requires_core:
@@ -297,9 +300,7 @@ def compose_platform(
             primary_adapter_id = adapter_id
             primary_bios_names = profile.requires_bios if profile is not None else ()
             primary_bios_present = (
-                _bios_presence(bios_present_for, manifest.id, adapter_id, profile.requires_bios)
-                if profile is not None and profile.requires_bios
-                else None
+                bios_present if profile is not None and profile.requires_bios else None
             )
             launchable, launch_reason = _launch_readiness(
                 profile,
