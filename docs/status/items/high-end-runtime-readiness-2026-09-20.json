@@ -16,7 +16,7 @@
     "tests/unit/test_emulation_runtime_remediation.py",
     "docs/09-operations/evidence/2026-09-20-high-end-runtime-readiness"
   ],
-  "scopeDigest": "c61957473599d53fb944d9a380f1d0c339d857fb8edd9a1c3f5c9b53b16d76aa",
+  "scopeDigest": "04908d576da2df0743d0a38d599e3aba92c8e6447c0a67458ee870aa03a4658f",
   "dependsOn": [
     "SZ-PLATFORM-PS4-CATALOG",
     "SZ-PLATFORM-PS5-CATALOG",
@@ -74,12 +74,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-HIGH-END-RUNTIME-READINESS"
   ],
   "nextAction": "Aguardar integração das frentes PS4/PS5 e do contrato X68000; com autorização, instalar release governada, importar somente firmware/dumps legais e repetir provas físicas. Enquanto isso, materializar archives pelo job assíncrono e manter Xbox/Xbox 360 em preflight seguro.",
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-16",
   "notes": "A ausência de firmware/arquivos de máquina Xbox, SharpEmu no host, conteúdo PS4/PS5 jogável e suporte M3U PX68K não é mascarada como erro genérico. O contrato X68000 pertence a outra frente; o handoff é SOFT-COORDINATION e a execução segura continua nos demais sistemas."
 }

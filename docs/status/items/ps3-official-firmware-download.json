@@ -19,7 +19,7 @@
     "tests/unit/test_ps3_firmware.py",
     "tests/unit/test_emulation_controller.py"
   ],
-  "scopeDigest": "7b5d552a03012065b95d91b36762695e67f00e7349e4c8480c50b00cd1b554b4",
+  "scopeDigest": "edbca43248569f995c2039f778b2db48153164bfb647dd1687841467bf488950",
   "dependsOn": [
     "SZ-PLATFORM-REQUIREMENT-SCOPE",
     "SZ-EMULATION-REAL-DUMP-VALIDATION"
@@ -91,12 +91,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch, instalar uma release governada e executar a prova física do assistente com download oficial, erro controlado, cancelamento/rollback e lançamento posterior do RPCS3.",
   "activeWorkstreams": [
     "WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD"
   ],
-  "updatedAt": "2026-10-09",
+  "updatedAt": "2026-10-16",
   "notes": "O fluxo de importação local continua disponível para firmware fornecido pelo usuário. A automação é deliberadamente limitada ao artefato oficial da Sony e não altera um console PS3 físico."
 }

@@ -1,0 +1,32 @@
+{
+  "batch": "R0/R1",
+  "directory": "/home/misael/Projects/Steam Zero/Canonical/2026-09-21",
+  "branch": "codex/product-recovery-2026-10-16",
+  "owner": "codex-central-executor",
+  "functionalCommits": {
+    "core": "af8c0ad7be5862a8b0fef7b28a1105d9646547fc",
+    "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0"
+  },
+  "lastTestedCodeCommit": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
+  "testResults": {
+    "nonvisualPassed": 6421,
+    "visualPassedOnIdenticalSource": 394,
+    "skipped": 47,
+    "coveragePercentBeforeFixtureOnlyRepair": 85.47,
+    "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
+  },
+  "releaseActive": "2.0.0rc1-1470cf48bf7d",
+  "releaseActiveSource": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
+  "bundle": null,
+  "releaseCandidate": null,
+  "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
+  "rollbackActivationTested": false,
+  "physicalAcceptance": "not-executed",
+  "authorization": "implementation, governed artifacts/install and real UI tests authorized by owner; remote push/merge/publication not granted",
+  "pending": [
+    "PENDENTE_INTEGRACAO_REMOTA",
+    "PENDENTE_JANELA_DE_TESTE"
+  ],
+  "nextAction": "Integrar a branch existente em main somente após autorização remota e CI verde; não ignorar a falha visual mais recente do PR #258. No mesmo checkout, assumir o SHA exato de main/CI e executar release_host.py prepare, install com token e rollback verificados, depois ACEITE-INSTALADO.md. R2 aguarda fechamento físico.",
+  "updatedAt": "2026-10-17"
+}

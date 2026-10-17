@@ -1,0 +1,10 @@
+{
+  "src/steamzero/adapters/emulation.py": "0bccc130a80ec8bbb3b5e20c86981f87c731570bf10c60ecaa5c39ee13e5f9c7",
+  "src/steamzero/domain/platform_composer.py": "16d91147922fd1c26c34450e0f1b7350ded9b64d8e0757cea9cbe85b4a572e7c",
+  "src/steamzero/ui/qml/Emulation.qml": "73fcf31046dcb85c1b2fe1f0f6df647f0c27be1deb9056a4aa9a4228a67b6518",
+  "tests/integration/test_recovery_central.py": "4547ca360d0242655b3bbbad8b51848772cde5f30c2f1445a709e7bcaf267ef0",
+  "tests/integration/test_emulation_platform_scope.py": "b8fac2fb11b4a0f6e2e39709138ff956b13ee778bb871938adebec7787de6158",
+  "tests/unit/test_platform_composer.py": "c4e40dc505d9be0e00b6197c24cad4b309c09743dcf462e287fafe827492c4cd",
+  "tests/unit/test_workspace_composition.py": "b8c7080b5218ffc986b7b76b5cec006642eda7c32ac4ef1081dddbb42a47d675",
+  "tests/qml/check_emulation.qml": "b9f1d231e1f9fc71c737557a93d256eb70c76742e73b449831e963d0744e0b4b"
+}

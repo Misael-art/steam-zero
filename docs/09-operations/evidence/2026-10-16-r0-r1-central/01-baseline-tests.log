@@ -1,0 +1,191 @@
+...F..FF.F                                                               [100%]
+=================================== FAILURES ===================================
+_ TestBiosRequirementsAreProjected.test_requirement_is_unverified_without_a_probe _
+
+self = <test_workspace_composition.TestBiosRequirementsAreProjected object at 0x7fe52478c2b0>
+
+    def test_requirement_is_unverified_without_a_probe(self) -> None:
+        """Sem leitura, BIOS não é ausente nem válida; preparação fica pendente."""
+        payload = build_emulation_workspace(emulator_facts=_installed, core_present=lambda _c: True)
+        amiga = self._platform(payload, "amiga")
+        bios = amiga["requirements"]["bios"]  # type: ignore[index]
+        assert bios["status"] == "unverified"
+        assert bios["blocksPlay"] is False
+>       assert amiga["launchable"] is False
+E       assert True is False
+
+tests/unit/test_workspace_composition.py:205: AssertionError
+_ TestBiosRequirementsAreProjected.test_failing_bios_probe_degrades_only_its_platform _
+
+self = <test_workspace_composition.TestBiosRequirementsAreProjected object at 0x7fe524ce78a0>
+
+    def test_failing_bios_probe_degrades_only_its_platform(self) -> None:
+        def broken(_p: str, _a: str, _n: str) -> bool:
+            raise RuntimeError("store central inacessível")
+    
+        payload = build_emulation_workspace(
+            emulator_facts=_installed,
+            core_present=lambda _c: True,
+            bios_present=broken,
+        )
+        assert len(_others(payload)) >= 30, "a central continua navegável"
+        amiga = self._platform(payload, "amiga")
+        assert amiga["launchable"] is False, "ausência não provada por leitura falha"
+        bios = amiga["requirements"]["bios"]
+>       assert bios["status"] == "unverified"
+E       AssertionError: assert 'missing' == 'unverified'
+E         
+E         - unverified
+E         + missing
+
+tests/unit/test_workspace_composition.py:243: AssertionError
+__ TestBiosRequirementsAreProjected.test_bios_probe_is_read_once_per_emulator __
+
+self = <test_workspace_composition.TestBiosRequirementsAreProjected object at 0x7fe5243d8150>
+
+    def test_bios_probe_is_read_once_per_emulator(self) -> None:
+        calls: list[tuple[str, str, str]] = []
+    
+        def present(platform: str, adapter: str, name: str) -> bool:
+            calls.append((platform, adapter, name))
+            return True
+    
+        self._platform(
+            build_emulation_workspace(
+                emulator_facts=_installed,
+                core_present=lambda _c: True,
+                bios_present=present,
+            ),
+            "amiga",
+        )
+>       assert calls.count(("amiga", "retroarch", "kick34005.A500")) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = <built-in method count of list object at 0x7fe523e1e500>(('amiga', 'retroarch', 'kick34005.A500'))
+E        +    where <built-in method count of list object at 0x7fe523e1e500> = [('playstation', 'retroarch', 'scph5500.bin'), ('playstation', 'retroarch', 'scph5501.bin'), ('playstation', 'retroarc...etroarch', 'kick34005.A500'), ('amiga', 'retroarch', 'kick40068.A1200'), ('amiga', 'retroarch', 'kick34005.A500'), ...].count
+
+tests/unit/test_workspace_composition.py:262: AssertionError
+___________ test_qml_handheld_harness_offscreen[check_emulation.qml] ___________
+
+harness = 'check_emulation.qml'
+
+    @pytest.mark.visual
+    @pytest.mark.parametrize(
+        "harness",
+        [
+            "check_handheld_shell.qml",
+            "check_main_emulation.qml",
+            "check_emulation.qml",
+            "check_steam_gameplay_responsive.qml",
+            "check_editorial_home.qml",
+            "check_editorial_library.qml",
+            "check_editorial_canonical_systems.qml",
+            "check_media_effect_layer.qml",
+            "check_asset_recipe_preview.qml",
+            "check_scene_repeater.qml",
+            "check_scene_containers.qml",
+            # Navegação por controle do AURA Launcher. Capacidade separada da AURA
+            # UI: mora em seu próprio diretório e não promove o estado dela.
+            "launcher/check_launcher_home.qml",
+            "launcher/check_launcher_game_page.qml",
+            "launcher/check_launcher_shell.qml",
+            "launcher/check_launcher_activation.qml",
+            "launcher/check_launcher_accessibility.qml",
+            "launcher/check_launcher_covers.qml",
+            "launcher/check_launcher_session_osd.qml",
+            "launcher/check_launcher_save_state_gallery.qml",
+            "launcher/check_launcher_session_peripherals.qml",
+            "check_asset_color_transform.qml",
+            "check_glass_panel.qml",
+            "check_scene_motion.qml",
+            "check_scene_surfaces.qml",
+            "check_theme_studio_canvas.qml",
+            "check_operational_metric_card.qml",
+            "check_handheld_layout_focus.qml",
+            # UX-03: a superfície lê o contrato de prontidão (estado, medição, causa,
+            # próxima ação). A regra de cor vivia inteiramente no QML, e é ali que ela
+            # voltaria a morar se alguém reimplementá-la por página.
+            "check_readiness_surface.qml",
+            # UX-04: armazenamento em unidades compreensíveis. As quatro superfícies
+            # executadas lado a lado porque o defeito é justamente a divergência entre
+            # elas — o mesmo 1073741824 B lido como GiB, GB e MB conforme a tela.
+            "check_storage_units.qml",
+            "check_main_handheld_sections.qml",
+            "check_credentials.qml",
+            "check_credential_dialog_responsive.qml",
+            "check_high_contrast.qml",
+            # UX-01: a tinta dos avisos sobre superfície fixa é calculada, e o
+            # cálculo precisa sobreviver ao tema escuro e ao alto contraste.
+            "check_warning_surface_contrast.qml",
+            # Prova Image.Ready de cada asset empacotado, não apenas o caminho.
+            "check_packaged_assets.qml",
+            # Identidade AURA no editor: preview no ThemeBridge, cancelar restaura.
+            "check_theme_editor_aura.qml",
+            "check_theme_editor_asset_recipes.qml",
+            "check_responsive_components.qml",
+        ],
+    )
+    def test_qml_handheld_harness_offscreen(harness: str) -> None:
+        if harness in _SVG_HARNESSES and not _qml_decodes_svg():
+            pytest.fail(
+                f"{DIAG_VISUAL_ENVIRONMENT}: runtime sem plugin de imagem SVG; "
+                f"{harness} carrega asset .svg"
+            )
+        completed = subprocess.run(
+            [str(QML), f"tests/qml/{harness}"],
+            cwd=ROOT,
+            env=_qml_environment(),
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+>       _assert_qml_clean(completed, harness)
+
+tests/integration/test_qml_handheld_offscreen.py:305: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+completed = CompletedProcess(args=['/usr/sbin/qml6', 'tests/qml/check_emulation.qml'], returncode=61, stdout='', stderr='qml: FAIL...da BIOS deve preservar resultado do serviço: ok\nqml: FAIL: firmware sem porta não pode ganhar importação universal\n')
+label = 'check_emulation.qml'
+
+    def _assert_qml_clean(
+        completed: subprocess.CompletedProcess[str] | _CentralLoadingRun, label: str
+    ) -> None:
+        if getattr(completed, "timed_out", False):
+            raise AssertionError(
+                f"{label} excedeu o prazo do subprocesso QML\n"
+                f"stdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
+            )
+        diagnostics = (
+            "Binding loop",
+            "Unable to assign",
+            "TypeError:",
+            "ReferenceError:",
+            "Cannot open:",
+        )
+>       assert completed.returncode == 0, (
+            f"{label} falhou ({completed.returncode})\n"
+            f"stdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
+        )
+E       AssertionError: check_emulation.qml falhou (61)
+E         stdout:
+E         
+E         stderr:
+E         qml: FAIL: NES não pode receber Keys/Firmware por fallback
+E         qml: FAIL: área sem requisito não pode inventar importações
+E         qml: FAIL: Amiga deve publicar BIOS no resumo
+E         qml: FAIL: estado da BIOS deve preservar resultado do serviço: missing
+E         qml: FAIL: estado da BIOS deve preservar resultado do serviço: ok
+E         qml: FAIL: firmware sem porta não pode ganhar importação universal
+E         
+E       assert 61 == 0
+E        +  where 61 = CompletedProcess(args=['/usr/sbin/qml6', 'tests/qml/check_emulation.qml'], returncode=61, stdout='', stderr='qml: FAIL...da BIOS deve preservar resultado do serviço: ok\nqml: FAIL: firmware sem porta não pode ganhar importação universal\n').returncode
+
+tests/integration/test_qml_handheld_offscreen.py:133: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_workspace_composition.py::TestBiosRequirementsAreProjected::test_requirement_is_unverified_without_a_probe
+FAILED tests/unit/test_workspace_composition.py::TestBiosRequirementsAreProjected::test_failing_bios_probe_degrades_only_its_platform
+FAILED tests/unit/test_workspace_composition.py::TestBiosRequirementsAreProjected::test_bios_probe_is_read_once_per_emulator
+FAILED tests/integration/test_qml_handheld_offscreen.py::test_qml_handheld_harness_offscreen[check_emulation.qml]
+4 failed, 6 passed, 74 deselected in 5.89s
+real-state before: exists=True files=12948 directories=2115 bytes=1430256030 max_mtime_ns=1792149414122754490 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430256030 max_mtime_ns=1792149414122754490 source=HOME-default

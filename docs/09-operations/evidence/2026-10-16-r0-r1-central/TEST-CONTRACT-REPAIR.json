@@ -1,0 +1,11 @@
+{
+  "productionAndPreviousTestsUnchangedFromIntegral": true,
+  "path": "tests/unit/test_launch_sony_nintendo.py",
+  "beforeSha256": "3f547e429cd03ff53714b59d891b8734c5410aab298e64bf8c7072babf56bef6",
+  "afterSha256": "a30fd92ae7106aba3e5bebea09502d77e4282c4e08b63e15b080d7ccceaa8b45",
+  "reason": "Um adapter conhecido não basta para atribuí-lo a uma plataforma incompatível. Fixture Switch universal substituída por quatro plataformas explícitas, com escrita/readback reais e quatro recusas Sony/Nintendo no Switch.",
+  "focusedResult": "35 passed; no real state delta",
+  "integralResultBeforeFixtureRepair": "6807 passed, 47 skipped, 1 obsolete-fixture failure; coverage 85.47%",
+  "nonvisualCheckpoint": "6421 passed, 47 skipped, 394 deselected; runner 0; real state unchanged",
+  "visualCheckpoint": "394 visual tests passed in integral on byte-identical production/QML/test harnesses"
+}

@@ -14,7 +14,7 @@
     "tests/unit/test_platform_composer.py",
     "tests/unit/test_workspace_composition.py"
   ],
-  "scopeDigest": "9728a20a766647c30901a6897838be35ea21eac76814db45d333229de03bdd4b",
+  "scopeDigest": "9a457a2a46d4c40bd04fab19ac0d7af34c7531bd8e1027a95ff65abde1ddedb6",
   "dependsOn": [
     "SZ-AGG-PLATFORM-MANIFESTS",
     "SZ-LIBRARY-CANONICAL"
@@ -54,10 +54,16 @@
       "reference": "tests",
       "command": ".venv/bin/python tools/run_tests_isolated.py tests -q (runner interrompido após permanecer sem saída em 17%; sem processo residual)",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a composição na próxima release e validar no host; a UI de requisitos e o ciclo físico de lançamento permanecem com as frentes proprietárias.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-10-16",
   "notes": "A auditoria das capturas encontrou prontidão de 100% ao lado de 'Nenhum emulador definido' em uma plataforma não-Switch. A composição genérica publica as linhas de emuladores, mas não materializa primaryEmulator; o overview também injeta Keys/Firmware por fallback quando a plataforma não possui essa área. A correção desta frente cobre a primeira causa; a segunda pertence à UI compartilhada já custodiada por outro workstream."
 }

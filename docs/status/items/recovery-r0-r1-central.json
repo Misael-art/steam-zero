@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-RECOVERY-R0-R1-CENTRAL",
+  "title": "R0/R1 — Central com requisitos aplicáveis e retorno preservado",
+  "domain": "emulation",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "src/steamzero/ui/qml/Emulation.qml",
+    "src/steamzero/domain/platform_composer.py",
+    "tests/qml/check_emulation.qml",
+    "tests/unit/test_workspace_composition.py",
+    "tests/unit/test_platform_composer.py",
+    "docs/09-operations/evidence/2026-10-16-r0-r1-central",
+    "src/steamzero/adapters/emulation.py",
+    "tests/integration/test_recovery_central.py",
+    "tests/integration/test_emulation_platform_scope.py",
+    "tests/unit/test_launch_sony_nintendo.py"
+  ],
+  "dependsOn": [
+    "SZ-EMULATION-PLATFORM-SCOPE",
+    "SZ-EMULATION-PLATFORM-CONTEXT",
+    "SZ-PLATFORM-REQUIREMENT-SCOPE",
+    "SZ-UI-DESKTOP-AUDIT",
+    "SZ-EMULATION-REAL-DUMP-VALIDATION"
+  ],
+  "knownGaps": [
+    "GAP-R1-REQUIREMENTS-FALLBACK",
+    "GAP-R1-INSTALLED-ACCEPTANCE",
+    "GAP-R1-REMOTE-INTEGRATION"
+  ],
+  "acceptanceCriteria": [
+    "NES não apresenta Keys/Firmware; Amiga apresenta BIOS do core, com estado desconhecido, ausente e presente distintos.",
+    "A Central conserva plataforma, emulador e jogo ao preparar e retornar; ações disponíveis vêm dos serviços.",
+    "Inventário C0 identifica ação, fonte, argumentos, contexto, disponibilidade e aplicação.",
+    "Candidata commitada passa gates e main/CI, instalação governada e prova real desktop/viewport Deck preservando dados."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/10-final-focused-tests.log",
+      "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py [composer,workspace,requirements,amiga-preflight,recovery-central,platform-scope,QML check_emulation] -q — 70 passed, 61 deselected; estado real sem delta.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/05-controller-tests.log",
+      "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/unit/test_emulation_controller.py tests/integration/test_emulation_workspace_cli.py tests/integration/test_cli_emulation.py -q — 178 passed antes da integração de lifecycle; aceites físicos não executados.",
+      "result": "passed"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/INVENTARIO-C0.md",
+      "command": "Inventário mínimo de ações/fontes/contexto/argumentos/disponibilidade/aplicação, incluindo os 13 IDs de sessão; não implementa registry nem promove Studio/Launcher/Aura.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/15-nonvisual-checkpoint.log",
+      "command": "Runner isolado do conjunto não visual final: 6421 passed, 47 skipped, 394 deselected; exit 0, estado real sem delta.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/11-integral-final-tests.log",
+      "command": "Recorte dos 394 testes visuais: passed sobre bytes idênticos de produção/QML/harness. Resultado bruto integral preservado: 6807 passed, 47 skipped, 1 falha de fixture não visual posteriormente corrigida; não alegar exit 0 deste log. Cobertura 85,47% atingiu gate 85%.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/13-platform-selection-contract.log",
+      "command": "35 passed: quatro preferências Sony/Nintendo no sistema declarado, quatro recusas no Switch, readback real e regressões R0/R1; estado real sem delta. Contrato antigo atualizado sem flexibilizar o guard de produção.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/12-integral-final-gates.log",
+      "command": "Lint e format integrais, mypy (303 fontes), independence, boundaries e status verdes. Fixture posterior revalidada em 16-final-metadata-gates.log; produção não mudou.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/14-host-rollback-preflight.json",
+      "command": "Verificação read-only da release ativa: hashes, entrypoints, root ownership, smoke isolado e ownership de destinos aprovados. Rollback não ativado, candidata não instalada.",
+      "result": "passed"
+    }
+  ],
+  "nextAction": "Integrar a branch existente em main somente após autorização remota e CI verde; não ignorar a falha visual mais recente do PR #258. No mesmo checkout, assumir o SHA exato de main/CI e executar release_host.py prepare, install com token e rollback verificados, depois ACEITE-INSTALADO.md. R2 aguarda fechamento físico. PENDENTE_INTEGRACAO_REMOTA registrado; último código testado 10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0.",
+  "activeWorkstreams": [
+    "WS-2026-10-RECOVERY-R0-R1-CENTRAL"
+  ],
+  "updatedAt": "2026-10-17",
+  "notes": "Execução serial no checkout oficial, commits core af8c0ad7be5862a8b0fef7b28a1105d9646547fc e QML 10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0. Código e testes locais, sem instalação/prova física nova. Gates: 6421 não visuais + 394 visuais em bytes de produção idênticos; 47 skips, cobertura integral 85,47%; a única falha bruta integral era fixture Sony/Nintendo corrigida e revalidada. Release ativa 2.0.0rc1-1470cf48bf7d e rollback read-only verificado. Instalação/artefatos/testes reais autorizados; push/merge ainda não. Sem bundle ou candidata instalada. R2 não iniciado; nenhum eixo preexistente promovido."
+}

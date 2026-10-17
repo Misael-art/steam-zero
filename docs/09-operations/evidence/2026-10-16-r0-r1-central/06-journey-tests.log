@@ -1,0 +1,4 @@
+......                                                                   [100%]
+6 passed, 61 deselected in 6.57s
+real-state before: exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default
