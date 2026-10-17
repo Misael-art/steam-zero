@@ -14875,3 +14875,33 @@ Criado `docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md`; AGENTS, PLANO
 Inspeção confirmou que `tools/release_host.py::prepare` exige HEAD no tip exato de origin/main, CI aprovado e artefato com procedência. Essa dependência está explicitada no prompt com pendência remota específica quando faltar autorização, sem bypass e sem novos checkouts. Baseline de registros em `baseline-execucao-centralizada.json`.
 
 Verificação: links e referências normativas conferidos, cinco eixos de todos os itens preservados, digests normativos renovados e STATUS-CHECK: OK. Mudança exclusivamente documental; nenhuma nova bateria funcional, instalação, rollback, interação de UI, publicação ou push. Última leitura de host da tarefa permanece current `2.0.0rc1-1470cf48bf7d`, com diretório anterior `2.0.0rc1-2b7eb541b4a5`; rollback não comprovado. Próxima ação: assumir o prompt e fechar R0/R1 até prova física, resolvendo apenas pendências concretas do operador.
+
+
+## 2026-10-17 — R0/R1 Central: checkpoint local com instalação pendente
+
+Executor único codex-central-executor assumiu a linha existente
+`codex/product-recovery-2026-10-16` em a672c35a no checkout canônico, sem branch,
+clone ou worktree novo. Autorização vigente cobre artefatos/instalação/testes
+reais; push e integração remota ainda não autorizados. Commits funcionais:
+`af8c0ad7be5862a8b0fef7b28a1105d9646547fc` (serviços, BIOS desconhecida e
+preferência/readback por plataforma) e `10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0`
+(QML compartilhado, requisitos aplicáveis e contexto). Inventário C0 registrado.
+
+Checkpoint: 6421 não visuais passaram, 47 skips; 394 visuais passaram na integral
+sobre o mesmo código. Cobertura integral 85,47%. O resultado bruto integral
+6807/47/1 foi preservado: única falha era fixture que atribuía Dolphin etc. a
+ROM Switch; contrato atualizado para quatro sistemas corretos e quatro recusas
+explícitas, 35 retestes verdes e conjunto não visual completo revalidado. Lint,
+formatação, tipos, independence, boundaries e status aprovados. Estado real sem
+delta nas provas finais. Nenhum dos cinco eixos dos 29 itens anteriores mudou.
+
+Release ativa 2.0.0rc1-1470cf48bf7d; rollback dessa release verificado read-only
+(hashes, ownership, entrypoints e smoke isolado), não ativado. Em árvore limpa
+d823ff85, o prepare governado recusou: tip exato de main exigido, remoto ainda
+2b7eb541. Nenhum bundle, instalação, rollback, reboot ou PNG instalado novo.
+PENDENTE_INTEGRACAO_REMOTA (base PR #258 ainda aberta e último run visual falho)
+e PENDENTE_JANELA_DE_TESTE. Não se pede novamente autorização de instalação;
+senha eventualmente solicitada somente no terminal/diálogo. Jornada permanece
+aberta; R2 não iniciado. Retomada sem reconstrução em
+`docs/09-operations/evidence/2026-10-16-r0-r1-central/CURRENT-CHECKPOINT.json`
+e roteiro `ACEITE-INSTALADO.md` no mesmo diretório.

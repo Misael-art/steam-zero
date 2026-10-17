@@ -87,9 +87,15 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/14-host-rollback-preflight.json",
       "command": "Verificação read-only da release ativa: hashes, entrypoints, root ownership, smoke isolado e ownership de destinos aprovados. Rollback não ativado, candidata não instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "release",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/17-prepare-checkpoint.json",
+      "command": "release_host.py prepare sobre d823ff857a35dedab8569a6b106e245d87ce8ce6, árvore limpa: exit 1, exige tip exato de refs/heads/main (2b7eb541b4a54f0930927a2b0f92cb45776ae4c7). Sem bundle, instalação ou bypass; PENDENTE_INTEGRACAO_REMOTA.",
+      "result": "partial"
     }
   ],
-  "nextAction": "Integrar a branch existente em main somente após autorização remota e CI verde; não ignorar a falha visual mais recente do PR #258. No mesmo checkout, assumir o SHA exato de main/CI e executar release_host.py prepare, install com token e rollback verificados, depois ACEITE-INSTALADO.md. R2 aguarda fechamento físico. PENDENTE_INTEGRACAO_REMOTA registrado; último código testado 10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0.",
+  "nextAction": "PENDENTE_INTEGRACAO_REMOTA: obter autorização explícita para push da branch existente e integração governada em main, reconciliando a base pendente do PR #258 e seu último gate visual falho. Após CI push terminal verde e checkout no SHA exato de main, executar resumeCommandAfterAuthorizedIntegrationAndGreenCI, conferir rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Instalação já autorizada; não pedir de novo. R2 não iniciado.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R0-R1-CENTRAL"
   ],

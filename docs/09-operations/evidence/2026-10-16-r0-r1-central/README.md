@@ -195,3 +195,27 @@ commits preservados. O checkpoint estruturado está em `CURRENT-CHECKPOINT.json`
 nenhuma nova cópia, branch por lote ou reconstrução é necessária. Artefato de
 release futuro deve apontar o SHA integrado exato de main/CI, que ainda não existe
 para este lote. O commit funcional local não é uma release instalada.
+
+## Preparação governada efetivamente tentada
+
+`17-prepare-checkpoint.json`: após o commit documental `d823ff857a35dedab8569a6b106e245d87ce8ce6`
+e árvore limpa, `release_host.py prepare` atualizou origin/main e recusou o
+checkout: **prepare aceita somente o tip exato de refs/heads/main**. O tip
+conferido foi `2b7eb541b4a54f0930927a2b0f92cb45776ae4c7`. Exit 1 do controlador,
+nenhum bundle preparado e nenhuma mutação do host. A recusa não foi contornada.
+
+**PENDENTE_INTEGRACAO_REMOTA:** falta autorização de push da linha existente e
+integração governada em main (inclui o histórico pendente do PR #258). O último
+run remoto desse PR possui falha visual; somente um CI push terminal verde do
+SHA integrado permite preparar a candidata. O checkpoint final documental
+posterior apenas registra a recusa; o código continua em `10a2fac6` com hashes
+idênticos aos testados.
+
+Retomada: no mesmo diretório, conferir HEAD/branch/árvore, executar o checkpoint
+remoto autorizado e assumir o SHA exato de main/CI, preservando estes commits.
+Depois: `rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py
+prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle`.
+Conferir bundle/run/hash/boot/ownership/rollback e usar install com o token
+exato. Instalação e testes continuam autorizados; senha, se pedida, somente no
+terminal/diálogo, sem documento ou argumento. Reavaliar janela dedicada antes de
+input; nenhuma prova instalada nova foi feita e R0/R1 continua aberto.

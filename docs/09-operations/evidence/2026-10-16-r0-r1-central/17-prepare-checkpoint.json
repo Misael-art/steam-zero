@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "tools/release_host.py",
+    "prepare",
+    "--commit",
+    "d823ff857a35dedab8569a6b106e245d87ce8ce6",
+    "--output",
+    "/tmp/steamzero-r0-r1-bundle"
+  ],
+  "checkoutWasClean": true,
+  "sourceCommit": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
+  "originMainAfterFetch": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
+  "exitCode": 1,
+  "stdout": "{\n  \"error\": \"prepare aceita somente o tip exato de refs/heads/main\",\n  \"ok\": false\n}",
+  "stderr": "",
+  "releaseActive": "2.0.0rc1-1470cf48bf7d",
+  "pending": "PENDENTE_INTEGRACAO_REMOTA",
+  "bundlePrepared": false,
+  "hostMutationExecuted": false
+}
