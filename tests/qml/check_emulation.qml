@@ -565,6 +565,70 @@ Window {
         object.destroy()
     }
 
+    function testApplicableRequirements() {
+        const object = makePage({"platforms": [
+            {"id": "nes-famicom", "name": "NES", "requirements": {},
+             "emulators": [{"id": "retroarch", "name": "RetroArch"}],
+             "games": [{"id": "nes-fixture", "name": "NES fixture", "path": "/fixture.nes",
+                 "emulatorId": "retroarch", "playAction": {"id": "game.launch:nes-fixture",
+                     "label": "Jogar", "enabled": false, "reason": "core ausente"}}]},
+            {"id": "amiga", "name": "Amiga", "requirements": {
+                "bios": {"kind": "bios", "status": "unverified", "installed": null,
+                    "detail": "BIOS ainda não verificada", "blocksPlay": false}
+             }, "emulators": [], "games": []}
+        ]})
+        if (!object)
+            return
+        let requests = 0
+        object.actionRequested.connect(function() { requests += 1 })
+        object.selectEmulator(0)
+        check(requests === 0, "navegar emulador sem writer publicado não altera preferência global")
+        object.selectScope(1)
+        check(itemWithObjectName(object, "emulation.emulator.retroarch.keys", false) === null,
+              "emulador sem requisito de keys não pode receber Keys pendentes")
+        object.selectScope(2)
+        object.selectGame(object.games[0])
+        object.openGameArea("graphicsPerformance")
+        object.selectScope(2)
+        object.closeGameDetails()
+        object.syncPublishedSelection()
+        check(object.selectedGameId === "nes-fixture" && object.selectedEmulator.id === "retroarch",
+              "retorno de ajustes conserva seleção de jogo e emulador")
+        check(object.gamePlayAction(object.selectedGame).reason === "core ausente",
+              "preparação pendente deve preservar motivo real e permitir voltar")
+        check(object.overviewCards().every(function(card) {
+            return card.id !== "health-keys" && card.id !== "health-firmware"
+        }), "NES não pode receber Keys/Firmware por fallback")
+        check(object.defaultCards("keysFirmware").length === 0,
+              "área sem requisito não pode inventar importações")
+        object.platformIndex = 1
+        let bios = object.overviewCards().find(function(card) { return card.id === "health-bios" })
+        check(bios !== undefined, "Amiga deve publicar BIOS no resumo")
+        if (bios) {
+            check(bios.state === "unverified", "BIOS desconhecida não é pronta nem ausente")
+            check(object.cardActions(bios).length === 0, "não inventar writer para BIOS")
+        }
+        for (const status of ["missing", "ok"]) {
+            object.emulation = {"platforms": [{"id": "amiga", "name": "Amiga",
+                "requirements": {"bios": {"kind": "bios", "status": status,
+                    "detail": status, "blocksPlay": status === "missing"}},
+                "emulators": [], "games": []}]}
+            object.platformIndex = 0
+            bios = object.overviewCards().find(function(card) { return card.id === "health-bios" })
+            check(bios && bios.state === (status === "ok" ? "ready" : "missing"),
+                  "estado da BIOS deve preservar resultado do serviço: " + status)
+        }
+        object.emulation = {"platforms": [{"id": "playstation-3", "name": "PS3",
+            "requirements": {"firmware": {"kind": "firmware", "status": "unverified",
+                "detail": "Não verificado", "action": null}}, "emulators": [], "games": []}]}
+        const firmware = object.overviewCards().find(function(card) {
+            return card.id === "health-firmware"
+        })
+        check(firmware && object.cardActions(firmware).length === 0,
+              "firmware sem porta não pode ganhar importação universal")
+        object.destroy()
+    }
+
     function testBackendArea() {
         const object = makePage({
             "platforms": [{
@@ -993,6 +1057,7 @@ Window {
             testPlatformCardJourney()
             testEmulatorRepairRowDispatchesRepairAction()
             testPublishedPrimaryAndPlatformArtwork()
+            testApplicableRequirements()
             testBackendArea()
             testGameLibraryJourney()
             testEmulatorMaintenanceListsEveryManagedEmulator()
