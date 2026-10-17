@@ -14,6 +14,13 @@ consumido pela Theme Engine. Ela prevalece sobre definições conflitantes de
 “AURA UI” e “AURA Launcher” em documentos anteriores. `PLANO.md` ordena a
 recuperação e `PROXIMO-AGENTE.md` define a próxima entrega concreta.
 
+A ampliação da mesma data está em `CAPACIDADES-COMPONIVEIS.md` e
+`ESTADO-E-EXECUCAO.md` nesse diretório: recursos publicados pelos serviços devem
+ser componíveis pelo Studio em instâncias visuais, com ações e fontes tipadas.
+Compartilhamento, multidisco, saves/replay, melhorias e periféricos não podem
+ficar presos a um único menu. O catálogo de experiências por plataforma é
+planejamento condicionado a evidência; não habilita capabilities de runtime.
+
 Preserve IDs, preferências, contratos técnicos e evidências históricos até uma
 migração explícita. A conclusão deste plano documental não promove capacidades
 de runtime, instalação ou hardware. O catálogo `docs/status/items/` continua

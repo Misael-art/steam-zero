@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-16",
+  "sourceCommit": "52131b87",
+  "meaning": "Snapshot dos itens relacionados antes da ampliação; não é certificação nem painel vivo.",
+  "items": [
+    {
+      "file": "docs/status/items/cast-internet.json",
+      "id": "SZ-CAST-INTERNET",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "nextAction": "Implementar cast internet apenas apos prova LAN estavel e decisao de relay, respeitando remote-cast-session-v1."
+    },
+    {
+      "file": "docs/status/items/cast-lan.json",
+      "id": "SZ-CAST-LAN",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "installed",
+      "nextAction": "Exercitar pareamento e transmissao contra um receptor real (operador): a descoberta voltou a responder, o caminho seguinte nunca foi percorrido em producao."
+    },
+    {
+      "file": "docs/status/items/multidisc-descriptor-reconciliation.json",
+      "id": "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "dev",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "nextAction": "Implementar o contrato de extração/conversão e comprovar PUAE/PX68K; só então executar plan/apply/verify transacional, promover a release e fazer a prova física com jogo multidisco legítimo."
+    },
+    {
+      "file": "docs/status/items/multidisc-session-disc-identity.json",
+      "id": "SZ-MULTIDISC-SESSION-DISC-IDENTITY",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "nextAction": "Promover a branch em release governada e repetir a mesma captura pelo Launcher instalado; o adapter e o ciclo físico já foram comprovados."
+    },
+    {
+      "file": "docs/status/items/aura-save-state-gallery.json",
+      "id": "SZ-AURA-SAVE-STATE-GALLERY",
+      "implementation": "partial",
+      "integration": "released",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "nextAction": "Preservar save/load como capacidade instalada; fechar a troca de disco somente com um jogo multi-disc real e adapter comprovado."
+    },
+    {
+      "file": "docs/status/items/aura-session-osd.json",
+      "id": "SZ-AURA-SESSION-OSD",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "nextAction": "Exit confirmado a partir de pausa continua validado somente por processo descartável. Depois da release candidata autorizada, executar a jornada real e o retorno; preservação de saves, captura e input físico continuam pendentes."
+    },
+    {
+      "file": "docs/status/items/emulator-enhancements.json",
+      "id": "SZ-EMULATION-ENHANCEMENTS",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "nextAction": "Defeito (2) do teste de 2026-08-21 RESOLVIDO: b34213d allowlist de rede na unit do daemon, presente na release instalada 2.0.0rc1-92d91d631b80 e PROVADO no host em 2026-08-25 pelo install fisico do melonDS com download dentro do daemon (evidencia docs/09-operations/evidence/2026-08-25-melonds-smoke-install-fisico). Proximo: retomar o teste de producao dos demais emuladores pelo fluxo governado, começando pelos flatpak 'missing' (ppsspp, xemu, azahar), e seguir a Onda 1 do workstream (identidade de titulo tipada por plataforma)."
+    },
+    {
+      "file": "docs/status/items/multidisc-materialization-ingestion-2026-09-20.json",
+      "id": "SZ-MULTIDISC-MATERIALIZATION-INGESTION",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "nextAction": "Promover uma release governada e executar a prova física de materialização, lançamento M3U e retorno; exercitar também archive.materialize para PS4/PS5; manter X68000 em contrato pendente."
+    },
+    {
+      "file": "docs/status/items/theme-engine.json",
+      "id": "SZ-THEME-ENGINE",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "nextAction": "Resolver e adapter preparam configuração privada RetroArch apenas para o próximo launch; read model permanece launch-configured-unconfirmed. Confirmar overlay/pixels e recuperação na release autorizada antes de declarar aplicação."
+    },
+    {
+      "file": "docs/status/items/theme-studio.json",
+      "id": "SZ-THEME-STUDIO",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "nextAction": "Validar a saída com rascunho e o Desfazer de metadados por teclado na candidata instalada. Studio round-tripa o PNG-fonte e a Jornada persiste a URI versionada no checkout. Validar o consumo visual e acessibilidade em B_VISUAL após instalar candidata autorizada; nenhum pixel de release foi promovido."
+    }
+  ]
+}

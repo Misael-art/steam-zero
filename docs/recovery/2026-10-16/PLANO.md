@@ -2,6 +2,12 @@
 
 Executar sobre a direção de 2026-10-16, conservando os cinco eixos de status. A ordem abaixo é uma proposta de execução concreta; não representa funcionalidades entregues. Abrir um item e workstream por lote antes da implementação, vinculando os itens existentes indicados. Não encerrar uma jornada apenas porque o componente já estava verde.
 
+## Capacidades componíveis e jornadas adicionais
+
+Este plano incorpora a segunda orientação do proprietário na mesma data. O complemento [ESTADO-E-EXECUCAO.md](ESTADO-E-EXECUCAO.md) define C0–C6 dentro dos marcos R0–R10: composição/Studio, cast amigável, multidisco por drive, saves/replay, melhorias, periféricos e catálogo de plataformas. Não é um roadmap concorrente.
+
+C0 começa no inventário R0/R1 e fecha o primeiro slice em R3/R4. Cast básico e multidisco entram em R3/R4; não esperam a expansão de streaming/Wii U de R8. O próximo agente conserva o foco da Central, incluindo a publicação de ações/fontes reais, e evita cristalizar botões exclusivos antes do contrato comum.
+
 ## Sequência e dependências
 
 ```mermaid
@@ -87,7 +93,7 @@ R1 e R2 podem avançar independentemente com contratos comuns. R5 e R6 validam a
 
 **Pontos de partida:** `domain/themes.py`, `theme_scene.py`, `scene_esde.py`, `scene_retrofe.py`, `theme_preferences.py`, `adapters/theme_catalog.py`, `ThemeScene*.qml` disponíveis no checkout, `LauncherCinema.qml`.
 
-**Entregas:** contrato de pacote/cena e ações semânticas, ativação no Launcher, preferência fullscreen independente, fallback, invalidação e relatório de perdas. Inventariar os caminhos IR e sceneLayouts nativos antes de consolidar; um renderer comum pode admitir frontends de compilação distintos.
+**Entregas:** contrato de capacidades, ações, fontes e instâncias visuais de C0 (ver `CAPACIDADES-COMPONIVEIS.md`), contrato de pacote/cena e ações semânticas, ativação no Launcher, preferência fullscreen independente, fallback, invalidação e relatório de perdas. Inventariar os caminhos IR e sceneLayouts nativos antes de consolidar; um renderer comum pode admitir frontends de compilação distintos.
 
 **Migração:** manter IDs antigos legíveis; snapshot da preferência; resolver destino por superfície; preview sem persistir; aplicar e reabrir; rollback para os mesmos IDs e arquivos. Sem substituição global de strings AURA.
 
@@ -164,3 +170,5 @@ Toda linha de aceite precisa de cenário, versão do app, runtime, tema/hash qua
 ## Próxima entrega concreta
 
 Iniciar R0/R1 pelo fluxo **Central → plataforma → emulador → requisitos aplicáveis → jogo → preparação → retorno**, usando dois sistemas de requisitos diferentes. Entregar matriz de ações, correção do fallback de requisitos, readback real e testes; preparar a validação física sem presumir autorização de host. Em seguida fechar R2 sobre o mesmo jogo e usar esse mesmo conjunto para R3. Esse encadeamento constrói uma referência completa que os demais sistemas deverão reproduzir.
+
+A lista de recursos de cada plataforma vem do [catálogo editorial](EXPERIENCIAS-POR-PLATAFORMA.md). Consultar os critérios C0–C6 antes de promover multidisco, compartilhamento, saves, packs ou acessórios.

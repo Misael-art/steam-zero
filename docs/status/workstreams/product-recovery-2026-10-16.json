@@ -13,7 +13,14 @@
     "docs/status/items/product-recovery-2026-10-16.json",
     "docs/status/workstreams/product-recovery-2026-10-16.json",
     "docs/status/items/governance-status.json",
-    "docs/status/items/main-reconciliation-2026-09-26.json"
+    "docs/status/items/main-reconciliation-2026-09-26.json",
+    "docs/status/items/experience-composition.json",
+    "docs/status/items/experience-cast-ux.json",
+    "docs/status/items/experience-multidrive-ux.json",
+    "docs/status/items/experience-saves-replay.json",
+    "docs/status/items/experience-enhancements-ux.json",
+    "docs/status/items/experience-peripherals.json",
+    "docs/status/items/experience-platform-catalog.json"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -21,6 +28,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Lote documental concluído; abrir workstream de R0/R1 sobre base de integração válida. Nenhum claim de runtime foi tomado ou devolvido por esta frente.",
+  "nextAction": "Entrega documental ampliada concluída. Próximo agente: R0/R1 e inventário C0; reservar escopos de implementação e fechar jornadas conforme PLANO.md e ESTADO-E-EXECUCAO.md, sem promover o catálogo editorial a suporte operacional.",
   "updatedAt": "2026-10-16"
 }

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-ENHANCEMENTS-UX",
+  "title": "Packs e melhorias com aplicação real por ações do tema",
+  "domain": "emulation",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/CAPACIDADES-COMPONIVEIS.md",
+    "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md"
+  ],
+  "dependsOn": [
+    "SZ-EXPERIENCE-COMPOSITION",
+    "SZ-EMULATION-ENHANCEMENTS"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Resolver compatibilidade de um pack real por jogo, versão e runtime.",
+    "Provar plano, aplicação, leitura de volta e rollback de arquivos gerenciados.",
+    "Apresentar selector e preset autorados, distinguindo efeito imediato de próximo lançamento."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C4: escolher um pack com writer comprovável e fechar jornada completa; não equiparar geração de config com pack efetivamente ativo.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}

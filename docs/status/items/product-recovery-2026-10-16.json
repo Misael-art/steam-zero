@@ -18,7 +18,10 @@
   "acceptanceCriteria": [
     "Reconstruir a evolução com evidência de histórico, código e status.",
     "Definir Central Desktop, Launcher, Theme Engine, Aura e experiências por plataforma sem ambiguidade.",
-    "Entregar backlog sequenciado com critérios de aceite e prompt de continuidade."
+    "Entregar backlog sequenciado com critérios de aceite e prompt de continuidade.",
+    "Definir capacidades, ações, fontes e instâncias autoráveis no Studio com contratos e aceites de destino.",
+    "Especificar compartilhamento, multidisco por unidade, saves/replay, melhorias e periféricos com limites de suporte comprovado.",
+    "Catalogar as 64 plataformas e destinos PC/web com fontes, dependências, estado e lotes vinculados ao roadmap."
   ],
   "evidence": [
     {
@@ -38,11 +41,23 @@
       "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
       "command": "Links locais, 32 commits e contagens verificados; cinco eixos antigos preservados. Bateria focal de importação/projeção: 38 passed, 1 skipped.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/recovery/2026-10-16/capabilities-tests.log",
+      "command": "Runner isolado: superfícies, periféricos, saves, cast e multidisco — 71 passed em 1,67 s; exit 0; state home sem delta. Prova de fundamentos existentes, sem promoção das jornadas propostas.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
+      "command": "Schema, cobertura dos 64 manifestos e 2 destinos, 29 famílias, 198 propostas, referências de entrega/fontes, Markdown e links locais verificados. Sete jornadas registradas como planned.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Executar R0/R1 do PLANO.md: inventário atual das ações e jornada Central → plataforma → emulador → requisitos aplicáveis → jogo; coordenar claims antes de editar runtime.",
+  "nextAction": "Executar R0/R1 com inventário mínimo de ações/fontes C0; depois fechar o primeiro slice componível e as jornadas C1–C6 conforme ESTADO-E-EXECUCAO.md. Implementação e provas físicas em workstreams próprios.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-16",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário.",
-  "scopeDigest": "e8075b3a0daaf44fb4a6b2d1c2100d47eb1210ab089436aec64cf70fe1669e47"
+  "scopeDigest": "de1d985f5cc8e0d09a876d839de20446f3daaddeb1a2ac2405ea6f2371c6764b"
 }

@@ -33,7 +33,7 @@
     "pyproject.toml",
     "docs/09-operations/HANDOFF-2026-08-27.md"
   ],
-  "scopeDigest": "21885d9df4fe8cbcb1c7ec0d044a91dedd97366f19a680a216f5c79d75dd3530",
+  "scopeDigest": "5eda8ce90ac318cb43f719ff74959d494aeb74db76a307be990fe08e5bf3b1cd",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -203,6 +203,12 @@
       "kind": "diagnostic",
       "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
       "command": "2026-10-16: AGENTS.md atualiza a precedência documental e a taxonomia conforme orientação do proprietário. Renovação do digest apenas pela alteração normativa; nenhum código ou eixo funcional alterado e nenhuma evidência antiga recertificada.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
+      "command": "2026-10-16, segunda orientação: AGENTS.md exige capacidades componíveis e catálogo de experiências com evidência. Digest renovado somente por documentação; cinco eixos preservados e runtime não recertificado.",
       "result": "recorded"
     }
   ],

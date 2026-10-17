@@ -78,6 +78,12 @@ O pacote Aura precisa declarar suas cenas e transições; um conjunto de cores a
 
 A primeira amostra deve demonstrar identidade por plataforma, fanart/vídeo, logo derivado por receita, composição de detalhe, transição, foco e OSD permitido pela sessão. Efeitos avançados adicionais entram quando orçamento e fallback forem medidos. Editor de timeline e marketplace não bloqueiam o primeiro Launcher excelente.
 
+## Recursos disponíveis para autoria de temas
+
+Todas as capacidades publicadas devem ser consumíveis como ações e fontes tipadas por instâncias visuais configuradas no Studio. O autor escolhe moldura, submenu, menu iniciar, lateral ou outra composição compatível. Sessão, discos, compartilhamento, saves/replay, melhorias e periféricos seguem o mesmo princípio; disponibilidade e execução continuam sob autoridade dos serviços.
+
+O contrato normativo está em [CAPACIDADES-COMPONIVEIS.md](CAPACIDADES-COMPONIVEIS.md). As jornadas de [compartilhamento](COMPARTILHAMENTO.md) e [multidisco](MULTIDISCO.md) têm critérios próprios. Uma imagem de bezel não comprova superfície interativa; um enum de protocolo não comprova descoberta; um fade de save não autoriza excluir o arquivo.
+
 ## Compatibilidade externa
 
 Cada pacote recebe uma classificação separada: reconhecido; importado; renderizado; navegável; launch/return integrado; validado visualmente e em desempenho. Declarar formato, versão, tema, digest, perdas, release e hardware. Percentual de propriedades reconhecidas não equivale a fidelidade visual.
@@ -109,6 +115,8 @@ Um perfil de experiência combina plataforma, runtime/versão, jogos, participan
 “100% GamePad” é uma meta que exige uma matriz de funções e testes por jogo/hardware. Não promovê-la apenas por mapear botões. Dois processos GBA abertos não provam link multiplayer. Streaming de desktop não prova duas superfícies independentes.
 
 A fala do proprietário usa “docker” em um contexto que também pode significar dock físico. O plano contempla dock como cenário local e registra Docker/host remoto como uma topologia adicional a esclarecer antes desse adapter; a ambiguidade não bloqueia o trabalho local nem autoriza assumir um servidor/container já existente.
+
+O [catálogo completo de experiências](EXPERIENCIAS-POR-PLATAFORMA.md) amplia estas propostas para todos os manifestos e destinos PC/web. As propostas são diferenciadas por variante, runtime e jogo; a inclusão no catálogo não declara suporte. A [matriz de estado e execução](ESTADO-E-EXECUCAO.md) vincula cada família ao trabalho existente e às entregas faltantes.
 
 ## Critério de excelência
 

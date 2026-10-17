@@ -1,0 +1,1606 @@
+{
+  "schemaVersion": 1,
+  "kind": "steamzero-experience-planning-catalog",
+  "updatedAt": "2026-10-16",
+  "sourceCommit": "52131b87",
+  "publicationPolicy": "Somente planejamento. Não carregar este catálogo como capability de runtime. Estados operacionais em docs/status/items e nos adapters observados.",
+  "commonCapabilities": [
+    "Sessão e retorno",
+    "Compartilhamento conforme provider",
+    "Saves/checkpoints somente quando suportados",
+    "Capturas e galerias conforme backend",
+    "Dados, mídia e manuais",
+    "Instâncias visuais componíveis no Studio"
+  ],
+  "features": {
+    "drives": {
+      "label": "Discos, unidades e troca contextual",
+      "deliveryItem": "SZ-EXPERIENCE-MULTIDRIVE-UX",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "nfc": {
+      "label": "NFC e Amiibo por runtime",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "cards": {
+      "label": "Cartões e-Reader e acessórios equivalentes",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "sensors": {
+      "label": "Touch, movimento, câmera e microfone",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "link": {
+      "label": "Link entre instâncias ou dispositivos",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "players": {
+      "label": "Participantes, controles e remapeamento",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "lightgun": {
+      "label": "Mira e calibração por jogo",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "keypad": {
+      "label": "Teclado numérico e overlays de controle",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "keyboard": {
+      "label": "Teclado, mouse e atalhos contextuais",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "memory": {
+      "label": "Memory cards e persistência por jogo/jogador",
+      "deliveryItem": "SZ-EXPERIENCE-SAVES-REPLAY",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "vmu": {
+      "label": "Memory card e display VMU por participante",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "gc-gba": {
+      "label": "Sessão composta GameCube e GBA",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "dualscreen": {
+      "label": "Telas e superfícies independentes",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "network": {
+      "label": "Multiplayer por rede conforme runtime",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "packs": {
+      "label": "Packs gráficos, texturas e patches compatíveis",
+      "deliveryItem": "SZ-EXPERIENCE-ENHANCEMENTS-UX",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "mods": {
+      "label": "Conteúdo extra, engine e ordem de mods",
+      "deliveryItem": "SZ-EXPERIENCE-ENHANCEMENTS-UX",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "presentation": {
+      "label": "Apresentação original e melhorada por perfil",
+      "deliveryItem": "SZ-EXPERIENCE-COMPOSITION",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "rotation": {
+      "label": "Orientação com foco e controles coerentes",
+      "deliveryItem": "SZ-EXPERIENCE-COMPOSITION",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "stereo": {
+      "label": "Estereoscopia e alternativas de apresentação",
+      "deliveryItem": "SZ-EXPERIENCE-COMPOSITION",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "companion": {
+      "label": "Manuais e contexto do jogo",
+      "deliveryItem": "SZ-EXPERIENCE-COMPOSITION",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "clock": {
+      "label": "Relógio e tempo conforme dispositivo emulado",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "display": {
+      "label": "Saídas, proporção e áudio por dispositivo",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "cloud": {
+      "label": "Sessão web, autenticação e reconexão",
+      "deliveryItem": "SZ-EXPERIENCE-PLATFORM-CATALOG",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "machine": {
+      "label": "Perfis de máquina e expansão por título",
+      "deliveryItem": "SZ-EXPERIENCE-PLATFORM-CATALOG",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "tape": {
+      "label": "Fita, posição e autoload por receita",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "midi": {
+      "label": "Saída MIDI opcional por perfil",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "arcade": {
+      "label": "Créditos, start e configuração por máquina",
+      "deliveryItem": "SZ-EXPERIENCE-PERIPHERALS",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "carts": {
+      "label": "Cartuchos de fantasy console e runtime",
+      "deliveryItem": "SZ-EXPERIENCE-PLATFORM-CATALOG",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    },
+    "readiness": {
+      "label": "Prontidão e compatibilidade por jogo/runtime",
+      "deliveryItem": "SZ-EXPERIENCE-PLATFORM-CATALOG",
+      "status": "proposal",
+      "requires": "Prova no runtime/versão/plataforma/jogo/host pertinentes; não habilitar por nome da família."
+    }
+  },
+  "sources": {
+    "px68k": {
+      "url": "https://docs.libretro.com/library/px68k/",
+      "supports": "Troca de discos e seleção de unidade; verificar limites de save-state do core.",
+      "checkedAt": "2026-10-16"
+    },
+    "puae": {
+      "url": "https://docs.libretro.com/library/puae/",
+      "supports": "M3U, disk control, multidrive e perfis Amiga.",
+      "checkedAt": "2026-10-16"
+    },
+    "mgba": {
+      "url": "https://github.com/mgba-emu/mgba/blob/master/README.md",
+      "supports": "e-Reader, link e recursos declarados pelo upstream; não implica disponibilidade em cada frontend.",
+      "checkedAt": "2026-10-16"
+    },
+    "sameboy": {
+      "url": "https://sameboy.github.io/features/",
+      "supports": "Link e acessórios com restrições explícitas por frontend; estudar alternativa Linux antes de escolher.",
+      "checkedAt": "2026-10-16"
+    },
+    "dolphin-gba": {
+      "url": "https://dolphin-emu.org/blog/2021/07/21/integrated-gba/",
+      "supports": "Integração GameCube/GBA; desempenho e configuração SteamZero ainda precisam de prova.",
+      "checkedAt": "2026-10-16"
+    },
+    "dolphin-controls": {
+      "url": "https://dolphin-emu.org/docs/guides/configuring-controllers/",
+      "supports": "Wiimote emulado e configuração de controles.",
+      "checkedAt": "2026-10-16"
+    },
+    "cemu-packs": {
+      "url": "https://cemu-project.github.io/cemu_graphic_packs/",
+      "supports": "Pacotes gráficos no Cemu; não prova hot apply nem catálogo SteamZero.",
+      "checkedAt": "2026-10-16"
+    },
+    "cemu-gamepad": {
+      "url": "https://cemu.info/faq.html",
+      "supports": "Tela GamePad e graphic packs; não prova simulação integral via Deck.",
+      "checkedAt": "2026-10-16"
+    },
+    "flycast": {
+      "url": "https://docs.libretro.com/library/flycast/",
+      "supports": "VMU por jogo e opções do core; display interativo no bezel é proposta SteamZero.",
+      "checkedAt": "2026-10-16"
+    },
+    "ppsspp": {
+      "url": "https://www.ppsspp.org/docs/reference/texture-replacement/",
+      "supports": "Substituição de texturas; interface, identidade e reversão SteamZero por implementar.",
+      "checkedAt": "2026-10-16"
+    },
+    "melonds": {
+      "url": "https://melonds.kuribo64.net/faq.php",
+      "supports": "Local multiplayer/download play com restrições; exigir runtime/build e prova local.",
+      "checkedAt": "2026-10-16"
+    },
+    "moonlight": {
+      "url": "https://github.com/moonlight-stream/moonlight-docs/wiki/Setup-Guide",
+      "supports": "Papéis de host e cliente e configuração de conexão; não prova descoberta reversa de clientes pelo SteamZero.",
+      "checkedAt": "2026-10-16"
+    }
+  },
+  "platforms": [
+    {
+      "platformId": "switch",
+      "name": "Nintendo Switch",
+      "manifest": "src/steamzero/platform_manifests/01-switch.platform.json",
+      "featureRefs": [
+        "nfc",
+        "packs",
+        "players"
+      ],
+      "proposals": [
+        "Amiibo virtual com inserir/remover e escrita observada",
+        "perfil por controle/jogador",
+        "seleção de update e melhorias por versão do jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "nintendo-handheld",
+      "name": "Game Boy, Game Boy Color e Game Boy Advance",
+      "manifest": "src/steamzero/platform_manifests/02-nintendo-handheld.platform.json",
+      "featureRefs": [
+        "link",
+        "cards",
+        "sensors"
+      ],
+      "proposals": [
+        "GB/GBC com link e perfis por cartucho",
+        "GBA com dupla/link e e-Reader",
+        "câmera/impressora e sensores somente nos modelos compatíveis"
+      ],
+      "sourceRefs": [
+        "mgba",
+        "sameboy"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "nes-famicom",
+      "name": "Nintendo Entertainment System e Famicom",
+      "manifest": "src/steamzero/platform_manifests/03-nes-famicom.platform.json",
+      "featureRefs": [
+        "drives",
+        "lightgun",
+        "presentation"
+      ],
+      "proposals": [
+        "Troca de lado/disquete Famicom Disk System",
+        "mira e calibração em títulos compatíveis",
+        "perfis de periféricos e paleta por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "snes",
+      "name": "Super Nintendo Entertainment System",
+      "manifest": "src/steamzero/platform_manifests/04-snes.platform.json",
+      "featureRefs": [
+        "packs",
+        "players",
+        "presentation"
+      ],
+      "proposals": [
+        "Perfis Super Game Boy",
+        "expansão MSU-1 como opção compatível e reversível",
+        "mouse/multitap por título"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "mega-drive",
+      "name": "Sega Mega Drive e Genesis",
+      "manifest": "src/steamzero/platform_manifests/05-mega-drive.platform.json",
+      "featureRefs": [
+        "players",
+        "presentation",
+        "packs"
+      ],
+      "proposals": [
+        "Multitap por jogo",
+        "apresentação por região e proporção",
+        "perfis de áudio e melhorias compatíveis"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "arcade",
+      "name": "Arcade, CPS, Neo Geo e MAME",
+      "manifest": "src/steamzero/platform_manifests/06-arcade.platform.json",
+      "featureRefs": [
+        "arcade",
+        "lightgun",
+        "rotation"
+      ],
+      "proposals": [
+        "Créditos/start por jogador",
+        "orientação vertical automática com input coerente",
+        "controles de pistola/volante/trackball por máquina"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation",
+      "name": "Sony PlayStation",
+      "manifest": "src/steamzero/platform_manifests/07-playstation.platform.json",
+      "featureRefs": [
+        "drives",
+        "memory",
+        "players"
+      ],
+      "proposals": [
+        "Troca de CD com identidade estável",
+        "memory cards por jogo ou coleção",
+        "multitap e perfil de melhoria visual por título"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "geforce-now",
+      "name": "NVIDIA GeForce NOW",
+      "manifest": "src/steamzero/platform_manifests/08-geforce-now.platform.json",
+      "featureRefs": [
+        "cloud",
+        "players",
+        "display"
+      ],
+      "proposals": [
+        "Abrir sessão autenticada com controle pronto",
+        "qualidade por rede",
+        "reconexão e retorno coerente à biblioteca"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "xbox-cloud-gaming",
+      "name": "Xbox Cloud Gaming",
+      "manifest": "src/steamzero/platform_manifests/09-xbox-cloud-gaming.platform.json",
+      "featureRefs": [
+        "cloud",
+        "players",
+        "display"
+      ],
+      "proposals": [
+        "Sessão web com controle detectado",
+        "qualidade e reconexão",
+        "retorno sem confundir save remoto com save-state local"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "amazon-luna",
+      "name": "Amazon Luna",
+      "manifest": "src/steamzero/platform_manifests/10-amazon-luna.platform.json",
+      "featureRefs": [
+        "cloud",
+        "players",
+        "display"
+      ],
+      "proposals": [
+        "Abrir serviço e jogo quando houver deep link suportado",
+        "diagnóstico amigável de sessão/rede",
+        "perfil de controles"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "nintendo-console",
+      "name": "Nintendo GameCube e Wii",
+      "manifest": "src/steamzero/platform_manifests/11-nintendo-console.platform.json",
+      "featureRefs": [
+        "gc-gba",
+        "sensors",
+        "memory"
+      ],
+      "proposals": [
+        "GameCube com GBA integrado por participante",
+        "Wii com apontar/movimento calibrados",
+        "memory cards e perfis de acessórios separados por sistema"
+      ],
+      "sourceRefs": [
+        "dolphin-gba",
+        "dolphin-controls"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "master-system",
+      "name": "Sega Master System",
+      "manifest": "src/steamzero/platform_manifests/12-master-system.platform.json",
+      "featureRefs": [
+        "lightgun",
+        "presentation",
+        "companion"
+      ],
+      "proposals": [
+        "Mira nos jogos compatíveis",
+        "paleta e região",
+        "coleção com manuais e dicas de controle"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "game-gear",
+      "name": "Sega Game Gear",
+      "manifest": "src/steamzero/platform_manifests/13-game-gear.platform.json",
+      "featureRefs": [
+        "link",
+        "presentation",
+        "display"
+      ],
+      "proposals": [
+        "Link quando runtime comprovar",
+        "composição de tela portátil com LCD opcional",
+        "perfil de escala e cores por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "pc-engine-turbografx",
+      "name": "NEC PC Engine e TurboGrafx-16",
+      "manifest": "src/steamzero/platform_manifests/14-pc-engine-turbografx.platform.json",
+      "featureRefs": [
+        "drives",
+        "players",
+        "presentation"
+      ],
+      "proposals": [
+        "CD e conjunto lógico",
+        "multitap por título",
+        "perfis de sistema/expansão coerentes"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "atari-classics",
+      "name": "Atari 2600, 5200, 7800, Lynx e Jaguar",
+      "manifest": "src/steamzero/platform_manifests/15-atari-classics.platform.json",
+      "featureRefs": [
+        "keypad",
+        "rotation",
+        "link"
+      ],
+      "proposals": [
+        "Perfis separados 2600/5200/7800/Lynx/Jaguar",
+        "teclado/paddle quando aplicável",
+        "rotação e link apenas nos sistemas compatíveis"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "neo-geo-pocket",
+      "name": "SNK Neo Geo Pocket e Pocket Color",
+      "manifest": "src/steamzero/platform_manifests/16-neo-geo-pocket.platform.json",
+      "featureRefs": [
+        "rotation",
+        "link",
+        "memory"
+      ],
+      "proposals": [
+        "Orientação e moldura portátil",
+        "conexão entre participantes quando suportada",
+        "perfis por jogo com saves separados"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "wonderswan",
+      "name": "Bandai WonderSwan e WonderSwan Color",
+      "manifest": "src/steamzero/platform_manifests/17-wonderswan.platform.json",
+      "featureRefs": [
+        "rotation",
+        "link",
+        "presentation"
+      ],
+      "proposals": [
+        "Alternar vertical/horizontal com remapeamento",
+        "link condicionado ao runtime",
+        "LCD/paleta acessíveis"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "msx",
+      "name": "MSX e MSX2",
+      "manifest": "src/steamzero/platform_manifests/18-msx.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "keyboard"
+      ],
+      "proposals": [
+        "Máquina e expansão recomendadas por título",
+        "cartucho/disquete/fita com rótulos",
+        "teclado e atalhos contextualizados"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "zx-spectrum",
+      "name": "Sinclair ZX Spectrum",
+      "manifest": "src/steamzero/platform_manifests/19-zx-spectrum.platform.json",
+      "featureRefs": [
+        "machine",
+        "tape",
+        "keyboard"
+      ],
+      "proposals": [
+        "Perfil de modelo/memória",
+        "controles de fita e autoload quando seguro",
+        "teclado e mapeamento por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "commodore-64",
+      "name": "Commodore 64",
+      "manifest": "src/steamzero/platform_manifests/20-commodore-64.platform.json",
+      "featureRefs": [
+        "drives",
+        "tape",
+        "keyboard"
+      ],
+      "proposals": [
+        "Unidades/disquetes e saves graváveis preservados",
+        "autoload por receita",
+        "joystick em porta correta e teclado"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "amiga",
+      "name": "Commodore Amiga e Amiga CD32",
+      "manifest": "src/steamzero/platform_manifests/21-amiga.platform.json",
+      "featureRefs": [
+        "drives",
+        "machine",
+        "keyboard"
+      ],
+      "proposals": [
+        "Galeria DF0/DF1 e demais drives suportados",
+        "perfis A500/A1200/CD32 por jogo",
+        "mouse/joystick/teclado e WHDLoad quando aplicável"
+      ],
+      "sourceRefs": [
+        "puae"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "colecovision",
+      "name": "ColecoVision",
+      "manifest": "src/steamzero/platform_manifests/22-colecovision.platform.json",
+      "featureRefs": [
+        "keypad",
+        "players",
+        "companion"
+      ],
+      "proposals": [
+        "Keypad no overlay com rótulos do jogo",
+        "remapeamento de controles especiais",
+        "instruções acessíveis pelo tema"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "intellivision",
+      "name": "Mattel Intellivision",
+      "manifest": "src/steamzero/platform_manifests/23-intellivision.platform.json",
+      "featureRefs": [
+        "keypad",
+        "players",
+        "companion"
+      ],
+      "proposals": [
+        "Overlay de keypad por título",
+        "disco direcional configurável",
+        "manual e comandos específicos no menu"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "virtual-boy",
+      "name": "Nintendo Virtual Boy",
+      "manifest": "src/steamzero/platform_manifests/24-virtual-boy.platform.json",
+      "featureRefs": [
+        "stereo",
+        "presentation",
+        "players"
+      ],
+      "proposals": [
+        "Apresentação estereoscópica ou alternativa confortável",
+        "paleta/escala por perfil",
+        "controles e opções acessíveis"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "three-do",
+      "name": "3DO Interactive Multiplayer",
+      "manifest": "src/steamzero/platform_manifests/25-3do.platform.json",
+      "featureRefs": [
+        "drives",
+        "players",
+        "presentation"
+      ],
+      "proposals": [
+        "Troca de mídia quando exigida",
+        "perfis de controles por título",
+        "melhoria visual e proporção verificadas"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "sega-cd-32x",
+      "name": "Sega CD e Sega 32X",
+      "manifest": "src/steamzero/platform_manifests/26-sega-cd-32x.platform.json",
+      "featureRefs": [
+        "drives",
+        "machine",
+        "memory"
+      ],
+      "proposals": [
+        "CDs como um jogo",
+        "seleção da combinação de hardware correta",
+        "persistência de memória e perfil visual por título"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "nintendo-64",
+      "name": "Nintendo 64",
+      "manifest": "src/steamzero/platform_manifests/27-nintendo-64.platform.json",
+      "featureRefs": [
+        "memory",
+        "players",
+        "packs"
+      ],
+      "proposals": [
+        "Controller Pak/Rumble Pak por porta",
+        "perfis de controle",
+        "pacote visual e proporção com compatibilidade por título"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation-2",
+      "name": "Sony PlayStation 2",
+      "manifest": "src/steamzero/platform_manifests/30-playstation-2.platform.json",
+      "featureRefs": [
+        "memory",
+        "drives",
+        "packs"
+      ],
+      "proposals": [
+        "Memory cards por jogo/coleção",
+        "discos e periféricos por título",
+        "presets gráficos e texturas compatíveis reversíveis"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation-portable",
+      "name": "Sony PlayStation Portable",
+      "manifest": "src/steamzero/platform_manifests/31-playstation-portable.platform.json",
+      "featureRefs": [
+        "packs",
+        "network",
+        "players"
+      ],
+      "proposals": [
+        "Pacotes de textura por jogo",
+        "multiplayer ad hoc como receita quando validado",
+        "perfis visuais/input por título"
+      ],
+      "sourceRefs": [
+        "ppsspp"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "dreamcast",
+      "name": "Sega Dreamcast",
+      "manifest": "src/steamzero/platform_manifests/32-dreamcast.platform.json",
+      "featureRefs": [
+        "vmu",
+        "drives",
+        "network"
+      ],
+      "proposals": [
+        "VMU por jogador e display na composição",
+        "mídia e memory cards",
+        "acessórios e rede quando suportados"
+      ],
+      "sourceRefs": [
+        "flycast"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "nintendo-ds",
+      "name": "Nintendo DS",
+      "manifest": "src/steamzero/platform_manifests/33-nintendo-ds.platform.json",
+      "featureRefs": [
+        "dualscreen",
+        "sensors",
+        "link"
+      ],
+      "proposals": [
+        "Layouts de duas telas e toque",
+        "microfone por método suportado",
+        "multiplayer local/download play com participantes isolados"
+      ],
+      "sourceRefs": [
+        "melonds"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "nintendo-3ds",
+      "name": "Nintendo 3DS",
+      "manifest": "src/steamzero/platform_manifests/34-nintendo-3ds.platform.json",
+      "featureRefs": [
+        "dualscreen",
+        "sensors",
+        "nfc"
+      ],
+      "proposals": [
+        "Layouts e touch",
+        "sensores/câmera e NFC apenas com porta real",
+        "perfil visual por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "wii-u",
+      "name": "Nintendo Wii U",
+      "manifest": "src/steamzero/platform_manifests/35-wii-u.platform.json",
+      "featureRefs": [
+        "dualscreen",
+        "sensors",
+        "packs",
+        "nfc"
+      ],
+      "proposals": [
+        "TV e GamePad distribuídos",
+        "touch/movimento no Deck",
+        "graphic packs por versão e recursos NFC conforme runtime"
+      ],
+      "sourceRefs": [
+        "cemu-gamepad",
+        "cemu-packs"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation-3",
+      "name": "Sony PlayStation 3",
+      "manifest": "src/steamzero/platform_manifests/36-playstation-3.platform.json",
+      "featureRefs": [
+        "packs",
+        "memory",
+        "sensors"
+      ],
+      "proposals": [
+        "Perfis de execução e patches por título",
+        "saves preservados",
+        "controles e movimento conforme adapter"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "xbox",
+      "name": "Microsoft Xbox",
+      "manifest": "src/steamzero/platform_manifests/37-xbox.platform.json",
+      "featureRefs": [
+        "machine",
+        "memory",
+        "network"
+      ],
+      "proposals": [
+        "Perfis e diagnóstico por jogo",
+        "saves e conteúdo extra próprios organizados",
+        "controles e rede local apenas quando comprovados"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "xbox-360",
+      "name": "Microsoft Xbox 360",
+      "manifest": "src/steamzero/platform_manifests/38-xbox-360.platform.json",
+      "featureRefs": [
+        "machine",
+        "memory",
+        "packs"
+      ],
+      "proposals": [
+        "Perfis de compatibilidade por título",
+        "conteúdo extra/saves com identidade",
+        "controles e melhoria visual sem prometer suporte universal"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "sega-saturn",
+      "name": "Sega Saturn",
+      "manifest": "src/steamzero/platform_manifests/39-sega-saturn.platform.json",
+      "featureRefs": [
+        "drives",
+        "memory",
+        "players"
+      ],
+      "proposals": [
+        "Discos, backup memory e cartuchos por título",
+        "multitap quando suportado",
+        "perfis visuais por região"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "sg-1000",
+      "name": "SG-1000",
+      "manifest": "src/steamzero/platform_manifests/40-sg-1000.platform.json",
+      "featureRefs": [
+        "players",
+        "presentation",
+        "companion"
+      ],
+      "proposals": [
+        "Perfis de controles",
+        "apresentação original/opcional",
+        "manuais e contexto do jogo na composição"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "neo-geo-cd",
+      "name": "Neo Geo CD",
+      "manifest": "src/steamzero/platform_manifests/41-neo-geo-cd.platform.json",
+      "featureRefs": [
+        "drives",
+        "memory",
+        "players"
+      ],
+      "proposals": [
+        "Conjunto de CDs e saves",
+        "velocidade de leitura configurável somente se exposta",
+        "controles por jogador"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "vectrex",
+      "name": "Vectrex",
+      "manifest": "src/steamzero/platform_manifests/42-vectrex.platform.json",
+      "featureRefs": [
+        "presentation",
+        "rotation",
+        "players"
+      ],
+      "proposals": [
+        "Overlays visuais por título",
+        "orientação/escala",
+        "perfis de controles especiais quando suportados"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "odyssey2",
+      "name": "Magnavox Odyssey²",
+      "manifest": "src/steamzero/platform_manifests/43-odyssey2.platform.json",
+      "featureRefs": [
+        "keyboard",
+        "players",
+        "companion"
+      ],
+      "proposals": [
+        "Teclado virtual contextual",
+        "perfil de controle",
+        "manual e instruções de acessórios por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "channelf",
+      "name": "Fairchild Channel F",
+      "manifest": "src/steamzero/platform_manifests/44-channelf.platform.json",
+      "featureRefs": [
+        "players",
+        "presentation",
+        "companion"
+      ],
+      "proposals": [
+        "Mapeamento acessível do controle",
+        "apresentação original/opcional",
+        "instruções por cartucho"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "pc-engine-supergrafx",
+      "name": "PC Engine SuperGrafx",
+      "manifest": "src/steamzero/platform_manifests/45-pc-engine-supergrafx.platform.json",
+      "featureRefs": [
+        "machine",
+        "players",
+        "presentation"
+      ],
+      "proposals": [
+        "Perfil de sistema correto",
+        "controles por título",
+        "escala/proporção e identidade visual próprias"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "atari-st",
+      "name": "Atari ST",
+      "manifest": "src/steamzero/platform_manifests/46-atari-st.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "midi"
+      ],
+      "proposals": [
+        "Perfis de máquina e unidades",
+        "mouse/teclado por jogo",
+        "MIDI opcional com latência medida"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "apple2",
+      "name": "Apple II",
+      "manifest": "src/steamzero/platform_manifests/47-apple2.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "keyboard"
+      ],
+      "proposals": [
+        "Modelo e expansão por título",
+        "disquetes protegidos e graváveis separados",
+        "teclado/joystick contextual"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation-vita",
+      "name": "Sony PlayStation Vita",
+      "manifest": "src/steamzero/platform_manifests/47-playstation-vita.platform.json",
+      "featureRefs": [
+        "sensors",
+        "players",
+        "machine"
+      ],
+      "proposals": [
+        "Touch frontal/traseiro com layout explícito",
+        "movimento quando disponível",
+        "perfis por título com estado de compatibilidade honesto"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "bbc-micro",
+      "name": "BBC Micro",
+      "manifest": "src/steamzero/platform_manifests/48-bbc-micro.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "tape"
+      ],
+      "proposals": [
+        "Modelo/expansão por título",
+        "unidade/fita e autoload",
+        "teclado e atalhos contextuais"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "coco",
+      "name": "Tandy Color Computer",
+      "manifest": "src/steamzero/platform_manifests/49-coco.platform.json",
+      "featureRefs": [
+        "machine",
+        "tape",
+        "keyboard"
+      ],
+      "proposals": [
+        "Máquina e expansão por título",
+        "fita/disquete com preservação",
+        "teclado/joystick por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "ti99",
+      "name": "TI-99/4A",
+      "manifest": "src/steamzero/platform_manifests/50-ti99.platform.json",
+      "featureRefs": [
+        "machine",
+        "keyboard",
+        "tape"
+      ],
+      "proposals": [
+        "Cartucho/expansão por software",
+        "teclado contextual",
+        "mídia e preparação de início por receita"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "zx81",
+      "name": "ZX81",
+      "manifest": "src/steamzero/platform_manifests/51-zx81.platform.json",
+      "featureRefs": [
+        "machine",
+        "tape",
+        "keyboard"
+      ],
+      "proposals": [
+        "Modelo/memória por título",
+        "fita/autoload",
+        "teclado e instruções por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "thomson",
+      "name": "Thomson MO5/TO8",
+      "manifest": "src/steamzero/platform_manifests/52-thomson.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "keyboard"
+      ],
+      "proposals": [
+        "Perfis de máquina e dispositivos",
+        "mídias por unidade",
+        "teclado/joystick acessíveis"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "x68000",
+      "name": "Sharp X68000",
+      "manifest": "src/steamzero/platform_manifests/53-x68000.platform.json",
+      "featureRefs": [
+        "drives",
+        "machine",
+        "midi"
+      ],
+      "proposals": [
+        "Disquetes em FDD0/FDD1 com seleção no bezel",
+        "presets de máquina por jogo",
+        "controles de luta e MIDI opcional"
+      ],
+      "sourceRefs": [
+        "px68k"
+      ],
+      "evidenceClass": "upstream-reference-plus-design",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "pc88",
+      "name": "PC-8800 Series",
+      "manifest": "src/steamzero/platform_manifests/54-pc88.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "keyboard"
+      ],
+      "proposals": [
+        "Modelo/expansão e discos",
+        "teclado contextual",
+        "perfil de áudio por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "pc98",
+      "name": "PC-9800 Series",
+      "manifest": "src/steamzero/platform_manifests/55-pc98.platform.json",
+      "featureRefs": [
+        "machine",
+        "drives",
+        "keyboard"
+      ],
+      "proposals": [
+        "Máquina/memória e discos",
+        "mouse/teclado por título",
+        "perfis de áudio e apresentação"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "gameandwatch",
+      "name": "Game & Watch",
+      "manifest": "src/steamzero/platform_manifests/56-gameandwatch.platform.json",
+      "featureRefs": [
+        "presentation",
+        "clock",
+        "players"
+      ],
+      "proposals": [
+        "Artwork e moldura por aparelho",
+        "relógio quando suportado",
+        "layout de controles por jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "supervision",
+      "name": "Watara Supervision",
+      "manifest": "src/steamzero/platform_manifests/57-supervision.platform.json",
+      "featureRefs": [
+        "presentation",
+        "display",
+        "players"
+      ],
+      "proposals": [
+        "LCD/paleta opcional",
+        "escala portátil",
+        "controles e sessão com capacidades verificadas"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "megaduck",
+      "name": "Creatronic Mega Duck",
+      "manifest": "src/steamzero/platform_manifests/58-megaduck.platform.json",
+      "featureRefs": [
+        "presentation",
+        "display",
+        "companion"
+      ],
+      "proposals": [
+        "Identidade visual portátil",
+        "paleta/escala por perfil",
+        "controles e contexto do cartucho"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "doom",
+      "name": "DOOM",
+      "manifest": "src/steamzero/platform_manifests/59-doom.platform.json",
+      "featureRefs": [
+        "mods",
+        "players",
+        "network"
+      ],
+      "proposals": [
+        "Selecionar IWAD e conjunto de mods compatíveis",
+        "ordem de carga e rollback",
+        "gyro/controles e multiplayer validado por engine"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "quake",
+      "name": "Quake",
+      "manifest": "src/steamzero/platform_manifests/60-quake.platform.json",
+      "featureRefs": [
+        "mods",
+        "players",
+        "network"
+      ],
+      "proposals": [
+        "Perfis por engine e pacote de conteúdo",
+        "mods isolados",
+        "gyro/controles e servidor local quando suportado"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "pico8",
+      "name": "PICO-8",
+      "manifest": "src/steamzero/platform_manifests/61-pico8.platform.json",
+      "featureRefs": [
+        "carts",
+        "players",
+        "presentation"
+      ],
+      "proposals": [
+        "Biblioteca de carts e identidade",
+        "controles compartilhados por jogador",
+        "escala/paleta e retorno à biblioteca"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "tic80",
+      "name": "TIC-80",
+      "manifest": "src/steamzero/platform_manifests/62-tic80.platform.json",
+      "featureRefs": [
+        "carts",
+        "players",
+        "presentation"
+      ],
+      "proposals": [
+        "Carts e versões com saves isolados",
+        "perfis de controles",
+        "composição de tela e sessão"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "wasm4",
+      "name": "WASM-4",
+      "manifest": "src/steamzero/platform_manifests/63-wasm4.platform.json",
+      "featureRefs": [
+        "carts",
+        "players",
+        "display"
+      ],
+      "proposals": [
+        "Carts e runtime compatível",
+        "controles e multiplayer conforme cart/runtime",
+        "captura e retorno consistentes"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation-4",
+      "name": "Sony PlayStation 4",
+      "manifest": "src/steamzero/platform_manifests/64-playstation-4.platform.json",
+      "featureRefs": [
+        "readiness",
+        "players",
+        "memory"
+      ],
+      "proposals": [
+        "Priorizar prontidão por jogo e runtime",
+        "controles e preservação de saves quando funcionais",
+        "presets só após compatibilidade comprovada"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    },
+    {
+      "platformId": "playstation-5",
+      "name": "Sony PlayStation 5",
+      "manifest": "src/steamzero/platform_manifests/65-playstation-5.platform.json",
+      "featureRefs": [
+        "readiness",
+        "companion",
+        "players"
+      ],
+      "proposals": [
+        "Exploração e catálogo claramente experimentais",
+        "diagnóstico de pré-requisitos",
+        "só publicar jogar após prova de runtime/jogo"
+      ],
+      "sourceRefs": [],
+      "evidenceClass": "design-hypothesis",
+      "deliveryState": "not-validated",
+      "publishAsAvailable": false,
+      "validationNext": "Confirmar variante de hardware, runtime e versão; provar a ação e consumo pelo tema no host; registrar limites por jogo."
+    }
+  ],
+  "additionalTargets": [
+    {
+      "targetId": "native-pc",
+      "name": "PC nativo e bibliotecas de jogos",
+      "featureRefs": [
+        "mods",
+        "players",
+        "display"
+      ],
+      "proposals": [
+        "Perfis de execução por jogo e dispositivo",
+        "Controles e ajustes contextuais",
+        "Sessão, captura e retorno com saves preservados"
+      ],
+      "deliveryState": "not-validated"
+    },
+    {
+      "targetId": "web-general",
+      "name": "Jogos e aplicações web",
+      "featureRefs": [
+        "cloud",
+        "players",
+        "display"
+      ],
+      "proposals": [
+        "Abrir URL permitida e restaurar sessão de navegação",
+        "Perfis de input e fullscreen",
+        "Retornar à biblioteca sem supor save-state do navegador"
+      ],
+      "deliveryState": "not-validated"
+    }
+  ],
+  "variantRules": {
+    "nintendo-handheld": [
+      "Separar GB, GBC e GBA; e-Reader é candidato GBA, não GB genérico.",
+      "Link de dois jogadores, adaptadores de quatro jogadores e GameCube-GBA são topologias distintas.",
+      "Câmera/impressora/sensores exigem cartucho, runtime e frontend específicos; não inferir suporte Linux da lista macOS."
+    ],
+    "nintendo-console": [
+      "Separar GameCube e Wii; GBA integrado pertence ao cenário GameCube."
+    ],
+    "atari-classics": [
+      "Separar famílias e acessórios; rotação/link não são comuns a todos os sistemas."
+    ],
+    "sega-cd-32x": [
+      "Distinguir Sega CD, 32X e combinação; disco não se aplica a cartucho isolado."
+    ],
+    "pc-engine-turbografx": [
+      "Distinguir cartuchos e expansões CD; unidades só quando aplicáveis."
+    ]
+  }
+}

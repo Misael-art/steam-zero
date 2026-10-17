@@ -24,3 +24,17 @@ Os arquivos `AURA-SURFACES.md`, `THEME-ENGINE-AND-STUDIO.md`, o framework de jul
 ## Resultado esperado
 
 O usuário prepara um jogo na Central, obtém seus dados e mídias, escolhe uma experiência compatível, abre o Launcher com o tema desejado, joga e retorna ao mesmo contexto. Usuários avançados ajustam emulador, jogo e dispositivo com herança explícita. A personalização visual acontece no motor; a operação de jogos acontece nos serviços compartilhados.
+
+## Ampliação com capacidades e experiências
+
+A segunda orientação do proprietário, na mesma data, acrescenta recursos componíveis e jornadas por plataforma. Leia:
+
+- [Capacidades componíveis](CAPACIDADES-COMPONIVEIS.md): ações, fontes e instâncias visuais livres no Studio; saves/replay, HD packs e periféricos.
+- [Compartilhamento](COMPARTILHAMENTO.md): descoberta amigável e conexão conforme o método exigido pelo receptor.
+- [Multidisco](MULTIDISCO.md): automação do procedimento, unidades de disquete e escolha pelo controle.
+- [Experiências por plataforma](EXPERIENCIAS-POR-PLATAFORMA.md): 64 manifestos, PC nativo e web genérica, com propostas condicionadas à prova.
+- [Estado e execução](ESTADO-E-EXECUCAO.md): capacidades existentes, lacunas, lotes C0–C6 e ligação com R0–R10.
+
+O catálogo editorial em JSON tem [schema próprio](catalogo-experiencias.schema.json). Ele não habilita recursos de runtime. Os estados existentes foram preservados no [baseline complementar](baseline-capacidades.json).
+
+As [fontes primárias e seus limites](FONTES-EXPERIENCIAS.md) sustentam a pesquisa por runtime; possibilidades upstream não são provas de integração no SteamZero.

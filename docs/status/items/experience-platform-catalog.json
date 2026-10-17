@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-PLATFORM-CATALOG",
+  "title": "Homologação das experiências propostas por plataforma",
+  "domain": "platform",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/EXPERIENCIAS-POR-PLATAFORMA.md",
+    "docs/recovery/2026-10-16/catalogo-experiencias.json",
+    "docs/recovery/2026-10-16/catalogo-experiencias.schema.json"
+  ],
+  "dependsOn": [
+    "SZ-EXPERIENCE-COMPOSITION"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Cobrir cada manifesto com propostas e distinguir pesquisa de capability implementada.",
+    "Homologar recursos por variante, runtime/build e jogo, com aceite funcional e físico pertinente.",
+    "Atualizar manifests apenas após prova, mantendo recursos não demonstrados planejados ou indisponíveis."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C6: converter o catálogo editorial em backlog por família e promover somente capacidades observadas; PC/web exigem jornadas próprias.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}
