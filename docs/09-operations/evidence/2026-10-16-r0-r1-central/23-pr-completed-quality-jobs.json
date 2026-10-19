@@ -1,0 +1,30 @@
+[
+  {
+    "jobId": 117838420944,
+    "job": "Python 3.11",
+    "resultLines": [
+      "2026-10-19T00:51:35.7737657Z STATUS-CHECK: OK",
+      "2026-10-19T01:04:18.5902952Z TOTAL                                                               51804   6191  17496   3217  85.28%",
+      "2026-10-19T01:04:18.5904123Z Required test coverage of 85.0% reached. Total coverage: 85.28%",
+      "2026-10-19T01:04:18.5941630Z ========= 6418 passed, 50 skipped, 394 deselected in 753.56s (0:12:33) ========="
+    ]
+  },
+  {
+    "jobId": 117838420983,
+    "job": "Python 3.14",
+    "resultLines": [
+      "2026-10-19T00:51:38.9783654Z STATUS-CHECK: OK",
+      "2026-10-19T01:00:30.8054870Z TOTAL                                                               51804   6187  17496   3218  85.28%",
+      "2026-10-19T01:00:30.8055767Z Required test coverage of 85.0% reached. Total coverage: 85.28%",
+      "2026-10-19T01:00:30.8091331Z == 6418 passed, 50 skipped, 394 deselected, 30 warnings in 523.76s (0:08:43) ==="
+    ]
+  },
+  {
+    "jobId": 117838420963,
+    "job": "Python 3.12",
+    "resultLines": [
+      "2026-10-19T01:04:46.4032088Z Required test coverage of 85.0% reached. Total coverage: 85.28%",
+      "2026-10-19T01:04:46.4069373Z ========= 6418 passed, 50 skipped, 394 deselected in 780.14s (0:13:00) ========="
+    ]
+  }
+]

@@ -1,0 +1,406 @@
+{
+  "date": "2026-10-19",
+  "scopeOnly": true,
+  "axesPromoted": false,
+  "authorization": "Execução centralizada serial e reconciliação de metadados no mesmo lote R0/R1; não transfere aceites ou implementação dos cedentes.",
+  "records": [
+    {
+      "item": "SZ-AGG-ADAPTERS",
+      "path": "docs/status/items/aggregate-adapters.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "3caff42d5758cc568724e1e95cda92a4d1032d1fa3a9d5ec0b48330642b09040",
+      "afterDigest": "d33a121ab5fdfdbca8f8d546faa9558237f4d02e8c8ada15dc78d2ba91bdafe8",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AGG-TESTS",
+      "path": "docs/status/items/aggregate-tests.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "d9d772243a6cf1d131fac0a8bc8b3eb067cb4498eaf70d2e92205d384132fe56",
+      "afterDigest": "9ff757c8b17c527f0ec199f51f4beb4678172edbe52dc71cf4b4164697fbc11f",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AURA-CINEMA-COMPLETION",
+      "path": "docs/status/items/aura-cinema-completion.json",
+      "originClaims": [
+        "WS-2026-09-AURA-CINEMA-COMPLETION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "07bdb1ee8c4f11dafcceb33e200481fbfe69441d1f33fee6aeb3f17a9174e5a2",
+      "afterDigest": "30db7035ea21e8cae08f04a7109a3225360bf16ba8f7c7428ee6dc6a41b70c46",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AURA-LAUNCHER",
+      "path": "docs/status/items/aura-launcher.json",
+      "originClaims": [
+        "WS-2026-08-AURA-LAUNCHER",
+        "WS-2026-09-LAUNCHER-P0-LOOP",
+        "WS-2026-10-JOURNEY-LAUNCHER-SESSION",
+        "WS-2026-10-JOURNEY-COMPLETE-TEMPLATE",
+        "WS-2026-10-JOURNEY-PLATFORM-PROJECTION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "c82686613d17528c788351ed1eb2a608be903eeba6a1f87c8930a7630b79b940",
+      "afterDigest": "907078002e75397ae7c924e4590a653b3d4df98d211653e392d214c7c328d279",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "isolated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AURA-PLATFORM-EXECUTION-PLAN",
+      "path": "docs/status/items/aura-platform-execution-plan.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "e2450c028200cd1c4a454fcaa8980baed62cf6328271ff8bbaffef7abce5c974",
+      "afterDigest": "7a2c623fbdb3924976afacda5b6bb83db41c16356e16bbdece4bd7e67d48c395",
+      "axesUnchanged": {
+        "implementation": "planned",
+        "integration": "isolated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-AURA-SESSION-OSD",
+      "path": "docs/status/items/aura-session-osd.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "da854eb2c65b0c058d353fe7b31250dab89350acda973cb5583e996eef7385fb",
+      "afterDigest": "dda8cf64725a565a5fd939ddd296690dd05b031b9e3c359c266c4d660009373d",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-PLATFORM-SCOPE",
+      "path": "docs/status/items/emulation-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "73e2f7f53ef1d267cc1f63ded38bae55b14dd755d7a4c552cee918f2bc3587bc",
+      "afterDigest": "0d4a0560b17ed75fa421772bc80ca17b82134c8601c1e51b0d95b9ed14c00dd6",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-RUNTIME-REMEDIATION",
+      "path": "docs/status/items/emulation-runtime-remediation-2026-09-20.json",
+      "originClaims": [
+        "WS-2026-09-EMULATION-RUNTIME-REMEDIATION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "38ee16cb88777fbb556faaa544ffdce7456df426d3b336c03dbd41d69c518cda",
+      "afterDigest": "ef2507dc2ae6bbe0ff50897fdb8466706191fa33bbe43d96fc9035bcc1fe2953",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-STORAGE-MANAGEMENT",
+      "path": "docs/status/items/emulation-storage-management.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "f1ec7bbf2442338671792433fff942bcb6ac175e9566e26d7c191dbb843ca627",
+      "afterDigest": "2980b88411e288c8af9758097cde51b54991d960dd39d37f8811567b6b9eef6f",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-STORAGE-PLATFORM-SCOPE",
+      "path": "docs/status/items/emulation-storage-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "b7341c68a59b5178b08568d51107828e17bdc14b7260b9e9ec7353b8265ed46d",
+      "afterDigest": "619a91dc3ad81e231e31c4890a7f8ae8a42453dab06402f372f4c5c2806dda5c",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-STORAGE-READMODEL",
+      "path": "docs/status/items/emulation-storage-readmodel.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "11d69a0229a484a59ffd9fbf8ec3e91d3651324ede805c587bf35ff072b6e2cd",
+      "afterDigest": "edc1fcfef8271a2a26cf1c1c094c6edc2880fa9aa8e8767c2725387e51a82773",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-ENHANCEMENTS",
+      "path": "docs/status/items/emulator-enhancements.json",
+      "originClaims": [
+        "WS-2026-08-EMULATOR-ENHANCEMENT"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "84db160736ba24635bdba2f6d17d2390e5d704163ab3a39d077842048f05da52",
+      "afterDigest": "02614dbce9d7be9d81f4e8e096fda541169705a670155c15845007514f2b4645",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-HIGH-END-RUNTIME-READINESS",
+      "path": "docs/status/items/high-end-runtime-readiness-2026-09-20.json",
+      "originClaims": [
+        "WS-2026-09-HIGH-END-RUNTIME-READINESS"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "04908d576da2df0743d0a38d599e3aba92c8e6447c0a67458ee870aa03a4658f",
+      "afterDigest": "b37371b09f79bd41eeb0ee612f1c79200bb0670d501e42b624db24c08927579d",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-LIBRARY-CANONICAL",
+      "path": "docs/status/items/library-canonical.json",
+      "originClaims": [
+        "WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "4b3f176cc8f88e8f15bfcfd7a2090090efc2b7916e99892670740009ce557289",
+      "afterDigest": "d9c71f614acf71f163bd09171879d9af21a422d840fdd749bb1739382f3fee91",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MAIN-WORKTREE-RECONCILIATION",
+      "path": "docs/status/items/main-reconciliation-2026-09-26.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "c76dcc603ed36282089a166850f7004a7f965b52316e1aee11de4d4567819d69",
+      "afterDigest": "e1284ee81fac4eb8e426fbc18e320ae89e143254fb44f2e96249b5bf9dd5a2da",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "dev",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MEDIA-AUDIT-PLATFORM-SCOPE",
+      "path": "docs/status/items/media-audit-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "de594e395880c1061276ed977ef2d43f0446062af908151dbe500374405ba50d",
+      "afterDigest": "f651d87da8cc4e754f548672f737019ffad0b8bfa29719aef64f071adc09f02a",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE",
+      "path": "docs/status/items/media-pipeline-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "77e9026507c44b588fb7f42f5ba45f6494371a1b8862be05e7d9ede391a24a93",
+      "afterDigest": "ac67ee7317629ccf8329a14b8e7198d20335b63f76bac5cf1217932437520c4c",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MEDIA-PROVIDER-PLATFORM-FILTER",
+      "path": "docs/status/items/media-provider-platform-filter.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "1c3659556e5418298d5e1efd770e78ccf51c2f5da756def9177b9907f3e3d3d7",
+      "afterDigest": "23ce3091d798c29a3e3a4d2015906eafdaec69b11b1abe23696629b5373d21b9",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-MULTIDISC-MATERIALIZATION-INGESTION",
+      "path": "docs/status/items/multidisc-materialization-ingestion-2026-09-20.json",
+      "originClaims": [
+        "WS-2026-09-MULTIDISC-MATERIALIZATION-INGESTION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "c79e505dce672a6a57290f08613dcae05ee77dde8f5721ac1264f73c070764e2",
+      "afterDigest": "a85c8d0a80873c78ddd88061d19489c03cb4a817ca0834742dadb1c1f5640a2c",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-PLATFORM-CORE-PER-SYSTEM",
+      "path": "docs/status/items/platform-core-per-system.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "eb8ebab7845b43aca0753815f36fd93b516b33a40cce5a8f41c9468191afab57",
+      "afterDigest": "59134e2ad09c47a2da7037d14111176a808d2dcc64d8cad390e8dbc52c232700",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-PLATFORM-REQUIREMENT-SCOPE",
+      "path": "docs/status/items/platform-requirement-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "becd8ff5c59021762d3dd3f034e7ab2de7f6b82bcfe7da3b2276c5b18d7892c4",
+      "afterDigest": "5a293d80471d6f1be865e74e580965f8ebd7e82a973def9aae479ccab431f437",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD",
+      "path": "docs/status/items/ps3-official-firmware-download.json",
+      "originClaims": [
+        "WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "edbca43248569f995c2039f778b2db48153164bfb647dd1687841467bf488950",
+      "afterDigest": "6731a6580e17610d182131b576da27ed0f6208d64ecc39064bb18055e3c1ed57",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-UI-DESKTOP-AUDIT",
+      "path": "docs/status/items/ui-desktop-audit.json",
+      "originClaims": [
+        "WS-2026-09-RC01-CENTRAL-LOADING",
+        "WS-2026-09-RC01-READINESS-FOCUS",
+        "WS-2026-09-RC01-SHELL-ESDE-DIALOG",
+        "WS-2026-09-RC01-READINESS-SEMANTICS",
+        "WS-2026-09-RC01-STORAGE-UNITS",
+        "WS-2026-09-RC01-RETROFE-SHELL-LATE",
+        "WS-2026-09-RC01-HOME-FIRST-FOLD",
+        "WS-2026-09-RC01-ESDE-IMPORT-GENERATION",
+        "WS-2026-10-R06-HOME-COUNT-UNIVERSE"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/data/evidência da alteração compartilhada de sondagem; nenhuma cessão adicional de implementação e nenhuma homologação nova de hardware/release",
+      "beforeDigest": "0df11ee6bc20d95df36a596208c956303797d169fabc83ba11f051d2bae88716",
+      "afterDigest": "aa3c301b640e0c37f69394f1f72a8470f89c79483d9b40a315c43086476c8343",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "dev",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    }
+  ]
+}

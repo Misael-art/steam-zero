@@ -1,0 +1,71 @@
+{
+  "observedAt": "2026-10-19T13:39:18.553536+00:00",
+  "baseCommit": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "functionalCommit": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82",
+  "sourceSha256": {
+    "src/steamzero/adapters/emulation.py": "182e837931d201aa1875d0e700635c87e84ea57915c007cd53ae553ad1e9a446",
+    "src/steamzero/domain/platform_composer.py": "16d91147922fd1c26c34450e0f1b7350ded9b64d8e0757cea9cbe85b4a572e7c",
+    "src/steamzero/ui/qml/Emulation.qml": "73fcf31046dcb85c1b2fe1f0f6df647f0c27be1deb9056a4aa9a4228a67b6518",
+    "tests/integration/test_recovery_central.py": "eeef0b6a4e9842c4ded9e11687343a3559748dedf9ab5d6f083f8d9c798380d3",
+    "tests/integration/test_emulation_platform_scope.py": "b8fac2fb11b4a0f6e2e39709138ff956b13ee778bb871938adebec7787de6158",
+    "tests/unit/test_platform_composer.py": "c4e40dc505d9be0e00b6197c24cad4b309c09743dcf462e287fafe827492c4cd",
+    "tests/unit/test_workspace_composition.py": "b8c7080b5218ffc986b7b76b5cec006642eda7c32ac4ef1081dddbb42a47d675",
+    "tests/qml/check_emulation.qml": "b9f1d231e1f9fc71c737557a93d256eb70c76742e73b449831e963d0744e0b4b",
+    "tests/unit/test_launch_sony_nintendo.py": "a30fd92ae7106aba3e5bebea09502d77e4282c4e08b63e15b080d7ccceaa8b45"
+  },
+  "nonvisual": {
+    "passed": 6425,
+    "skipped": 47,
+    "deselected": 394,
+    "exitCode": 0,
+    "seconds": 901.715,
+    "log": "41-resumed-nonvisual-checkpoint.log",
+    "realStateUnchanged": true
+  },
+  "visual": {
+    "passed": 394,
+    "sourceUnchanged": true,
+    "membershipEvidence": "39-visual-source-contract.json"
+  },
+  "complementaryTotals": {
+    "passed": 6819,
+    "skipped": 47,
+    "notASingleGreenIntegralRun": true
+  },
+  "coverage": {
+    "method": "union of preserved full integral 36 and successful nonvisual 41, same production source; raw failed results remain unchanged",
+    "totals": {
+      "covered_lines": 45723,
+      "num_statements": 51817,
+      "percent_covered": 85.48840832696165,
+      "percent_covered_display": "85.49",
+      "missing_lines": 6094,
+      "excluded_lines": 421,
+      "percent_statements_covered": 88.23938089816083,
+      "percent_statements_covered_display": "88.24",
+      "num_branches": 17500,
+      "num_partial_branches": 3181,
+      "covered_branches": 13535,
+      "missing_branches": 3965,
+      "percent_branches_covered": 77.34285714285714,
+      "percent_branches_covered_display": "77.34"
+    },
+    "previousBaselinePercent": 85.47,
+    "requiredGatePercent": 85,
+    "noRegressionThresholdPercent": 85.47,
+    "gateExitCode": 0,
+    "dataFilesPrivate": [
+      ".coverage-integral-36",
+      ".coverage-nonvisual-41",
+      ".coverage-final-combined"
+    ]
+  },
+  "staticGates": "33-performance-static-gates.json",
+  "rawIntegralFailure": "36-performance-integral-tests.log",
+  "failureDiagnosis": "37-integral-environment-diagnosis.json",
+  "failedNodeRetests": "38-environment-failure-retests.log",
+  "interruptedAttempt40": "CURRENT-CHECKPOINT.json: performanceRepair.interruptedNonvisualRevalidation",
+  "installedAcceptance": "not-executed",
+  "releaseActiveKnown": "2.0.0rc1-1470cf48bf7d",
+  "statusAfterEvidenceRefresh": "project_status.py check: passed"
+}

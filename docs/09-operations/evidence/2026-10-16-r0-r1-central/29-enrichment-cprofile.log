@@ -1,0 +1,40 @@
+{"games": 10, "seconds": 2.79}
+         181865 function calls (178260 primitive calls) in 2.788 seconds
+
+   Ordered by: cumulative time
+   List reduced from 517 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    2.790    2.790 emulation.py:9227(_enrich_platform_games)
+       30    0.002    0.000    2.586    0.086 emulation.py:1191(_require_launchable_emulator)
+       30    0.004    0.000    2.582    0.086 emulation.py:1055(_adapter_installed)
+       30    0.000    0.000    2.447    0.082 flatpak.py:548(status)
+       30    0.002    0.000    2.445    0.081 flatpak.py:237(status)
+       60    0.003    0.000    2.442    0.041 flatpak.py:108(run_flatpak_command)
+       60    0.001    0.000    2.355    0.039 subprocess.py:1177(communicate)
+       60    0.007    0.000    2.354    0.039 subprocess.py:2093(_communicate)
+      201    0.005    0.000    2.295    0.011 selectors.py:385(select)
+      201    2.289    0.011    2.289    0.011 {method 'poll' of 'select.poll' objects}
+       10    0.000    0.000    1.801    0.180 emulation.py:1522(game_readiness)
+       10    0.010    0.001    1.801    0.180 emulation.py:1624(_launch_preflight)
+       20    0.000    0.000    1.765    0.088 emulation.py:9166(_settings_for_game_with_global)
+       20    0.000    0.000    1.758    0.088 emulation.py:1234(_platform_emulator_for)
+       11    0.001    0.000    0.113    0.010 emulation.py:9050(_load_game_settings)
+       75    0.000    0.000    0.107    0.001 emulation.py:10354(_known_emulator)
+        1    0.001    0.001    0.107    0.107 registry.py:446(bundled)
+       38    0.000    0.000    0.087    0.002 contracts.py:39(validate)
+       38    0.000    0.000    0.086    0.002 validators.py:448(validate)
+   449/38    0.001    0.000    0.086    0.002 validators.py:349(iter_errors)
+   374/38    0.002    0.000    0.084    0.002 _keywords.py:290(properties)
+ 2132/463    0.011    0.000    0.083    0.000 validators.py:396(descend)
+      331    0.080    0.000    0.080    0.000 {method 'execute' of 'sqlite3.Connection' objects}
+       36    0.002    0.000    0.072    0.002 registry.py:139(load_manifest)
+       60    0.003    0.000    0.069    0.001 subprocess.py:817(__init__)
+       10    0.004    0.000    0.067    0.007 emulation.py:9871(_current_game)
+       30    0.001    0.000    0.060    0.002 state.py:59(__init__)
+       60    0.003    0.000    0.058    0.001 subprocess.py:1826(_execute_child)
+      189    0.001    0.000    0.057    0.000 _keywords.py:59(items)
+       30    0.007    0.000    0.046    0.002 state.py:67(_apply_pragmas)
+
+
+

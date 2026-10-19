@@ -5,7 +5,7 @@
   "title": "R0/R1 — Central com requisitos aplicáveis e retorno preservado",
   "domain": "emulation",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "none",
   "operation": "unknown",
   "distribution": "not-packaged",
@@ -31,7 +31,7 @@
   "knownGaps": [
     "GAP-R1-REQUIREMENTS-FALLBACK",
     "GAP-R1-INSTALLED-ACCEPTANCE",
-    "GAP-R1-REMOTE-INTEGRATION"
+    "GAP-R1-CATALOG-SNAPSHOT-TIMEOUT"
   ],
   "acceptanceCriteria": [
     "NES não apresenta Keys/Firmware; Amiga apresenta BIOS do core, com estado desconhecido, ausente e presente distintos.",
@@ -99,12 +99,84 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/18-remote-authorization.json",
       "command": "Registro da autorização remota explícita do proprietário para push da branch atual e integração governada em main incluindo #258; checks/proteções preservados, sem publicação pública.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/25-main-integration-checkpoint.json",
+      "command": "PR #259 com oito jobs CI verdes; #258 integrado por inclusão ancestral; mesmo checkout avançou em fast-forward para main, sem delta de conteúdo.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/28-real-catalog-readonly-performance.json",
+      "command": "1145 jogos reais, configuração/dados lidos e XDG_STATE_HOME isolado: release ativa snapshot 7,005 s; candidata main excedeu 120 s. Nenhuma UI ou jogo iniciado.",
+      "result": "failed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/29-enrichment-cprofile.log",
+      "command": "Perfil real de dez jogos NES: 30 sondagens de instalação, 60 subprocessos Flatpak, 2,790 s; 2,586 s no gate de instalação compartilhado.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/30-performance-focused-tests.log",
+      "command": "Oito testes de recuperação: orçamento por adapter em 1/100 jogos, verdade por arquivo, launch fresco, isolamento entre threads e descarte após exceção; runner isolado sem delta no estado real.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/31-real-catalog-repaired-performance.json",
+      "command": "Snapshot somente leitura do acervo real, estado XDG isolado: 1145 jogos em 13,725 s, contra timeout 120 s antes do reparo; sem UI ou gameplay.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/32-performance-regression-tests.log",
+      "command": "261 regressões de controlador/CLI/composição/plataformas/preferências passaram; runner isolado sem delta no estado real.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/33-performance-static-gates.json",
+      "command": "Reparo de performance: lint/format integrais, mypy (303 fontes), independence, boundaries e status aprovados sobre a fonte registrada; sem aceite instalado.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/36-performance-integral-tests.log",
+      "command": "Execução integral bruta: 6794 passed, 25 failed, 47 skipped; cobertura 85,44%, estado real sem delta. Falhas de ambiente e visão de status diagnosticadas em 37; este log não é gate verde.",
+      "result": "failed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/37-integral-environment-diagnosis.json",
+      "command": "PYTEST_DEBUG_TEMPROOT herdado desviou tmp_path para outro filesystem e caminho longo; remoção dessa variável mantém o runner como dono dos temporários. Guards e testes preservados; status regenerado.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/38-environment-failure-retests.log",
+      "command": "Os 25 node IDs falhos passaram sob isolamento corrigido; estado real sem delta. Revalidação não visual completa ainda em andamento.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/39-visual-source-contract.json",
+      "command": "Join exato dos 394 node IDs visuais coletados com os PASSED do log 36, em fonte de produção/QML idêntica. Não promove o resultado global falho nem constitui prova física.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/42-final-local-checkpoint.json",
+      "command": "Checkpoint complementar final do reparo: 6425 não visuais passed, 47 skipped, 394 visuais passed sobre fonte idêntica; 6819 passes ao total. Runner exit 0, estado real sem delta. Cobertura combinada 85,49% >= baseline 85,47%; gates estáticos em 33. Integral bruta 36 preservada falha.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Autorização remota recebida em 2026-10-18 (18-remote-authorization.json). Push único do checkpoint limpo da branch existente, abrir PR cumulativo preservando a base #258; integrar somente após novos checks terminais verdes. Depois checkout no SHA exato de main e CI push verde, prepare pelo controlador, verificar rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Publicação pública não autorizada. R2 não iniciado.",
+  "nextAction": "Reparo funcional commitado em cbcdf3e3cc0be75499b45272b20a0bf16503ae82; evidência final 42: 6425 não visuais + 394 visuais, 47 skips, cobertura combinada 85,49%, estado real sem delta. Fechar commit documental e enviar um checkpoint da branch existente; abrir PR corretivo para main, aguardar checks terminais verdes, merge governado e CI push do SHA exato. Depois fast-forward no mesmo checkout, prepare/install pelo controlador e ACEITE-INSTALADO.md. Não ativar 356ec8f7. Instalação e integração remota autorizadas, sem publicação pública. Desktop dedicado pendente; R0/R1 aberto, R2 não iniciado.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R0-R1-CENTRAL"
   ],
-  "updatedAt": "2026-10-18",
-  "notes": "Execução serial no checkout oficial, commits core af8c0ad7be5862a8b0fef7b28a1105d9646547fc e QML 10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0. Código e testes locais, sem instalação/prova física nova. Gates: 6421 não visuais + 394 visuais em bytes de produção idênticos; 47 skips, cobertura integral 85,47%; a única falha bruta integral era fixture Sony/Nintendo corrigida e revalidada. Release ativa 2.0.0rc1-1470cf48bf7d e rollback read-only verificado. Instalação/artefatos/testes reais autorizados; push e integração governada em main autorizados em 2026-10-18; publicação pública não autorizada. Sem bundle ou candidata instalada. R2 não iniciado; nenhum eixo preexistente promovido."
+  "updatedAt": "2026-10-19",
+  "notes": "R0/R1 original integrado via PR #259/#258 em 356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6; CI PR/push main verde. Defeito de performance identificado antes da ativação: 1145 jogos excediam 120 s. Reparo em cbcdf3e3cc0be75499b45272b20a0bf16503ae82, medido em 13,725 s na fonte. Checkpoint local final: 6425 não visuais + 394 visuais sobre fonte idêntica, 47 skips; cobertura combinada 85,49% >= baseline 85,47%, estado real sem delta e gates estáticos/status verdes. A integral bruta 36 permanece falha por ambiente/status, com 25 retestes e conjunto não visual completo posteriormente aprovados; tentativa 40 interrompida antes do reboot, 41 concluída. Sem instalação, gameplay, PNG funcional ou ativação de rollback novos. Release ativa conhecida 2.0.0rc1-1470cf48bf7d; revalidar antes de instalar. Eixos de aceite preservados. Push/integração governada e instalação autorizados; publicação pública não autorizada."
 }

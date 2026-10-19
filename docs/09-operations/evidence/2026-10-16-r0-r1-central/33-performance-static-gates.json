@@ -1,0 +1,36 @@
+{
+  "observedAt": "2026-10-19T08:28:41.542804+00:00",
+  "baseCommit": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "emulationPySha256": "182e837931d201aa1875d0e700635c87e84ea57915c007cd53ae553ad1e9a446",
+  "commands": [
+    {
+      "command": ".venv/bin/ruff check src tools tests",
+      "result": "passed"
+    },
+    {
+      "command": ".venv/bin/ruff format --check src tools tests",
+      "result": "passed",
+      "files": 712
+    },
+    {
+      "command": ".venv/bin/mypy src",
+      "result": "passed",
+      "sources": 303
+    },
+    {
+      "command": "make independence",
+      "result": "passed"
+    },
+    {
+      "command": "make boundaries",
+      "result": "passed"
+    },
+    {
+      "command": "make status-check",
+      "result": "passed after scope-only reconciliation (35-performance-status-reconciliation.json)"
+    }
+  ],
+  "metadataAttempt": "First reconciliation used system Python, which lacked jsonschema and stopped before mutations; repeated with existing .venv. The intermediate status failure was stale digests, not suppressed; final status passed.",
+  "integralTests": "not started at this record; next checkpoint 36-performance-integral-tests.log",
+  "physicalAcceptance": "pending"
+}

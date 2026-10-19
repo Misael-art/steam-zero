@@ -13,7 +13,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_emulation_platform_scope.py"
   ],
-  "scopeDigest": "73e2f7f53ef1d267cc1f63ded38bae55b14dd755d7a4c552cee918f2bc3587bc",
+  "scopeDigest": "0d4a0560b17ed75fa421772bc80ca17b82134c8601c1e51b0d95b9ed14c00dd6",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL"
   ],
@@ -76,10 +76,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Validar a experiência na release instalada; a execução física do jogo e a correção QML dos cards Keys/Firmware continuam nas frentes proprietárias.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "A área de emulação do Switch recebia a lista mista retornada pelo cache canônico. Isso fazia Saves e mídia apresentarem jogos de NES/PSP e o botão Atualizar todas varrer o acervo inteiro. A correção mantém Gestão geral/editorial separadas e restringe a área operacional ao contexto da plataforma. Correcao em 2026-09-03: `test_global_media_job_processes_only_switch_games` construia o controlador SEM `secret_store`, caindo no `SecretServiceStore` real, que shela para o `secret-tool` do host. Passava em toda maquina com chaveiro e reprovava no CI nas tres versoes de Python — o job de midia constroi os providers a partir do cofre, a chamada estourava e o job terminava `rolled-back` em vez de `completed`. Reproduzido localmente removendo `secret-tool` do PATH. Conferido que os outros 7 arquivos de teste sem `secret_store` nao alcancam esse caminho (38 passed na mesma condicao)."
 }

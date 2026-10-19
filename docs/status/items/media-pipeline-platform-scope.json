@@ -14,7 +14,7 @@
     "tests/integration/test_media_pipeline_platform_scope.py",
     "docs/09-operations/evidence/2026-09-22-media-pipeline-readonly"
   ],
-  "scopeDigest": "77e9026507c44b588fb7f42f5ba45f6494371a1b8862be05e7d9ede391a24a93",
+  "scopeDigest": "ac67ee7317629ccf8329a14b8e7198d20335b63f76bac5cf1217932437520c4c",
   "dependsOn": [
     "SZ-EMULATION-PLATFORM-SCOPE",
     "SZ-MEDIA-PROVIDER-PLATFORM-FILTER"
@@ -90,10 +90,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "HARD-EXTERNAL-SUBITEM: preservar o diagnóstico e aguardar credencial ScreenScraper autorizada; recuperar qualquer job global stale pelo ciclo G25 antes de repetir. Depois medir qualidade por kind e publicar a cadeia de rollback. Não converter o lote degraded em cobertura garantida.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "O escopo por plataforma, denominador, fases, health persistida e providerDetails está integrado e presente na release ativa. A operação real comprovou busca individual e lote assíncrono com ScreenScraper rejeitado e SteamGridDB funcional, sem perder a causa no read model. Permanece degraded por credencial externa, falta de score perceptual/cobertura completa de kinds/publicação/rollback e qualquer job stale que precise de recovery antes de nova tentativa."
 }

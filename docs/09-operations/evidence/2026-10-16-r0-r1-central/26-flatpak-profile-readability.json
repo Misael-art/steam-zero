@@ -1,0 +1,17 @@
+{
+  "probe": "read-only sh test -r; no GUI, no ROM execution or global override",
+  "results": [
+    {
+      "resource": "NES test archive",
+      "readableInRealSandbox": true,
+      "exitCode": 0,
+      "stderrPresent": false
+    },
+    {
+      "resource": "test BIOS source",
+      "readableInRealSandbox": true,
+      "exitCode": 0,
+      "stderrPresent": false
+    }
+  ]
+}

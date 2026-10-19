@@ -18,7 +18,7 @@
     "src/steamzero/schemas/platform-manifest-v1.schema.json",
     "tests/unit/test_platform_requirements.py"
   ],
-  "scopeDigest": "becd8ff5c59021762d3dd3f034e7ab2de7f6b82bcfe7da3b2276c5b18d7892c4",
+  "scopeDigest": "5a293d80471d6f1be865e74e580965f8ebd7e82a973def9aae479ccab431f437",
   "dependsOn": [
     "SZ-AGG-PLATFORM-MANIFESTS"
   ],
@@ -69,10 +69,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a remoção visual de cards não aplicáveis no QML compartilhado e ligar o store de firmware PS3.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "Recorte funcional do agregador de manifests. O campo declarativo é opcional para preservar manifests antigos; Switch declara keys+firmware e PS3 declara firmware. O read model não publica esses requisitos em NES e demais plataformas sem declaração. Não promete ainda a verificação física do firmware PS3 nem adiciona o manifesto PS Vita; ambos permanecem lacunas explícitas."
 }

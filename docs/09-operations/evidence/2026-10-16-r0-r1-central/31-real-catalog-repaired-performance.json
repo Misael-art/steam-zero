@@ -1,0 +1,14 @@
+{
+  "mode": "same real catalog/config read-only; isolated XDG_STATE_HOME; no UI or gameplay",
+  "baseCommit": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "emulationPySha256": "182e837931d201aa1875d0e700635c87e84ea57915c007cd53ae553ad1e9a446",
+  "result": {
+    "exitCode": 0,
+    "wallSeconds": 14.385,
+    "snapshot": {
+      "seconds": 13.725,
+      "platforms": 64,
+      "games": 1145
+    }
+  }
+}

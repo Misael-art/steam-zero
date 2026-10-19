@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-10-19T13:21:58.812598+00:00",
+  "command": [
+    ".venv/bin/python",
+    "tools/run_tests_isolated.py",
+    "tests",
+    "-q",
+    "-m",
+    "not visual",
+    "--cov=steamzero",
+    "--cov-report=term"
+  ],
+  "exitCode": 0,
+  "seconds": 901.715,
+  "finishedAt": "2026-10-19T13:37:00.527456+00:00"
+}

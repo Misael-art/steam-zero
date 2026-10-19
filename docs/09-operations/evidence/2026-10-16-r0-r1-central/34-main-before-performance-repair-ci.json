@@ -1,0 +1,59 @@
+{
+  "runId": 39184691323,
+  "headSha": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "event": "push",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/Misael-art/steam-zero/actions/runs/39184691323",
+  "jobs": [
+    {
+      "name": "Gate visual QML (Linux)",
+      "databaseId": 117844517244,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Smoke Manjaro",
+      "databaseId": 117844517419,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Wheel limpo, smoke e supply chain",
+      "databaseId": 117844517466,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Python 3.14",
+      "databaseId": 117844517486,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Smoke Arch Linux",
+      "databaseId": 117844517487,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Smoke Ubuntu 24.04",
+      "databaseId": 117844517498,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Python 3.11",
+      "databaseId": 117844517563,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Python 3.12",
+      "databaseId": 117844518006,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "CI do SHA anterior ao reparo de performance local; não prova o diff novo e não remove o hold de instalação desse SHA."
+}

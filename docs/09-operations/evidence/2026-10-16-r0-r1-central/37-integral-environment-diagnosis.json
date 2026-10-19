@@ -1,0 +1,56 @@
+{
+  "rawIntegral": {
+    "passed": 6794,
+    "failed": 25,
+    "skipped": 47,
+    "seconds": 2848.0,
+    "coveragePercent": 85.44,
+    "realStateUnchanged": true,
+    "log": "36-performance-integral-tests.log"
+  },
+  "runtimeSourceChangedDuringIntegral": false,
+  "emulationPySha256": "182e837931d201aa1875d0e700635c87e84ea57915c007cd53ae553ad1e9a446",
+  "diagnosis": {
+    "inheritedVariable": "PYTEST_DEBUG_TEMPROOT",
+    "inheritedDestination": "tool cache under HOME; outside runner TMPDIR",
+    "runnerStateLocation": "/tmp/steamzero-tests-*/state",
+    "homeDevice": 29,
+    "tmpDevice": 51,
+    "effects": [
+      "EXDEV from atomic custody across filesystems",
+      "AF_UNIX path too long",
+      "installer independence assertion sees tool-cache path",
+      "generated COVERAGE became stale after creating integral log file"
+    ]
+  },
+  "correction": "Invoke the existing isolated runner with env -u PYTEST_DEBUG_TEMPROOT so tmp_path follows the TMPDIR set by the runner. Regenerate status views after evidence paths exist. No production FS guard or assertion changed.",
+  "progressReportingCorrection": "Intermediate updates read only the tail; earlier failures were missed. The terminal failed result is authoritative.",
+  "failedNodeIds": [
+    "tests/failure_injection/test_fi05_hostile_target.py::TestPublicacaoSobreAlvoExistente::test_intruso_entre_a_conferencia_e_a_publicacao_sobrevive",
+    "tests/failure_injection/test_fi05_hostile_target.py::TestPublicacaoSobreAlvoExistente::test_ocupacao_do_alvo_apos_a_custodia_falha_fechada_e_conserva",
+    "tests/failure_injection/test_fi05_hostile_target.py::TestRollback::test_delete_nao_remove_intruso_injetado_apos_o_guard",
+    "tests/failure_injection/test_fi05_hostile_target.py::TestRollback::test_restore_nao_sobrescreve_entrada_que_ocupou_o_alvo",
+    "tests/integration/test_host_installer.py::test_activation_publishes_and_removes_user_units_by_release_capability",
+    "tests/integration/test_media.py::test_rt11_canonicalization_and_orphan_quarantine_rollback",
+    "tests/integration/test_media.py::test_rt11_failed_validation_restores_canonical_and_orphan_sources",
+    "tests/integration/test_media.py::test_st06_bad_magic_oversize_and_bidi_are_quarantined",
+    "tests/unit/test_expansion_baseline_media.py::test_platform_layout_migration_moves_registered_master_and_rolls_back",
+    "tests/unit/test_input_devices.py::TestTheFileOnDisk::test_a_changed_profile_updates_the_managed_file_in_place",
+    "tests/unit/test_input_devices.py::TestTheWindowInsideTheTransaction::test_an_intruder_created_after_staging_is_not_overwritten",
+    "tests/unit/test_input_devices.py::TestTheWindowInsideTheTransaction::test_an_update_whose_target_changed_inside_the_window_is_refused",
+    "tests/unit/test_input_devices.py::TestTheAppendconfigIntegration::test_rolling_back_removes_the_overlay_too",
+    "tests/unit/test_input_devices.py::TestTheWindowsBetweenCheckAndWrite::test_an_update_does_not_overwrite_a_file_swapped_before_the_rename",
+    "tests/unit/test_input_devices.py::TestRollbackIsRealNotDeclared::test_rolling_back_removes_the_file_it_created",
+    "tests/unit/test_input_devices.py::TestRollbackIsRealNotDeclared::test_rolling_back_an_update_restores_the_previous_content",
+    "tests/unit/test_input_devices.py::TestFailureDegradesAndNeverBlocks::test_a_failed_write_leaves_the_previous_managed_file_intact",
+    "tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent",
+    "tests/unit/test_service_core.py::test_systemd_socket_inheritance_and_stale_socket_recovery",
+    "tests/unit/test_switch_library.py::test_organizer_plan_apply_and_rollback",
+    "tests/unit/test_switch_media.py::test_prune_orphan_cache_is_transactional_and_rollback_restores_bytes",
+    "tests/unit/test_theme_aura.py::TestEditorVertical::test_salvar_aplicar_rollback",
+    "tests/unit/test_theme_preferences.py::TestThemePreferenceApplyRollback::test_full_cycle",
+    "tests/unit/test_theme_preferences.py::TestThemePreferenceApplyRollback::test_rollback_restores_previous",
+    "tests/unit/test_theme_preferences.py::TestThemePreferenceApplyRollback::test_rollback_idempotent"
+  ],
+  "nextAction": "Revalidate all 25 failures, collect visual membership and match passed cases on identical source, then complete canonical nonvisual checkpoint under corrected isolation."
+}

@@ -21,7 +21,7 @@
     "tests/unit/test_core_net.py",
     "tests/unit/test_media_multiprovider.py"
   ],
-  "scopeDigest": "1c3659556e5418298d5e1efd770e78ccf51c2f5da756def9177b9907f3e3d3d7",
+  "scopeDigest": "23ce3091d798c29a3e3a4d2015906eafdaec69b11b1abe23696629b5373d21b9",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING"
   ],
@@ -61,10 +61,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Restaurar ssid/sspassword do operador no Secret Service e repetir busca real em uma release futura; não há download a tentar sem essa credencial.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "supported_platforms era um contrato morto: cada adapter o declarava, mas ProviderRegistry filtrava somente media_kind. A preferência por cobertura declarada preserva fallback amplo para plataformas sem declaração. A prova física revelou que BaseMediaProvider transformava qualquer HTTP 403 em quota antes de ScreenScraperAdapter ler o motivo retornado pelo servidor. A consulta real sem expor segredo confirmou credencial recusada e cofre sem ssid/sspassword; não foi demonstrada quota nem usuário fictício. Digest renovado pela correcao de perda de plataforma no cache canonico; nenhum estagio deste item foi promovido. Os tres produtores de platform_slug pararam de adivinhar Switch (2026-09-01): o consumidor de media.search, a varredura em lote e a busca de um jogo so — esta ultima nao declarava plataforma alguma, entao TODA busca interativa era feita como se o jogo fosse de Switch. O vazio e seguro porque providers_for_kind refaz a busca sem filtro quando nenhum provider declara o slug; o palpite nao degradava, filtrava para a plataforma errada. Nenhum estagio promovido. Digest renovado pelo suporte a container nativo (2026-09-01); nenhum estagio deste item foi promovido. Digest renovado por mudança compartilhada em emulation.py para reconciliação do catálogo; nenhuma capacidade de mídia foi promovida."
 }
