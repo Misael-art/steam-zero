@@ -1,0 +1,70 @@
+D-17 — o 409 de lançamento publica a causa que existe e um rastro resolúvel
+============================================================================
+Data: 2026-10-14 · Lote: coesão UI e botões reais (2026-10-13) · Tarefa 1
+Rúbrica de defeito: docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/
+logs/12-defeitos-registrados.txt (D-17)
+
+O que muda
+----------
+`src/steamzero/adapters/launcher_ui.py` colapsava OSError/ValueError/SteamZeroError
+num `LAUNCHER-LAUNCH-FAILED-001` sem publicar nenhum identificador: a supressão do
+texto da exceção é deliberada (pode conter caminhos locais), mas o body não tinha
+rastro. O contrato 409 passa a publicar `error.diagnosticId` (ULID), e a mesma
+linha é escrita em `core.paths.core_log()` (`$XDG_STATE_HOME/steamzero/logs/core.jsonl`)
+com `event=launcher.launch.failed`, `gameId`, `errorType`, `errorCode` e
+`errorDetail` truncado a `MAX_LAUNCH_DETAIL = 240`. O texto da exceção continua
+fora do body; `nextAction` aponta para o caminho literal do journal, não para um
+subcomando CLI inexistente.
+
+Reprodução (HTTP real contra ponte descartável; sem efeito no host)
+-------------------------------------------------------------------
+Limite governado desta rodada: o operador NÃO autorizou POST na rota `/launch`
+da Central ativa nem lançamento de jogo real (ruling P3 do ledger). A reprodução
+abaixo é HTTP genuíno, em loopback, contra um `LauncherBridge` com `on_launch`
+falho dentro de um processo python de vida curta, com `XDG_STATE_HOME` apontado
+para diretório temporário próprio. Nenhum jogo foi lançado; nenhum estado do
+host foi tocado. A reprodução de campo contra a release instalada
+(2.0.0rc1-2b7eb541b4a5) permanece PENDENTE — exige autorização nova.
+
+Comando (a partir da raiz do repositório; roteiro em `/tmp/d17-repro/repro_d17.py`):
+
+    XDG_STATE_HOME=<dir temporário de scratch> \
+    PYTHONPATH=src .venv/bin/python /tmp/d17-repro/repro_d17.py
+
+Cenário: falha de spawn no título da prova da jornada física
+(`89 Dennou Kyuusei Uranai (Japan) (zip)`, NES/Mesen), simulada por
+`OSError` cujo texto carrega caminho local — a mesma classe da falha real.
+
+Resposta 409 real capturada no body (sem o texto da exceção):
+
+    HTTP 409 Conflict
+    {
+      "error": {
+        "code": "LAUNCHER-LAUNCH-FAILED-001",
+        "cause": "Não foi possível preparar o lançamento.",
+        "impact": "O Launcher não confirmou o início do jogo.",
+        "diagnosticId": "01M4W1PN4BYSRY48PJAG7PDMCH",
+        "nextAction": "Consulte o diagnóstico 01M4W1PN4BYSRY48PJAG7PDMCH em /tmp/d17-repro-1h816stu/state/steamzero/logs/core.jsonl e tente novamente."
+      }
+    }
+
+Linha do journal que o `diagnosticId` resolve (o texto cru existe só aqui):
+
+    {"correlationId": "01M4W1PN4BYSRY48PJAG7PDMCH", "errorCode": "", "errorDetail": "exec falhou: /home/misael/.local/share/steamzero/roms/nes/89 Dennou Kyuusei Uranai (Japan) (zip)/uranai.nes", "errorType": "OSError", "event": "launcher.launch.failed", "gameId": "89-dennou-kyuusei-uranai-japan-zip", "level": "error", "ts": "2026-10-14T01:51:17.643205+00:00"}
+
+Prova automatizada
+-----------------
+`tests/integration/test_launcher_app.py::test_launch_failure_publishes_resolvable_diagnostic_id`
+— POST real `/launch` na ponte em serving, afirma `diagnosticId` no body, afirma
+ausência do segredo no body, e resolve o id contra a linha do journal isolado
+(pelo mecanismo `isolated_xdg_root` da suíte, não por `setenv` artesanal).
+O contrato antigo (`test_launch_failure_is_reported_without_secrets_and_bridge_recovers`)
+continua verde sem edição: erro sem `code` ainda devolve
+`LAUNCHER-LAUNCH-FAILED-001`.
+
+Gates focados desta tarefa
+--------------------------
+    .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py \
+        tests/integration/test_desktop_ui_bridge.py -q   → 75 passed
+    .venv/bin/ruff check src/steamzero/adapters/launcher_ui.py tests/integration/test_launcher_app.py
+    .venv/bin/ruff format --check src/steamzero/adapters/launcher_ui.py tests/integration/test_launcher_app.py

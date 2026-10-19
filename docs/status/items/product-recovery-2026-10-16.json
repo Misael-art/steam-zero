@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-PRODUCT-RECOVERY-2026-10",
+  "title": "Recuperação da proposta e plano de entrega das experiências",
+  "domain": "governance",
+  "implementation": "complete",
+  "integration": "feature-branch",
+  "verification": "dev",
+  "operation": "ready",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16",
+    "AGENTS.md"
+  ],
+  "dependsOn": [],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Reconstruir a evolução com evidência de histórico, código e status.",
+    "Definir Central Desktop, Launcher, Theme Engine, Aura e experiências por plataforma sem ambiguidade.",
+    "Entregar backlog sequenciado com critérios de aceite e prompt de continuidade.",
+    "Definir capacidades, ações, fontes e instâncias autoráveis no Studio com contratos e aceites de destino.",
+    "Especificar compartilhamento, multidisco por unidade, saves/replay, melhorias e periféricos com limites de suporte comprovado.",
+    "Catalogar as 64 plataformas e destinos PC/web com fontes, dependências, estado e lotes vinculados ao roadmap.",
+    "Entregar prompt operacional uniforme com checkout único, execução serial, instalação/prova física por lote e pendências retomáveis de credencial, equipamento e integração."
+  ],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/baseline.json",
+      "command": "Inspeção read-only de Git, código, 97 itens preexistentes, 64 manifestos e symlink da release; baseline datado sem recertificação.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/recovery/2026-10-16/status-tests.log",
+      "command": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/unit/test_project_status.py -q — 13 passed, runner 0, state home sem delta.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
+      "command": "Links locais, 32 commits e contagens verificados; cinco eixos antigos preservados. Bateria focal de importação/projeção: 38 passed, 1 skipped.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/recovery/2026-10-16/capabilities-tests.log",
+      "command": "Runner isolado: superfícies, periféricos, saves, cast e multidisco — 71 passed em 1,67 s; exit 0; state home sem delta. Prova de fundamentos existentes, sem promoção das jornadas propostas.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/VALIDACAO.md",
+      "command": "Schema, cobertura dos 64 manifestos e 2 destinos, 29 famílias, 198 propostas, referências de entrega/fontes, Markdown e links locais verificados. Sete jornadas registradas como planned.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/baseline-execucao-centralizada.json",
+      "command": "2026-10-16: um worktree registrado, árvore inicialmente limpa e 16 registros active; inspecionados gates prepare/load_bundle. Prompt e normas alinhados, sem alteração de runtime, claims antigos ou host.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Assumir PROMPT-EXECUCAO-CENTRALIZADA.md no checkout oficial e executar R0/R1 com inventário C0; fechar instalação e prova física do lote antes de avançar. Credencial e checkpoint main/CI pendentes devem ser explícitos.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
+  "scopeDigest": "88b9a682e1c8881e877d8a4fd7c1577aa3c92cd89a9c287681d2e740e657fe42"
+}

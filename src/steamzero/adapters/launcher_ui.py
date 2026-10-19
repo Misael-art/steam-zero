@@ -27,7 +27,7 @@ from typing import Any, cast
 from steamzero.adapters.launcher_process import supervised_child
 from steamzero.adapters.launcher_receipt import LaunchAttempt
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
-from steamzero.core import ids
+from steamzero.core import ids, log, paths
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.title_variants import (
     TITLE_VARIANT_MODES,
@@ -55,6 +55,11 @@ _QT_QUICK_BACKEND = "opengl"
 _ALLOWED_QT_QUICK_BACKENDS = frozenset({"opengl", "software"})
 _QSG_RENDER_LOOP = "basic"
 _ALLOWED_QSG_RENDER_LOOPS = frozenset({"basic", "threaded"})
+
+#: Comprimento máximo do detalhe do erro persistido no journal (D-17): o
+#: texto cru pode conter caminhos locais, mas o rastro resolúvel precisa
+#: caber numa linha JSONL e continuar legível para o suporte.
+MAX_LAUNCH_DETAIL = 240
 
 
 def _resolve_qt_quick_backend() -> str:
@@ -235,18 +240,31 @@ class _Handler(BaseHTTPRequestHandler):
                 },
             )
             return
-        except (OSError, ValueError, SteamZeroError):
+        except (OSError, ValueError, SteamZeroError) as exc:
             # Exception text can contain local paths or credentials. Publish a
             # stable recovery contract, never an unfiltered traceback/detail.
+            # D-17: o code genérico não pode ser beco sem saída — o
+            # diagnosticId amarra o corpo 409 à linha do journal onde a causa
+            # existe (ADR-0011), sem vazar o texto da exceção para a UI.
+            diagnostic_id = log.new_correlation_id()
+            log.get_logger(correlation_id=diagnostic_id).error(
+                "launcher.launch.failed",
+                gameId=game_id,
+                errorType=type(exc).__name__,
+                errorCode=getattr(exc, "code", ""),
+                errorDetail=str(exc)[:MAX_LAUNCH_DETAIL],
+            )
             self._send(
                 409,
                 {
                     "error": {
-                        "code": "LAUNCHER-LAUNCH-FAILED-001",
+                        "code": getattr(exc, "code", None) or "LAUNCHER-LAUNCH-FAILED-001",
                         "cause": "Não foi possível preparar o lançamento.",
                         "impact": "O Launcher não confirmou o início do jogo.",
+                        "diagnosticId": diagnostic_id,
                         "nextAction": (
-                            "Verifique o emulador e os requisitos na central e tente novamente."
+                            f"Consulte o diagnóstico {diagnostic_id} em "
+                            f"{paths.core_log()} e tente novamente."
                         ),
                     }
                 },
@@ -575,6 +593,12 @@ class LauncherBridge:
             else None
         )
         game_id = selected.get("gameId") if isinstance(selected, Mapping) else None
+        if not (isinstance(game_id, str) and game_id):
+            # D-22: a sessão acompanhada por esta ponte é a sessão observada do
+            # usuário mesmo quando a vista não tem seleção (ex.: retorno ao
+            # Launcher sem foco em jogo). O rodapé usa a sessão observada, não
+            # a seleção; sem sessão acompanhada o motivo histórico permanece.
+            game_id = self._pending_game
         declared = {
             str(item.get("event"))
             for item in result.get("availableEvents", [])

@@ -1,0 +1,625 @@
+{
+ "A_registro": {
+  "total": 154,
+  "rollup": {
+   "PORTA_GET": 21,
+   "PORTA_POST": 127,
+   "SEM_ENDPOINT": 6
+  },
+  "sem_endpoint": [
+   {
+    "id": "component.open-config",
+    "rotulo": "Abrir configuração do componente",
+    "classe": "SEM_ENDPOINT",
+    "rota": null,
+    "metodo": "POST",
+    "enabled": false,
+    "applicable": false,
+    "reason": "Nenhum emulador ativo possui argumento oficial comprovado para abrir diretamente a configuração; consulte a matriz e abra a UI principal.",
+    "confirmacao": "none",
+    "tela": "emulators",
+    "controle": "component-open-config",
+    "linha": 225
+   },
+   {
+    "id": "component.rollback",
+    "rotulo": "Desfazer componente (legado)",
+    "classe": "SEM_ENDPOINT",
+    "rota": null,
+    "metodo": "POST",
+    "enabled": false,
+    "applicable": false,
+    "reason": "Use o fluxo de revisão e confirmação de rollback do componente.",
+    "confirmacao": "none",
+    "tela": "system",
+    "controle": "component-history-legacy",
+    "linha": 405
+   },
+   {
+    "id": "component.recover",
+    "rotulo": "Recuperar componente",
+    "classe": "SEM_ENDPOINT",
+    "rota": null,
+    "metodo": "POST",
+    "enabled": false,
+    "applicable": false,
+    "reason": "Use Inspecionar recuperação, depois Revisar recovery e Confirmar recovery.",
+    "confirmacao": "none",
+    "tela": "system",
+    "controle": "component-recovery",
+    "linha": 416
+   },
+   {
+    "id": "sync.status",
+    "rotulo": "Ver fila de sincronização",
+    "classe": "SEM_ENDPOINT",
+    "rota": null,
+    "metodo": "GET",
+    "enabled": false,
+    "applicable": false,
+    "reason": "A fila é somente leitura no snapshot atual; retry/cancel ainda não possuem rota da bridge.",
+    "confirmacao": "none",
+    "tela": "sync",
+    "controle": "sync-summary",
+    "linha": 1033
+   },
+   {
+    "id": "profiles.history",
+    "rotulo": "Ver histórico de perfis",
+    "classe": "SEM_ENDPOINT",
+    "rota": null,
+    "metodo": "GET",
+    "enabled": false,
+    "applicable": false,
+    "reason": "A UI revisa diferenças antes de aplicar e oferece recovery, mas o store não publica uma linha do tempo de perfis pela bridge.",
+    "confirmacao": "none",
+    "tela": "steam",
+    "controle": "profile-history",
+    "linha": 1048
+   },
+   {
+    "id": "session.recovery",
+    "rotulo": "Recuperar sessão de jogo",
+    "classe": "SEM_ENDPOINT",
+    "rota": null,
+    "metodo": "POST",
+    "enabled": false,
+    "applicable": false,
+    "reason": "A recuperação de sessão pertence ao daemon e ainda não possui contrato Desktop.",
+    "confirmacao": "none",
+    "tela": "system",
+    "controle": "session-recovery",
+    "linha": 1130
+   }
+  ],
+  "sem_porta": []
+ },
+ "B_emulacao": {
+  "publicacoes": 79,
+  "ids_distintos": 58,
+  "rollup_porta": {
+   "INDIRETA": 2,
+   "SIM": 76,
+   "NAO": 1
+  },
+  "aceitos_plan_action": 42,
+  "prefixos_plan_action": [
+   "cheat.catalog.install:",
+   "cheat.remove:",
+   "cheat.state:",
+   "content.remove:",
+   "content.state:",
+   "controls.profile.activate:",
+   "controls.profile.clear:",
+   "extras.catalog.search:",
+   "game.enhancements.clear:",
+   "game.enhancements.set:",
+   "game.media.clear:",
+   "game.media.import:",
+   "game.media.publish-steam:",
+   "game.media.search:",
+   "game.media.select:",
+   "game.media.unpublish-steam:",
+   "game.save.backup:",
+   "game.save.restore:",
+   "game.shader.backup:",
+   "game.shader.invalidate:",
+   "game.shader.restore:",
+   "game.state.backup:",
+   "game.state.restore:",
+   "library.root.audit:",
+   "library.root.move:",
+   "library.root.open:",
+   "library.root.remove:",
+   "library.root.rename:",
+   "library.root.scan:",
+   "mod.catalog.install:",
+   "mod.catalog.prepare:",
+   "mod.remove:",
+   "mod.state:"
+  ],
+  "prefixos_main_qml": [
+   "cheat.catalog.install:",
+   "cheat.remove:",
+   "cheat.state:",
+   "cloud.launch:",
+   "content.state:",
+   "emulator.install:",
+   "emulator.launch:",
+   "emulator.repair:",
+   "emulator.stop:",
+   "emulator.uninstall:",
+   "emulator.update:",
+   "extras.catalog.search:",
+   "game.delete:",
+   "game.launch:",
+   "game.media.clear:",
+   "game.media.import:",
+   "game.media.publish-steam:",
+   "game.media.search:",
+   "game.media.select:",
+   "game.media.unpublish-steam:",
+   "game.save.",
+   "game.shader.",
+   "library.root.",
+   "library.root.audit:",
+   "media.",
+   "mod.catalog.install:",
+   "mod.catalog.prepare:",
+   "mod.remove:",
+   "mod.state:",
+   "platform.open:"
+  ],
+  "ramos_dinamicos": [],
+  "sem_porta": [
+   {
+    "id": "feature.planned",
+    "kind": "literal",
+    "candidatos": [
+     "feature.planned"
+    ],
+    "templates": [],
+    "label": "Em desenvolvimento",
+    "file": "emulation_workspace.py",
+    "linha": 700,
+    "enabled": false,
+    "reason": "Capacidade ainda não exposta pelo backend.",
+    "porta": "NENHUMA",
+    "classe_porta": "NAO"
+   }
+  ],
+  "porta_indireta": [
+   {
+    "id": ".backup:",
+    "kind": "dinamico",
+    "candidatos": [
+     ".backup:"
+    ],
+    "templates": [],
+    "label": "Criar backup",
+    "file": "emulation.py",
+    "linha": 5040,
+    "enabled": true,
+    "reason": null,
+    "porta": "prefixo do id vem de variavel: .backup:",
+    "classe_porta": "INDIRETA"
+   },
+   {
+    "id": ".restore:",
+    "kind": "dinamico",
+    "candidatos": [
+     ".restore:",
+     ":"
+    ],
+    "templates": [],
+    "label": "Restaurar",
+    "file": "emulation.py",
+    "linha": 5082,
+    "enabled": "EXPR:confirmed and compatible",
+    "reason": "EXPR:None if confirmed and compatible else 'Fingerprint do driver",
+    "porta": "prefixo do id vem de variavel: .restore:, :",
+    "classe_porta": "INDIRETA"
+   }
+  ],
+  "enabled_false": [
+   {
+    "id": "feature.planned",
+    "kind": "literal",
+    "candidatos": [
+     "feature.planned"
+    ],
+    "templates": [],
+    "label": "Em desenvolvimento",
+    "file": "emulation_workspace.py",
+    "linha": 700,
+    "enabled": false,
+    "reason": "Capacidade ainda não exposta pelo backend.",
+    "porta": "NENHUMA",
+    "classe_porta": "NAO"
+   },
+   {
+    "id": "firmware.import",
+    "kind": "literal",
+    "candidatos": [
+     "firmware.import"
+    ],
+    "templates": [],
+    "label": "Importar firmware",
+    "file": "emulation_workspace.py",
+    "linha": 689,
+    "enabled": false,
+    "reason": "Importação pela interface ainda não está conectada ao serviço.",
+    "porta": "firmware.import->plan_action:igualdade",
+    "classe_porta": "SIM"
+   },
+   {
+    "id": "keys.import",
+    "kind": "literal",
+    "candidatos": [
+     "keys.import"
+    ],
+    "templates": [],
+    "label": "Importar keys",
+    "file": "emulation_workspace.py",
+    "linha": 673,
+    "enabled": false,
+    "reason": "Importação pela interface ainda não está conectada ao serviço.",
+    "porta": "keys.import->plan_action:igualdade",
+    "classe_porta": "SIM"
+   },
+   {
+    "id": "library.root.media-unavailable:",
+    "kind": "dinamico",
+    "candidatos": [
+     "library.root.media-unavailable:"
+    ],
+    "templates": [
+     "library.root.media-unavailable:"
+    ],
+    "label": "Adicionar mídia para um jogo",
+    "file": "emulation.py",
+    "linha": 5371,
+    "enabled": false,
+    "reason": "Nenhum jogo desta raiz está disponível após a varredura.",
+    "porta": "library.root.media-unavailable:->ramo no Main.qml",
+    "classe_porta": "SIM"
+   },
+   {
+    "id": "media.import.unavailable",
+    "kind": "literal",
+    "candidatos": [
+     "media.import.unavailable"
+    ],
+    "templates": [],
+    "label": "Importar mídia manual",
+    "file": "emulation.py",
+    "linha": 5976,
+    "enabled": false,
+    "reason": "Adicione um jogo antes de importar mídia.",
+    "porta": "media.import.unavailable->ramo no Main.qml",
+    "classe_porta": "SIM"
+   },
+   {
+    "id": "requirements.verify",
+    "kind": "literal",
+    "candidatos": [
+     "requirements.verify"
+    ],
+    "templates": [],
+    "label": "Validar requisitos",
+    "file": "emulation_workspace.py",
+    "linha": 734,
+    "enabled": false,
+    "reason": "Validação pela interface ainda não está conectada ao serviço.",
+    "porta": "requirements.verify->ramo no Main.qml",
+    "classe_porta": "SIM"
+   }
+  ],
+  "enabled_contraditorio": {
+   "firmware.import": [
+    "False",
+    "True"
+   ],
+   "nsz.install": [
+    "EXPR:not nsz_ready or keys['status'] == 'ok'",
+    "True"
+   ],
+   "requirements.verify": [
+    "False",
+    "True"
+   ]
+  },
+  "aceitos_nunca_publicados": [
+   "archive.materialize",
+   "bios.import",
+   "bios.link",
+   "cloud.shortcuts.sync",
+   "content.save.import",
+   "content.shader.import",
+   "emulation.global.set-auto-publish-steam",
+   "emulation.global.set-prefer-native-nca",
+   "firmware.download",
+   "game.emulator.clear_default",
+   "game.emulator.set",
+   "game.steam.set",
+   "library.health.scan",
+   "library.projection.repair",
+   "library.vita.package",
+   "multidisc.materialize",
+   "rom.scan",
+   "steam.frontend-shortcut.sync",
+   "steam.shortcuts.sync"
+  ]
+ },
+ "C_sessao": {
+  "read_models": 58,
+  "aceitos_backend": [
+   "exit",
+   "listDiscs",
+   "listPeripherals",
+   "listSaveStates",
+   "loadState",
+   "pause",
+   "resume",
+   "saveState",
+   "swapDisc"
+  ],
+  "acoes": [
+   {
+    "id": "exit",
+    "hab": 12,
+    "desab": 2,
+    "aceita_no_backend": true,
+    "motivos": [
+     "A saída exige uma sessão controlável e confirmação explícita."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "pause",
+    "hab": 12,
+    "desab": 2,
+    "aceita_no_backend": true,
+    "motivos": [
+     "A sessão não está em um estado pausável."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "saveState",
+    "hab": 11,
+    "desab": 3,
+    "aceita_no_backend": true,
+    "motivos": [
+     "Nenhuma sessão controlável foi observada.",
+     "o dono da sessão não respondeu"
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "loadState",
+    "hab": 6,
+    "desab": 8,
+    "aceita_no_backend": true,
+    "motivos": [
+     "Nenhum save-state foi criado para esta sessão.",
+     "Nenhuma sessão controlável foi observada.",
+     "o dono da sessão não respondeu"
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "achievement",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "brightness",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "control",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "disc",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Nenhuma sessão controlável foi observada.",
+     "O adapter não declarou suporte para esta ação.",
+     "o dono da sessão não respondeu"
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "fastForward",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "mute",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "network",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "rewind",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "screenshot",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   },
+   {
+    "id": "volume",
+    "hab": 0,
+    "desab": 14,
+    "aceita_no_backend": false,
+    "motivos": [
+     "Esta ação ainda não possui adapter de sessão."
+    ],
+    "amostras": 14
+   }
+  ],
+  "publicadas_sem_backend": [
+   "achievement",
+   "brightness",
+   "control",
+   "disc",
+   "fastForward",
+   "mute",
+   "network",
+   "rewind",
+   "screenshot",
+   "volume"
+  ],
+  "aceitas_nunca_publicadas": [
+   "listDiscs",
+   "listPeripherals",
+   "listSaveStates",
+   "resume",
+   "swapDisc"
+  ]
+ },
+ "D_atspi": {
+  "acionaveis_dedup": 622,
+  "estados": {
+   "visivel": 55,
+   "invisivel-acionavel": 546,
+   "invisivel-inerte": 21
+  },
+  "sem_nome_no_qml": 404,
+  "invisivel_acionavel": [
+   "button · Abrir navegação",
+   "button · Abrir pendência do sistema",
+   "button · Tentar novamente",
+   "button · Mostrar mais 0 erro(s) ativo(s)",
+   "button · Continuar",
+   "button · Ver biblioteca",
+   "button · Abrir coleção",
+   "button · Abrir sistema",
+   "button · Abrir recentes",
+   "button · Todos os sistemas",
+   "button · Steam, 7 jogo(s), Biblioteca disponível",
+   "button · Nintendo Switch, 15 jogo(s), Jogos inventariados",
+   "button · Game Boy, Game Boy Color e Game Boy Advance, 296 jogo(s), Jo",
+   "button · Nintendo Entertainment System e Famicom, 258 jogo(s), Jogos",
+   "button · Super Nintendo Entertainment System, 109 jogo(s), Jogos inve",
+   "button · Sega Mega Drive e Genesis, 81 jogo(s), Jogos inventariados",
+   "button · Arcade, CPS, Neo Geo e MAME, 0 jogo(s), Nenhum jogo inventar",
+   "button · Sony PlayStation, 48 jogo(s), Jogos inventariados",
+   "button · NVIDIA GeForce NOW, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Xbox Cloud Gaming, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Amazon Luna, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Nintendo GameCube e Wii, 2 jogo(s), Jogos inventariados",
+   "button · Sega Master System, 204 jogo(s), Jogos inventariados",
+   "button · Sega Game Gear, 41 jogo(s), Jogos inventariados",
+   "button · NEC PC Engine e TurboGrafx-16, 0 jogo(s), Nenhum jogo invent",
+   "button · Atari 2600, 5200, 7800, Lynx e Jaguar, 0 jogo(s), Nenhum jog",
+   "button · SNK Neo Geo Pocket e Pocket Color, 0 jogo(s), Nenhum jogo in",
+   "button · Bandai WonderSwan e WonderSwan Color, 0 jogo(s), Nenhum jogo",
+   "button · MSX e MSX2, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Sinclair ZX Spectrum, 1 jogo(s), Jogos inventariados",
+   "button · Commodore 64, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Commodore Amiga e Amiga CD32, 4 jogo(s), Jogos inventariados",
+   "button · ColecoVision, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Mattel Intellivision, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Nintendo Virtual Boy, 0 jogo(s), Nenhum jogo inventariado",
+   "button · 3DO Interactive Multiplayer, 1 jogo(s), Jogos inventariados",
+   "button · Sega CD e Sega 32X, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Nintendo 64, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Sony PlayStation 2, 6 jogo(s), Jogos inventariados",
+   "button · Sony PlayStation Portable, 0 jogo(s), Nenhum jogo inventaria",
+   "button · Sega Dreamcast, 5 jogo(s), Jogos inventariados",
+   "button · Nintendo DS, 14 jogo(s), Jogos inventariados",
+   "button · Nintendo 3DS, 20 jogo(s), Jogos inventariados",
+   "button · Nintendo Wii U, 2 jogo(s), Jogos inventariados",
+   "button · Sony PlayStation 3, 1 jogo(s), Jogos inventariados",
+   "button · Microsoft Xbox, 1 jogo(s), Jogos inventariados",
+   "button · Microsoft Xbox 360, 1 jogo(s), Jogos inventariados",
+   "button · Sega Saturn, 18 jogo(s), Jogos inventariados",
+   "button · SG-1000, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Neo Geo CD, 1 jogo(s), Jogos inventariados",
+   "button · Vectrex, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Magnavox Odyssey², 0 jogo(s), Nenhum jogo inventariado",
+   "button · Fairchild Channel F, 0 jogo(s), Nenhum jogo inventariado",
+   "button · PC Engine SuperGrafx, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Atari ST, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Apple II, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Sony PlayStation Vita, 6 jogo(s), Jogos inventariados",
+   "button · BBC Micro, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Tandy Color Computer, 0 jogo(s), Nenhum jogo inventariado",
+   "button · TI-99/4A, 0 jogo(s), Nenhum jogo inventariado",
+   "button · ZX81, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Thomson MO5/TO8, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Sharp X68000, 8 jogo(s), Jogos inventariados",
+   "button · PC-8800 Series, 0 jogo(s), Nenhum jogo inventariado",
+   "button · PC-9800 Series, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Game & Watch, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Watara Supervision, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Creatronic Mega Duck, 0 jogo(s), Nenhum jogo inventariado",
+   "button · DOOM, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Quake, 0 jogo(s), Nenhum jogo inventariado",
+   "button · PICO-8, 0 jogo(s), Nenhum jogo inventariado",
+   "button · TIC-80, 0 jogo(s), Nenhum jogo inventariado",
+   "button · WASM-4, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Sony PlayStation 4, 2 jogo(s), Jogos inventariados",
+   "button · Sony PlayStation 5, 0 jogo(s), Nenhum jogo inventariado",
+   "button · Emuladores: Nenhuma pendência publicada",
+   "button · Saves e sync: Nenhuma fila pendente publicada",
+   "button · Diagnóstico e mídia: Estado detalhado disponível no Sistema",
+   "button · Aladdin (Music Replacement + Button Fix + improvement), 45 m",
+   "button · Adicionar Aladdin (Music Replacement + Button Fix + improvem"
+  ]
+ }
+}

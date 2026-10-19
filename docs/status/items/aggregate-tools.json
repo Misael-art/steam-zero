@@ -18,10 +18,17 @@
     "Todo arquivo do escopo tem custodia declarada e aparece no catalogo.",
     "Nenhuma alegacao de verificacao e feita por este item."
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
+    }
+  ],
   "nextAction": "Separar o harness de VM e o instalador de host em itens proprios, que ja tem contrato e consequencia de host.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-10-16",
   "notes": "Item AGREGADOR: existe para que nenhum arquivo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto da arvore. Promover um recorte a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece. `run_tests_isolated` isolava HOME e as XDG, mas nao `TMPDIR`. O `tmp_path` do pytest nasce ali, escapava do isolamento e nunca era removido: medido em 2026-09-02, 18 diretorios em `/tmp/pytest-of-<user>` somavam 6,8 GB e encheram um tmpfs de 7,3 GB. Disco cheio nao se anuncia — a suite morre no meio e parece deadlock (foi diagnosticada como travamento aos 17% e aos 29%, por dois agentes), e a instalacao governada estoura o timeout sem criar release, o que parece falha de autenticacao. Duas causas-raiz erradas nasceram daqui. Corrigido: TMPDIR/TEMP/TMP passam a viver dentro do root temporario e morrem com a execucao; o isolamento passa a ser tambem de espaco, nao so de estado.",
-  "scopeDigest": "23293b9f1feb99a280de2a19e076037d9725e736a5942f11da9790b88967d9a9"
+  "scopeDigest": "92eeaa9e14fb0ad9d53b609715ce1c8f7b48ace7edcd3541159da82689506cf9"
 }

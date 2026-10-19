@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Catálogo editorial de experiências SteamZero",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "updatedAt",
+    "sourceCommit",
+    "publicationPolicy",
+    "commonCapabilities",
+    "features",
+    "sources",
+    "platforms",
+    "additionalTargets",
+    "variantRules"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "steamzero-experience-planning-catalog"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date"
+    },
+    "sourceCommit": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{8,40}$"
+    },
+    "publicationPolicy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commonCapabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "features": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "deliveryItem",
+          "status",
+          "requires"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "deliveryItem": {
+            "type": "string",
+            "pattern": "^SZ-"
+          },
+          "status": {
+            "const": "proposal"
+          },
+          "requires": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "supports",
+          "checkedAt"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "supports": {
+            "type": "string",
+            "minLength": 1
+          },
+          "checkedAt": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "platformId",
+          "name",
+          "manifest",
+          "featureRefs",
+          "proposals",
+          "sourceRefs",
+          "evidenceClass",
+          "deliveryState",
+          "publishAsAvailable",
+          "validationNext"
+        ],
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "manifest": {
+            "type": "string",
+            "minLength": 1
+          },
+          "featureRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "proposals": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "sourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "evidenceClass": {
+            "enum": [
+              "design-hypothesis",
+              "upstream-reference-plus-design"
+            ]
+          },
+          "deliveryState": {
+            "const": "not-validated"
+          },
+          "publishAsAvailable": {
+            "const": false
+          },
+          "validationNext": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "additionalTargets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "targetId",
+          "name",
+          "featureRefs",
+          "proposals",
+          "deliveryState"
+        ],
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "featureRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "proposals": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "deliveryState": {
+            "const": "not-validated"
+          }
+        }
+      }
+    },
+    "variantRules": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

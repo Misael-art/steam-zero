@@ -42,7 +42,7 @@
     "tests/unit/test_session_overlay.py",
     "tests/unit/test_session_overlay_adapter.py"
   ],
-  "scopeDigest": "924197a9837324ac97a45cac2dc80fca3b764cc791c683e19a606ea571231796",
+  "scopeDigest": "07bdb1ee8c4f11dafcceb33e200481fbfe69441d1f33fee6aeb3f17a9174e5a2",
   "dependsOn": [
     "SZ-AURA-SAVE-STATE-GALLERY",
     "SZ-AURA-SESSION-OSD",
@@ -276,12 +276,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Bezel e performance foram revalidados na release a71; manter aberto o orçamento na superfície de referência 1280x800, a troca de disco com jogo multi-disc legítimo, fade físico e a prova física PS4.",
   "activeWorkstreams": [
     "WS-2026-09-AURA-CINEMA-COMPLETION"
   ],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-16",
   "notes": "Frente de continuação do AURA Launcher/Theme Engine. A release 2.0.0rc1-a71c2b5e17cd foi instalada pelo fluxo governado, o daemon convergiu e a captura de jogo real confirmou o bezel AURA após a declaração de overlays do RetroArch. A nova medição Wayland/OpenGL passou startup, p95 e VRAM na superfície real 948x593; a referência 1280x800 continua sem prova. A medição e a captura visual não promovem AURA UI ou Theme Studio; cobrem apenas a cadeia de sessão e a composição fullscreen especificadas no plano."
 }

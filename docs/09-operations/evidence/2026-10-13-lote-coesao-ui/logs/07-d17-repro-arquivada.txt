@@ -1,0 +1,46 @@
+D-17 — arquivamento da reprodução (checkpoint Tarefa 14, Step 0c)
+==================================================================
+Data: 2026-10-15 · Lote: coesão UI e botões reais (2026-10-13) · Commit HEAD: bb10331d
+
+O que foi pedido (brief T14 Step 0c)
+-----------------------------------
+Arquivar a reprodução do D-17 (409 com diagnóstico resolúvel; Tarefa 1, commit 3ff40a98)
+no diretório de evidências deste lote, registrando caminho + hash. A reprodução de campo
+contra a release instalada continua PENDENTE (Ruling P3 do ledger; sem autorização de
+POST na Central ativa nesta rodada).
+
+Estado do roteiro original
+--------------------------
+O roteiro artesanal usado na Tarefa 1 viveu em `/tmp/d17-repro/repro_d17.py` (registrado
+em `logs/02-d17-causa.txt:29-32`). `/tmp` é volátil: o arquivo NÃO existe mais nesta
+máquina em 2026-10-15 (verificado: `ls /tmp/d17-repro` → inexistente). O ledger já havia
+adiado este arquivamento exatamente por isso (Task 1 minor deferred). A regravagem do
+roteiro a partir do log seria reconstrução, não arquivo; registra-se abaixo a reprodução
+canônica que EXISTE na árvore e é recomputável — que é o que o brief pede ("o harness/
+arquivo que já existe na árvore ou nos testes").
+
+Reprodução arquivada (na árvore, recomputável)
+---------------------------------------------
+- Teste: `tests/integration/test_launcher_app.py::test_launch_failure_publishes_resolvable_diagnostic_id`
+  (POST real `/launch` contra `LauncherBridge` em serving, sob `isolated_xdg_root`;
+  afirma `error.diagnosticId` no body 409, ausência do segredo no body, e resolve o id
+  contra a linha `event=launcher.launch.failed` no journal isolado — os mesmos três
+  fatos da captura manual em `logs/02-d17-causa.txt:38-53`).
+- Produto sob prova: `src/steamzero/adapters/launcher_ui.py` (handler do 409 e escrita
+  do rastro; literais `diagnosticId`/`MAX_LAUNCH_DETAIL`).
+
+Hashes (sha256, árvore em HEAD bb10331d, git limpo):
+    6c2951231721a14563a8a62a586428fffaa671606f24e3d464329246c9af26ea  tests/integration/test_launcher_app.py
+    cb97ec8e7e780222f52944fcee1dfc4c51b8ff17272ebe64908d039aca5b9e3e  src/steamzero/adapters/launcher_ui.py
+    44dcad936ad99ef6a30a82eadede1073885fb3111a222ea06c0e6c42b9621392  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/02-d17-causa.txt
+
+Como recomputar (reviewer, a partir da raiz do repositório; runner isolado, sem efeito
+no state home real):
+
+    .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py -q
+
+Limites declarados
+------------------
+- Reprodução sintética em loopback (on_launch falho), zero efeito no host; nenhum jogo
+  lançado. A prova de campo em 2.0.0rc1-2b7eb541b4a5 fica aberta na matriz da Tarefa 15.
+- O harness arquivado (`logs/02-d17-causa.txt`) não foi editado — integridade de evidência.

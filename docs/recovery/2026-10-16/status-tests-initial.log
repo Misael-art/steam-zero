@@ -1,0 +1,17 @@
+F............                                                            [100%]
+=================================== FAILURES ===================================
+__________ test_committed_catalog_and_generated_views_are_consistent ___________
+
+    def test_committed_catalog_and_generated_views_are_consistent() -> None:
+>       assert project_status.check_catalog() == []
+E       AssertionError: assert ['SZ-GOVERNAN...nder --write'] == []
+E
+E         Left contains 5 more items, first extra item: 'SZ-GOVERNANCE-STATUS: evidencia obsoleta; scopeDigest esperado e9b74f98d6841df8f94cd9e6a73830e1c5514b6de2b1c1bc9ba44c3f49199628, atual 21885d9df4fe8cbcb1c7ec0d044a91dedd97366f19a680a216f5c79d75dd3530'
+E         Use -v to get more diff
+
+tests/unit/test_project_status.py:15: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent
+1 failed, 12 passed in 7.18s
+real-state before: exists=True files=12948 directories=2115 bytes=1430256030 max_mtime_ns=1792149414122754490 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430256030 max_mtime_ns=1792149414122754490 source=HOME-default

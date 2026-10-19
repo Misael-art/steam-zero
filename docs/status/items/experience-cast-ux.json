@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-CAST-UX",
+  "title": "Compartilhamento amigável consumível por temas",
+  "domain": "casting",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/COMPARTILHAMENTO.md"
+  ],
+  "dependsOn": [
+    "SZ-EXPERIENCE-COMPOSITION",
+    "SZ-CAST-LAN"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Descobrir receptor real com lista incremental e rótulo seguro, deduplicando anúncios.",
+    "Conectar diretamente ou solicitar desafio conforme provider, incluindo cancelamento e revogação.",
+    "Transmitir a superfície escolhida e recuperar perda de rede sem encerrar o jogo; provar por UI padrão e tema."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C1: mapear descoberta e auth por provider; substituir a alegação de descoberta universal por uma matriz e prova interoperável real.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}

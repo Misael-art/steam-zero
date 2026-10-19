@@ -15,7 +15,9 @@
     "docs/status/workstreams/physical-validation-unblock-plan-2026-10-07.json",
     "docs/diagnostics/2026-10-07-diagnostico-jornadas-reais-ux.md",
     "docs/diagnostics/2026-10-07-HANDOFF-continuacao.md",
-    "docs/status/workstreams/diagnostico-jornadas-ux-2026-10-07.json"
+    "docs/status/workstreams/diagnostico-jornadas-ux-2026-10-07.json",
+    "docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5",
+    "docs/status/workstreams/jornada-fisica-bateria-2026-10-12.json"
   ],
   "dependsOn": [
     "SZ-ROADMAP-CONTINUATION"
@@ -36,12 +38,32 @@
     {
       "kind": "design",
       "reference": "docs/09-operations/evidence/2026-10-07-physical-validation-unblock/README.md",
-      "command": "Reconciliacao documental das rodadas 06-07/10 com matriz R01-R17 e inspeção estatica de pyproject.toml; sem execucao de casos fisicos nem promocao de produtos.",
+      "command": "Reconciliacao documental das rodadas 06-07/10 com matriz R01-R17 e inspe\u00e7\u00e3o estatica de pyproject.toml; sem execucao de casos fisicos nem promocao de produtos.",
+      "result": "recorded"
+    },
+    {
+      "kind": "hardware",
+      "reference": "docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/README.md",
+      "command": "Bateria fisica da jornada executada na release instalada 2.0.0rc1-2b7eb541b4a5 (sourceCommit 2b7eb541b4a54f0930927a2b0f92cb45776ae4c7, bundle 20d5187c9f195f32..., run 38125415210) no host misael-jupiter. Decisao do operador: pular reinstalacao e validar a candidata ja ativa; nenhum tools/release_host.py install, nenhum bigsudo, nenhuma escrita em /opt, /usr/local, /etc ou /boot. 15 criterios: 9 demonstrados, 4 parciais, 2 abertos. Matriz por criterio (comportamento, evidencia, release, limite) no README; capturas, logs, JSON do read-model e protecoes conferidas em logs/14.",
+      "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/18-censo-controles-backend.txt",
+      "command": "Censo somente leitura de controles da UI x fiac\u00e3o de backend na release instalada: AST sobre desktop_contracts.py, desktop_ui.py (do_GET/_dispatch), plan_action e workspace, cruzado com a arvore AT-SPI de logs/17 e 58 read-models. Resultado: 154 contratos, 148 com endpoint e 148/148 com porta no verbo declarado; os 6 sem endpoint sao ausencia auto-declarada com reason literal. Nao ha 'botoes sem backend' em massa no nivel de contrato. Achados registrados como D-27 (requirements.verify e firmware.import publicados com enabled contraditorio, mais sucesso falso em Main.qml:1567-1570) e D-28 (10 acoes do OSD que nunca entram no conjunto aceito por session_control.py:395-412, enquanto 5 aceitas jamais viraram botao). Efeitos de runtime nao observados: injecao de GUI banida neste host.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/19-auditoria-de-cores.txt",
+      "command": "Auditoria de cores somente leitura (harness/sz_cores.py): contraste WCAG 2.1 recomputado dos theme.json publicados no host e no pacote da release, com validacao cruzada contra a medicao de pixels de sz_contrast.py. O modelo de tokens acerta o pixel no botao ativo (1,04:1 previsto = 1,04:1 medido) e e otimista no rotulo desabilitado (2,93 previsto contra 2,02/2,05 medidos); a divergencia fica declarada. Resultado: 43 reprovasoes semanticas registradas como D-29. Cobertura: os 6 temas mensuraveis definem as mesmas 18 chaves do default apos extends; os 4 org.esde.* nao tem tokens.color. Nenhuma troca de tema foi feita pela UI.",
       "result": "recorded"
     }
   ],
-  "nextAction": "D0: preservar e fechar R05/R06 com o owner, atribuir dez digests e negociar handoffs por arquivo. D1-D4: captura/input no backend real, entry point steamzero-launcher, preflight de save/input e provider-bytes-consumo-gameplay-retorno; D5-D8 completam autoria, UX e candidata autorizada.",
-  "activeWorkstreams": [],
-  "updatedAt": "2026-10-09",
-  "notes": "Custodia documental do plano D0-D8, nao novo produto ou catalogo concorrente. Registro local nao commitado; branch atual e trabalho alheio preservados. Relatos fisicos nao reexecutados; nenhum eixo de capacidade promovido. Fechamento de governanca global depende do owner dos arquivos e digests existentes."
+  "nextAction": "D0: preservar e fechar R05/R06 com o owner, atribuir dez digests e negociar handoffs por arquivo. Rodada fisica 2026-10-12: as oito capacidades mantidas abertas no README da matriz so podem avancar com mao de obra do operador, porque injecao de entrada GUI esta proibida neste host e a ponte de leitura nao substitui a prova visual. Prioridade: corrigir em lote governado as tres alturas abertas (D-17 lancamento recusado sem causa, D-23 sessao presa apos saveState em pausa, D-26 save recusado que escreve o arquivo) e so depois reexecutar B-7 retorno com foco e rolagem, B-10 fades, C-4 recuperacao de sessao presa pelo produto, os 22 adapters nao testados e a entrada de gamepad/touch do Deck. Instalacao governada, rollback e ciclo de servico (A-2/A-3) seguem nao executados. D5-D8 completam autoria, UX e candidata autorizada.",
+  "activeWorkstreams": [
+    "WS-2026-10-JORNADA-FISICA-BATERIA"
+  ],
+  "updatedAt": "2026-10-12",
+  "notes": "Custodia documental do plano D0-D8 e das rodadas fisicas, nao novo produto ou catalogo concorrente. Rodada 2026-10-12 na candidata ativa: a jornada fisica NAO e declarada entregue. Ficam abertos o retorno com foco e rolagem (B-7), os fades (B-10) e a recuperacao de sessao presa (C-4); ficam parciais a heranca AURA (D-06/D-24), lancar jogo real (D-17), pause/resume (D-23) e confirmar saida (D-15). Tres defeitos de severidade alta seguem abertos (D-17, D-23, D-26). Instalacao governada, integridade e caminho de rollback nao foram executados nesta sessao. Nenhum eixo de capacidade promovido; os quatro gaps permanecem, porque gamepad e touch do Deck seguem sem prova e o backend de captura e input deixou de poder ser exercido por injecao de entrada neste host. Registro adicional da rodada 2026-10-12, na mesma evidencia: censo de controles x fiacao de backend (logs/18) e auditoria de cores (logs/19). O censo nao sustenta 'dezenas de botoes sem backend' no nivel de contrato (148/148 com porta) e aponta os dois casos concretos: 10 acoes do OSD sem adapter de sessao (D-28) e uma publicacao contraditoria com sucesso falso (D-27). A auditoria mede 43 reprovasoes de contraste nos temas publicados (D-29). Ambos os registros sao estaticos: nenhum botao foi clicado e nenhum tema foi trocado pela UI, porque a injecao de entrada GUI esta banida neste host."
 }

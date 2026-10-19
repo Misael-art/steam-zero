@@ -1,0 +1,5 @@
+referências de cor do artefato aura-bezel.png (1920x1080): 40
+amostras: [(54, 154, 195), (87, 199, 226), (43, 137, 182), (59, 132, 189), (45, 131, 181), (44, 138, 183)]
+capturas/L21-gameplay-retroarch.png: 4752/1353459 px (~0.4%) dentro de Δ24 das cores do bezel
+capturas/L29-gameplay-gb-mgba.png: 2592/747136 px (~0.3%) dentro de Δ24 das cores do bezel
+capturas/L30-overlay-sessao-gb.png: 2536/1025280 px (~0.2%) dentro de Δ24 das cores do bezel

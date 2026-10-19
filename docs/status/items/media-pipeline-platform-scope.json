@@ -14,7 +14,7 @@
     "tests/integration/test_media_pipeline_platform_scope.py",
     "docs/09-operations/evidence/2026-09-22-media-pipeline-readonly"
   ],
-  "scopeDigest": "30830ee2fbf3289481a70d77c07f3786da8cf44962856ef5db0d5eb584d4980f",
+  "scopeDigest": "77e9026507c44b588fb7f42f5ba45f6494371a1b8862be05e7d9ede391a24a93",
   "dependsOn": [
     "SZ-EMULATION-PLATFORM-SCOPE",
     "SZ-MEDIA-PROVIDER-PLATFORM-FILTER"
@@ -84,10 +84,16 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "nextAction": "HARD-EXTERNAL-SUBITEM: preservar o diagnóstico e aguardar credencial ScreenScraper autorizada; recuperar qualquer job global stale pelo ciclo G25 antes de repetir. Depois medir qualidade por kind e publicar a cadeia de rollback. Não converter o lote degraded em cobertura garantida.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-16",
   "notes": "O escopo por plataforma, denominador, fases, health persistida e providerDetails está integrado e presente na release ativa. A operação real comprovou busca individual e lote assíncrono com ScreenScraper rejeitado e SteamGridDB funcional, sem perder a causa no read model. Permanece degraded por credencial externa, falta de score perceptual/cobertura completa de kinds/publicação/rollback e qualquer job stale que precise de recovery antes de nova tentativa."
 }

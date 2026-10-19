@@ -1,0 +1,4 @@
+● steamzero-core.service - SteamZero user control plane
+     Loaded: loaded (/usr/local/lib/systemd/user/steamzero-core.service; static)
+     Active: active (running) since Thu 2026-10-15 16:09:46 -03; 17min ago
+ Invocation: d22bdb11c7124d39a87997d9ac0a984e

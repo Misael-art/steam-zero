@@ -1,0 +1,13 @@
+# 00-input — prova de entrega de input focado (2026-10-15T16:29:10-03:00)
+ydotoold: 3517005 /home/misael/.local/bin/ydotoold --socket-path=/tmp/.ydotool_socket
+socket: /tmp/.ydotool_socket ; uinput device:
+janela alvo: {9678b0b5-512c-4190-bd45-206e11501956} (qml6 pid 3537957, launcher pid 3537900)
+Fato operacional: às 16:21 o controlador enviou um Esc (keycode 1:1 1:0) sem janela
+confirmada antes de montar o harness — nenhum dano conhecido, nada capturado.
+
+Prova de entrega (sz_focus rc=0 → captura → Tab ×2 reais via ydotool/uinput → captura):
+  pixel: compare -metric AE S-PRE-2 vs S-PRE-3 = 272.454 (0.000265736) px alterados (anel de foco)
+  AT-SPI: objeto FOCUSED após Tab ×2 (filtro pid 3537957) = 'combo box|state'
+  ponte viva: HTTP 200 menu=platforms/Plataformas total=28 result=28 gen=0 filters={} selected=None focus=None scroll=0.0 theme=org.steamzero.default/None active=True journeyId=org.steamzero.journey-4095b915 events=[{'event': 'select', 'connectionId': 'platforms-genres', 'action': 'navigate', 'label': 'Explorar por gênero'}, {'event': 'route', 'connectionId': 'platforms-years', 'action': 'navigate', 'label': 'Explorar por ano'}] caps={}
+Conclusão: ENTREGA PROVADA — pixel AE 272 ≠ 0 e objeto focado distinto retornado pela AT-SPI
+na janela do Launcher, com rc=0 de sz_focus antes de cada tecla.

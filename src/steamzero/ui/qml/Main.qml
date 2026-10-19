@@ -1564,8 +1564,22 @@ ApplicationWindow {
                 ? action.reason : qsTr("Esta ação de emulação ainda não está disponível."), true)
             return
         }
-        if (action.id === "emulation.refresh" || action.id === "requirements.verify") {
-            refreshStatus(qsTr("Ambiente de emulação verificado"))
+        if (action.id === "emulation.refresh") {
+            refreshStatus(qsTr("Ambiente de emulação atualizado"))
+            return
+        }
+        if (action.id === "requirements.verify") {
+            // D-27: nada de sucesso presumido. A verificação é uma leitura real
+            // (o mesmo caminho que apura prontidão no servidor); a tela mostra o
+            // veredito efetivamente apurado, não o rótulo que gostaríamos de ver.
+            requestAction("requirements.verify", {}, function(response) {
+                const state = response && response.state ? response.state : "unverified"
+                const label = response && response.statusLabel
+                    ? response.statusLabel : qsTr("Verificação não concluída")
+                const cause = response && response.readiness && response.readiness.cause
+                notify(cause ? label + ": " + cause : label, state !== "ready")
+                refreshStatus("")
+            })
             return
         }
         // Navegação para a plataforma. É tratada aqui, e não só no clique do

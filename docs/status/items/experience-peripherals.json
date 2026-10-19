@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-PERIPHERALS",
+  "title": "Acessórios, link e superfícies por plataforma",
+  "domain": "emulation",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/CAPACIDADES-COMPONIVEIS.md",
+    "docs/recovery/2026-10-16/EXPERIENCIAS-POR-PLATAFORMA.md",
+    "docs/recovery/2026-10-16/catalogo-experiencias.json"
+  ],
+  "dependsOn": [
+    "SZ-EXPERIENCE-COMPOSITION"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Provar portas de inserir/remover e observar e-Reader e Amiibo em subentregas próprias, por runtime escolhido, antes de anunciar cada suporte.",
+    "Tratar GB link, GBA link e GameCube-GBA como topologias distintas com isolamento de inputs/saves.",
+    "Validar capacidades de display e sensores por variante, runtime, jogo e dispositivo com limites explícitos."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C5: estudar runtime e frontend Linux; abrir slices e-Reader, link GB/GBA, Amiibo e Wii U com provas independentes.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}

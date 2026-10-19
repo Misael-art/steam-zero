@@ -1,0 +1,2314 @@
+{
+  "date": "2026-10-16",
+  "sourceCommit": "6475947c189f2d903b83f7f242a2c5ca535fb14c",
+  "localOriginMain": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
+  "scope": "Snapshot anterior ao novo item documental; estados declarados, não recertificação. origin/main é referência local, sem fetch.",
+  "statusCounts": {
+    "implementation": {
+      "partial": 56,
+      "complete": 34,
+      "planned": 7
+    },
+    "integration": {
+      "integrated": 55,
+      "isolated": 10,
+      "feature-branch": 30,
+      "released": 2
+    },
+    "verification": {
+      "none": 21,
+      "unit": 31,
+      "hw": 27,
+      "dev": 17,
+      "vm": 1
+    },
+    "operation": {
+      "unknown": 41,
+      "degraded": 41,
+      "ready": 13,
+      "blocked": 2
+    },
+    "distribution": {
+      "installed": 46,
+      "not-packaged": 50,
+      "packaged": 1
+    }
+  },
+  "items": [
+    {
+      "file": "docs/status/items/aggregate-adapters.json",
+      "id": "SZ-AGG-ADAPTERS",
+      "title": "Adapters: integracoes externas sem item proprio",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Promover a itens proprios os adapters com ciclo transacional e evidencia dedicada."
+    },
+    {
+      "file": "docs/status/items/aggregate-assets.json",
+      "id": "SZ-AGG-ASSETS",
+      "title": "Conteudo empacotado: experiencias, i18n e catalogos",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Amarrar cada catalogo empacotado ao item da capacidade que o consome."
+    },
+    {
+      "file": "docs/status/items/aggregate-core.json",
+      "id": "SZ-AGG-CORE",
+      "title": "Nucleo: paths, erros, transacao e migracoes",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-ERR-CATALOG-TAIL-AUDIT",
+        "GAP-ERR-STALE-PRECONDITION-CODE",
+        "GAP-ERR-DEGRADED-DRIFT-HOST-PENDING",
+        "GAP-ERR-QML-UI-ACTION-TAG"
+      ],
+      "nextAction": "Continuar a auditoria de verdade dos textos na cauda longa; separar migracoes de estado em item proprio, com prova de round-trip por versao."
+    },
+    {
+      "file": "docs/status/items/aggregate-domain.json",
+      "id": "SZ-AGG-DOMAIN",
+      "title": "Dominio: regras de negocio sem item proprio",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Promover a itens proprios os recortes de dominio com contrato e teste dedicados."
+    },
+    {
+      "file": "docs/status/items/aggregate-input-profiles.json",
+      "id": "SZ-AGG-INPUT-PROFILES",
+      "title": "Perfis de controle empacotados",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Provar que um perfil aplicado tem efeito observavel antes de declarar a capacidade."
+    },
+    {
+      "file": "docs/status/items/aggregate-jobs.json",
+      "id": "SZ-AGG-JOBS",
+      "title": "Jobs em segundo plano e recovery",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Cobrir recovery de job interrompido por teste dedicado."
+    },
+    {
+      "file": "docs/status/items/aggregate-platform-manifests.json",
+      "id": "SZ-AGG-PLATFORM-MANIFESTS",
+      "title": "Manifests de plataforma empacotados",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-PLATFORM-PS4-ABSENT",
+        "GAP-PLATFORM-VITA-ADAPTER-ABSENT",
+        "GAP-FIRMWARE-SWITCH-ONLY"
+      ],
+      "nextAction": "Cobrir a curadoria dos manifests por um item de catalogo de plataformas."
+    },
+    {
+      "file": "docs/status/items/aggregate-privileged.json",
+      "id": "SZ-AGG-PRIVILEGED",
+      "title": "Superficie privilegiada e helpers de host",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Cobrir cada helper privilegiado por teste de recusa e por checagem de ownership."
+    },
+    {
+      "file": "docs/status/items/aggregate-schemas.json",
+      "id": "SZ-AGG-SCHEMAS",
+      "title": "Schemas versionados do runtime",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Amarrar cada schema ao item da capacidade que o produz ou consome."
+    },
+    {
+      "file": "docs/status/items/aggregate-service-api.json",
+      "id": "SZ-AGG-SERVICE-API",
+      "title": "Daemon e superficie de API",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Separar o contrato JSON-RPC em item proprio com fixtures de envelope."
+    },
+    {
+      "file": "docs/status/items/aggregate-tests.json",
+      "id": "SZ-AGG-TESTS",
+      "title": "Suite de testes sem item proprio",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Amarrar cada arquivo de teste ao item da capacidade que ele prova, comecando pelos que sustentam evidencia declarada."
+    },
+    {
+      "file": "docs/status/items/aggregate-tools.json",
+      "id": "SZ-AGG-TOOLS",
+      "title": "Ferramentas de repositorio e harnesses",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Separar o harness de VM e o instalador de host em itens proprios, que ja tem contrato e consequencia de host."
+    },
+    {
+      "file": "docs/status/items/aura-asset-sanitizacao.json",
+      "id": "SZ-AURA-ASSET-SANITIZACAO",
+      "title": "Fronteira de confiança do asset-fonte SVG (frente A2)",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-ASSET-PIPELINE-RESTANTE"
+      ],
+      "nextAction": "Buracos fechados e provados por mutacao (16 dos 28 testes reprovam sem a correcao). O restante do pipeline da frente A2 (crop deterministico, mipmap/atlas, tiers de cache medidos) permanece aberto e depende de theme_assets.py, hoje reivindicado por WS-2026-09-TEMAS-ESDE ativo — exige coordenacao, nao codigo."
+    },
+    {
+      "file": "docs/status/items/aura-cinema-completion.json",
+      "id": "SZ-AURA-CINEMA-COMPLETION",
+      "title": "AURA Cinema — periféricos de sessão e composição fullscreen",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-PERF-1280X800-SURFACE",
+        "GAP-PS4-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+      ],
+      "nextAction": "Bezel e performance foram revalidados na release a71; manter aberto o orçamento na superfície de referência 1280x800, a troca de disco com jogo multi-disc legítimo, fade físico e a prova física PS4."
+    },
+    {
+      "file": "docs/status/items/aura-contracts.json",
+      "id": "SZ-AURA-CONTRACTS",
+      "title": "Contratos canônicos da plataforma AURA (GameRecord, MediaRole, Provenance, EnhancementEntry)",
+      "implementation": "complete",
+      "integration": "isolated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-ENHANCEMENT-ENTRY-CONSUMER"
+      ],
+      "nextAction": "O contrato GameRecord tem consumidor real desde o PR #135: src/steamzero/domain/game_record.py carrega e aplica game-record-v1.schema.json em runtime, e alimenta cinco adapters de importacao e a projecao para a home (prova ponta a ponta em tests/integration/test_metadata_to_catalog_pipeline.py). O gap remanescente e estreito e nomeado: enhancement-entry-v1.schema.json continua SEM leitor — nenhum codigo o carrega, e ele so fecha quando a frente A9 (enhancement registry) existir. integration permanece 'isolated' de proposito e nao por desatualizacao: a cadeia schema -> modelo -> adapters -> projecao esta ligada a codigo de produto, mas ainda NAO e alcancavel a partir do entry point do Launcher, que le emulation-library-cache-v1.json. Promover o enum sugeriria que a capacidade chegou ao usuario. Estado fisico: release 2.0.0rc1-e2b333678882 ativa no host, daemon confirmado por doctor service.generation; rollback para 2.0.0rc1-435f9108eeb7 disponivel, plano conhecido e NAO exercitado; boot.direct segue unknown e o reboot fisico e do operador."
+    },
+    {
+      "file": "docs/status/items/aura-current-release-evidence-2026-09-20.json",
+      "id": "SZ-AURA-CURRENT-RELEASE-EVIDENCE",
+      "title": "AURA — evidência física da release instalada",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-DISC-SWAP-INSTALLED-RELEASE"
+      ],
+      "nextAction": "Repetir a troca de disco pelo Launcher desta release com um jogo multi-disc legítimo; OSD e galeria já têm captura física."
+    },
+    {
+      "file": "docs/status/items/aura-esde-active-surface-2026-09-17.json",
+      "id": "SZ-AURA-ESDE-ACTIVE-SURFACE",
+      "title": "Tema ES-DE como superfície ativa da AURA UI",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "dev",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-ESDE-ACTIVE-SURFACE-PHYSICAL-INSTALL",
+        "GAP-ESDE-VIDEO-DECODING-PHYSICAL",
+        "GAP-ESDE-REAL-GAME-READ-MODEL"
+      ],
+      "nextAction": "Publicar a branch, acompanhar gates e executar a prova governada na release instalada com captura do background ativo."
+    },
+    {
+      "file": "docs/status/items/aura-esde-runtime-bridge-2026-09-20.json",
+      "id": "SZ-AURA-ESDE-RUNTIME-BRIDGE",
+      "title": "Theme Engine — ponte catálogo/mídia real para cena ES-DE",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-ESDE-REAL-VIDEO-DECODE",
+        "GAP-AURA-SESSION-PERIPHERALS-PHYSICAL",
+        "GAP-MULTIDISC-SAVE-OSD-PHYSICAL"
+      ],
+      "nextAction": "Ligar os sinais itemFocused/itemActivated ao consumidor real do Launcher e repetir as provas físicas de vídeo, OSD, saves, multidisc e retorno ao foco."
+    },
+    {
+      "file": "docs/status/items/aura-launcher-exit.json",
+      "id": "SZ-AURA-LAUNCHER-EXIT",
+      "title": "AURA Launcher — saída explícita por controle",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-LAUNCHER-EXIT-PHYSICAL"
+      ],
+      "nextAction": "O roteamento de Escape está integrado em main via #214. Preservar GAP-AURA-LAUNCHER-EXIT-PHYSICAL e validar foco/saída em release instalada; os paths de código/testes foram transferidos serialmente para WS-2026-10-JOURNEY-LAUNCHER-SESSION."
+    },
+    {
+      "file": "docs/status/items/aura-launcher.json",
+      "id": "SZ-AURA-LAUNCHER",
+      "title": "AURA Launcher — biblioteca fullscreen e lancamento",
+      "implementation": "partial",
+      "integration": "isolated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-LAUNCHER-REAL-CATALOG-PHYSICAL",
+        "GAP-LAUNCHER-RETURN-FADES-PHYSICAL",
+        "GAP-AURA-CINEMA-PERFORMANCE-PHYSICAL",
+        "GAP-AURA-CINEMA-HTTP-KEEPALIVE",
+        "GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY",
+        "GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME",
+        "GAP-PS4-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-AURA-LAUNCHER-JOURNEY-PHYSICAL",
+        "GAP-AURA-LAUNCHER-CUSTOM-BEZEL-EXECUTION",
+        "GAP-AURA-LAUNCHER-WAYLAND-QT-PHYSICAL",
+        "GAP-AURA-SESSION-PAUSED-EXIT-PHYSICAL"
+      ],
+      "nextAction": "PR #257 publica o catálogo do Launcher na prévia da Jornada: 1163 da biblioteca mais 7 da Steam, total 1170, no lugar do recorte editorial de 1145 mais Steam (1152). A Home editorial permanece no loader mais estrito. Prova focal de 2026-10-11: 20 passed. Integral de 2026-10-11: pytest 6730 passed, 47 skipped, 0 failed em 3173.61 s; runner saiu 0; state home inalterado. A barra sem limite de altura permanece failed. A release ativa 2.0.0rc1-003a8c5a6d84 continua sem o lote. Gêneros, Anos e a sessão de jogo seguem abertos até uma instalação autorizada. Não promover eixo. Merge e instalação exigem autorização explícita."
+    },
+    {
+      "file": "docs/status/items/aura-metadata.json",
+      "id": "SZ-AURA-METADATA",
+      "title": "Modelo canônico GameRecord e importadores de metadados (frente A1)",
+      "implementation": "partial",
+      "integration": "isolated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-METADATA-ADAPTERS",
+        "GAP-AURA-METADATA-FIXTURE-REAL"
+      ],
+      "nextAction": "Export plan/preview/backup entregue para ES-DE, com as tres recusas provadas por mutacao. Faltam: exportadores para os demais formatos (Pegasus, LaunchBox, RetroArch), o APLICADOR do plano no adapter (dominio nao escreve em disco, entao alguem precisa gravar respeitando backup e digest), e os importadores Playnite e RetroFE bloqueados por GAP-AURA-METADATA-FIXTURE-REAL."
+    },
+    {
+      "file": "docs/status/items/aura-performance-validation-2026-09-16.json",
+      "id": "SZ-AURA-PERFORMANCE-VALIDATION",
+      "title": "AURA Launcher — medição física válida de desempenho",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-PERF-1280X800-SURFACE",
+        "GAP-AURA-SESSION-PERIPHERALS-PHYSICAL"
+      ],
+      "nextAction": "Preservar a amostra válida da release 3acc; uma amostra adicional em 1280x800 e a prova visual dos periféricos de sessão permanecem abertas."
+    },
+    {
+      "file": "docs/status/items/aura-platform-execution-plan.json",
+      "id": "SZ-AURA-PLATFORM-EXECUTION-PLAN",
+      "title": "Plano de execução AURA fullscreen e plataforma integrada",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-PLATFORM-EXECUTION-BASELINE",
+        "GAP-AURA-CINEMA-PHYSICAL-INTEGRATION",
+        "GAP-AURA-METADATA-CANONICAL-COVERAGE",
+        "GAP-AURA-PAUSE-SESSION-CONTRACT"
+      ],
+      "nextAction": "A0 fechado (contratos game-record-v1/enhancement-entry-v1, ADR 0028, fixtures e matriz em SZ-AURA-CONTRACTS); abrir as frentes A1 (metadados canônicos) e A2 (pipeline de imagem) com workstreams próprios; nenhum agente edita o shell compartilhado sem workstream registrado."
+    },
+    {
+      "file": "docs/status/items/aura-platform-media-scope-2026-09-20.json",
+      "id": "SZ-AURA-PLATFORM-MEDIA-SCOPE",
+      "title": "AURA — projeção de mídia com escopo de plataforma",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-PLATFORM-MEDIA-PHYSICAL-PROOF"
+      ],
+      "nextAction": "Integrar na release governada e repetir a captura física com mídia corretamente escopada."
+    },
+    {
+      "file": "docs/status/items/aura-retrofe-media-ingestion-2026-09-20.json",
+      "id": "SZ-AURA-RETROFE-MEDIA-INGESTION",
+      "title": "AURA — ingestão segura de mídia local RetroFE",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Manter ambiguidades e itens sem match em revisão; não promover escolhas sem confirmação do operador."
+    },
+    {
+      "file": "docs/status/items/aura-rich-media-projection-2026-09-16.json",
+      "id": "SZ-AURA-RICH-MEDIA-PROJECTION",
+      "title": "AURA — projeção determinística de mídia rica",
+      "implementation": "partial",
+      "integration": "released",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-MEDIA-REMOTE-CREDENTIALS",
+        "GAP-AURA-CINEMA-PERFORMANCE-P95",
+        "GAP-AURA-SAVE-STATE-PHYSICAL",
+        "GAP-AURA-DISC-SWAP-PHYSICAL"
+      ],
+      "nextAction": "Manter a projeção rica na release d70; fechar credenciais remotas e repetir prova física de fanart/screenshots na próxima release. Save-state físico e disc swap permanecem gaps da composição de sessão."
+    },
+    {
+      "file": "docs/status/items/aura-save-state-gallery.json",
+      "id": "SZ-AURA-SAVE-STATE-GALLERY",
+      "title": "AURA save-state gallery e contrato de slots",
+      "implementation": "partial",
+      "integration": "released",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Preservar save/load como capacidade instalada; fechar a troca de disco somente com um jogo multi-disc real e adapter comprovado."
+    },
+    {
+      "file": "docs/status/items/aura-search-contract-2026-09-16.json",
+      "id": "SZ-AURA-SEARCH-CONTRACT",
+      "title": "Contrato de busca harmonizada do catálogo e mídia",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-SEARCH-PHYSICAL-PROOF"
+      ],
+      "nextAction": "Publicar a branch integrada e, após a release governada, provar busca por nome/filtro na janela real; conteúdo PS4 legítimo ainda é necessário para a prova de jogo."
+    },
+    {
+      "file": "docs/status/items/aura-session-osd.json",
+      "id": "SZ-AURA-SESSION-OSD",
+      "title": "AURA Pause, OSD e contrato de sessão",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-PS4-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-AURA-SESSION-PAUSED-EXIT-PHYSICAL",
+        "GAP-AURA-LAUNCHER-CUSTOM-BEZEL-EXECUTION"
+      ],
+      "nextAction": "Exit confirmado a partir de pausa continua validado somente por processo descartável. Depois da release candidata autorizada, executar a jornada real e o retorno; preservação de saves, captura e input físico continuam pendentes."
+    },
+    {
+      "file": "docs/status/items/aura-ui.json",
+      "id": "SZ-AURA-UI",
+      "title": "AURA UI — sistema visual da central",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-UI-CENTRAL-LOADING-6-VS-5"
+      ],
+      "nextAction": "A nova árvore corrigida passou na integral instrumentada de 2026-10-05 (6675 passed, 47 skipped, 0 failed); a atribuição do state guard ficou degradada devido a escritor externo pré-existente. Manter GAP-AURA-UI-CENTRAL-LOADING-6-VS-5 aberto e o log 04 como vermelho histórico sem causa. O passe não promove AURA Launcher, Theme Engine ou Theme Studio nem substitui validação física."
+    },
+    {
+      "file": "docs/status/items/aura-visual-completion-2026-09-15.json",
+      "id": "SZ-AURA-VISUAL-COMPLETION",
+      "title": "AURA Cinema — fechamento visual e medição na release instalada",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-CINEMA-PERFORMANCE-P95",
+        "GAP-PLATFORM-PS4-PHYSICAL-INSTALL",
+        "GAP-PLATFORM-PS4-GAME-LAUNCH-PHYSICAL",
+        "GAP-AURA-SAVE-STATE-PHYSICAL",
+        "GAP-AURA-CATALOG-DISPLAY-MEDIA"
+      ],
+      "nextAction": "A release 2.0.0rc1-d70a80f83aae foi instalada e o ciclo AURA físico foi mapeado em Switch/Eden e NES/RetroArch. Promover ecf26d1 em nova release para repetir a captura do retorno com foco restaurado; depois obter adapter/conteúdo legítimo para troca de disco, bezel/fade isolados e prova PS4."
+    },
+    {
+      "file": "docs/status/items/aura-visual-rich-surface-2026-09-17.json",
+      "id": "SZ-AURA-VISUAL-RICH-SURFACE",
+      "title": "AURA Cinema — superfície rica integrada e validação física",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-AURA-DISC-SWAP-INSTALLED-RELEASE",
+        "GAP-AURA-BEZEL-FADE-PHYSICAL"
+      ],
+      "nextAction": "Repetir a troca de disco pelo Launcher instalado com um jogo multi-disc legítimo; OSD e galeria já estão capturados na release atual."
+    },
+    {
+      "file": "docs/status/items/cast-internet.json",
+      "id": "SZ-CAST-INTERNET",
+      "title": "Partilha de ecra pela internet",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Implementar cast internet apenas apos prova LAN estavel e decisao de relay, respeitando remote-cast-session-v1."
+    },
+    {
+      "file": "docs/status/items/cast-lan.json",
+      "id": "SZ-CAST-LAN",
+      "title": "Partilha de ecra em rede local",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Exercitar pareamento e transmissao contra um receptor real (operador): a descoberta voltou a responder, o caminho seguinte nunca foi percorrido em producao."
+    },
+    {
+      "file": "docs/status/items/component-lifecycle.json",
+      "id": "SZ-COMPONENT-LIFECYCLE",
+      "title": "Ciclo funcional assincrono de componentes",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "R05 implementado em 36ea2a8a e integrado em 31f29963; testes focados e gates completos registrados. O status gate permanece vermelho por cinco digests externos; release instalada ainda não contém o patch."
+    },
+    {
+      "file": "docs/status/items/controls-input-profiles.json",
+      "id": "SZ-CONTROLS-INPUT-PROFILES",
+      "title": "Perfis de controle e autoconfig gerenciado",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "hw",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Duas verificacoes finais do operador, ambas com o host na mao: (1) confirmar o cartao em verde com o botao sumido (central > Emulacao > jogo > cartao de controles); (2) abrir um jogo da plataforma e confirmar a chegada do perfil no lancamento real — argv do flatpak run com --appendconfig e o pad funcionando no RetroArch, com o retroarch.cfg do usuario saindo byte a byte identico. Depois disso o item e completo na release instalada; publicar release nova com as correcoes de main (drift/erros/auditoria) segue dependente de autorizacao."
+    },
+    {
+      "file": "docs/status/items/emulation-long-operations.json",
+      "id": "SZ-EMULATION-LONG-OPERATIONS",
+      "title": "Operações longas de emulação com acompanhamento",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Item fechado em ready: matriz LOCAL (33), causa registrada em degradados e smoke flatpak-info do melonDS provados no host. Pendente fora deste item, elegivel como proximo trabalho do dominio: alinhar dolphin e retroarch ao alvo fixado pelo update governado (hoje 'degraded' com causa registrada) para zerar drift da matriz."
+    },
+    {
+      "file": "docs/status/items/emulation-m10.json",
+      "id": "SZ-EMULATION-M10",
+      "title": "Ciclo transacional de emuladores Flatpak",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "vm",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "DEBT-A7",
+        "GAP-G45"
+      ],
+      "nextAction": "Escrever o autoconfig gerenciado do RetroArch a partir da traducao RetroPad (resolver indice contra o pad real, arquivo com marcador, nunca editar o retroarch.cfg do usuario) e provar install/verify/rollback de um emulador no host."
+    },
+    {
+      "file": "docs/status/items/emulation-platform-context.json",
+      "id": "SZ-EMULATION-PLATFORM-CONTEXT",
+      "title": "Contexto de emulação por plataforma",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-UI-REQUIREMENT-CARD-FALLBACK",
+        "GAP-EMULATION-PHYSICAL-LAUNCH"
+      ],
+      "nextAction": "Integrar a composição na próxima release e validar no host; a UI de requisitos e o ciclo físico de lançamento permanecem com as frentes proprietárias."
+    },
+    {
+      "file": "docs/status/items/emulation-platform-scope.json",
+      "id": "SZ-EMULATION-PLATFORM-SCOPE",
+      "title": "Isolamento de saves e mídia por plataforma",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-EMULATION-PHYSICAL-LAUNCH",
+        "GAP-UI-REQUIREMENT-CARD-FALLBACK"
+      ],
+      "nextAction": "Validar a experiência na release instalada; a execução física do jogo e a correção QML dos cards Keys/Firmware continuam nas frentes proprietárias."
+    },
+    {
+      "file": "docs/status/items/emulation-real-dump-validation-2026-09-19.json",
+      "id": "SZ-EMULATION-REAL-DUMP-VALIDATION",
+      "title": "Validação sistema a sistema de dumps reais no host",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-REAL-DUMP-VALIDATION-PHYSICAL",
+        "GAP-COMPONENT-AUTHORIZATION",
+        "GAP-G48",
+        "GAP-G49",
+        "GAP-G50",
+        "GAP-G51",
+        "GAP-G52",
+        "GAP-G53",
+        "GAP-G54"
+      ],
+      "nextAction": "ORDEM DE ROADMAP: G48 teve o scanner corrigido no software (Vita real=5 jogos selecionáveis, assets internos fora do catálogo) e aguarda release/recertificação física do Launcher; em seguida fechar first-run resiliente (G49) e handoff PCSX2/portal (G50); P1 = tratamento físico de ROMs/nomes (G51), provider e qualidade de mídia (G52), autoria de efeitos/performance no Theme Studio (G53) e fixtures/jornadas ES-DE/RetroFE (G54); só depois retomar fade-in/fade-out, gameplay interativo, retorno de foco e multi-disc como gates de certificação."
+    },
+    {
+      "file": "docs/status/items/emulation-runtime-remediation-2026-09-20.json",
+      "id": "SZ-EMULATION-RUNTIME-REMEDIATION",
+      "title": "Remediação resiliente de runtimes, firmware, multidisco e saves",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-RPCS3-OFFICIAL-FIRMWARE-USER-CONSENT",
+        "GAP-PCSX2-REAL-LAUNCH-PHYSICAL",
+        "GAP-MULTIDISC-REAL-DUMP-PHYSICAL"
+      ],
+      "nextAction": "Promover uma release governada para provar PCSX2, materialização archive/multidisco, M3U, save/load e retorno físico; manter firmware e conteúdo proprietário sob confirmação explícita."
+    },
+    {
+      "file": "docs/status/items/emulation-storage-management.json",
+      "id": "SZ-EMULATION-STORAGE-MANAGEMENT",
+      "title": "Contratos de gestão de armazenamento da emulação",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-STORAGE-MOVE-UI-DESTINATION",
+        "GAP-EMULATION-PHYSICAL-LAUNCH"
+      ],
+      "nextAction": "Integrar seletor visual de destino e seleção em lote no frontend proprietário e validar na release instalada."
+    },
+    {
+      "file": "docs/status/items/emulation-storage-platform-scope.json",
+      "id": "SZ-EMULATION-STORAGE-PLATFORM-SCOPE",
+      "title": "Estatísticas de armazenamento por plataforma",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-STORAGE-MOVE-UI-DESTINATION",
+        "GAP-STORAGE-BATCH-COMPRESSION",
+        "GAP-EMULATION-PHYSICAL-LAUNCH"
+      ],
+      "nextAction": "Integrar a apresentação visual por plataforma e validar o resumo na release instalada."
+    },
+    {
+      "file": "docs/status/items/emulation-storage-readmodel.json",
+      "id": "SZ-EMULATION-STORAGE-READMODEL",
+      "title": "Read model de armazenamento da emulação",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-STORAGE-MOVE-DIRECTORY",
+        "GAP-STORAGE-ROM-COMPRESSION",
+        "GAP-EMULATION-PHYSICAL-LAUNCH"
+      ],
+      "nextAction": "Validar a superfície física dos contratos restantes na release: destino para mover raiz, seleção/lote de compressão e ciclo de lançamento."
+    },
+    {
+      "file": "docs/status/items/emulator-enhancements.json",
+      "id": "SZ-EMULATION-ENHANCEMENTS",
+      "title": "Melhorias por jogo agnósticas de plataforma",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Defeito (2) do teste de 2026-08-21 RESOLVIDO: b34213d allowlist de rede na unit do daemon, presente na release instalada 2.0.0rc1-92d91d631b80 e PROVADO no host em 2026-08-25 pelo install fisico do melonDS com download dentro do daemon (evidencia docs/09-operations/evidence/2026-08-25-melonds-smoke-install-fisico). Proximo: retomar o teste de producao dos demais emuladores pelo fluxo governado, começando pelos flatpak 'missing' (ppsspp, xemu, azahar), e seguir a Onda 1 do workstream (identidade de titulo tipada por plataforma)."
+    },
+    {
+      "file": "docs/status/items/frontend-esde-systems.json",
+      "id": "SZ-FRONTEND-ESDE-SYSTEMS",
+      "title": "Custom systems do ES-DE idempotentes",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Validar contra uma instalacao real do ES-DE no host (operador)."
+    },
+    {
+      "file": "docs/status/items/frontend-esde.json",
+      "id": "SZ-FRONTEND-ESDE",
+      "title": "Importacao de temas ES-DE",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-G54"
+      ],
+      "nextAction": "Preparar instalação/fixture ES-DE governada e provar inspect→apply→activate→launch→rollback no host; hoje ES-DE e SRM estão ausentes, quatro temas importados são inválidos por falta de compatibility e as provas existentes são de contrato/offscreen."
+    },
+    {
+      "file": "docs/status/items/frontend-launchbox.json",
+      "id": "SZ-FRONTEND-LAUNCHBOX",
+      "title": "Compatibilidade de importacao LaunchBox",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "LEDGER-A10"
+      ],
+      "nextAction": "Criar ADR e fixtures antes de prometer compatibilidade LaunchBox."
+    },
+    {
+      "file": "docs/status/items/frontend-m11-surface.json",
+      "id": "SZ-FRONTEND-M11-SURFACE",
+      "title": "Superficie M11: comando frontends na CLI e no daemon",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Cobrir cli/main.py e service/methods.py por itens agregadores de diretorio na etapa de catalogo; este item responde apenas pela superficie frontends dentro deles."
+    },
+    {
+      "file": "docs/status/items/frontend-retrofe.json",
+      "id": "SZ-FRONTEND-RETROFE",
+      "title": "Vertical slice e declaracoes RetroFE",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-G54"
+      ],
+      "nextAction": "Publicar os contratos de UI RetroFE e preparar um pacote/fixture real licenciado; depois provar importação, aplicação, ativação, lançamento e rollback. O host atual não contém pacote RetroFE lançável, portanto o slice declarativo não é jornada certificada."
+    },
+    {
+      "file": "docs/status/items/frontend-srm.json",
+      "id": "SZ-FRONTEND-SRM",
+      "title": "Manifests do Steam ROM Manager idempotentes",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Validar contra uma instalacao real do Steam ROM Manager no host (operador)."
+    },
+    {
+      "file": "docs/status/items/frontend-steam-shortcuts.json",
+      "id": "SZ-FRONTEND-STEAM-SHORTCUTS",
+      "title": "Atalhos do Steam (shortcuts.vdf) transacionais",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Expor a marcacao do atalho de interface na UI e validar contra um shortcuts.vdf real do operador antes de promover a verificacao integrada."
+    },
+    {
+      "file": "docs/status/items/gamemode-readiness-g29.json",
+      "id": "SZ-GAMEMODE-READINESS",
+      "title": "Prontidão honesta do Feral GameMode",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-G29"
+      ],
+      "nextAction": "HARD-EXTERNAL-SUBITEM: validar daemon, autorização e efeitos em uma sessão real com o operador; sem permissão/convergência não iniciar gamemoded, alterar grupos, governor ou split-lock."
+    },
+    {
+      "file": "docs/status/items/governance-status.json",
+      "id": "SZ-GOVERNANCE-STATUS",
+      "title": "Estado verificavel e coordenacao de trabalho",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "Manter status-check e WORKLOG append-only verdes; PR #234 integrado no main em 9176c1aeca792e4bd8ccaca0fbb55e9767ad5625. Repetir apenas as provas físicas restantes com a release 2.0.0rc1-504d10b14485 instalada."
+    },
+    {
+      "file": "docs/status/items/high-end-runtime-readiness-2026-09-20.json",
+      "id": "SZ-EMULATION-HIGH-END-RUNTIME-READINESS",
+      "title": "Prontidão resiliente de PS4, PS5, X68000 e Xbox",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PLATFORM-PS4-PHYSICAL-INSTALL",
+        "GAP-SHARPEMU-PHYSICAL-VALIDATION",
+        "GAP-MULTIDISC-PLATFORM-CONTRACT-X68000",
+        "GAP-XBOX-MACHINE-FIRMWARE",
+        "GAP-XBOX360-RUNTIME-DEPLOYMENT"
+      ],
+      "nextAction": "Aguardar integração das frentes PS4/PS5 e do contrato X68000; com autorização, instalar release governada, importar somente firmware/dumps legais e repetir provas físicas. Enquanto isso, materializar archives pelo job assíncrono e manter Xbox/Xbox 360 em preflight seguro."
+    },
+    {
+      "file": "docs/status/items/host-update-transactional.json",
+      "id": "SZ-HOST-UPDATE-TRANSACTIONAL",
+      "title": "Update e rollback transacionais do host",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-HOST-UPDATE-VM-CYCLE"
+      ],
+      "nextAction": "Preflight de recusa e caminho de sucesso do update provados fisicamente (evidencia 2026-08-26, secoes 1-6). Falta so a quarentena de candidata invalida DURANTE a ativacao, que exige uma release deliberadamente quebrada — nao fabricada sem pedido explicito do operador.. Gap recuperado de branch orfa (codex/physical-functional-closure, item SZ-HOST-RELEASE-UPDATE nunca mergeado): GAP-HOST-UPDATE-VM-CYCLE. O item vivo declarava knownGaps vazio para uma capacidade partial, o que subdeclarava o estado. Verificacao feita antes de migrar: tests/integration/test_vm_harness.py exercita install->update->rollback->roll-forward, mas o passo de update ali e NOOP (fonte Flatpak pinada, mesmo commit) e o ciclo e de componente, nao de release do host — logo nao fecha este gap. O segundo gap do orfao, GAP-HOST-UPDATE-PHYSICAL-CERTIFICATION, NAO foi migrado porque ja esta fechado: a evidencia de hardware de 2026-08-26/27 (preflight com injecao de falha e caminho de sucesso com autorizacao explicita do operador) e posterior a branch orfa, que parou em 2026-08-23."
+    },
+    {
+      "file": "docs/status/items/job-recovery-doctor-g25.json",
+      "id": "SZ-JOB-RECOVERY-DOCTOR",
+      "title": "Recovery de jobs, auditoria e cleanup recuperável",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [],
+      "nextAction": "HARD-EXTERNAL-SUBITEM: rechecagem read-only observou staleJobs=0, mas nenhum ciclo governado de recovery/convergência é atribuível a esta sessão; preservar degraded e não executar restart ou cleanup no host."
+    },
+    {
+      "file": "docs/status/items/keys-import-publicacao-2026-10-15.json",
+      "id": "SZ-EMULATION-KEYS-IMPORT-UNIFICATION",
+      "title": "keys.import: uma publicacao, um valor de enabled entre superficies",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-KEYS-IMPORT-PUBLICACAO-DIVERGENTE"
+      ],
+      "nextAction": "Tarefa 15: linha aberta na matriz. Decidir com o operador se keys.import passa a enabled=True conectado ao servico (a rota do adapter ja existe) ou se o adapter passa a declarar a ausencia; depois unificar sob a mesma guarda que cobre requirements.verify e firmware.import. Nenhuma edicao autorizada neste lote."
+    },
+    {
+      "file": "docs/status/items/launch-readiness-preparation-2026-10-08.json",
+      "id": "SZ-LAUNCH-READINESS-PREPARATION",
+      "title": "Prontidão e preparação de jogo antes do launch",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "dev",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-LAUNCH-READINESS-INSTALLED-PROOF",
+        "GAP-LAUNCH-READINESS-CARD-STATE-AND-PROGRESS",
+        "GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN"
+      ],
+      "nextAction": "Integrar por gates/CI no SHA exato, instalar candidata autorizada e provar no host: 409 legível no Launcher, extração real de Amiga/X68000, BIOS projetada e id do jogo válido após o rescan. Depois entregar o estado no cartão e o progresso da preparação."
+    },
+    {
+      "file": "docs/status/items/library-canonical.json",
+      "id": "SZ-LIBRARY-CANONICAL",
+      "title": "Biblioteca canonica unica",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-LIBRARY-PHYSICAL-CATALOG-COVERAGE",
+        "GAP-G51",
+        "GAP-G56",
+        "GAP-G57",
+        "GAP-G58",
+        "GAP-G59",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+      ],
+      "nextAction": "P1-LIBRARY/G58: tornar derivados gerenciados visíveis e relacionados ao proprietário na Gestão de arquivos, por mecanismo genérico para todas as plataformas e com preview/consentimento/quarentena/rollback, preservando originais. G59: mover library.root.scan para job assíncrono com progresso/cancelamento sem reduzir cobertura. G57: testar recusa de espaço insuficiente no host. Em paralelo, certificar relatedContent/audit/rename/quarentena/rollback universal em amostras seguras de todas as plataformas; runtime Vita3K continua ausente e não está validado para lançamento."
+    },
+    {
+      "file": "docs/status/items/library-conversion-contract.json",
+      "id": "SZ-LIBRARY-CONVERSION-CONTRACT",
+      "title": "Conversão de biblioteca por contrato de plataforma",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Integrar a branch; a interface de armazenamento deve consumir o atalho em lote sem reaplicar a regra Switch fora do manifesto."
+    },
+    {
+      "file": "docs/status/items/lote-coesao-ui-2026-10-13.json",
+      "id": "SZ-LOTE-COESAO-UI",
+      "title": "Lote de coesao visual e botoes reais (D-06, D-07, D-08, D-10, D-12, D-17, D-19 a D-29)",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "blocked",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-LOTE-COESAO-ENTREGA",
+        "GAP-PROVA-FISICA-INJECAO-BANIDA"
+      ],
+      "nextAction": "Aguarda o merge do operador: PR 258 sobre a ponta 64f237b2 com rollup terminal 9/9 verde (logs/30) e nenhum eixo promovido por este checkpoint. Da Fase 2 permanece a re-execucao fisica S-5..S-8 (sessao viva: D-12/D-22/D-20/D-21/D-26/D-08/D-23/D-15/D-19/D-17-NES) em janela exclusiva combinada — o pre-voo de protecao desta data bate os baselines (saves 21, active.json 2a37d09a, jornadas d7c114f9/81d313df) e o ydotoold precisa ser reprovisionado como usuario; a liberacao fisica continua sendo decisao do operador. Tarefa 15: matriz do que fica explicitamente aberto (prova visual/campo de D-06/D-07/D-24/D-25/D-17; decisao dos menus sem aparencia; catch do refresh D-08; keys.import; nsz.install; volume/brightness; renomeacao do teste no-fixed-choice — efetuada em 2026-10-15 no checkpoint da revisao final (M-7; agora test_fixed_text_choice_fails_a_theme_while_background_holds)). Devolucao dos handoffs seriais (1)-(8) aos cartoes cedentes ocorre no merge deste lote; editar JSONs de outras frentes esta fora do limite desta fase e fica registrado como pendencia do operador — em 2026-10-15 as contrapartes das linhas retrospectivas (9)-(11) (I-1 da revisao final) foram lavradas nos cartoes JLS, JCT e SDH por esta frente; as demais listagens permanecem decisao do operador."
+    },
+    {
+      "file": "docs/status/items/main-reconciliation-2026-09-26.json",
+      "id": "SZ-MAIN-WORKTREE-RECONCILIATION",
+      "title": "Reconciliação seletiva de worktrees com a main",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-MULTIDISC-PHYSICAL-LAUNCH",
+        "GAP-LIBRARY-PHYSICAL-CATALOG-COVERAGE",
+        "GAP-PLATFORM-NINTENDO-3DS-CONTENT-RESOLVER",
+        "GAP-PLATFORM-WII-U-CONTENT-RESOLVER"
+      ],
+      "nextAction": "Tratar as lacunas físicas de BIOS/multidisco e a cobertura 3DS/Wii U em workstreams próprios; esta reconciliação seletiva está integrada."
+    },
+    {
+      "file": "docs/status/items/media-audit-platform-scope.json",
+      "id": "SZ-MEDIA-AUDIT-PLATFORM-SCOPE",
+      "title": "Auditoria do pipeline de mídia por plataforma",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-MEDIA-UI-PIPELINE-CLARITY",
+        "GAP-EMULATION-PHYSICAL-LAUNCH",
+        "GAP-G52"
+      ],
+      "nextAction": "Completar o contrato de qualidade: score perceptual e política de melhor candidato por kind, auditoria de hero/logo/icon/screenshot/manual/video e prova física de publicação/rollback Steam; só então promover a auditoria de integridade a qualidade garantida."
+    },
+    {
+      "file": "docs/status/items/media-pipeline-platform-scope.json",
+      "id": "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE",
+      "title": "Estatísticas do pipeline de mídia por plataforma",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-MEDIA-UI-PIPELINE-CLARITY",
+        "GAP-EMULATION-PHYSICAL-LAUNCH",
+        "GAP-G52"
+      ],
+      "nextAction": "HARD-EXTERNAL-SUBITEM: preservar o diagnóstico e aguardar credencial ScreenScraper autorizada; recuperar qualquer job global stale pelo ciclo G25 antes de repetir. Depois medir qualidade por kind e publicar a cadeia de rollback. Não converter o lote degraded em cobertura garantida."
+    },
+    {
+      "file": "docs/status/items/media-provider-platform-filter.json",
+      "id": "SZ-MEDIA-PROVIDER-PLATFORM-FILTER",
+      "title": "Filtro de provedores de mídia por plataforma",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Restaurar ssid/sspassword do operador no Secret Service e repetir busca real em uma release futura; não há download a tentar sem essa credencial."
+    },
+    {
+      "file": "docs/status/items/media-scraping.json",
+      "id": "SZ-MEDIA-SCRAPING",
+      "title": "Metadados e midia por scraping controlado",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-G44",
+        "GAP-G52",
+        "LEDGER-A12",
+        "LEDGER-A7"
+      ],
+      "nextAction": "P1-MEDIA-QUALITY: identificar o provider referido como Steam Deck API; após credencial ScreenScraper autorizada, repetir individual e lote registrando login, candidatos, download, seleção, otimização, qualidade por kind, publicação Steam e rollback. Não tratar o lote degradado como sucesso nem artwork legado como master."
+    },
+    {
+      "file": "docs/status/items/multidisc-descriptor-reconciliation.json",
+      "id": "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
+      "title": "Reconciliação de descritor multidisco",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "dev",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-MULTIDISC-CONVERSION-ADAPTER-CONTRACT",
+        "GAP-MULTIDISC-PHYSICAL-LAUNCH",
+        "GAP-PLATFORM-PS4-PHYSICAL-INSTALL"
+      ],
+      "nextAction": "Implementar o contrato de extração/conversão e comprovar PUAE/PX68K; só então executar plan/apply/verify transacional, promover a release e fazer a prova física com jogo multidisco legítimo."
+    },
+    {
+      "file": "docs/status/items/multidisc-materialization-ingestion-2026-09-20.json",
+      "id": "SZ-MULTIDISC-MATERIALIZATION-INGESTION",
+      "title": "Materialização transacional de multidisco e ingestão de archives",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-MULTIDISC-PHYSICAL-LAUNCH",
+        "GAP-ARCHIVE-BACKEND-RAR-7Z-PHYSICAL",
+        "GAP-MULTIDISC-PLATFORM-CONTRACT-X68000"
+      ],
+      "nextAction": "Promover uma release governada e executar a prova física de materialização, lançamento M3U e retorno; exercitar também archive.materialize para PS4/PS5; manter X68000 em contrato pendente."
+    },
+    {
+      "file": "docs/status/items/multidisc-session-disc-identity.json",
+      "id": "SZ-MULTIDISC-SESSION-DISC-IDENTITY",
+      "title": "AURA — identidade estável no descritor e na troca de disco",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-AURA-DISC-SWAP-INSTALLED-RELEASE"
+      ],
+      "nextAction": "Promover a branch em release governada e repetir a mesma captura pelo Launcher instalado; o adapter e o ciclo físico já foram comprovados."
+    },
+    {
+      "file": "docs/status/items/online-p2p.json",
+      "id": "SZ-ONLINE-P2P",
+      "title": "Jogo online ponto a ponto",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "LEDGER-A6"
+      ],
+      "nextAction": "Implementar runtime P2P apenas apos escolha de transporte e emuladores, respeitando o contrato netplay-session-v1."
+    },
+    {
+      "file": "docs/status/items/physical-validation-unblock-plan-2026-10-07.json",
+      "id": "SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN",
+      "title": "Plano de desbloqueio da validacao fisica e jornadas reais",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "none",
+      "operation": "blocked",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PHYSICAL-CAPTURE-INPUT-BACKEND",
+        "GAP-INSTALLED-CONSUMER-DISCOVERY",
+        "GAP-REAL-GAME-INPUT-SAVE-PREFLIGHT",
+        "GAP-PHYSICAL-SERIAL-HANDOFF"
+      ],
+      "nextAction": "D0: preservar e fechar R05/R06 com o owner, atribuir dez digests e negociar handoffs por arquivo. Rodada fisica 2026-10-12: as oito capacidades mantidas abertas no README da matriz so podem avancar com mao de obra do operador, porque injecao de entrada GUI esta proibida neste host e a ponte de leitura nao substitui a prova visual. Prioridade: corrigir em lote governado as tres alturas abertas (D-17 lancamento recusado sem causa, D-23 sessao presa apos saveState em pausa, D-26 save recusado que escreve o arquivo) e so depois reexecutar B-7 retorno com foco e rolagem, B-10 fades, C-4 recuperacao de sessao presa pelo produto, os 22 adapters nao testados e a entrada de gamepad/touch do Deck. Instalacao governada, rollback e ciclo de servico (A-2/A-3) seguem nao executados. D5-D8 completam autoria, UX e candidata autorizada."
+    },
+    {
+      "file": "docs/status/items/platform-core-per-system.json",
+      "id": "SZ-PLATFORM-CORE-PER-SYSTEM",
+      "title": "Core por sistema em plataformas agrupadas",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PLATFORM-CORE-PER-SYSTEM-PHYSICAL-RELEASE",
+        "GAP-PLATFORM-CORE-ADAPTER-COVERAGE"
+      ],
+      "nextAction": "Publicar/instalar release autorizada e provar no host Atari 5200/7800/Lynx/Jaguar e Sega 32X; cobrir adapters de cores ainda ausentes."
+    },
+    {
+      "file": "docs/status/items/platform-ps4-catalog.json",
+      "id": "SZ-PLATFORM-PS4-CATALOG",
+      "title": "Catálogo de plataforma PlayStation 4 (shadPS4)",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PLATFORM-PS4-PHYSICAL-INSTALL"
+      ],
+      "nextAction": "Prova física no host: instalar o shadPS4 pelo ciclo de componentes na release que contiver esta branch, lançar um jogo PS4 real e capturar evidência (GAP-PLATFORM-PS4-PHYSICAL-INSTALL); exige autorização do operador."
+    },
+    {
+      "file": "docs/status/items/platform-ps4-physical-install.json",
+      "id": "SZ-PLATFORM-PS4-PHYSICAL-INSTALL",
+      "title": "Instalação física do shadPS4 e lançamento PS4",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PLATFORM-PS4-PHYSICAL-INSTALL"
+      ],
+      "nextAction": "A correção de XDG/JIT e o bypass explícito do AppImageLauncher estão instalados e verificados em 2.0.0rc1-3c4b563242a9. Obter conteúdo PS4 legítimo e provar jogo real em fullscreen, retorno ao AURA e preservação de foco; não promover antes dessa evidência."
+    },
+    {
+      "file": "docs/status/items/platform-ps5-catalog.json",
+      "id": "SZ-PLATFORM-PS5-CATALOG",
+      "title": "Catálogo experimental de plataforma PlayStation 5 (SharpEmu)",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-SHARPEMU-PHYSICAL-VALIDATION"
+      ],
+      "nextAction": "Manter GAP-SHARPEMU-PHYSICAL-VALIDATION aberto; repetir a prova com SharpEmu compatível ou outro dump e capturar PNG somente quando uma cena real for renderizada."
+    },
+    {
+      "file": "docs/status/items/platform-requirement-scope.json",
+      "id": "SZ-PLATFORM-REQUIREMENT-SCOPE",
+      "title": "Escopo de requisitos por plataforma",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-FIRMWARE-PS3-STORE-NOT-WIRED",
+        "GAP-PLATFORM-PSVITA-ABSENT",
+        "GAP-QML-GLOBAL-REQUIREMENT-ROW-OWNED-BY-V2"
+      ],
+      "nextAction": "Integrar a remoção visual de cards não aplicáveis no QML compartilhado e ligar o store de firmware PS3."
+    },
+    {
+      "file": "docs/status/items/platform-vita-catalog.json",
+      "id": "SZ-PLATFORM-VITA-CATALOG",
+      "title": "Catálogo de plataforma PlayStation Vita",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-PLATFORM-VITA-ADAPTER-ABSENT",
+        "GAP-FIRMWARE-VITA-STORE-NOT-WIRED"
+      ],
+      "nextAction": "G56 está fechada: seis Vita visíveis no workspace real. Não declarar lançamento suportado enquanto Vita3K runtime/adapter não estiver instalado e testado. Implementar G58 para derivados em gestão universal e validar relatedContent/quarentena sem tocar originais; depois validar adapter/store de requisitos."
+    },
+    {
+      "file": "docs/status/items/project-design-audit-2026-09-26.json",
+      "id": "SZ-PROJECT-DESIGN-AUDIT",
+      "title": "Auditoria integral de produto, telas e experiência do SteamZero",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PDA-CURRENT-RELEASE-RECERTIFICATION",
+        "GAP-PDA-RETROFE-COMPACT-DIALOG",
+        "GAP-PDA-ESDE-REAL-DATA-PREVIEW",
+        "GAP-PDA-CINEMA-1280X800",
+        "GAP-PDA-THEME-STUDIO-PHYSICAL-EDIT",
+        "GAP-PDA-FULL-SUITE-STALE-STATUS",
+        "GAP-PDA-SESSION-PAUSED-OSD-VISUAL",
+        "GAP-PDA-SESSION-CURRENT-RELEASE",
+        "GAP-PDA-OSD-LOCALIZATION-REASONS",
+        "GAP-PDA-FADE-PHYSICAL",
+        "GAP-PDA-DISC-SWAP-LAUNCHER",
+        "GAP-PDA-SAVE-CHECKPOINT-HOST",
+        "GAP-PDA-BEZEL-SELECTION-SCOPE"
+      ],
+      "nextAction": "Priorizar UX-01 (contraste), UX-02 (estado/custo de carregamento) e DATA-01 (fila de arquivos arquivados e multidisco); revalidar a sessão AURA na release atual cobrindo OSD pausado, save-state, fade, troca multidisco pelo Launcher e retorno; corrigir localização/causas visíveis do OSD e confirmar o escopo de seleção do bezel."
+    },
+    {
+      "file": "docs/status/items/ps3-official-firmware-download.json",
+      "id": "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD",
+      "title": "Download assistido do firmware oficial do PS3",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-PS3-FIRMWARE-PHYSICAL-PROOF",
+        "GAP-PS3-FIRMWARE-HASH-PIN-REVIEW"
+      ],
+      "nextAction": "Publicar a branch, instalar uma release governada e executar a prova física do assistente com download oficial, erro controlado, cancelamento/rollback e lançamento posterior do RPCS3."
+    },
+    {
+      "file": "docs/status/items/resource-qml-probe-g30-g31.json",
+      "id": "SZ-RESOURCE-QML-PROBE",
+      "title": "Atribuição de recursos e probe QML confiável",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-G30",
+        "GAP-G31"
+      ],
+      "nextAction": "HARD-EXTERNAL-SUBITEM: repetir a medição em runner/sessão com permissão procfs suficiente e capturar probe QML real com return code zero; não atribuir o agregado atual nem executar mutações administrativas."
+    },
+    {
+      "file": "docs/status/items/retroachievements.json",
+      "id": "SZ-RETROACHIEVEMENTS",
+      "title": "RetroAchievements e modo offline",
+      "implementation": "planned",
+      "integration": "isolated",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "LEDGER-A9"
+      ],
+      "nextAction": "Implementar adapter RetroAchievements apenas apos hardening de keyring e outbox, respeitando achievement-event-v1."
+    },
+    {
+      "file": "docs/status/items/retroarch-flatpak-preservation-2026-10-07.json",
+      "id": "SZ-RETROARCH-FLATPAK-PRESERVATION",
+      "title": "Descoberta segura do destino de saves do RetroArch Flatpak",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-RETROARCH-FLATPAK-SAVE-ROOT-MISMATCH"
+      ],
+      "nextAction": "Obter handoff serial para o caminho de save-state por sessão, integrar este patch por gates/CI em SHA exato e validar save normal na release governada antes de promover a operação."
+    },
+    {
+      "file": "docs/status/items/roadmap-continuation-2026-09-26.json",
+      "id": "SZ-ROADMAP-CONTINUATION",
+      "title": "Roadmap de continuidade após auditoria integral",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "A integral instrumentada da árvore corrigida passou em 2026-10-05: 6675 passed, 47 skipped, 0 failed; o guard detectou escritas do daemon externo já ativo e marcou a atribuição do state home como degradada. Este passe não explica o seis-vs-cinco: preservar o log 04 vermelho e o gap histórico sem causa. Revisar os diffs, fechar os commits separados, fazer push/PR e aguardar CI terminal no SHA exato antes do merge commit; depois devolver serialmente o path reservado à Biblioteca. Instalação, rollback e B_VISUAL continuam fora da autorização atual."
+    },
+    {
+      "file": "docs/status/items/sharpemu-component-smoke-contract.json",
+      "id": "SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT",
+      "title": "Contrato de verificação do componente SharpEmu",
+      "implementation": "complete",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-SHARPEMU-PHYSICAL-VALIDATION"
+      ],
+      "nextAction": "Executar gates, publicar a correção e reaplicar o componente SharpEmu na release governada; depois validar o dump PS5 e capturar a evidência física."
+    },
+    {
+      "file": "docs/status/items/system-diagnostics-guidance.json",
+      "id": "SZ-SYSTEM-DIAGNOSTICS-GUIDANCE",
+      "title": "Diagnóstico do sistema orientado à recuperação",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-EMULATION-PHYSICAL-LAUNCH"
+      ],
+      "nextAction": "HARD-EXTERNAL-SUBITEM: repetir a jornada na release instalada com um estado de atenção e confirmar foco/ação pelo operador; não executar recovery no host sem autorização."
+    },
+    {
+      "file": "docs/status/items/test-state-isolation-g26.json",
+      "id": "SZ-TEST-STATE-ISOLATION",
+      "title": "Isolamento de estado e diretório temporário da suíte",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "ready",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Manter o runner canônico em todos os entrypoints e não limpar o state home histórico sem autorização do operador."
+    },
+    {
+      "file": "docs/status/items/theme-engine.json",
+      "id": "SZ-THEME-ENGINE",
+      "title": "Theme Engine — cenas e efeitos declarativos",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-PS4-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+      ],
+      "nextAction": "Resolver e adapter preparam configuração privada RetroArch apenas para o próximo launch; read model permanece launch-configured-unconfirmed. Confirmar overlay/pixels e recuperação na release autorizada antes de declarar aplicação."
+    },
+    {
+      "file": "docs/status/items/theme-esde-scene-render.json",
+      "id": "SZ-THEME-ESDE-SCENE-RENDER",
+      "title": "Temas ES-DE: renderizacao da cena compilada",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-THEME-ESDE-SCENE-NOT-RENDERED",
+        "GAP-G54",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+      ],
+      "nextAction": "Provar a cena com ES-DE instalado e tema compilado na release atual; distinguir renderização de fixture/fullscreen de ativação do tema externo. Só depois otimizar o p95 de 18.254 ms e decidir promoção à aparência central."
+    },
+    {
+      "file": "docs/status/items/theme-import-esde-layout.json",
+      "id": "SZ-THEME-IMPORT-ESDE-LAYOUT",
+      "title": "Temas ES-DE: compilacao de layout, aquisicao e instalacao transacional",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-THEME-ESDE-SCENE-NOT-RENDERED",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+      ],
+      "nextAction": "Preparar ES-DE real e repetir inspect→apply→activate→render→rollback: instalação de tema ainda não altera a aparência da central, activated=false é deliberado e quatro temas importados no host são inválidos por falta de compatibility. Cobertura de compilação não é renderização promovida."
+    },
+    {
+      "file": "docs/status/items/theme-import-retrofe.json",
+      "id": "SZ-THEME-IMPORT-RETROFE",
+      "title": "Importação segura de cenas RetroFE",
+      "implementation": "complete",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "ready",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES"
+      ],
+      "nextAction": "Manter a entrada RetroFE instalada e documentar explicitamente que inspeção/importação não promove ativação automática da cena."
+    },
+    {
+      "file": "docs/status/items/theme-import-surface.json",
+      "id": "SZ-THEME-IMPORT-SURFACE",
+      "title": "Importação de temas acessível pela área Temas",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "unit",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-THEME-STUDIO-PHYSICAL-CANVAS"
+      ],
+      "nextAction": "Validar na release 2.0.0rc1-504d10b14485 com fontes ES-DE e pacote SteamZero reais; manter ausência explícita enquanto ES-DE/SRM não estiverem instalados e RetroFE não tiver pacote lançável."
+    },
+    {
+      "file": "docs/status/items/theme-studio.json",
+      "id": "SZ-THEME-STUDIO",
+      "title": "Theme Studio — autoria visual de temas",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "hw",
+      "operation": "degraded",
+      "distribution": "installed",
+      "knownGaps": [
+        "GAP-THEME-STUDIO-PHYSICAL-CANVAS",
+        "GAP-G53",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-EXPERIENCE-JOURNEY-LAUNCHER-SESSION-CONSUMPTION",
+        "GAP-EXPERIENCE-JOURNEY-PHYSICAL-RELEASE-VALIDATION",
+        "GAP-THEME-STUDIO-DRAFT-GUARD-INSTALLED-KEYBOARD"
+      ],
+      "nextAction": "Validar a saída com rascunho e o Desfazer de metadados por teclado na candidata instalada. Studio round-tripa o PNG-fonte e a Jornada persiste a URI versionada no checkout. Validar o consumo visual e acessibilidade em B_VISUAL após instalar candidata autorizada; nenhum pixel de release foi promovido."
+    },
+    {
+      "file": "docs/status/items/ui-desktop-audit.json",
+      "id": "SZ-UI-DESKTOP-AUDIT",
+      "title": "UI Desktop — auditoria visual e jornadas P0/P1",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "dev",
+      "operation": "degraded",
+      "distribution": "not-packaged",
+      "knownGaps": [
+        "GAP-UI-LIVE-LAUNCHER-ROUTING",
+        "GAP-HARMONIZE-SCOPE-PHYSICAL-EVIDENCE-PRECEDES",
+        "GAP-UI-VISUAL-CAPTURE-NOT-CERTIFIED-IN-CI"
+      ],
+      "nextAction": "R06 implementado e commitado em 7299b745. A validação visual/operacional depende de candidata autorizada e captura oficial; nenhum eixo de auditoria visual foi promovido por QML offscreen."
+    },
+    {
+      "file": "docs/status/items/ui-packaged-icons.json",
+      "id": "SZ-UI-PACKAGED-ICONS",
+      "title": "Ícones oficiais empacotados de emuladores, serviços e plataformas",
+      "implementation": "partial",
+      "integration": "integrated",
+      "verification": "unit",
+      "operation": "unknown",
+      "distribution": "packaged",
+      "knownGaps": [
+        "GAP-ICONS-LIBRETRO-CORES-SEM-LOGO",
+        "GAP-ICONS-PLATAFORMAS-EM-FALLBACK",
+        "GAP-ICONS-SEM-EVIDENCIA-VISUAL"
+      ],
+      "nextAction": "Capturar evidencia visual dos icones no Launcher instalado. Sem essa captura, a troca esta provada como empacotamento e gate visual, nao como aparencia na tela instalada."
+    },
+    {
+      "file": "docs/status/items/v2-harmonized-functional-release.json",
+      "id": "SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE",
+      "title": "Release funcional 2.0 harmonizada",
+      "implementation": "partial",
+      "integration": "feature-branch",
+      "verification": "none",
+      "operation": "unknown",
+      "distribution": "not-packaged",
+      "knownGaps": [],
+      "nextAction": "Não promover esta frente por agregação histórica. Usar a ordem vigente: G48 Launcher real, G49 first-run, G50 PCSX2 portal; depois G51 ROM lifecycle, G52 mídia, G53 Theme Studio e G54 ES-DE/RetroFE. A matriz de fade, gameplay, retorno de foco, multi-disc, PS4/PS5 e desempenho só fecha após esses gates."
+    }
+  ],
+  "platforms": [
+    {
+      "id": "switch",
+      "file": "src/steamzero/platform_manifests/01-switch.platform.json",
+      "capabilities": {
+        "overview": "ready",
+        "keys-firmware": "ready",
+        "updates-dlc": "ready",
+        "mods-cheats": "ready",
+        "graphics": "planned",
+        "controls": "ready",
+        "saves": "planned",
+        "shader-cache": "planned",
+        "media": "ready",
+        "storage": "planned",
+        "advanced": "planned"
+      },
+      "emulators": [
+        "eden",
+        "citron",
+        "ryubing"
+      ]
+    },
+    {
+      "id": "nintendo-handheld",
+      "file": "src/steamzero/platform_manifests/02-nintendo-handheld.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned",
+        "advanced": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "nes-famicom",
+      "file": "src/steamzero/platform_manifests/03-nes-famicom.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "snes",
+      "file": "src/steamzero/platform_manifests/04-snes.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "mega-drive",
+      "file": "src/steamzero/platform_manifests/05-mega-drive.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "arcade",
+      "file": "src/steamzero/platform_manifests/06-arcade.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned",
+        "advanced": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "playstation",
+      "file": "src/steamzero/platform_manifests/07-playstation.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "duckstation",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "geforce-now",
+      "file": "src/steamzero/platform_manifests/08-geforce-now.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "cloud-launch": "planned",
+        "controls": "ready"
+      },
+      "emulators": []
+    },
+    {
+      "id": "xbox-cloud-gaming",
+      "file": "src/steamzero/platform_manifests/09-xbox-cloud-gaming.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "cloud-launch": "planned",
+        "controls": "ready"
+      },
+      "emulators": []
+    },
+    {
+      "id": "amazon-luna",
+      "file": "src/steamzero/platform_manifests/10-amazon-luna.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "cloud-launch": "planned",
+        "controls": "ready"
+      },
+      "emulators": []
+    },
+    {
+      "id": "nintendo-console",
+      "file": "src/steamzero/platform_manifests/11-nintendo-console.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned",
+        "advanced": "planned"
+      },
+      "emulators": [
+        "dolphin",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "master-system",
+      "file": "src/steamzero/platform_manifests/12-master-system.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "game-gear",
+      "file": "src/steamzero/platform_manifests/13-game-gear.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "pc-engine-turbografx",
+      "file": "src/steamzero/platform_manifests/14-pc-engine-turbografx.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "atari-classics",
+      "file": "src/steamzero/platform_manifests/15-atari-classics.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "neo-geo-pocket",
+      "file": "src/steamzero/platform_manifests/16-neo-geo-pocket.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "wonderswan",
+      "file": "src/steamzero/platform_manifests/17-wonderswan.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "msx",
+      "file": "src/steamzero/platform_manifests/18-msx.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "zx-spectrum",
+      "file": "src/steamzero/platform_manifests/19-zx-spectrum.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "commodore-64",
+      "file": "src/steamzero/platform_manifests/20-commodore-64.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "amiga",
+      "file": "src/steamzero/platform_manifests/21-amiga.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "colecovision",
+      "file": "src/steamzero/platform_manifests/22-colecovision.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "intellivision",
+      "file": "src/steamzero/platform_manifests/23-intellivision.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "virtual-boy",
+      "file": "src/steamzero/platform_manifests/24-virtual-boy.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "three-do",
+      "file": "src/steamzero/platform_manifests/25-3do.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "sega-cd-32x",
+      "file": "src/steamzero/platform_manifests/26-sega-cd-32x.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "nintendo-64",
+      "file": "src/steamzero/platform_manifests/27-nintendo-64.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "playstation-2",
+      "file": "src/steamzero/platform_manifests/30-playstation-2.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "pcsx2",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "playstation-portable",
+      "file": "src/steamzero/platform_manifests/31-playstation-portable.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "ppsspp",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "dreamcast",
+      "file": "src/steamzero/platform_manifests/32-dreamcast.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "flycast",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "nintendo-ds",
+      "file": "src/steamzero/platform_manifests/33-nintendo-ds.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "melonds",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "nintendo-3ds",
+      "file": "src/steamzero/platform_manifests/34-nintendo-3ds.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "azahar",
+        "retroarch"
+      ]
+    },
+    {
+      "id": "wii-u",
+      "file": "src/steamzero/platform_manifests/35-wii-u.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "cemu"
+      ]
+    },
+    {
+      "id": "playstation-3",
+      "file": "src/steamzero/platform_manifests/36-playstation-3.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "rpcs3"
+      ]
+    },
+    {
+      "id": "xbox",
+      "file": "src/steamzero/platform_manifests/37-xbox.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "xemu"
+      ]
+    },
+    {
+      "id": "xbox-360",
+      "file": "src/steamzero/platform_manifests/38-xbox-360.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "xenia-canary"
+      ]
+    },
+    {
+      "id": "sega-saturn",
+      "file": "src/steamzero/platform_manifests/39-sega-saturn.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "sg-1000",
+      "file": "src/steamzero/platform_manifests/40-sg-1000.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "neo-geo-cd",
+      "file": "src/steamzero/platform_manifests/41-neo-geo-cd.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "vectrex",
+      "file": "src/steamzero/platform_manifests/42-vectrex.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "odyssey2",
+      "file": "src/steamzero/platform_manifests/43-odyssey2.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "channelf",
+      "file": "src/steamzero/platform_manifests/44-channelf.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "pc-engine-supergrafx",
+      "file": "src/steamzero/platform_manifests/45-pc-engine-supergrafx.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "atari-st",
+      "file": "src/steamzero/platform_manifests/46-atari-st.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "apple2",
+      "file": "src/steamzero/platform_manifests/47-apple2.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "playstation-vita",
+      "file": "src/steamzero/platform_manifests/47-playstation-vita.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "vita3k"
+      ]
+    },
+    {
+      "id": "bbc-micro",
+      "file": "src/steamzero/platform_manifests/48-bbc-micro.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "coco",
+      "file": "src/steamzero/platform_manifests/49-coco.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "ti99",
+      "file": "src/steamzero/platform_manifests/50-ti99.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "zx81",
+      "file": "src/steamzero/platform_manifests/51-zx81.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "thomson",
+      "file": "src/steamzero/platform_manifests/52-thomson.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "x68000",
+      "file": "src/steamzero/platform_manifests/53-x68000.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "pc88",
+      "file": "src/steamzero/platform_manifests/54-pc88.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "pc98",
+      "file": "src/steamzero/platform_manifests/55-pc98.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "gameandwatch",
+      "file": "src/steamzero/platform_manifests/56-gameandwatch.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "supervision",
+      "file": "src/steamzero/platform_manifests/57-supervision.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "megaduck",
+      "file": "src/steamzero/platform_manifests/58-megaduck.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "doom",
+      "file": "src/steamzero/platform_manifests/59-doom.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "quake",
+      "file": "src/steamzero/platform_manifests/60-quake.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "pico8",
+      "file": "src/steamzero/platform_manifests/61-pico8.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "tic80",
+      "file": "src/steamzero/platform_manifests/62-tic80.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "wasm4",
+      "file": "src/steamzero/platform_manifests/63-wasm4.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "retroarch"
+      ]
+    },
+    {
+      "id": "playstation-4",
+      "file": "src/steamzero/platform_manifests/64-playstation-4.platform.json",
+      "capabilities": {
+        "overview": "planned",
+        "requirements": "planned",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "shadps4"
+      ]
+    },
+    {
+      "id": "playstation-5",
+      "file": "src/steamzero/platform_manifests/65-playstation-5.platform.json",
+      "capabilities": {
+        "overview": "ready",
+        "requirements": "ready",
+        "graphics": "planned",
+        "controls": "ready",
+        "media": "planned"
+      },
+      "emulators": [
+        "sharpemu"
+      ]
+    }
+  ],
+  "hostCurrentLink": "releases/2.0.0rc1-1470cf48bf7d"
+}

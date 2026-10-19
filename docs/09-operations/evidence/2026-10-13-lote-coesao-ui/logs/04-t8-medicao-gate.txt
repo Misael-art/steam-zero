@@ -1,0 +1,117 @@
+# Medicao do gate de contraste (Lote de coesao visual e botoes reais, Tarefa 8).
+# Execucao: 2026-10-14 (HEAD `75a1c5fb`), a partir da raiz do repo. Nenhum theme.json foi alterado nesta execucao.
+# Comando: .venv/bin/python tools/run_tests_isolated.py tests/unit/test_theme_token_contrast.py -q
+# Checkout: branch codex/jornada-fisica-bateria-2026-10-12, HEAD 75a1c5fb.
+# Gate: versao crua do Step 1 do brief (sem lista de pins), sobre os 4 temas do pacote.
+# Reconciliacao com a esperanca do plano: esperava "exatamente 11 reprovacoes nos quatro temas do pacote
+#  (default 2, asset-recipes-demo 2, aura 3, steamdeck 4)"; medido identico (2+2+3+4 = 11).
+# Saida integral do runner abaixo, sem edicao.
+
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_____ test_semantic_tokens_clear_wcag_aa[org.steamzero.asset-recipes-demo] _____
+
+theme = PosixPath('/home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/themes/org.steamzero.asset-recipes-demo/theme.json')
+
+    @pytest.mark.parametrize("theme", THEMES, ids=lambda p: p.parent.name)
+    def test_semantic_tokens_clear_wcag_aa(theme: Path) -> None:
+        palette = colors(theme)
+        failures = []
+        for fg, bg in PAIRS_TEXT:
+            if (fg, bg) in EXEMPT or fg not in palette or bg not in palette:
+                continue
+            if ratio(palette[fg], palette[bg]) < TEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {TEXT}:1")
+        for fg, bg in PAIRS_NONTEXT:
+            if fg in palette and bg in palette and ratio(palette[fg], palette[bg]) < NONTEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {NONTEXT}:1 (não textual)")
+>       assert not failures, f"{theme.parent.name}: " + "; ".join(failures)
+E       AssertionError: org.steamzero.asset-recipes-demo: border/background 1.63:1 < 3.0:1 (não textual); sidebar/background 1.13:1 < 3.0:1 (não textual)
+E       assert not ['border/background 1.63:1 < 3.0:1 (não textual)', 'sidebar/background 1.13:1 < 3.0:1 (não textual)']
+
+tests/unit/test_theme_token_contrast.py:70: AssertionError
+____________ test_semantic_tokens_clear_wcag_aa[org.steamzero.aura] ____________
+
+theme = PosixPath('/home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/themes/org.steamzero.aura/theme.json')
+
+    @pytest.mark.parametrize("theme", THEMES, ids=lambda p: p.parent.name)
+    def test_semantic_tokens_clear_wcag_aa(theme: Path) -> None:
+        palette = colors(theme)
+        failures = []
+        for fg, bg in PAIRS_TEXT:
+            if (fg, bg) in EXEMPT or fg not in palette or bg not in palette:
+                continue
+            if ratio(palette[fg], palette[bg]) < TEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {TEXT}:1")
+        for fg, bg in PAIRS_NONTEXT:
+            if fg in palette and bg in palette and ratio(palette[fg], palette[bg]) < NONTEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {NONTEXT}:1 (não textual)")
+>       assert not failures, f"{theme.parent.name}: " + "; ".join(failures)
+E       AssertionError: org.steamzero.aura: accentStrong/background 3.53:1 < 4.5:1; border/background 1.44:1 < 3.0:1 (não textual); sidebar/background 1.03:1 < 3.0:1 (não textual)
+E       assert not ['accentStrong/background 3.53:1 < 4.5:1', 'border/background 1.44:1 < 3.0:1 (não textual)', 'sidebar/background 1.03:1 < 3.0:1 (não textual)']
+
+tests/unit/test_theme_token_contrast.py:70: AssertionError
+__________ test_semantic_tokens_clear_wcag_aa[org.steamzero.default] ___________
+
+theme = PosixPath('/home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/themes/org.steamzero.default/theme.json')
+
+    @pytest.mark.parametrize("theme", THEMES, ids=lambda p: p.parent.name)
+    def test_semantic_tokens_clear_wcag_aa(theme: Path) -> None:
+        palette = colors(theme)
+        failures = []
+        for fg, bg in PAIRS_TEXT:
+            if (fg, bg) in EXEMPT or fg not in palette or bg not in palette:
+                continue
+            if ratio(palette[fg], palette[bg]) < TEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {TEXT}:1")
+        for fg, bg in PAIRS_NONTEXT:
+            if fg in palette and bg in palette and ratio(palette[fg], palette[bg]) < NONTEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {NONTEXT}:1 (não textual)")
+>       assert not failures, f"{theme.parent.name}: " + "; ".join(failures)
+E       AssertionError: org.steamzero.default: border/background 1.63:1 < 3.0:1 (não textual); sidebar/background 1.13:1 < 3.0:1 (não textual)
+E       assert not ['border/background 1.63:1 < 3.0:1 (não textual)', 'sidebar/background 1.13:1 < 3.0:1 (não textual)']
+
+tests/unit/test_theme_token_contrast.py:70: AssertionError
+_________ test_semantic_tokens_clear_wcag_aa[org.steamzero.steamdeck] __________
+
+theme = PosixPath('/home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/themes/org.steamzero.steamdeck/theme.json')
+
+    @pytest.mark.parametrize("theme", THEMES, ids=lambda p: p.parent.name)
+    def test_semantic_tokens_clear_wcag_aa(theme: Path) -> None:
+        palette = colors(theme)
+        failures = []
+        for fg, bg in PAIRS_TEXT:
+            if (fg, bg) in EXEMPT or fg not in palette or bg not in palette:
+                continue
+            if ratio(palette[fg], palette[bg]) < TEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {TEXT}:1")
+        for fg, bg in PAIRS_NONTEXT:
+            if fg in palette and bg in palette and ratio(palette[fg], palette[bg]) < NONTEXT:
+                failures.append(f"{fg}/{bg} {ratio(palette[fg], palette[bg]):.2f}:1 < {NONTEXT}:1 (não textual)")
+>       assert not failures, f"{theme.parent.name}: " + "; ".join(failures)
+E       AssertionError: org.steamzero.steamdeck: accent/background 2.91:1 < 4.5:1; border/background 1.63:1 < 3.0:1 (não textual); sidebar/background 1.13:1 < 3.0:1 (não textual); focus/background 2.91:1 < 3.0:1 (não textual)
+E       assert not ['accent/background 2.91:1 < 4.5:1', 'border/background 1.63:1 < 3.0:1 (não textual)', 'sidebar/background 1.13:1 < 3.0:1 (não textual)', 'focus/background 2.91:1 < 3.0:1 (não textual)']
+
+tests/unit/test_theme_token_contrast.py:70: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_theme_token_contrast.py::test_semantic_tokens_clear_wcag_aa[org.steamzero.asset-recipes-demo]
+FAILED tests/unit/test_theme_token_contrast.py::test_semantic_tokens_clear_wcag_aa[org.steamzero.aura]
+FAILED tests/unit/test_theme_token_contrast.py::test_semantic_tokens_clear_wcag_aa[org.steamzero.default]
+FAILED tests/unit/test_theme_token_contrast.py::test_semantic_tokens_clear_wcag_aa[org.steamzero.steamdeck]
+4 failed in 0.26s
+real-state before: exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+real-state after:  exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+
+---
+
+# Reexecucao apos a extensao Ruling P12 (lista KNOWN_OPEN_AT_MEASURED com os 11 pins nos valores
+
+# exatos medidos acima pela ratio() do proprio gate + teste de nao-vacuidade na fronteira):
+
+# mesmo comando, resultado VERDE com 5 casos (4 temas parametrizados + 1 teste de fronteira).
+
+
+.....                                                                    [100%]
+5 passed in 0.32s
+real-state before: exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+real-state after:  exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default

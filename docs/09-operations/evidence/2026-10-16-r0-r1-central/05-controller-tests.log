@@ -1,0 +1,6 @@
+........................................................................ [ 40%]
+........................................................................ [ 80%]
+..................................                                       [100%]
+178 passed in 122.78s (0:02:02)
+real-state before: exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default

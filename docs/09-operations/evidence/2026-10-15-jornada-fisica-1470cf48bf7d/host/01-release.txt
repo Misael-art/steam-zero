@@ -1,0 +1,27 @@
+# 01-release — verificação de release ativa (2026-10-15T16:26:51-03:00)
+
+$ readlink -f /opt/steamzero/current
+/opt/steamzero/releases/2.0.0rc1-1470cf48bf7d
+
+$ timeout 30 /usr/local/bin/steamzero service status
+service status: ok
+{
+  "state": "converged",
+  "detail": "o daemon responde na release ativada '2.0.0rc1-1470cf48bf7d'",
+  "restarted": false,
+  "attempts": 0,
+  "activatedRelease": "2.0.0rc1-1470cf48bf7d",
+  "daemonRelease": "2.0.0rc1-1470cf48bf7d",
+  "daemonCommit": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
+  "steps": [
+    "leu current",
+    "consultou o daemon"
+  ],
+  "quarantine": null
+}
+
+$ systemctl --user list-units --all | grep steamzero
+  steamzero-core.service                                                                                                              loaded    active     running      SteamZero user control plane
+  steamzero-core.socket                                                                                                               loaded    active     running      SteamZero local user socket
+
+Instalação governada, doctor 2-passos e idempotência: provados em docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/24-update-transacao-1470cf48.json e logs/25-pos-instalacao-1470cf48.txt (referência; não repetidos aqui).

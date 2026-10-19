@@ -1,0 +1,69 @@
+
+(process:3669745): dbind-WARNING **: 17:14:51.497: AT-SPI: Unable to open bus connection: Failed to connect to socket /run/user/1000/at-spi2-ZKEHX3/socket: No such file or directory
+    button|Tentar novamente|ENABLED,SENSITIVE,FOCUSABLE
+      label|Digite o nome do jogo…|ENABLED,SENSITIVE,FOCUSABLE
+      button|Commodore Amiga e Amiga CD32|ENABLED,SENSITIVE,FOCUSABLE
+      button|3DO Interactive Multiplayer|ENABLED,SENSITIVE,FOCUSABLE
+      button|steam|ENABLED,SENSITIVE,FOCUSABLE
+      button|Nintendo Entertainment System e Famicom|ENABLED,SENSITIVE,FOCUSABLE
+      button|Nintendo 3DS|ENABLED,SENSITIVE,FOCUSABLE
+      button|Sega Master System|ENABLED,SENSITIVE,FOCUSABLE
+      button|Game Boy, Game Boy Color e Game Boy Advance|ENABLED,SENSITIVE,FOCUSABLE
+      label|Estado da ponte: ● ONLINE|ENABLED,SENSITIVE,FOCUSABLE
+      label|Hora atual 17:14|ENABLED,SENSITIVE,FOCUSABLE
+    button|Biblioteca vazia|ENABLED,SENSITIVE,FOCUSABLE
+    label|Descrição ainda não disponível para este jogo.|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Jogar '89 Dennou Kyuusei Uranai (Japan)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Voltar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      button|Voltar para a página do jogo|ENABLED,SENSITIVE,FOCUSABLE
+    label|28 de 28|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Atualizar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Cinema|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Continuar jornada|
+    combo box|shortName|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|state|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|gameCount|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    button|Voltar|VISIBLE,SHOWING
+    button|Explorar por ano|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Nenhum resultado|ENABLED,SENSITIVE,FOCUSABLE
+    label|Limpe uma faceta, verifique os filtros ou atualize a fonte n|ENABLED,SENSITIVE,FOCUSABLE
+    button|Tentar novamente|ENABLED,SENSITIVE,FOCUSABLE
+    list item|Nintendo Entertainment System e Famicom|ENABLED,SENSITIVE,VISIBLE,SHOWING,SELECTED
+      label|Nintendo Entertainment System e Famicom|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label||ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Nintendo 3DS|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Nintendo 3DS|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label||ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Sega Master System|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Sega Master System|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label||ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Game Boy, Game Boy Color e Game Boy Advance|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Game Boy, Game Boy Color e Game Boy Advance|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label||ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Super Nintendo Entertainment System|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Super Nintendo Entertainment System|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label||ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label|Sony PlayStation 5|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label||ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Sega CD e Sega 32X|ENABLED,SENSITIVE,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Sega Saturn|ENABLED,SENSITIVE,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Sega Game Gear|ENABLED,SENSITIVE,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+      label|Estado da ponte: ● ONLINE|ENABLED,SENSITIVE,FOCUSABLE
+      label|Hora atual 17:14|ENABLED,SENSITIVE,FOCUSABLE
+    label|↑ ↓ navegar · Enter abrir · Esc voltar · Ações de sessão aba|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label|Save-states da sessão|ENABLED,SENSITIVE,FOCUSABLE
+    button|Fechar|ENABLED,SENSITIVE,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Slot|ENABLED,SENSITIVE,FOCUSABLE
+        label||ENABLED,SENSITIVE,FOCUSABLE
+    button|Salvar neste slot|
+    button|Fechar controle da sessão|ENABLED,SENSITIVE,FOCUSABLE

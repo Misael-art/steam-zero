@@ -8,10 +8,12 @@ from typing import Any
 
 import pytest
 
+from steamzero.adapters.session_control import E_SESSION_CHANNEL_SUSPENDED
 from steamzero.adapters.session_overlay import (
     DIAG_SESSION_MISMATCH,
     SessionOverlayAdapter,
 )
+from steamzero.core.errors import SteamZeroError
 
 
 @dataclass
@@ -95,6 +97,26 @@ class DiscControl(FakeControl):
 
     def swap_disc(self, disc_id: str) -> FakeSession:
         self.calls.append(f"disc:{disc_id}")
+        return self.current
+
+
+class EphemeralCommandControl(SaveStateControl, DiscControl):
+    """Sessão com adapter RetroArch real: os quatro comandos transitórios existem."""
+
+    def toggle_mute(self) -> FakeSession:
+        self.calls.append("mute")
+        return self.current
+
+    def take_screenshot(self) -> FakeSession:
+        self.calls.append("screenshot")
+        return self.current
+
+    def toggle_fast_forward(self) -> FakeSession:
+        self.calls.append("fastForward")
+        return self.current
+
+    def step_rewind(self) -> FakeSession:
+        self.calls.append("rewind")
         return self.current
 
 
@@ -252,6 +274,22 @@ def test_save_and_load_dispatch_requires_a_bounded_slot_and_same_session() -> No
     assert control.calls == ["save:2", "load:2"]
 
 
+def test_save_state_without_slot_refuses_with_the_unified_range_message() -> None:
+    """D-20: a recusa de slot da rota de sessão diz o mesmo que a /journey/event.
+
+    O texto era o resíduo visível do defeito: o toque sem galeria chegava ao
+    adapter sem slot e o jogador lia "slot de save-state inválido" enquanto a
+    rota de jornada já sabia explicar a faixa e a recuperação.
+    """
+    control = SaveStateControl(FakeSession())
+    result = make_adapter(control).dispatch("game-1", "session-1", "saveState")
+
+    assert result.accepted is False
+    assert result.diagnostic == "AURA-SESSION-ADAPTER-003"
+    assert result.detail == "O slot de save-state deve estar entre 0 e 999."
+    assert control.calls == []
+
+
 def test_dispatch_returns_recoverable_error_when_session_operation_fails() -> None:
     control = FakeControl(FakeSession())
     control.fail = True
@@ -268,9 +306,9 @@ def test_disc_surface_is_available_only_from_a_multi_disc_adapter() -> None:
     adapter = make_adapter(control)
 
     model = adapter.read_model("game-1", visible=True)
-    result = adapter.dispatch("game-1", "session-1", "disc", disc_id="disc-1")
+    result = adapter.dispatch("game-1", "session-1", "swapDisc", disc_id="disc-1")
 
-    assert model["osd"]["capabilities"]["disc"] == {"available": True, "reason": ""}
+    assert model["osd"]["capabilities"]["swapDisc"] == {"available": True, "reason": ""}
     assert model["peripherals"]["discs"][1]["id"] == "disc-1"
     assert result.accepted is True
     assert result.disc_id == "disc-1"
@@ -297,3 +335,155 @@ def test_read_model_projects_declared_bezel_and_fade_from_complete_adapter() -> 
         "durationMs": 180,
         "reducedMotion": False,
     }
+
+
+def test_suspended_session_publishes_channel_actions_as_unavailable() -> None:
+    """D-23: a OSD não pode oferecer "Galeria de saves" a uma árvore parada."""
+    control = SaveStateControl(FakeSession(state="suspended"))
+    model = make_adapter(control).read_model("game-1", visible=True)
+
+    capabilities = model["osd"]["capabilities"]
+    for action_id in ("saveState", "loadState"):
+        assert capabilities[action_id] == {
+            "available": False,
+            "reason": "A sessão está suspensa; retome antes de salvar.",
+        }
+
+    disc_control = PeripheralControl(FakeSession(state="suspended"))
+    disc_model = make_adapter(disc_control).read_model("game-1", visible=True)
+    assert disc_model["osd"]["capabilities"]["swapDisc"] == {
+        "available": False,
+        "reason": "A sessão está suspensa; retome antes de salvar.",
+    }
+
+
+def test_dispatch_never_reaches_the_control_on_suspended_session() -> None:
+    """A recusa publicada vale também para o despacho: nada é entregue ao canal parado."""
+    control = SaveStateControl(FakeSession(state="suspended"))
+    saved = make_adapter(control).dispatch("game-1", "session-1", "saveState", slot=2)
+    assert saved.accepted is False
+    assert saved.diagnostic == "AURA-OSD-ACTION-003"
+    assert control.calls == []
+
+    disc_control = PeripheralControl(FakeSession(state="suspended"))
+    swapped = make_adapter(disc_control).dispatch(
+        "game-1", "session-1", "swapDisc", disc_id="disc-1"
+    )
+    assert swapped.accepted is False
+    assert swapped.diagnostic == "AURA-OSD-ACTION-003"
+    assert disc_control.calls == []
+
+
+class SuspendedChannelSaveControl(SaveStateControl):
+    """Simula a corrida entre a leitura do estado e o gate do cliente (D-23)."""
+
+    def save_state(self, slot: int) -> FakeSession:
+        self.calls.append(f"save:{slot}")
+        raise SteamZeroError(
+            E_SESSION_CHANNEL_SUSPENDED,
+            detail="saveState exige uma sessão viva; o pedido não foi enviado ao emulador.",
+        )
+
+
+def test_channel_suspension_maps_to_structured_refusal_with_next_action() -> None:
+    control = SuspendedChannelSaveControl(FakeSession())
+    result = make_adapter(control).dispatch("game-1", "session-1", "saveState", slot=2)
+
+    assert result.accepted is False
+    assert result.diagnostic == "AURA-SESSION-ADAPTER-007"
+    assert result.detail == "A sessão está suspensa; o pedido não foi enviado ao emulador."
+    body = result.to_dict()
+    assert body["nextAction"] == "Retome a sessão e tente novamente."
+    assert control.calls == ["save:2"]
+
+
+def test_ephemeral_commands_are_published_only_when_the_adapter_has_the_port() -> None:
+    """D-28: botão só existe se houver porta; sem porta, a recusa diz por quê."""
+    plain_model = make_adapter(FakeControl(FakeSession())).read_model("game-1", visible=True)
+    capabilities = plain_model["osd"]["capabilities"]
+    for action_id in ("mute", "screenshot", "fastForward", "rewind"):
+        assert capabilities[action_id]["available"] is False
+        assert capabilities[action_id]["reason"]
+
+    control = EphemeralCommandControl(FakeSession())
+    model = make_adapter(control).read_model("game-1", visible=True)
+    for action_id in ("mute", "screenshot", "fastForward", "rewind"):
+        assert model["osd"]["capabilities"][action_id] == {"available": True, "reason": ""}
+
+
+@pytest.mark.parametrize(
+    ("action_id", "call"),
+    [
+        ("mute", "mute"),
+        ("screenshot", "screenshot"),
+        ("fastForward", "fastForward"),
+        ("rewind", "rewind"),
+    ],
+)
+def test_dispatch_routes_each_ephemeral_command_to_the_control_method(
+    action_id: str, call: str
+) -> None:
+    control = EphemeralCommandControl(FakeSession())
+    result = make_adapter(control).dispatch("game-1", "session-1", action_id)
+
+    assert result.accepted is True
+    assert result.operation == action_id
+    assert control.calls == [call]
+
+
+def test_suspended_session_refuses_ephemeral_commands_before_they_look_pressable() -> None:
+    """D-23/D-28: o mesmo gate que barra o saveState barra os comandos novos."""
+    control = EphemeralCommandControl(FakeSession(state="suspended"))
+    model = make_adapter(control).read_model("game-1", visible=True)
+    capabilities = model["osd"]["capabilities"]
+    for action_id in ("mute", "screenshot", "fastForward", "rewind", "listSaveStates"):
+        assert capabilities[action_id] == {
+            "available": False,
+            "reason": "A sessão está suspensa; retome antes de enviar um pedido ao emulador.",
+        }
+
+    result = make_adapter(control).dispatch("game-1", "session-1", "mute")
+    assert result.accepted is False
+    assert result.diagnostic == "AURA-OSD-ACTION-003"
+    assert control.calls == []
+
+
+def test_resume_is_the_explicit_non_toggle_alternative_to_pause() -> None:
+    """D-28 passo 4: `resume` era aceito pelo backend e nunca tinha virado botão."""
+    running = make_adapter(FakeControl(FakeSession())).read_model("game-1", visible=True)
+    assert running["osd"]["capabilities"]["resume"]["available"] is False
+
+    control = FakeControl(FakeSession(state="suspended"))
+    model = make_adapter(control).read_model("game-1", visible=True)
+    assert model["osd"]["capabilities"]["resume"] == {"available": True, "reason": ""}
+
+    result = make_adapter(control).dispatch("game-1", "session-1", "resume")
+    assert result.accepted is True
+    assert result.operation == "resume"
+    assert result.state == "running"
+    assert control.calls == ["resume"]
+
+
+def test_list_actions_reach_the_reader_port_of_the_canonical_control() -> None:
+    """D-28 passo 4: as leituras aceitas pelo canal também viram ações declaradas."""
+    control = EphemeralCommandControl(FakeSession())
+    model = make_adapter(control).read_model("game-1", visible=True)
+    for action_id in ("listSaveStates", "listDiscs"):
+        assert model["osd"]["capabilities"][action_id] == {"available": True, "reason": ""}
+    assert model["osd"]["capabilities"]["listPeripherals"]["available"] is False
+
+    saved = make_adapter(control).dispatch("game-1", "session-1", "listSaveStates")
+    assert saved.accepted is True
+    assert saved.operation == "listSaveStates"
+
+    peripheral_control = PeripheralControl(FakeSession())
+    peripheral_model = make_adapter(peripheral_control).read_model("game-1", visible=True)
+    assert peripheral_model["osd"]["capabilities"]["listPeripherals"] == {
+        "available": True,
+        "reason": "",
+    }
+    peripherals = make_adapter(peripheral_control).dispatch(
+        "game-1", "session-1", "listPeripherals"
+    )
+    assert peripherals.accepted is True
+    assert peripherals.operation == "listPeripherals"

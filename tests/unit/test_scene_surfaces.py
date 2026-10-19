@@ -17,10 +17,12 @@ from steamzero.domain.scene_surfaces import (
     DIAG_SURFACE_PROGRESS,
     DIAG_SURFACE_THUMBNAIL,
     DIAG_SURFACE_WIDGET,
+    OSD_ITEMS,
     SEMANTIC_SLOTS,
     SurfaceBook,
     resolve_scene_surfaces,
 )
+from steamzero.domain.session_overlay import OSD_ACTIONS
 from steamzero.domain.theme_editor import ThemeEditorManager
 from steamzero.domain.themes import THEME_DEFAULT_ID
 
@@ -49,7 +51,9 @@ def _book() -> dict[str, object]:
             },
             "quickOsd": {
                 "kind": "osd",
-                "items": ["volume", "mute", "pause", "saveState"],
+                # D-28 (7b): `volume` não é mais item declarável (sem porta);
+                # o binding osd.volume continua válido como fonte de progresso.
+                "items": ["mute", "pause", "saveState"],
                 "progress": {"binding": "osd.volume", "fallback": 0},
             },
             "errorBanner": {"kind": "errorBanner"},
@@ -197,7 +201,7 @@ def test_osd_cannot_hide_critical_error_or_fake_success() -> None:
     assert bar.critical_visible is True
     assert bar.success is False
     assert bar.progress == 0.4
-    assert "volume" in bar.items
+    assert "mute" in bar.items
     assert any(item.code == DIAG_SURFACE_ERROR for item in resolved.diagnostics)
     assert resolved.slots["error"].kind == "errorBanner"
 
@@ -395,7 +399,7 @@ def test_recipe_refuses_unknown_slot_code_paths_and_private_sources() -> None:
                 "schemaVersion": 1,
                 "slots": {"osd": {"component": "evil"}},
                 "components": {
-                    "evil": {"kind": "osd", "source": "saves.__class__", "items": ["volume"]}
+                    "evil": {"kind": "osd", "source": "saves.__class__", "items": ["mute"]}
                 },
             }
         )
@@ -411,7 +415,7 @@ def test_builtin_preview_consumes_surfaces_without_promoting_launcher() -> None:
     surfaces = preview["sceneSurfacePreview"]
     assert surfaces["slots"]["saveStates"]["kind"] == "saveGallery"
     assert surfaces["slots"]["osd"]["criticalVisible"] is False
-    assert surfaces["slots"]["osd"]["items"][0] == "volume"
+    assert surfaces["slots"]["osd"]["items"][0] == "mute"
     accessible = ThemeCatalog().resolve(
         "org.steamzero.asset-recipes-demo",
         high_contrast=True,
@@ -424,3 +428,65 @@ def test_builtin_preview_consumes_surfaces_without_promoting_launcher() -> None:
     assert fallback.id == THEME_DEFAULT_ID
     assert fallback.scene_surfaces is not None
     assert fallback.scene_surfaces.slots["bezel"].component == "sessionBezel"
+
+
+# D-28 (7b): o vocabulário de tema é o gate de renderização — um id que a
+# sessão publica mas que o tema não pode declarar some da fileira filtrada
+# (LauncherSessionOverlay.qml::_visibleActions). O inverso também vale: um id
+# sem porta no backend (volume/brightness/control/achievement/network) não
+# pode mais ser declarado como item de ação; volume/brightness sobrevivem
+# apenas como fontes de binding em _PROGRESS_BINDING, conceito distinto.
+_RETIRED_WITHOUT_PORT = frozenset({"volume", "brightness", "control", "achievement", "network"})
+_DEMO_THEME_PATH = Path("src/steamzero/themes/org.steamzero.asset-recipes-demo/theme.json")
+
+
+def _demo_osd_items() -> list[str]:
+    raw = json.loads(_DEMO_THEME_PATH.read_text(encoding="utf-8"))
+    surfaces = raw["sceneSurfaces"]
+    jsonschema.validate(surfaces, SCHEMA)
+    book = SurfaceBook.from_dict(surfaces)
+    return [item for component in book.components.values() for item in component.items]
+
+
+def test_every_publishable_session_action_is_theme_declarable() -> None:
+    missing = (set(OSD_ACTIONS) | {"exit"}) - set(OSD_ITEMS)
+    assert not missing, f"sessão publica ids que nenhum tema pode declarar: {sorted(missing)}"
+    retired = _RETIRED_WITHOUT_PORT & set(OSD_ITEMS)
+    assert not retired, f"item sem porta no backend voltou ao vocabulário: {sorted(retired)}"
+
+
+def test_schema_enum_mirrors_the_domain_vocabulary_exactly() -> None:
+    assert frozenset(SCHEMA["$defs"]["osdItem"]["enum"]) == OSD_ITEMS
+
+
+def test_demo_theme_declares_only_actions_the_session_publishes() -> None:
+    items = _demo_osd_items()
+    assert items, "o tema demo precisa declarar uma fileira OSD"
+    orphans = set(items) - set(OSD_ACTIONS)
+    assert not orphans, f"tema demo declara ids que a sessão nunca publica: {sorted(orphans)}"
+    assert "volume" not in items, "volume não tem porta e não pode ser item de ação"
+    assert "swapDisc" in items, (
+        "D-28: o demo precisa declarar ao menos uma ação recém-publicada com porta real"
+    )
+
+
+def test_default_surface_without_declaration_uses_admissible_items() -> None:
+    raw = {
+        "schemaVersion": 1,
+        "slots": {"library": {"component": "libraryGrid"}},
+        "components": {"libraryGrid": {"kind": "gameGrid", "source": "library.items"}},
+    }
+    resolved = resolve_scene_surfaces(raw, _read_model())
+    assert set(resolved.slots["osd"].items) <= OSD_ITEMS
+    assert not _RETIRED_WITHOUT_PORT & set(resolved.slots["osd"].items)
+
+
+def test_volume_binding_survives_as_binding_source_only() -> None:
+    # O binding de progresso osd.volume é conceito distinto do item de ação:
+    # continua válido (allowlist _PROGRESS_BINDING) mesmo com volume fora do
+    # vocabulário de itens, e o read model ainda o materializa na barra.
+    raw = _book()
+    jsonschema.validate(raw, SCHEMA)
+    resolved = resolve_scene_surfaces(raw, _read_model())
+    assert resolved.slots["osd"].progress == 0.4
+    assert "volume" not in resolved.slots["osd"].items

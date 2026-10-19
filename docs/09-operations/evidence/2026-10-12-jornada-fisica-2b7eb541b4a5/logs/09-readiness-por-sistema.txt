@@ -1,0 +1,48 @@
+# readiness por sistema — 25 sistemas, 1 jogo cada
+nintendo-handheld      playable=True  code=                           canPrepare=None  reason=
+nes-famicom            playable=True  code=                           canPrepare=None  reason=
+master-system          playable=True  code=                           canPrepare=None  reason=
+snes                   playable=True  code=                           canPrepare=None  reason=
+mega-drive             playable=True  code=                           canPrepare=None  reason=
+playstation            playable=True  code=                           canPrepare=None  reason=
+game-gear              playable=True  code=                           canPrepare=None  reason=
+nintendo-3ds           playable=False code=E-API-SCHEMA               canPrepare=False reason=plataforma nintendo-3ds não declara um perfil de launch para eden
+sega-saturn            playable=False code=E-CONTENT-UNSUPPORTED      canPrepare=False reason=o core mednafen_saturn não está instalado no RetroArch; instale/verifique o core antes de jogar
+switch                 playable=True  code=                           canPrepare=None  reason=
+nintendo-ds            playable=True  code=                           canPrepare=None  reason=
+x68000                 playable=False code=E-CONTENT-INCOMPLETE       canPrepare=True  reason=archive detectado, mas ainda não foi materializado para um formato consumível; use a ação assínc
+playstation-2          playable=False code=E-CONTENT-UNSUPPORTED      canPrepare=False reason=o core pcsx2 não está instalado no RetroArch; instale/verifique o core antes de jogar
+playstation-vita       playable=False code=E-API-SCHEMA               canPrepare=False reason=plataforma playstation-vita não declara um perfil de launch para eden
+dreamcast              playable=False code=E-CONTENT-UNSUPPORTED      canPrepare=False reason=o core flycast não está instalado no RetroArch; instale/verifique o core antes de jogar
+amiga                  playable=False code=E-CONTENT-INCOMPLETE       canPrepare=True  reason=archive detectado, mas ainda não foi materializado para um formato consumível; use a ação assínc
+nintendo-console       playable=False code=E-CONTENT-UNSUPPORTED      canPrepare=False reason=o core dolphin não está instalado no RetroArch; instale/verifique o core antes de jogar
+wii-u                  playable=False code=E-API-SCHEMA               canPrepare=False reason=plataforma wii-u não declara um perfil de launch para eden
+playstation-4          playable=True  code=                           canPrepare=None  reason=
+zx-spectrum            playable=True  code=                           canPrepare=None  reason=
+xbox-360               playable=True  code=                           canPrepare=None  reason=
+xbox                   playable=False code=E-API-SCHEMA               canPrepare=False reason=plataforma xbox não declara um perfil de launch para eden
+playstation-3          playable=False code=E-CONTENT-FW-MISSING       canPrepare=False reason=RPCS3 requer PS3UPDAT.PUP. Importe o firmware oficial que você já possui pela tela de primeira e
+neo-geo-cd             playable=False code=E-CONTENT-UNSUPPORTED      canPrepare=False reason=o core neocd não está instalado no RetroArch; instale/verifique o core antes de jogar
+three-do               playable=True  code=                           canPrepare=None  reason=
+
+# readiness dos NÃO lançáveis (contraste)
+amiga                  [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+playstation            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+playstation            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+playstation            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+playstation            [rar     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+playstation            [rar     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+playstation-5          [rar     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+sega-cd-32x            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+sega-cd-32x            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+sega-cd-32x            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+sega-cd-32x            [7z      ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+x68000                 [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+x68000                 [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+x68000                 [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+x68000                 [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+x68000                 [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+x68000                 [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+xbox-360               [zip     ] playable=False code=E-TX-STALE-PLAN          canPrepare=False reason=jogo não encontrado na biblioteca
+
+json: /home/misael/Projects/Steam Zero/Canonical/2026-09-21/docs/09-operations/evidence/2026-10-12-jornada-fisica-2b7eb541b4a5/logs/json/readiness-by-system.json

@@ -8,9 +8,18 @@ from steamzero.domain.session_overlay import (
     DIAG_DISABLED_ACTION,
     DIAG_NO_SESSION,
     DIAG_UNKNOWN_ACTION,
+    OSD_ACTIONS,
     request_overlay_action,
     resolve_session_overlay,
 )
+
+
+def test_osd_publishes_only_actions_the_session_backend_accepts() -> None:
+    from steamzero.adapters.session_control import ACCEPTED_ACTIONS
+
+    # `exit` tem rota própria com confirmed=true.
+    orphans = set(OSD_ACTIONS) - ACCEPTED_ACTIONS - {"exit"}
+    assert not orphans, f"OSD publica ação sem porta no backend: {sorted(orphans)}"
 
 
 def _model(**osd: object) -> dict[str, object]:
@@ -21,7 +30,7 @@ def _model(**osd: object) -> dict[str, object]:
             "focusedAction": "pause",
             "capabilities": {
                 "pause": {"available": True},
-                "volume": {"available": True},
+                "mute": {"available": True},
                 "screenshot": {"available": True},
                 "saveState": {"available": False, "reason": "O emulador não oferece save-state."},
             },
@@ -34,8 +43,9 @@ def test_overlay_exposes_only_bounded_semantic_actions_and_focus() -> None:
     overlay = resolve_session_overlay(_model())
     assert overlay.visible is True
     assert overlay.focused_action == "pause"
-    assert len(overlay.actions) == 14
-    assert overlay.actions[0].id == "volume"
+    # D-28: o contrato encolheu para o que tem porta no backend (13 ids).
+    assert len(overlay.actions) == 13
+    assert overlay.actions[0].id == "mute"
     assert next(item for item in overlay.actions if item.id == "saveState").enabled is False
     assert "save-state" in next(item for item in overlay.actions if item.id == "saveState").reason
 

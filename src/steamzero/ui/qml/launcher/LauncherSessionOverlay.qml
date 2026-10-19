@@ -212,7 +212,7 @@ Item {
             overlay.appearanceStageRequested("saves")
             return true
         }
-        if (String(action.id) === "disc" && overlay.peripherals
+        if (String(action.id) === "swapDisc" && overlay.peripherals
                 && overlay.peripherals.available === true) {
             overlay.peripheralOpen = true
             peripheralSurface.setModel(overlay.peripherals)
@@ -221,6 +221,14 @@ Item {
         }
         if (String(action.id) === "exit") {
             exitConfirmation.open()
+            return true
+        }
+        // D-20: sem save existente a galeria não abre e não há slot escolhível na
+        // tela. O adapter recusa o despacho sem slot, então salvar cai no slot
+        // livre padrão da UI (0) — o mesmo que a galeria oferece quando existe.
+        if (String(action.id) === "saveState") {
+            overlay.localError = ""
+            overlay.saveStateRequested("saveState", 0)
             return true
         }
         overlay.localError = ""

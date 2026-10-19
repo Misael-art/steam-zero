@@ -1,0 +1,37 @@
+{
+  "batch": "R0/R1",
+  "directory": "/home/misael/Projects/Steam Zero/Canonical/2026-09-21",
+  "branch": "codex/product-recovery-2026-10-16",
+  "owner": "codex-central-executor",
+  "functionalCommits": {
+    "core": "af8c0ad7be5862a8b0fef7b28a1105d9646547fc",
+    "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0"
+  },
+  "lastTestedCodeCommit": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
+  "testResults": {
+    "nonvisualPassed": 6421,
+    "visualPassedOnIdenticalSource": 394,
+    "skipped": 47,
+    "coveragePercentBeforeFixtureOnlyRepair": 85.47,
+    "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
+  },
+  "releaseActive": "2.0.0rc1-1470cf48bf7d",
+  "releaseActiveSource": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
+  "bundle": null,
+  "releaseCandidate": null,
+  "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
+  "rollbackActivationTested": false,
+  "physicalAcceptance": "not-executed",
+  "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
+  "pending": [
+    "PENDENTE_CI_E_INTEGRACAO",
+    "PENDENTE_JANELA_DE_TESTE"
+  ],
+  "nextAction": "Autorização remota recebida em 2026-10-18 (18-remote-authorization.json). Push único do checkpoint limpo da branch existente, abrir PR cumulativo preservando a base #258; integrar somente após novos checks terminais verdes. Depois checkout no SHA exato de main e CI push verde, prepare pelo controlador, verificar rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Publicação pública não autorizada. R2 não iniciado.",
+  "updatedAt": "2026-10-18",
+  "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
+  "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
+  "originMainAtPrepare": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
+  "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle",
+  "remoteAuthorizationEvidence": "18-remote-authorization.json"
+}

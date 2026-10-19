@@ -1603,6 +1603,13 @@ def resolve_theme_coverage(
         provided_scene_elements: list[str] = []
         if isinstance(assignment, Mapping) and assignment.get("mode") == "inherit-aura":
             reason = "explicit-choice"
+            source_id = "org.steamzero.aura"
+            # D-06 (Tarefa 11): a escolha explícita declara o AURA empacotado;
+            # quando o manifesto carregado está disponível, a versão resolvida é
+            # a dele — não a versão do tema default passado como ``aura_version``.
+            packaged_aura = themes.get("org.steamzero.aura")
+            if isinstance(packaged_aura, Mapping) and packaged_aura.get("version"):
+                source_version = str(packaged_aura["version"])
         elif isinstance(assignment, Mapping) and assignment.get("mode") == "custom":
             theme_id = str(assignment.get("themeId", ""))
             declared_theme_id = theme_id
@@ -1660,12 +1667,21 @@ def resolve_theme_coverage(
     return results
 
 
-def summarize_theme_coverage(coverage: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-    """Build the pre-apply summary without hiding degraded or missing stages."""
-    aura_effective_stages = [
-        str(item.get("stageId", ""))
-        for item in coverage
-        if item.get("sourceThemeId") == "org.steamzero.default"
+def summarize_theme_coverage(
+    coverage: Sequence[Mapping[str, Any]],
+    themes: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build the pre-apply summary without hiding degraded or missing stages.
+
+    As cinco categorias do contrato AURA (D-06, Tarefa 11) têm campos próprios:
+    tema personalizado, AURA explícito (escolha ``inherit-aura``), herança
+    implícita, referência ausente e incompatibilidade. Uma etapa é
+    AURA-efetiva quando não exibe o tema custom declarado — escolha explícita,
+    herança implícita ou fallback. Todas-as-etapas-em-AURA jamais é descrita
+    como "Tema personalizado em todas as etapas usadas".
+    """
+    custom = [
+        str(item.get("stageId", "")) for item in coverage if item.get("appearance") == "custom"
     ]
     inherited = [
         str(item.get("stageId", ""))
@@ -1688,6 +1704,11 @@ def summarize_theme_coverage(coverage: Sequence[Mapping[str, Any]]) -> dict[str,
         if item.get("appearance") == "incompatible"
     ]
     fallback = list(dict.fromkeys([*missing, *incompatible]))
+    # D-06 (Tarefa 11): AURA-efetivas são todas as etapas sem tema custom
+    # declarado — a escolha explícita volta a contar (antes só a fonte default).
+    aura_effective_stages = [
+        str(item.get("stageId", "")) for item in coverage if item.get("appearance") != "custom"
+    ]
     missing_scene_elements = [
         str(item.get("stageId", "")) for item in coverage if item.get("missingSceneElements")
     ]
@@ -1696,7 +1717,22 @@ def summarize_theme_coverage(coverage: Sequence[Mapping[str, Any]]) -> dict[str,
         for item in coverage
         if item.get("operationCapability") == "unavailable"
     ]
-    return {
+    if not coverage:
+        # Minor 5: com nenhuma etapa em uso (customCount e auraEffectiveCount
+        # ambos 0) não se pode afirmar "personalizado" nem "AURA"; rótulo neutro.
+        label = "Nenhuma etapa em uso"
+    elif aura_effective_stages:
+        if custom or inherited or fallback:
+            label = (
+                f"Tema misto · AURA efetivo em {len(aura_effective_stages)} etapas "
+                f"({len(inherited)} herdadas, {len(explicit_aura)} escolhidas, "
+                f"{len(fallback)} em fallback)"
+            )
+        else:
+            label = "AURA em todas as etapas usadas"
+    else:
+        label = "Tema personalizado em todas as etapas usadas"
+    summary: dict[str, Any] = {
         "auraDefaultCount": len(inherited),
         "auraDefaultStages": inherited,
         "auraExplicitCount": len(explicit_aura),
@@ -1705,17 +1741,28 @@ def summarize_theme_coverage(coverage: Sequence[Mapping[str, Any]]) -> dict[str,
         "auraFallbackStages": fallback,
         "auraEffectiveCount": len(aura_effective_stages),
         "auraEffectiveStages": aura_effective_stages,
+        "customCount": len(custom),
+        "customStages": custom,
         "inheritedStages": inherited,
         "missingReferenceStages": missing,
         "incompatibleStages": incompatible,
         "missingSceneElementStages": missing_scene_elements,
         "unavailableOperationStages": unavailable_operations,
         "requiresPreApplyConfirmation": bool(aura_effective_stages),
-        "label": (
-            f"Tema misto · AURA efetivo em {len(aura_effective_stages)} etapas "
-            f"({len(inherited)} herdadas, {len(explicit_aura)} escolhidas, "
-            f"{len(fallback)} em fallback)"
-            if aura_effective_stages
-            else "Tema personalizado em todas as etapas usadas"
-        ),
+        "label": label,
     }
+    # A2e: versão, cor e procedência batem com o manifesto carregado quando a
+    # ponte o fornece; sem manifesto, a procedência não é inventada.
+    packaged_aura = (themes or {}).get("org.steamzero.aura")
+    if isinstance(packaged_aura, Mapping):
+        tokens = packaged_aura.get("tokens")
+        color = tokens.get("color") if isinstance(tokens, Mapping) else None
+        background = str(color.get("background") or "") if isinstance(color, Mapping) else ""
+        summary["auraTheme"] = {
+            "themeId": "org.steamzero.aura",
+            "version": str(packaged_aura.get("version") or "unknown"),
+            "background": background,
+            "author": str(packaged_aura.get("author") or ""),
+            "license": str(packaged_aura.get("license") or ""),
+        }
+    return summary

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-COMPOSITION",
+  "title": "Capacidades componíveis e autoria de instâncias visuais",
+  "domain": "themes",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/CAPACIDADES-COMPONIVEIS.md"
+  ],
+  "dependsOn": [
+    "SZ-THEME-ENGINE",
+    "SZ-THEME-STUDIO",
+    "SZ-AURA-SESSION-OSD"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Publicar ações e fontes tipadas com disponibilidade por contexto e resultado observado.",
+    "Criar duas instâncias da mesma capacidade no Studio, salvar/reabrir e executar com um único efeito e estado compartilhado.",
+    "Validar foco, erro, resultado atrasado e fallback de superfície sem executar código externo."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C0 em R0/R1: inventariar ações/fontes existentes; em R3/R4 entregar primeiro slice componível de discos ou saves.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}

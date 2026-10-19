@@ -1,0 +1,29 @@
+............F........................................................... [ 90%]
+........                                                                 [100%]
+=================================== FAILURES ===================================
+_ TestEmulatorRows.test_installed_fallback_becomes_primary_when_preferred_is_absent _
+
+self = <test_platform_composer.TestEmulatorRows object at 0x7f9c1e071480>
+registry = <steamzero.domain.platforms.PlatformRegistry object at 0x7f9c1d9f5be0>
+
+>   ???
+E   assert False is True
+
+/mnt/sdcard/Projects/Port_Steam/tests/unit/test_platform_composer.py:203: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_platform_composer.py::TestEmulatorRows::test_installed_fallback_becomes_primary_when_preferred_is_absent
+1 failed, 79 passed, 37 deselected in 48.85s
+E-TEST-REAL-STATE-MUTATED: pytest alterou o state home original
+state home: /home/misael/.local/state/steamzero
+before: exists=True files=12948 directories=2115 bytes=1430256030 max_mtime_ns=1792149414122754490
+after:  exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512
+changed: backups, journal, logs, logs/core.jsonl, quarantine, staging, state.db
+processos steamzero NASCIDOS durante a janela — prováveis autores (vazamento da suíte):
+  - pid=1049387 (NASCEU durante a janela) cmd=/opt/steamzero/releases/2.0.0rc1-1470cf48bf7d/venv/bin/python3 /usr/local/bin/steamzero --version
+  - pid=1049431 (NASCEU durante a janela) cmd=/opt/steamzero/releases/2.0.0rc1-1470cf48bf7d/venv/bin/python3 /opt/steamzero/current/venv/bin/steamzero-core --systemd
+  - pid=1049549 (NASCEU durante a janela) cmd=/opt/steamzero/releases/2.0.0rc1-1470cf48bf7d/venv/bin/python3 /usr/local/bin/steamzero component list --json
+Um teste deixou escapar um comando real, ou vazou um processo destacado que
+sobreviveu ao teste que o criou. Injete o runner falso, ou espere/mate o
+processo antes do teste terminar.
+real-state before: exists=True files=12948 directories=2115 bytes=1430256030 max_mtime_ns=1792149414122754490 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default

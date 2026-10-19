@@ -12,6 +12,7 @@ import re
 import shutil
 import signal
 import sqlite3
+import stat
 import subprocess
 import sys
 import threading
@@ -751,6 +752,14 @@ class EmulationController:
         switch_games = self._enrich_preservation(switch_games)
         switch_games = self._enrich_controls(switch_games)
         enriched_by_id = {str(game.get("id")): game for game in switch_games}
+        enriched_by_id.update(
+            {
+                str(game["id"]): game
+                for game in self._enrich_platform_games(
+                    [game for game in raw_games if str(game.get("id")) not in enriched_by_id]
+                )
+            }
+        )
         games = [enriched_by_id.get(str(game.get("id")), dict(game)) for game in raw_games]
         games = self._publish_ps5_content_state(games)
         games = self._publish_ps5_compatibility(games)
@@ -780,6 +789,26 @@ class EmulationController:
         workspace["platforms"] = [
             composed_cloud.get(str(row["id"]), row) for row in workspace["platforms"]
         ]
+        for row in workspace["platforms"]:
+            if row["id"] == "switch" or row.get("kind") != "emulated":
+                continue
+            observed_by_id = {str(item["id"]): item for item in all_rows}
+            for emulator in row["emulators"]:
+                observed = observed_by_id.get(str(emulator["id"]))
+                if observed is None:
+                    continue
+                # O composer conserva perfil/core/BIOS e identidade da plataforma;
+                # apenas o lifecycle publica operações de manutenção e abertura.
+                for field in ("actions", "action", "version", "targetVersion", "running"):
+                    if field in observed:
+                        emulator[field] = observed[field]
+            for scope in row["scopes"]:
+                if scope["id"] in {"emulator", "game"}:
+                    available = bool(
+                        row["emulators"] if scope["id"] == "emulator" else row["games"]
+                    )
+                    scope["enabled"] = available
+                    scope["reason"] = None if available else "Nenhum item publicado neste contexto."
         # O workspace técnico preserva a superfície Switch. A biblioteca
         # editorial recebe em paralelo o índice completo de manifests e nunca
         # precisa criar plataformas a partir dos nomes de diretórios locais.
@@ -1057,9 +1086,8 @@ class EmulationController:
     def _bios_present_for(platform_id: str, adapter_id: str, name: str) -> bool:
         """Se a BIOS exigida existe no store central, por nome (nunca conteúdo).
 
-        A ausência por falha de leitura trata-se como ausente: a leitura que
-        falhou não prova presença, e sondar não pode derrubar a central
-        (AGENTS.md §8).
+        Falha de leitura sobe ao composer como desconhecido e ao preflight como
+        erro recuperável; não equivale a um arquivo comprovadamente ausente.
         """
         # Aceita as duas views: a canônica, que o importador ativo escreve, e a
         # legada, que instalações anteriores à migração ainda têm. Ler só a
@@ -1068,14 +1096,11 @@ class EmulationController:
             bios_view_path(platform_id, name),
             bios_legacy_view_path(platform_id, name),
         ):
+            target = fs.resolve_within(paths.bios_dir(), candidate)
             try:
-                target = fs.resolve_within(paths.bios_dir(), candidate)
-            except SteamZeroError:
-                continue
-            try:
-                if target.is_file():
+                if stat.S_ISREG(target.stat().st_mode):
                     return True
-            except OSError:
+            except FileNotFoundError:
                 continue
         return False
 
@@ -3534,14 +3559,20 @@ class EmulationController:
             )
         elif action == "game.emulator.set":
             game_id = self._required_string(payload, "gameId")
-            self._current_game(game_id)
+            game = self._current_game(game_id)
             emulator_id = self._required_string(payload, "emulatorId")
             self._require_known_emulator(emulator_id)
+            platform_id = str(game.get("platformId") or game.get("platform") or "")
+            if self._launch_profile_for(platform_id, emulator_id) is None:
+                raise SteamZeroError(
+                    "E-API-SCHEMA",
+                    detail=f"{emulator_id} não declara lançamento para {platform_id}",
+                )
             plan = self._plan_game_setting(
                 game_id,
                 "emulatorId",
                 emulator_id,
-                key_emulator_id=emulator_id,
+                key_emulator_id=emulator_id if emulator_id in _SWITCH_EMULATOR_IDS else None,
             )
         elif action == "game.steam.set":
             game_id = self._required_string(payload, "gameId")
@@ -5008,6 +5039,30 @@ class EmulationController:
             "blocksPlay": firmware_version is None,
         }
         return key, firmware
+
+    def verify_requirements(self, platform_id: str = "switch") -> dict[str, Any]:
+        """Verificação somente leitura dos requisitos da plataforma.
+
+        É a resposta real de ``requirements.verify``: roda EXATAMENTE o mesmo
+        caminho que popula a prontidão no ``snapshot`` (as linhas observadas do
+        host, ``_requirements`` e ``compute_readiness``) e devolve o veredito
+        apurado agora, sem nenhum efeito colateral. A tela mostra o estado
+        verificado, não um sucesso presumido — fechar D-27 pedindo confirmação
+        de uma leitura seria o contrário do que o botão significa.
+        """
+        all_rows = self._emulator_rows()
+        rows = [row for row in all_rows if row["id"] in _SWITCH_EMULATOR_IDS]
+        key_status, firmware_status = self._requirements(rows)
+        state, status_label, readiness = compute_readiness(
+            {"keys": key_status, "firmware": firmware_status}, rows
+        )
+        return {
+            "platform": platform_id,
+            "state": state,
+            "statusLabel": status_label,
+            "requirements": {"keys": key_status, "firmware": firmware_status},
+            "readiness": readiness,
+        }
 
     _PRESERVATION_PREFIX: ClassVar[dict[str, str]] = {
         "save": "game.save",
@@ -9168,6 +9223,36 @@ class EmulationController:
             pipeline=pipeline,
             providers=providers,
         )
+
+    def _enrich_platform_games(self, games: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Publica a mesma decisão de Play e o readback para jogos não-Switch.
+
+        Não usa o pipeline de keys, conteúdo ou configurações do Switch. O
+        preflight comum continua dono dos requisitos do runtime de cada jogo.
+        """
+        if not games:
+            return []
+        settings = self._load_game_settings(strict=False)
+        enriched: list[dict[str, Any]] = []
+        for raw in games:
+            game = dict(raw)
+            selected = self._settings_for_game_with_global(game, settings)
+            emulator_id = selected.get("emulatorId")
+            readiness = self.game_readiness(str(game["id"]))
+            game["emulatorId"] = emulator_id
+            game["playAction"] = self._action(
+                f"game.launch:{game['id']}",
+                "Jogar",
+                enabled=readiness["playable"] is True,
+                reason=readiness.get("reason") or None,
+            )
+            game["launchReadiness"] = {
+                "state": "ready" if readiness["playable"] else "blocked",
+                "emulator": "installed" if readiness["playable"] else "unverified",
+                "reason": readiness.get("reason") or None,
+            }
+            enriched.append(game)
+        return enriched
 
     def _enrich_games(
         self,

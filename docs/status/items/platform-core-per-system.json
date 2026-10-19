@@ -21,7 +21,7 @@
     "tests/unit/test_emulation_controller.py",
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun"
   ],
-  "scopeDigest": "fae86847309a0ae964ef9dee807f707ecea6277872d9d430fc5f76d00aab343b",
+  "scopeDigest": "eb8ebab7845b43aca0753815f36fd93b516b33a40cce5a8f41c9468191afab57",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-AGG-PLATFORM-MANIFESTS"
@@ -73,10 +73,16 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar/instalar release autorizada e provar no host Atari 5200/7800/Lynx/Jaguar e Sega 32X; cobrir adapters de cores ainda ausentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-16",
   "notes": "Defeito reproduzido na auditoria: atari-classics agrupava sete systems sob stella, embora o catálogo editorial declare atari800/prosystem/beetle-lynx/virtual-jaguar para parte deles; sega-cd-32x também agrupava Sega CD e 32X sob genesis_plus_gx, embora 32X exija picodrive. systemId já é preservado no cache canônico; falta fazê-lo participar da escolha do core no lançamento. A correção não baixa nem instala cores: quando o core específico não estiver presente, o jogo fica bloqueado com a causa verificável."
 }

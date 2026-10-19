@@ -11,11 +11,11 @@
   "tokens": {
     "color": {
       "background": "#e7eceb",
-      "sidebar": "#d8dfdf",
+      "sidebar": "#738c8c",
       "surface": "#f4f7f5",
       "surfaceRaised": "#ffffff",
       "surfaceSelected": "#dce8e8",
-      "border": "#aebdbe",
+      "border": "#728c8e",
       "text": "#16212a",
       "textMuted": "#53616b",
       "textDisabled": "#5c6a70",

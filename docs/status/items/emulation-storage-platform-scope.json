@@ -16,7 +16,7 @@
     "tests/integration/test_emulation_storage.py",
     "tests/integration/test_emulation_storage_platform_scope.py"
   ],
-  "scopeDigest": "47525bd0dfbf5bc72ec6d9b485af4c757c526c964afbc5531f57cd456d03b1d5",
+  "scopeDigest": "b7341c68a59b5178b08568d51107828e17bdc14b7260b9e9ec7353b8265ed46d",
   "dependsOn": [
     "SZ-EMULATION-STORAGE-READMODEL",
     "SZ-EMULATION-PLATFORM-SCOPE"
@@ -62,10 +62,16 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar a apresentação visual por plataforma e validar o resumo na release instalada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-16",
   "notes": "A filtragem de jogos já existe, mas a coleta de armazenamento ainda varre raízes completas. Esta frente alinha a métrica física ao mesmo contexto canônico usado por saves e mídia."
 }

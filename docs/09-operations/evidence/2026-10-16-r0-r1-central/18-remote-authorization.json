@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-18",
+  "ownerReply": "prossiga",
+  "approvedRequest": "Push da branch atual e integração governada em main, incluindo a base pendente do PR #258, com CI verde e proteções respeitadas.",
+  "scope": [
+    "push codex/product-recovery-2026-10-16",
+    "PR e integração governada em main preservando commits do PR #258",
+    "instalação e testes reais já autorizados"
+  ],
+  "limits": [
+    "sem force-push ou mudança/bypass de proteção",
+    "publicação pública de release não autorizada",
+    "um checkout, um executor, R0/R1 até aceite instalado"
+  ],
+  "integrationPlan": "Um PR cumulativo da branch existente para main preserva os commits herdados de #258; somente integrar com todos os checks terminais verdes no novo tip. Não integrar separadamente o tip vermelho de #258. Confirmar inclusão ancestral após merge.",
+  "branch": "codex/product-recovery-2026-10-16",
+  "headBeforeRecord": "27b96cb53e3c0c967730b8a2ec834a595474e7cd",
+  "physicalAcceptance": "not-executed",
+  "publicReleasePublication": false
+}

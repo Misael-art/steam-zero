@@ -1,0 +1,16 @@
+30f4e5661af567599938fb1bc7258a205f5c7bed6455f5189a3cb823b7a75b1d  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/00-baseline-censo.txt
+1c52cf0db12287aa022509a8587b657971c8d5803242365eed8bc119a6a4e1a5  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/01-baseline-cores.txt
+44dcad936ad99ef6a30a82eadede1073885fb3111a222ea06c0e6c42b9621392  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/02-d17-causa.txt
+5a60b32eb40ca3ce259166bad3cf582d80eba4032dccfb0132a226d75abefa7f  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/04-t8-medicao-gate.txt
+a61699963f7688321c4310784d720e944ad1bf0c022d9e7fa1a2f8a9f5a54e8d  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/07-d17-repro-arquivada.txt
+1fe5c8e2df17f1c7f3b6082c9ec168e12032b90a5afe82fb5c050d57a52fc455  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/08-keys-import-divergencia.txt
+f0404cd3b2675039f20b280d309211a753340c8ae39775226268198f03744696  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/10-censo-pos-lote.txt
+e2d3ad85fce0b0021140c322a5185d91daa5ab2dd1b2e17f00c44306c6113e25  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/11-cores-pos-lote.txt
+b1b30cc00a4fc8f70c8e517aea530770aff41fc8acff97161aaea53bd15c1f93  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/14-ruff-check.txt
+99377348bc3afd3788bf172576aacfce3642cf6dabc1245474f85dbf721a3724  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/15-ruff-format.txt
+1f01a96dfdb8f84a2b5352e6b4b0415dee9638177a43ba3ab549d1a09e28e07c  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/16-mypy.txt
+82a7c534020564ce49408141bb7cf35501d3565ce9fc701314213594073f7b8a  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/17-independence.txt
+b47a6fcbb58ace73302fc28c697c8288e9f55db18766db94f019d8afe496c0f2  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/18-status-check-antes.txt
+40aa5ff632bfb0ee9ea550150b02f110333b006fe2d353e249b4e0768904ab30  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/19-renovacao-digests.txt
+ef6eb529a99f9cc8bbc783e51643d0bba054a9baadceb3f16d585007440832ae  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/20-status-check-depois.txt
+122b964cef5a363d5ada3a52180b967068111d7d7271d7318daca44f3f016925  docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/21-paridade-focada.txt

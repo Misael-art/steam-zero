@@ -15,7 +15,7 @@
     "tests/unit/test_multidisc_materializer.py",
     "docs/09-operations/evidence/2026-09-20-multidisc-materialization-ingestion"
   ],
-  "scopeDigest": "ee440a25173e64e08c4ab4faf2ca9fe6d4915533159932d5b50be017d48cf48b",
+  "scopeDigest": "c79e505dce672a6a57290f08613dcae05ee77dde8f5721ac1264f73c070764e2",
   "dependsOn": [
     "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
     "SZ-LIBRARY-CANONICAL"
@@ -69,12 +69,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
+      "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-MULTIDISC-MATERIALIZATION-INGESTION"
   ],
   "nextAction": "Promover uma release governada e executar a prova física de materialização, lançamento M3U e retorno; exercitar também archive.materialize para PS4/PS5; manter X68000 em contrato pendente.",
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-16",
   "notes": "A playlist Amiga observada no host é preservada como evidência externa desta frente; não será sobrescrita nem usada para alegar gameplay da release ativa. A integração atual expõe archives extract-only como archive-needs-extraction, oferece o job assíncrono archive.materialize com staging/rollback e faz refresh do catálogo após publicação atômica. A suíte integral da integração excedeu o timeout operacional de cinco minutos; os testes focados passaram."
 }

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EMULATION-KEYS-IMPORT-UNIFICATION",
+  "title": "keys.import: uma publicacao, um valor de enabled entre superficies",
+  "domain": "emulation",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/08-keys-import-divergencia.txt"
+  ],
+  "dependsOn": [],
+  "knownGaps": [
+    "GAP-KEYS-IMPORT-PUBLICACAO-DIVERGENTE"
+  ],
+  "acceptanceCriteria": [
+    "O id keys.import publica exatamente um valor de enabled entre todas as superficies do contrato, pelo mesmo caminho que unificou requirements.verify e firmware.import (invariante D-27).",
+    "A decisao de produto (importacao via UI conectada ao servico ou ausencia auto-declarada) consta no item antes de qualquer edicao de codigo."
+  ],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-13-lote-coesao-ui/logs/08-keys-import-divergencia.txt",
+      "command": "medicao no HEAD bb10331d da branch codex/jornada-fisica-bateria-2026-10-12: src/steamzero/domain/emulation_workspace.py:673-678 publica keys.import com enabled=False e reason literal; src/steamzero/adapters/emulation.py:5695-5702 publica keys.import via _action com default enabled=True (emulation.py:10186-10190); a rota existe no adapter (emulation.py:3316). Mesmo classe de defeito de D-27, fora dos dois ids nomeados no portao da Tarefa 6. Registrado no checkpoint Tarefa 14 por exigencia da revisao da Tarefa 6.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Tarefa 15: linha aberta na matriz. Decidir com o operador se keys.import passa a enabled=True conectado ao servico (a rota do adapter ja existe) ou se o adapter passa a declarar a ausencia; depois unificar sob a mesma guarda que cobre requirements.verify e firmware.import. Nenhuma edicao autorizada neste lote.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-15",
+  "notes": "Item criado no checkpoint da Tarefa 14 (lote de coesao visual e botoes reais, 2026-10-13) para registrar um achado da revisao da Tarefa 6 que o censo nao sinaliza como contradicao (limitacao declarada do harness arquivado; ver logs/08). Nao promove nenhum eixo: implementacao planned, verificacao none, sem prova de runtime nem de campo."
+}

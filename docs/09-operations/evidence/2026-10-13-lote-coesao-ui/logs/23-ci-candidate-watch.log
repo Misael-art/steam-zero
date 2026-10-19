@@ -1,0 +1,35 @@
+[probe 1] 38787511945 in_progress 
+[probe 2] 38787511945 in_progress 
+[probe 3] 38787511945 in_progress 
+[probe 4] 38787511945 in_progress 
+[probe 5] 38787511945 in_progress 
+[probe 6] 38787511945 in_progress 
+[probe 7] 38787511945 in_progress 
+[probe 8] 38787511945 in_progress 
+[probe 9] 38787511945 in_progress 
+[probe 10] 38787511945 in_progress 
+[probe 11] 38787511945 in_progress 
+[probe 12] 38787511945 in_progress 
+[probe 13] 38787511945 in_progress 
+[probe 14] 38787511945 in_progress 
+[probe 15] 38787511945 in_progress 
+[probe 16] 38787511945 in_progress 
+[probe 17] 38787511945 in_progress 
+[probe 18] 38787511945 in_progress 
+[probe 19] 38787511945 in_progress 
+[probe 20] 38787511945 in_progress 
+[probe 21] 38787511945 in_progress 
+[probe 22] 38787511945 in_progress 
+[probe 23] 38787511945 in_progress 
+[probe 24] 38787511945 in_progress 
+[probe 25] 38787511945 in_progress 
+[probe 26] 38787511945 completed success
+TERMINAL run=38787511945 conclusion=success
+Gate visual QML (Linux) => success
+Smoke Arch Linux => success
+Smoke Ubuntu 24.04 => success
+Smoke Manjaro => success
+Python 3.11 => success
+Python 3.12 => success
+Python 3.14 => success
+Wheel limpo, smoke e supply chain => success

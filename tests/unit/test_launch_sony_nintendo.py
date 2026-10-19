@@ -136,33 +136,60 @@ def test_key_projection_is_vacuous_for_non_switch(monkeypatch, tmp_path: Path) -
         assert controller._key_projection_valid(emulator_id)  # type: ignore[attr-defined]
 
 
-def test_game_emulator_set_accepts_sony_nintendo(monkeypatch, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
-    controller = _controller(monkeypatch, tmp_path)
-    roms = tmp_path / "owned-roms"
-    roms.mkdir()
-    (roms / "Example [0100ABCDEF123000].nsp").write_bytes(b"owned-game")
-    _apply(
-        controller,
-        controller.plan_action({"actionId": "library.root.add", "path": str(roms)}),
-    )
-    game_id = controller.snapshot({"context": {}})["platforms"][0]["games"][0]["id"]
+@pytest.mark.parametrize(("platform_id", "emulator_id", "flatpak_ref"), _SONY_NINTENDO)
+def test_game_emulator_set_accepts_sony_nintendo(
+    monkeypatch, tmp_path: Path, platform_id: str, emulator_id: str, flatpak_ref: str
+) -> None:  # type: ignore[no-untyped-def]
+    """A preferência aceita o adapter no sistema declarado, não numa ROM Switch.
 
-    for _platform_id, emulator_id, _ref in _SONY_NINTENDO:
+    R0/R1 alterou o contrato: ser um adapter conhecido deixou de bastar para
+    escrever uma preferência por jogo incompatível com seu perfil de launch.
+    O scanner não é objeto desta prova; a porta publica um jogo canônico do
+    sistema testado e o writer/readback continuam reais no XDG isolado.
+    """
+    controller = _controller(monkeypatch, tmp_path)
+    game_id = f"fixture-{platform_id}"
+    monkeypatch.setattr(
+        controller, "_current_game", lambda _id: {"id": game_id, "platformId": platform_id}
+    )
+    try:
         plan = controller.plan_action(
             {"actionId": "game.emulator.set", "gameId": game_id, "emulatorId": emulator_id}
         )
         assert plan["planId"]
+        applied = _apply(controller, plan)
+        assert applied["status"] == "ok"
+        assert controller._load_game_settings(strict=True)[game_id]["emulatorId"] == emulator_id
+        assert controller._load_global_settings() == {}
+        global_plan = controller.plan_action(
+            {"actionId": "game.emulator.default", "emulatorId": "ppsspp"}
+        )
+        assert global_plan["planId"]
+    finally:
+        controller.close()
 
-    applied = _apply(
-        controller,
-        controller.plan_action(
-            {"actionId": "game.emulator.set", "gameId": game_id, "emulatorId": "dolphin"}
-        ),
+
+@pytest.mark.parametrize(("platform_id", "emulator_id", "flatpak_ref"), _SONY_NINTENDO)
+def test_sony_nintendo_emulator_is_refused_for_switch(
+    monkeypatch, tmp_path: Path, platform_id: str, emulator_id: str, flatpak_ref: str
+) -> None:  # type: ignore[no-untyped-def]
+    controller = _controller(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        controller, "_current_game", lambda _id: {"id": "switch-fixture", "platformId": "switch"}
     )
-    assert applied["status"] == "ok"
-
-    plan = controller.plan_action({"actionId": "game.emulator.default", "emulatorId": "ppsspp"})
-    assert plan["planId"]
+    try:
+        with pytest.raises(SteamZeroError) as rejected:
+            controller.plan_action(
+                {
+                    "actionId": "game.emulator.set",
+                    "gameId": "switch-fixture",
+                    "emulatorId": emulator_id,
+                }
+            )
+        assert rejected.value.code == "E-API-SCHEMA"
+        assert controller._load_game_settings(strict=True) == {}
+    finally:
+        controller.close()
 
 
 def test_unknown_emulator_is_still_rejected(monkeypatch, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]

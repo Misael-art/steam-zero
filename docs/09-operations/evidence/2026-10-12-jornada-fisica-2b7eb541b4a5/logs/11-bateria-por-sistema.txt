@@ -1,0 +1,98 @@
+Bateria por sistema — jornada física 2.0.0rc1-2b7eb541b4a5
+===========================================================
+Host misael-jupiter · KDE Plasma Wayland · RetroArch (flatpak org.libretro.RetroArch)
+Ponte do Launcher: http://127.0.0.1:9337 (header X-SteamZero-Token)
+Horários em -03:00; o event_log do estado usa UTC (+00:00) — conversão: UTC = local + 3 h.
+Autoria de cada afirmação: arquivo JSON em logs/json/, linha do event_log (state.db, somente
+leitura) ou captura em capturas/ (manifest.tsv com sha256).
+
+1) MEGA DRIVE — Genesis Plus GX — "Addams Family, The (USA, Europe) (Translated PtBr)"
+   gameId ea96c3db21fee70bb568bfd6 · sessão 01M4RWDW5187AC8661RVXSW266
+   Transições (event_log): 20:21:23 launching → running → 20:28:36 suspending → suspended
+   → 20:29:14 resuming → running → 20:34:18 closing → closed. 8 transições.
+   Demonstrado: lançar, jogo real na tela (capturas/L21-gameplay-retroarch.png), pausar
+   (SIGSTOP confirmado em /proc/<pid>/stat = T; logs/json/pausa-1.json), retomar pelo botão
+   "Retomar", salvar (estado + miniatura), carregar, cancelar saída, confirmar saída,
+   tempo de jogo registrado (playedSeconds 774, durationSource observed-monotonic,
+   failureCode null).
+   NÃO demonstrado aqui: o retorno com foco e rolagem. A leitura que sustentava essa alegação
+   não foi persistida e a captura L27 é duplicata de L26 — ver logs/15 item 3 e a linha B-7 do
+   README.
+   Arquivos criados: states/Genesis Plus GX/Addams Family…state{,.png} (slots livres;
+   os slots "1969" pré-existentes não foram tocados).
+   Sessão colateral 01M4RXB8A45DY9NA0C0SX9Y0XD (relançamento involuntário por colisão de
+   nome acessível "Jogar", D-19): launching→running→closing→closed, encerrada pela própria
+   rota da ponte (logs/json/exit-reativacao.json → logs/json/pos-reativacao-closed.json).
+
+2) NES/FAMICON — Mesen — "'89 Dennou Kyuusei Uranai (Japan)"
+   gameId c51dbc23e9b3258b761df058 · NENHUMA sessão criada.
+   POST /launch → HTTP 409 LAUNCHER-LAUNCH-FAILED-001 "Não foi possível preparar o
+   lançamento." (logs/json/nes-launch-direto.json 17:38:34 e logs/json/nes-relancamento.json
+   17:46:24, a segunda sem nenhuma outra sessão ativa — elimina a hipótese de concorrência).
+   game_readiness do mesmo gameId: playable=true, code="" (logs/json/readiness-by-system.json).
+   Nenhum vestígio do motivo: sem linha no event_log, sem arquivo em
+   ~/.config/steamzero/retroarch/sessions/, stdout/stderr do launcher vazio
+   (/tmp/sz-launcher.log, 95 bytes), nada em ~/.local/state/steamzero/logs/core.jsonl no
+   instante da falha. Ver D-17.
+
+3) NES/FAMICON — Mesen — "Batman - Return of the Joker (USA) (Translated PtBr)"
+   gameId d550f55242a30cdc7297c005 · sessão 01M4RY948BBK9FN987Y2HMZY6Q
+   launching 20:53:45 → running → suspending → suspended → closing → closed (20:54:29).
+   Prova de que a plataforma NES/Mesen funciona: capturas/L32-gameplay-nes-mesen.png
+   (janela "RetroArch Mesen 0.9.9"). Portanto a falha do item 2 é específica do título.
+   Pausa: /proc/<pid>/stat = T, sessão suspended (logs/json/nes2-pause.json).
+   "Retomar" pela ponte exige actionId "pause" (o mesmo id é alternável: enquanto suspensa,
+   a ação aparece rotulada "Retomar"). Usar actionId "resume" devolve
+   AURA-OSD-ACTION-002 "Ação não reconhecida" (logs/json/nes2-resume.json) — erro do
+   operador, não do produto; registrado aqui para não enganar leitura futura.
+
+4) GAME BOY — mGBA — "Castlevania Legends (USA, Europe) (Translated PtBr)"
+   gameId 2419aee3011f923f38611f1d · sessão 01M4RXYW48AZCP7P846ZABDTFW
+   launching → running (20:48:09) → closing → closed (logs/json/gb-session-6s.json,
+   logs/json/gb-pos-exit.json).
+   Demonstrado: lançar, jogo real (capturas/L29-gameplay-gb-mgba.png, janela
+   "RetroArch mGBA 0.11-dev c758314"), salvar em slot livre (POST /session/action
+   actionId=saveState slot=0 → accepted/confirmed, logs/json/gb-save-3.json), carregar
+   (loadState slot=0 → accepted, logs/json/gb-load.json), saída confirmada → closed.
+   Efeito colateral útil: loadState estava disabled com o motivo "Nenhum save-state foi
+   criado para esta sessão" (logs/json/gb-overlay.json) e passou a enabled depois do save
+   (logs/json/gb-overlay-pos-save.json) — o read-model do OSD reage ao disco.
+   Arquivos criados: states/mGBA/Castlevania Legends…state{,.png} (diretório novo, vazio
+   antes — baseline em logs/baseline-saves-antes-gb.txt).
+
+5) ZX SPECTRUM — Fuse — "ChaseH.Q.(TheHitSquad).tzx"
+   gameId ff57999ecd4335125cca627c · sessão 01M4RY7BVSDNH3GHZ8SA9R5RYW
+   launching → running (20:52:47) → closing → closed.
+   Demonstrado: lançar e exibir saída real do núcleo (capturas/L31-gameplay-zx-fuse.png,
+   janela "RetroArch Fuse 1.6.0 cad85b7", tela de carregamento da fita). Sem save (não
+   solicitado), sem pausa.
+
+6) INCIDENTE DE SESSÃO PRESA — Mesen, sessão 01M4RYBPZ3X9PXX1JY37FEQ69H (Batman, 3ª tentativa)
+   Sequência: launching 20:55:10 → running → suspending → suspended 20:55:15 → …sem
+   transição alguma por 7 min… → closing/closed 21:02:06 (UTC) = 18:02:06 local.
+   Gatilho: saveState (slot 1) enviado com a sessão SUSPENSA. O OSD oferecia
+   saveState enabled=true nesse estado (logs/json/nes3-suspended.json).
+   Resposta: HTTP 409 AURA-SESSION-ADAPTER-003 "o dono da sessão não respondeu"
+   (logs/json/nes3-save-suspenso.json). Depois disso:
+     · resume (actionId pause) → 409 mesma causa, 3 tentativas (nes3-resume.json,
+       nes3-resume-2.json, nes3-resume-3.json);
+     · exit → 409 mesma causa (nes3-exit.json, nes3-exit-2.json);
+     · "Atualizar" no Launcher (tecla real, ok|button|Atualizar) não destravou: o rodapé
+       continuou sem item selecionado (selected=None) e o /model manteve todas as
+       capacidades indisponíveis com "Selecione um jogo com uma sessão observável.";
+     · rota /journey/event action exit → JOURNEY-ROUTE-CONNECTION-INVALID (contrato).
+   Cadeia de processos observada (ps): o SIGSTOP da pausa atingiu a ÁRVORE do flatpak —
+   bwrap externo (1419274) em T<s, bwrap interno (1419294) em T< e retroarch (1419302) em T.
+   Consequências medidas:
+     · kill -TERM em retroarch (17:58:57) não encerrou nada: o processo ficou vivo;
+     · kill -KILL (18:00:00) deixou [retroarch] <defunct> Z, pai bwrap parado, sem reap;
+     · o saveState "recusado" FOI ESCRITO quando o processo foi continuado manualmente:
+       states/Mesen/Batman…state1{,.png} com mtime 17:58:21 — ver D-26;
+     · kill -CONT no bwrap interno (18:01:08): bwrap virou Z, sessão ainda suspended;
+     · kill -CONT no bwrap externo (18:02:06): o launcher reaps, closing→closed em <4 s,
+       nenhuma janela e nenhum processo retroarch restantes.
+   Recuperação, portanto, EXIUG de intervenção manual fora do produto (D-23).
+
+Cobertura por sistema: 4 núcleos lançados com saída real na tela (Genesis Plus GX, Mesen,
+mGBA, Fuse) + 1 título NES/Mesen com lançamento recusado e sem diagnóstico.
+Núcleos não testados nesta jornada: os demais 22 adapters publicados.

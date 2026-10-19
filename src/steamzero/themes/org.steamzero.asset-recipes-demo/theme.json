@@ -295,7 +295,7 @@
       "saveGallery": { "kind": "saveGallery", "source": "saves.slots", "maxItems": 4 },
       "quickOsd": {
         "kind": "osd",
-        "items": ["volume", "mute", "pause", "saveState"],
+        "items": ["mute", "pause", "saveState", "swapDisc"],
         "progress": { "binding": "osd.volume", "fallback": 0 }
       },
       "errorBanner": { "kind": "errorBanner" },

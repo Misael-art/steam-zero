@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-MULTIDRIVE-UX",
+  "title": "Multidisco por unidade com seleção no tema",
+  "domain": "emulation",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/MULTIDISCO.md"
+  ],
+  "dependsOn": [
+    "SZ-EXPERIENCE-COMPOSITION",
+    "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
+    "SZ-MULTIDISC-SESSION-DISC-IDENTITY"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Representar conjunto, mídia e drive com identidade preservada após conversão.",
+    "Provar troca no drive correto em PS1, PX68k e PUAE, com tratamento de envio não confirmado.",
+    "Selecionar por controle no submenu e em superfície de bezel suportada, preservando jogo e outras unidades."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C2: ampliar contrato de sessão com drive e observabilidade; provar seleção explícita antes de detecção automática de pedido do jogo.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}

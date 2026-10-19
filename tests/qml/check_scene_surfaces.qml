@@ -28,7 +28,7 @@ Item {
                 },
                 "osd": {
                     "kind": "osd",
-                    "items": ["volume", "pause"],
+                    "items": ["mute", "pause"],
                     "progress": 0.4,
                     "criticalVisible": false
                 },

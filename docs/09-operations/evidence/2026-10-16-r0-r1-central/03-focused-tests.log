@@ -1,0 +1,20 @@
+..................................................................F..    [100%]
+=================================== FAILURES ===================================
+________________ test_switch_area_excludes_other_platform_games ________________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-tgphgvbp/tmp/pytest-of-misael/pytest-0/test_switch_area_excludes_othe0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5e04fdd4e0>
+
+>   ???
+E   AssertionError: assert [{'id': 'nes-...'ready', ...}] == [{'id': 'nes-...'ready', ...}]
+E     
+E     At index 0 diff: {'id': 'nes-1', 'titleId': 'title-nes-1', 'name': 'Jogo NES', 'state': 'ready', 'statusLabel': 'Pronto', 'path': '/owned/nes-1.rom', 'platform': 'nes-famicom', 'platformId': 'nes-famicom', 'emulatorId': None, 'playAction': {'id': 'game.launch:nes-1', 'label': 'Jogar', 'enabled': False, 'reason': 'arquivo do jogo mudou ou não está acessível', 'requiresConfirmation': False}, 'launchReadiness': {'state': 'blocked', 'emulator': 'unverified', 'reason': 'arquivo do jogo mudou ou não está acessível'}} != {'id': 'nes-1', 'titleId': 'title-nes-1', 'name': 'Jogo ...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show
+
+/mnt/sdcard/Projects/Port_Steam/tests/integration/test_emulation_platform_scope.py:89: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_emulation_platform_scope.py::test_switch_area_excludes_other_platform_games
+1 failed, 68 passed, 61 deselected in 12.34s
+real-state before: exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430271978 max_mtime_ns=1792197121902382512 source=HOME-default

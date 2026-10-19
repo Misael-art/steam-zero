@@ -160,7 +160,7 @@ Window {
                     },
                     "osd": {
                         "slot": "osd", "kind": "osd", "entries": [],
-                        "items": ["volume", "mute", "pause", "saveState"],
+                        "items": ["mute", "pause", "saveState", "swapDisc"],
                         "progress": 0.4, "criticalVisible": false, "success": false
                     }
                 },

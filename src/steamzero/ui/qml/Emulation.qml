@@ -517,6 +517,17 @@ Item {
         return scopeId() === "game" && selectedArea.id === "overview"
     }
 
+    function selectEmulator(index) {
+        emulatorIndex = normalizedIndex(index, emulators)
+        const emulator = selectedEmulator
+        const actions = emulator.actions || []
+        const preference = actions.find(function(action) {
+            return action.id === "game.emulator.default" && action.enabled === true
+        })
+        if (preference)
+            page.actionRequested(preference)
+    }
+
     function selectScope(index, invoker) {
         scopeIndex = normalizedIndex(index, scopes)
         if (scopeId() === "game" || scopeId() === "emulator")
@@ -890,13 +901,8 @@ Item {
     }
 
     function defaultCards(id) {
-        if (id === "keysFirmware") {
-            return [
-                {"title": qsTr("Keys de produção"), "icon": "document-encrypt", "state": "unknown", "status": qsTr("Não verificadas"), "detail": qsTr("Importação local, validação de formato e vínculo por versão."), "metric": "—"},
-                {"title": qsTr("Firmware instalado"), "icon": "media-flash", "state": "unknown", "status": qsTr("Não verificado"), "detail": qsTr("Versão, origem local e integridade sem expor conteúdo sensível."), "metric": "—"},
-                {"title": qsTr("Compatibilidade do jogo"), "icon": "dialog-ok-apply", "state": "unknown", "status": qsTr("Selecione um jogo"), "detail": qsTr("Cruza Title ID com as versões mínimas de keys e firmware."), "metric": qsTr("Pré-execução")}
-            ]
-        }
+        if (id === "keysFirmware")
+            return requirementCards()
         if (id === "updatesDlc") {
             return [
                 {"title": qsTr("Update ativo"), "icon": "system-software-update", "state": "unknown", "status": qsTr("Nenhum jogo selecionado"), "detail": qsTr("Instale, alterne e reverta patches fornecidos pelo usuário."), "metric": "—"},
@@ -1184,15 +1190,34 @@ Item {
         return result
     }
 
+    function requirementCards() {
+        const requirements = selectedPlatform.requirements || {}
+        const titles = {"keys": qsTr("Keys"), "firmware": qsTr("Firmware"), "bios": qsTr("BIOS")}
+        const icons = {"keys": "document-encrypt", "firmware": "media-flash", "bios": "media-flash"}
+        const labels = {"ok": qsTr("Verificado"), "missing": qsTr("Ausente"),
+            "unverified": qsTr("Não verificado"), "unknown": qsTr("Não verificado")}
+        return Object.keys(requirements).filter(function(kind) {
+            return titles[kind] !== undefined && requirements[kind]
+                && requirements[kind].status !== "not-required"
+        }).map(function(kind) {
+            const requirement = requirements[kind]
+            const published = areaCard("keysFirmware", kind) || {}
+            const status = String(requirement.status || "unverified")
+            const state = status === "ok" ? "ready" : status === "missing" ? "missing"
+                : status === "unverified" || status === "unknown" ? "unverified" : "attention"
+            const action = requirement.action || published.action
+            return {
+                "id": kind, "title": titles[kind], "icon": icons[kind], "state": state,
+                "statusLabel": status === "unverified" || status === "unknown"
+                    ? labels[status] : published.statusLabel || labels[status] || status,
+                "detail": requirement.detail || published.detail || qsTr("Verificação pendente"),
+                "installed": requirement.installed, "required": requirement.required,
+                "actions": action ? [action] : []
+            }
+        })
+    }
+
     function overviewCards() {
-        const publishedKeys = areaCard("keysFirmware", "keys") || ({
-            "state": "unknown", "statusLabel": qsTr("Não verificadas"),
-            "detail": qsTr("Importe suas keys para validar a plataforma.")
-        })
-        const publishedFirmware = areaCard("keysFirmware", "firmware") || ({
-            "state": "unknown", "statusLabel": qsTr("Não verificado"),
-            "detail": qsTr("Importe seu firmware para validar a plataforma.")
-        })
         const publishedLibrary = areaCard("overview", "library")
             || areaCard("overview", "games") || ({
                 "state": games.length > 0 ? "ready" : "attention",
@@ -1217,27 +1242,9 @@ Item {
                 : primary.source === "precedence"
                     ? qsTr("Escolhido automaticamente pela precedência dos emuladores instalados.")
                     : qsTr("Instale um emulador ou defina uma preferência para o Play.")
-        return [
-            {
-                "id": "health-keys", "title": qsTr("Keys"),
-                "icon": "document-encrypt", "state": publishedKeys.state,
-                "statusLabel": publishedKeys.statusLabel || publishedKeys.status,
-                "detail": publishedKeys.detail,
-                "actions": publishedKeys.action ? [publishedKeys.action] : [{
-                    "label": qsTr("Gerenciar Keys"), "targetArea": "keysFirmware",
-                    "enabled": true
-                }]
-            },
-            {
-                "id": "health-firmware", "title": qsTr("Firmware"),
-                "icon": "media-flash", "state": publishedFirmware.state,
-                "statusLabel": publishedFirmware.statusLabel || publishedFirmware.status,
-                "detail": publishedFirmware.detail,
-                "actions": publishedFirmware.action ? [publishedFirmware.action] : [{
-                    "label": qsTr("Gerenciar firmware"), "targetArea": "keysFirmware",
-                    "enabled": true
-                }]
-            },
+        return requirementCards().map(function(card) {
+            return Object.assign({}, card, {"id": "health-" + card.id})
+        }).concat([
             {
                 "id": "health-library", "title": qsTr("Biblioteca e ROMs"),
                 "icon": "folder-games", "state": publishedLibrary.state,
@@ -1269,7 +1276,7 @@ Item {
                     "reason": emulators.length > 0 ? "" : qsTr("Nenhum emulador foi publicado.")
                 }]
             }
-        ]
+        ])
     }
 
     function cardActions(card) {
@@ -1772,10 +1779,7 @@ Item {
                     Layout.minimumHeight: 48
                     Accessible.name: qsTr("Selecionar emulador")
                     onActivated: {
-                        page.emulatorIndex = currentIndex
-                        const emulator = page.emulators[currentIndex]
-                        if (emulator && emulator.id !== page.selectedPlatform.defaultEmulatorId)
-                            page.actionRequested({"id": "game.emulator.default", "label": qsTr("Definir como padrão da plataforma"), "enabled": true, "emulatorId": emulator.id})
+                        page.selectEmulator(currentIndex)
                     }
                 }
 
@@ -3188,10 +3192,7 @@ Item {
                                 Layout.minimumHeight: 48
                                 Accessible.name: qsTr("Selecionar emulador")
                                 onActivated: {
-                                    page.emulatorIndex = currentIndex
-                                    const emulator = page.emulators[currentIndex]
-                                    if (emulator && emulator.id !== page.selectedPlatform.defaultEmulatorId)
-                                        page.actionRequested({"id": "game.emulator.default", "label": qsTr("Definir como padrão da plataforma"), "enabled": true, "emulatorId": emulator.id})
+                                    page.selectEmulator(currentIndex)
                                 }
                             }
                             SteamComboBox {
@@ -3720,6 +3721,9 @@ Item {
                                             height: 24
                                         }
                                         Label {
+                                            objectName: "emulation.emulator." + emulatorRow.modelData.id + ".keys"
+                                            visible: Boolean(emulatorRow.modelData.health)
+                                                && emulatorRow.modelData.health.keysReady !== undefined
                                             text: emulatorRow.modelData.health
                                                 && emulatorRow.modelData.health.keysReady
                                                 ? qsTr("Keys verificadas") : qsTr("Keys pendentes")

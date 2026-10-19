@@ -1,0 +1,518 @@
+{
+  "items": [
+    "SZ-EMULATION-PLATFORM-CONTEXT",
+    "SZ-AGG-CORE",
+    "SZ-AGG-TOOLS",
+    "SZ-AGG-ADAPTERS",
+    "SZ-AGG-DOMAIN",
+    "SZ-AGG-SCHEMAS",
+    "SZ-AGG-TESTS",
+    "SZ-AURA-PLATFORM-EXECUTION-PLAN",
+    "SZ-AURA-CINEMA-COMPLETION",
+    "SZ-AURA-SESSION-OSD",
+    "SZ-EMULATION-PLATFORM-SCOPE",
+    "SZ-EMULATION-RUNTIME-REMEDIATION",
+    "SZ-EMULATION-STORAGE-MANAGEMENT",
+    "SZ-EMULATION-STORAGE-PLATFORM-SCOPE",
+    "SZ-EMULATION-STORAGE-READMODEL",
+    "SZ-EMULATION-ENHANCEMENTS",
+    "SZ-EMULATION-HIGH-END-RUNTIME-READINESS",
+    "SZ-MAIN-WORKTREE-RECONCILIATION",
+    "SZ-MEDIA-AUDIT-PLATFORM-SCOPE",
+    "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE",
+    "SZ-MEDIA-PROVIDER-PLATFORM-FILTER",
+    "SZ-MULTIDISC-MATERIALIZATION-INGESTION",
+    "SZ-PLATFORM-CORE-PER-SYSTEM",
+    "SZ-PLATFORM-REQUIREMENT-SCOPE",
+    "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD",
+    "SZ-LIBRARY-CANONICAL",
+    "SZ-THEME-ENGINE",
+    "SZ-UI-DESKTOP-AUDIT",
+    "SZ-AURA-LAUNCHER"
+  ],
+  "scopeOnly": true,
+  "axesPromoted": false,
+  "authorization": "Execução centralizada serial pelo proprietário; reconciliação dos metadados afetados pelo mesmo lote. Registro retrospectivo dos updates de digest, preservando cinco eixos e claims funcionais.",
+  "records": [
+    {
+      "item": "SZ-EMULATION-PLATFORM-CONTEXT",
+      "path": "docs/status/items/emulation-platform-context.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "9728a20a766647c30901a6897838be35ea21eac76814db45d333229de03bdd4b",
+      "afterDigest": "9a457a2a46d4c40bd04fab19ac0d7af34c7531bd8e1027a95ff65abde1ddedb6",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-AGG-CORE",
+      "path": "docs/status/items/aggregate-core.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "2884a16536dea841720659d1ea743c21188be183584588f00e9c891f0c6801ca",
+      "afterDigest": "c09332bded0ac077a1743d2d69686a37cf49cc675c47d0b691bfc6db688a09fa",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AGG-TOOLS",
+      "path": "docs/status/items/aggregate-tools.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "23293b9f1feb99a280de2a19e076037d9725e736a5942f11da9790b88967d9a9",
+      "afterDigest": "92eeaa9e14fb0ad9d53b609715ce1c8f7b48ace7edcd3541159da82689506cf9",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AGG-ADAPTERS",
+      "path": "docs/status/items/aggregate-adapters.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "95b6ef8c9503650633b1fb40ffde34c044a9170fc353b30df2ccd5fbf8463993",
+      "afterDigest": "3caff42d5758cc568724e1e95cda92a4d1032d1fa3a9d5ec0b48330642b09040",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AGG-DOMAIN",
+      "path": "docs/status/items/aggregate-domain.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "a2964148cb52d91689c7870202ac227065e50cfe29e7b5aece0368f05450d87d",
+      "afterDigest": "0cd7f618b79e45638390422b415d603a0ec9d75299182dd3e70d192c60ee65ff",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AGG-SCHEMAS",
+      "path": "docs/status/items/aggregate-schemas.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "4696fe726a668b22103dfb600c567889294cd95c8c21bb95a1be597010e8e15d",
+      "afterDigest": "2df5557f175651c4b6c07f49fec2e4aa21ee85b1d40d4e22381a9096e1a04740",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AGG-TESTS",
+      "path": "docs/status/items/aggregate-tests.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "2928f86f5bf566ff419d9748a6f44bd5e7cff08d38fe7cfbea244f844bf808ab",
+      "afterDigest": "14e62e97ebf5df914b41ee3b96a1aa929552f77180e91d9358a3b3d3e004be49",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AURA-PLATFORM-EXECUTION-PLAN",
+      "path": "docs/status/items/aura-platform-execution-plan.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "f5c89002fdcea18bc010fbedcf396f5e1aab293d05468f9657c5ba98437a8c69",
+      "afterDigest": "aeea1412aaf1ae55b15721c3d93ff99d425e585cfbf1da856c41b4bbb47880df",
+      "axesUnchanged": {
+        "implementation": "planned",
+        "integration": "isolated",
+        "verification": "none",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-AURA-CINEMA-COMPLETION",
+      "path": "docs/status/items/aura-cinema-completion.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "2b5cd0eca6000c306942a07dfc3d2d4fae0df4bf2f9e5aa1306aeaa7d4539279",
+      "afterDigest": "07bdb1ee8c4f11dafcceb33e200481fbfe69441d1f33fee6aeb3f17a9174e5a2",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-AURA-SESSION-OSD",
+      "path": "docs/status/items/aura-session-osd.json",
+      "originClaims": [
+        "WS-2026-10-JOURNEY-LAUNCHER-SESSION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "331814381c0e87abe74d5a1a4a52789bfbd35e3089c86f25da87eace5e5c7b2e",
+      "afterDigest": "da854eb2c65b0c058d353fe7b31250dab89350acda973cb5583e996eef7385fb",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-PLATFORM-SCOPE",
+      "path": "docs/status/items/emulation-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "457e2961068459e34df6f5b7d353f771a18f282e53182e9968debb0a26aa5e23",
+      "afterDigest": "73e2f7f53ef1d267cc1f63ded38bae55b14dd755d7a4c552cee918f2bc3587bc",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-RUNTIME-REMEDIATION",
+      "path": "docs/status/items/emulation-runtime-remediation-2026-09-20.json",
+      "originClaims": [
+        "WS-2026-09-EMULATION-RUNTIME-REMEDIATION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "5e981ce00e95e938b86fdf5f2c36d5a02a2cc08966eaa968440ecbc8c5b1a890",
+      "afterDigest": "38ee16cb88777fbb556faaa544ffdce7456df426d3b336c03dbd41d69c518cda",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-STORAGE-MANAGEMENT",
+      "path": "docs/status/items/emulation-storage-management.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "e799ef51b33367b579bf2d53ddeb4451ae40603d911229493a8c7d355a199836",
+      "afterDigest": "f1ec7bbf2442338671792433fff942bcb6ac175e9566e26d7c191dbb843ca627",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-STORAGE-PLATFORM-SCOPE",
+      "path": "docs/status/items/emulation-storage-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "c451840d705258fdc93b597dbcd9c9404ee56fd66e393cb246af4e4706819762",
+      "afterDigest": "b7341c68a59b5178b08568d51107828e17bdc14b7260b9e9ec7353b8265ed46d",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-STORAGE-READMODEL",
+      "path": "docs/status/items/emulation-storage-readmodel.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "acab6aeb637912dda6f13923e0d1be17c23320fbad69a40069731bb99925a432",
+      "afterDigest": "11d69a0229a484a59ffd9fbf8ec3e91d3651324ede805c587bf35ff072b6e2cd",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-ENHANCEMENTS",
+      "path": "docs/status/items/emulator-enhancements.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "962bbc0830527dba01a83aec26cc43a319d53ba0754933bbcf354ff71c3c1e5c",
+      "afterDigest": "84db160736ba24635bdba2f6d17d2390e5d704163ab3a39d077842048f05da52",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-EMULATION-HIGH-END-RUNTIME-READINESS",
+      "path": "docs/status/items/high-end-runtime-readiness-2026-09-20.json",
+      "originClaims": [
+        "WS-2026-09-HIGH-END-RUNTIME-READINESS"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "c61957473599d53fb944d9a380f1d0c339d857fb8edd9a1c3f5c9b53b16d76aa",
+      "afterDigest": "04908d576da2df0743d0a38d599e3aba92c8e6447c0a67458ee870aa03a4658f",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-MAIN-WORKTREE-RECONCILIATION",
+      "path": "docs/status/items/main-reconciliation-2026-09-26.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "48121b43fa75b82841819bfd2f62bf885016d711daa58c7cd956ff9b9874d257",
+      "afterDigest": "c76dcc603ed36282089a166850f7004a7f965b52316e1aee11de4d4567819d69",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "dev",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MEDIA-AUDIT-PLATFORM-SCOPE",
+      "path": "docs/status/items/media-audit-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "6866e0612e90eded4816cae83c106c8fe1efc44c35821580d2420a5ab5694ff0",
+      "afterDigest": "de594e395880c1061276ed977ef2d43f0446062af908151dbe500374405ba50d",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE",
+      "path": "docs/status/items/media-pipeline-platform-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "524fbbef7430dd57337d41454f00b6e0b7c2ad99049e77c6a14dfec79182ae19",
+      "afterDigest": "77e9026507c44b588fb7f42f5ba45f6494371a1b8862be05e7d9ede391a24a93",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-MEDIA-PROVIDER-PLATFORM-FILTER",
+      "path": "docs/status/items/media-provider-platform-filter.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "9fffa3f4d52a7054706777fac95b96c729f0dcbdcf4c2794b19005d6d9e0ad07",
+      "afterDigest": "1c3659556e5418298d5e1efd770e78ccf51c2f5da756def9177b9907f3e3d3d7",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "unit",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-MULTIDISC-MATERIALIZATION-INGESTION",
+      "path": "docs/status/items/multidisc-materialization-ingestion-2026-09-20.json",
+      "originClaims": [
+        "WS-2026-09-MULTIDISC-MATERIALIZATION-INGESTION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "505e47723cbd246429a10706e0ac1d6e4a34c62a8aa209938e2c9308d3f6cce3",
+      "afterDigest": "c79e505dce672a6a57290f08613dcae05ee77dde8f5721ac1264f73c070764e2",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-PLATFORM-CORE-PER-SYSTEM",
+      "path": "docs/status/items/platform-core-per-system.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "7208e64be1b6def27b5a55538ec5698a3bd10ad704a42be1a283b704eb56ee49",
+      "afterDigest": "eb8ebab7845b43aca0753815f36fd93b516b33a40cce5a8f41c9468191afab57",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-PLATFORM-REQUIREMENT-SCOPE",
+      "path": "docs/status/items/platform-requirement-scope.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "5be90e138ccc0a2bb4495c263c401b70059a91294a029e5b5cc8b251b2a62288",
+      "afterDigest": "becd8ff5c59021762d3dd3f034e7ab2de7f6b82bcfe7da3b2276c5b18d7892c4",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD",
+      "path": "docs/status/items/ps3-official-firmware-download.json",
+      "originClaims": [],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "7b5d552a03012065b95d91b36762695e67f00e7349e4c8480c50b00cd1b554b4",
+      "afterDigest": "edbca43248569f995c2039f778b2db48153164bfb647dd1687841467bf488950",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-LIBRARY-CANONICAL",
+      "path": "docs/status/items/library-canonical.json",
+      "originClaims": [
+        "WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "0a5479577c6e0ee86125c399fa732eb3abd27163c315a5e27317a20d2a3994d3",
+      "afterDigest": "4b3f176cc8f88e8f15bfcfd7a2090090efc2b7916e99892670740009ce557289",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-THEME-ENGINE",
+      "path": "docs/status/items/theme-engine.json",
+      "originClaims": [
+        "WS-2026-10-JOURNEY-LAUNCHER-SESSION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "6421df1725edb619406fbaf20a0dbd6a293272d271c55c878d5c448368095d74",
+      "afterDigest": "9931b6c89eae45d03a6bf6dc772249b2ae5970151b6699aa4d3c96c2c0d679ef",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-UI-DESKTOP-AUDIT",
+      "path": "docs/status/items/ui-desktop-audit.json",
+      "originClaims": [
+        "WS-2026-10-JOURNEY-PLATFORM-PROJECTION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "222b5ae3251734229e71ce94204ded200cc1cfc816fbb06c2ae193a1ddd5fb86",
+      "afterDigest": "0df11ee6bc20d95df36a596208c956303797d169fabc83ba11f051d2bae88716",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "dev",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-AURA-LAUNCHER",
+      "path": "docs/status/items/aura-launcher.json",
+      "originClaims": [
+        "WS-2026-10-JOURNEY-PLATFORM-PROJECTION"
+      ],
+      "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+      "scope": "somente digest/evidência de reconciliação/data; sem cessão de implementação ou aceite dos demais critérios",
+      "beforeDigest": "feb2a642c9ec56c7d16849aae8fb2965afc30413ef9282155568b9f1878c7a3a",
+      "afterDigest": "c82686613d17528c788351ed1eb2a608be903eeba6a1f87c8930a7630b79b940",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "isolated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    }
+  ]
+}

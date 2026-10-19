@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-EXPERIENCE-SAVES-REPLAY",
+  "title": "Saves e replay em composições livres com retenção explícita",
+  "domain": "emulation",
+  "implementation": "planned",
+  "integration": "isolated",
+  "verification": "none",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "docs/recovery/2026-10-16/CAPACIDADES-COMPONIVEIS.md",
+    "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md"
+  ],
+  "dependsOn": [
+    "SZ-EXPERIENCE-COMPOSITION",
+    "SZ-AURA-SAVE-STATE-GALLERY"
+  ],
+  "knownGaps": [],
+  "acceptanceCriteria": [
+    "Separar save normal, backup, save-state, rewind, clipe e replay determinístico no contrato.",
+    "Provar galeria autorada, compatibilidade e restauração preservadora de dados.",
+    "Demonstrar que fade visual não apaga dados; retenção e replay têm subentregas e provas próprias."
+  ],
+  "evidence": [
+    {
+      "kind": "design",
+      "reference": "docs/recovery/2026-10-16/ESTADO-E-EXECUCAO.md",
+      "command": "Segunda orientação do proprietário em 2026-10-16: backlog de jornada/integração. Componentes existentes permanecem nos itens dependsOn; esta linha não promove runtime.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "C3: reaproveitar galeria/miniaturas para duas composições e fechar retenção explícita; clipes e replay de inputs vêm em slices separados.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-16",
+  "notes": "Item de jornada a implementar. Scope documental define o contrato inicial; o agente executor deve registrar código/testes/evidências e workstream antes de implementar. planned não nega os componentes parciais existentes, explicitados na matriz de estado. Nenhuma prova de hardware nova."
+}

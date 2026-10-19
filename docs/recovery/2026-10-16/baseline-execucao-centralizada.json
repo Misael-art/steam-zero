@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-16",
+  "sourceCommit": "431348c0ff595587d621cb91dc2aacbe35100140",
+  "canonicalCheckout": "/home/misael/Projects/Steam Zero/Canonical/2026-09-21",
+  "registeredWorktrees": "worktree /home/misael/Projects/Steam Zero/Canonical/2026-09-21\nHEAD 431348c0ff595587d621cb91dc2aacbe35100140\nbranch refs/heads/codex/product-recovery-2026-10-16\n\n",
+  "statusBeforeDocumentEdits": "clean",
+  "activeWorkstreamCountBeforeDocumentEdits": 16,
+  "activeWorkstreamIdsBeforeDocumentEdits": [
+    "WS-2026-09-EMULATION-REAL-DUMP-VALIDATION",
+    "WS-2026-09-EMULATION-RUNTIME-REMEDIATION",
+    "WS-2026-09-HIGH-END-RUNTIME-READINESS",
+    "WS-2026-09-MULTIDISC-MATERIALIZATION-INGESTION",
+    "WS-2026-09-AURA-LAUNCHER-EXIT",
+    "WS-2026-10-DIAGNOSTICO-JORNADAS-UX",
+    "WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT",
+    "WS-2026-10-RETROARCH-FLATPAK-PRESERVATION",
+    "WS-2026-10-R05-COMPONENT-OPERATION-TRACE",
+    "WS-2026-10-STUDIO-DRAFT-HISTORY",
+    "WS-2026-10-R06-HOME-COUNT-UNIVERSE",
+    "WS-2026-10-JORNADA-FISICA-BATERIA",
+    "WS-2026-10-JOURNEY-COMPLETE-TEMPLATE",
+    "WS-2026-10-JOURNEY-PLATFORM-PROJECTION",
+    "WS-2026-10-JOURNEY-LAUNCHER-SESSION",
+    "WS-2026-10-LOTE-COESAO-UI"
+  ],
+  "limitations": [
+    "Somente worktrees registrados neste repositório; não é um censo de clones soltos no disco.",
+    "Registro active não comprova agente executando.",
+    "Nenhum claim antigo transferido ou encerrado nesta entrega do prompt.",
+    "Nenhum fetch remoto, push, instalação ou teste físico nesta atualização documental."
+  ],
+  "releaseGateObserved": {
+    "source": "tools/release_host.py::prepare/load_bundle",
+    "requirements": [
+      "HEAD igual ao tip de origin/main",
+      "árvore limpa",
+      "CI verde e artefato correspondente",
+      "proveniência, hashes e rollback verificados"
+    ]
+  }
+}

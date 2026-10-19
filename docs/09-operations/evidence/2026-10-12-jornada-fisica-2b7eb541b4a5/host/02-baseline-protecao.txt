@@ -1,0 +1,36 @@
+== bundle recém-preparado (run 38125415210) ==
+20d5187c9f195f321ab55c8080e101f0a9cef69ddfdca5598de14fd6581a0feb  /home/misael/.local/state/steamzero/release-candidates/main-2b7eb541b4a54f0930927a2b0f92cb45776ae4c7/dist/steamzero-2.0.0rc1-py3-none-any.whl
+{
+  "preparedAt": "2026-10-12T15:39:47-0300",
+  "release": "2.0.0rc1-2b7eb541b4a5",
+  "repository": "Misael-art/SteamZero",
+  "runId": "38125415210",
+  "runUrl": "https://github.com/Misael-art/steam-zero/actions/runs/38125415210",
+  "schemaVersion": 1,
+  "sourceCommit": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
+  "sourceRef": "refs/heads/main"
+}
+-- SHA256SUMS do bundle (verificação) --
+sha256sum: SHA256SUMS: Arquivo ou diretório inexistente
+== releases do host ==
+/opt/steamzero/current 2026-10-11 06:06:19.472704765 -0300 link simbólico
+-- 2.0.0rc1-2b7eb541b4a5
+d78fb2be88e612d3f51fc9198f9f3bd0c44d4bf2fe7b7044b263461198a336ae  /opt/steamzero/releases/2.0.0rc1-2b7eb541b4a5/manifest.json
+-- 2.0.0rc1-003a8c5a6d84
+837672f36009a9b0ef2cff365b5c9cbb996950cf9c513fb6a88c915a0b24be29  /opt/steamzero/releases/2.0.0rc1-003a8c5a6d84/manifest.json
+-- 2.0.0rc1-55295f2c0841
+b644afb935d84e79032cfa9342a4cad12edab8dc5cbab15e0fac01f56d34df9e  /opt/steamzero/releases/2.0.0rc1-55295f2c0841/manifest.json
+== estado do host (baseline) ==
+15062
+1430184914
+== saves/states RetroArch (protegidos) ==
+9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/Mesen/Aladdin (Music Replacement + Button Fix + improvement).srm
+9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/Mesen/Astyanax (USA) (Translated PtBr).srm
+626796f70328820598c8f139f44c77a44a606bc53d87f257ae61ef3ae472a2e3  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/mGBA/2003 Lion King Advance 3 (The King Lion III 2003 Advance) (Unl) [Fixed].srm
+7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/mGBA/Metroid II - Return of Samus (World) (Translated PtBr).srm
+c7be917c33adf64c212f8e19c2b3f9bb1d085052ccb8883e0c70a39988da004e  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/Opera/opera/per_game/Yu Yu Hakusho (Japan).0.srm
+3423bbae8733a42797cf3ce043375c4e82bf375086f3f42caace32a91cd6157c  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/Snes9x/46 Okunen Monogatari - Harukanaru Eden e (Japan) (Translated En).srm
+f3ebe6eef8ded4c42107731efa3ae6ee7ed7c15aa5ee9742e36629ba1cb0c051  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/Snes9x/Chrono Trigger (USA).srm
+e7e2d3cbd2156641598278d14ecce7627871a2a569540879ddaed94acbfd3762  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/saves/Snes9x/Seiken Densetsu 3 (Japan) (Translated PtBr).srm
+3e2123645b66ff7375977fc332c53904c99aff3364179e39b9069331c61cebd5  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/states/Genesis Plus GX/1969 (Homebrew) (SMS).state1
+3a20beffdd6190fc4ca316a697ac2c54e8d1aa26bca8ab5831403a6ccc389471  /home/misael/.var/app/org.libretro.RetroArch/config/retroarch/states/Genesis Plus GX/1969 (Homebrew) (SMS).state1.png

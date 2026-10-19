@@ -1,0 +1,1 @@
+{"accepted": true, "gameId": "d550f55242a30cdc7297c005", "sessionId": "01M4RY948BBK9FN987Y2HMZY6Q", "operation": "exit", "state": "closing", "diagnostic": "AURA-SESSION-ADAPTER-006", "detail": "Pedido de encerramento enviado; aguardando o observer confirmar closed.", "confirmed": false, "requestId": "evidence-nes2-exit-001"}

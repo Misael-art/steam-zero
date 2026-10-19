@@ -1,0 +1,45 @@
+# .venv/bin/python tools/run_tests_isolated.py tests/unit/test_project_status.py -q — pos-renovacao, 2026-10-15T12:59:12-03:00
+F............                                                            [100%]
+=================================== FAILURES ===================================
+__________ test_committed_catalog_and_generated_views_are_consistent ___________
+
+    def test_committed_catalog_and_generated_views_are_consistent() -> None:
+>       assert project_status.check_catalog() == []
+E       AssertionError: assert ['docs/status...nder --write'] == []
+E         
+E         Left contains one more item: 'docs/status/COVERAGE.md esta desatualizado; execute tools/project_status.py render --write'
+E         Use -v to get more diff
+
+tests/unit/test_project_status.py:15: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent
+1 failed, 12 passed in 6.29s
+real-state before: exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+real-state after:  exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+exit=1
+
+# ── Rerun apos ciclos de render+check (estabilizacao), 2026-10-15T13:02:54-03:00
+# Contexto da falha acima: logo apos a falha, `tools/project_status.py check`
+# individual (via PYTHONPATH=tools, check_catalog) tambem reportou exatamente
+# o erro 'docs/status/COVERAGE.md esta desatualizado'. A partir deste ponto,
+# executei 3 ciclos consecutivos de `render --write` seguido de `check` e os
+# tres deram STATUS-CHECK: OK sem nenhuma edicao entre os passos. Em seguida,
+# esta corrida isolada focada passou. Nao atribui a causa raiz com seguranca
+# (nao confirmei a nao-determinismo entre processos); a hipotese mais
+# provavel e janela de desatualizacao entre edicoes nos JSONs de itens
+# (feitas durante a renovacao de digests e a reescrita da evidencia deste
+# item) e o ultimo `render --write` anterior. Regeneracao + validacao
+# consecutivas, sem edicao no meio, fecharam o estado consistente.
+.venv/bin/python tools/run_tests_isolated.py tests/unit/test_project_status.py -q
+.............                                                            [100%]
+13 passed in 6.76s
+real-state before: exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+real-state after:  exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+exit=0
+
+# ── Corrida final apos o apens ao WORKLOG (estado documental completo pre-commit), 2026-10-15T13:06-13:07-03:00
+.............                                                            [100%]
+13 passed in 7.23s
+real-state before: exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+real-state after:  exists=True files=12949 directories=2115 bytes=1431075715 max_mtime_ns=1791838929487310260 source=HOME-default
+EXIT=0

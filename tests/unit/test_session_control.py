@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
+import json
 import os
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -13,6 +15,7 @@ from typing import Any, cast
 
 import pytest
 
+from steamzero.adapters import session_control
 from steamzero.adapters.launcher_session import observe_game_session
 from steamzero.adapters.session_control import (
     SessionControlOwner,
@@ -21,6 +24,9 @@ from steamzero.adapters.session_control import (
     resolve_remote_session_control,
 )
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
+from steamzero.adapters.session_peripherals import SessionPeripheralControl
+from steamzero.core import paths
+from steamzero.core.errors import SteamZeroError
 from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
 
@@ -386,3 +392,445 @@ def _signal_test_child(
     assert pid == child.pid
     observed.append((pid, signum))
     os.killpg(pid, signum)
+
+
+def _owner_and_server(
+    tmp_path: Path,
+    *,
+    signals: list[tuple[int, int]],
+    peripheral_control: SessionPeripheralControl | None = None,
+) -> tuple[SessionControlOwner, SessionControlServer, str, str]:
+    """Dono + canal reais, com os sinais gravados em `signals` em vez de enviados."""
+    database = tmp_path / "state.db"
+    session_id, game_id = _seed_session(database)
+    owner = SessionControlOwner(
+        session_id,
+        game_id,
+        os.getpid(),
+        _start_ticks(os.getpid()),
+        store_factory=lambda: StateStore(database),
+        read_start_ticks=_start_ticks,
+        read_process_group_identity=lambda pid: (pid, pid),
+        signal_process=lambda pid, signum: signals.append((pid, int(signum))),
+        peripheral_control=peripheral_control,
+    )
+    server = SessionControlServer(owner, control_path(session_id, root=tmp_path.parent))
+    server.start()
+    return owner, server, session_id, game_id
+
+
+def test_save_state_while_suspended_never_reaches_the_control_channel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """D-23: um pedido entregue a uma árvore parada executa depois, contra a recusa publicada."""
+    signals: list[tuple[int, int]] = []
+    connections: list[str] = []
+
+    class SpySocket(socket.socket):
+        """O socket do stdlib usa __slots__; o connect só pode ser observado por subclasse."""
+
+        def connect(self, address: str) -> None:
+            connections.append(address)
+            super().connect(address)
+
+    def spy(*args: Any, **kwargs: Any) -> socket.socket:
+        # `accept()` reconecta a conexão aceita via socket(family, type, proto, fileno=…).
+        return SpySocket(*args, **kwargs)
+
+    monkeypatch.setattr(session_control.socket, "socket", spy)
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    try:
+        database = tmp_path / "state.db"
+        remote = resolve_remote_session_control(
+            session_id,
+            game_id,
+            observe=lambda sid: observe_game_session(database, sid),
+            root=tmp_path.parent,
+        )
+        assert remote is not None
+        connections.clear()  # o resolve/observe do caminho de subida não conta
+        remote.suspend()
+        # O espião precisa ter visto o connect real do pause; sem isso a asserção
+        # vazia abaixo seria satisfeita por um spy desligado.
+        assert connections == [str(control_path(session_id, root=tmp_path.parent))]
+        signals.clear()
+        connections.clear()
+
+        with pytest.raises(SteamZeroError) as refusal:
+            remote.save_state(1)
+
+        assert refusal.value.code == "E-SESSION-CHANNEL-SUSPENDED"
+        assert connections == []  # o socket do canal nunca foi aberto
+        assert signals == []  # nem um sinal escondido atrás do pedido
+    finally:
+        server.close()
+
+
+def test_resume_continues_the_group_the_pause_stopped(tmp_path: Path) -> None:
+    """C-4/D-23: retomar alcança a árvore inteira que a pausa parou — o grupo, não só o líder.
+
+    A causa afirmada pelo plano era falsa: o produto **já** sinaliza o grupo completo.
+    `signal_process` default é `os.killpg` (este arquivo), `_verify_process_identity`
+    exige que o pid gravado seja o líder `(pgid, sid)` — e o jogo é criado com
+    `start_new_session=True` (`adapters/emulation.py` `_spawn_detached`), então o
+    `flatpak run` e seus `bwrap` externo/interno e retroarch (todos `T` em `logs/11`
+    item 6) estão dentro do mesmo grupo que o `SIGSTOP` da pausa atingiu. O `resume`
+    refaz exatamente esse caminho: o mesmo grupo, agora com `SIGCONT`.
+    """
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    remote = resolve_remote_session_control(
+        session_id,
+        game_id,
+        observe=lambda sid: observe_game_session(tmp_path / "state.db", sid),
+        root=tmp_path.parent,
+    )
+    assert remote is not None
+    try:
+        remote.suspend()
+        stopped = list(signals)
+        # Não-vacuidade: a pausa sinalizou o grupo do líder gravado — o pid da
+        # sessão, verificado como `(pid, pid)` antes de qualquer sinal.
+        assert stopped == [(os.getpid(), int(signal.SIGSTOP))]
+        signals.clear()
+
+        remote.resume()
+
+        assert {pid for pid, _ in signals} == {pid for pid, _ in stopped}
+        assert all(int(sig) == signal.SIGCONT for _, sig in signals)
+    finally:
+        server.close()
+
+    # O caminho de produção sinaliza o **grupo**: sem injeção, o hook é `os.killpg`,
+    # e é isso que faz um único SIGCONT alcançar a árvore do flatpak inteira.
+    production_owner = SessionControlOwner(
+        session_id,
+        game_id,
+        os.getpid(),
+        _start_ticks(os.getpid()),
+        store_factory=lambda: StateStore(tmp_path / "state.db"),
+        read_start_ticks=_start_ticks,
+    )
+    assert production_owner._signal_process is os.killpg
+
+
+def test_resume_never_signals_a_recycled_or_stale_group_leader(tmp_path: Path) -> None:
+    """C-4/D-23: identidade re-verificada antes do sinal — pid reciclado ou grupo
+    que não é mais o do líder gravado nunca recebe `SIGCONT`.
+    """
+    database = tmp_path / "state.db"
+    session_id, game_id = _seed_session(database)
+    own_pid = os.getpid()
+    original_ticks = _start_ticks(own_pid)
+    ticks: dict[int, int | None] = {own_pid: original_ticks}
+    identities: dict[int, tuple[int, int] | None] = {own_pid: (own_pid, own_pid)}
+    signals: list[tuple[int, int]] = []
+    owner = SessionControlOwner(
+        session_id,
+        game_id,
+        own_pid,
+        original_ticks,
+        store_factory=lambda: StateStore(database),
+        read_start_ticks=lambda pid: ticks.get(pid),
+        read_process_group_identity=lambda pid: identities.get(pid),
+        signal_process=lambda pid, signum: signals.append((pid, int(signum))),
+    )
+
+    owner.suspend()
+    assert signals == [(own_pid, int(signal.SIGSTOP))]
+    signals.clear()
+
+    # Reuso de PID: o mesmo número passou a ser outro processo.
+    ticks[own_pid] = original_ticks + 1
+    with pytest.raises(RuntimeError, match="identidade"):
+        owner.resume()
+    assert signals == []  # nenhum sinal saiu
+    ticks[own_pid] = original_ticks
+
+    # O líder gravado saiu e `(pgid, sid)` deixou de ser o grupo que ele criou:
+    # sinalizá-lo atingiria processos de fora da sessão.
+    identities[own_pid] = (own_pid + 1, own_pid + 1)
+    with pytest.raises(RuntimeError, match="grupo"):
+        owner.resume()
+    assert signals == []
+
+    # Estado intacto: as recusas não moveram a sessão.
+    current = owner.current
+    assert current is not None and current.state == "suspended"
+
+
+def test_vanished_client_does_not_kill_the_control_channel(tmp_path: Path) -> None:
+    """C-4/D-23: um cliente que expira antes de ler a resposta não pode fechar o ouvinte.
+
+    É a causa medida do D-23, não a que o plano afirmou: o `sendall` da resposta vive
+    fora do `try` do `_serve`, então um `BrokenPipeError` num pipe fechado escapa do
+    laço, o `with server:` fecha o socket de escuta, o arquivo `.sock` sobrevive (só
+    `close()` o remove), `resolve_remote_session_control` continua achando o canal e
+    todo pedido vira `ECONNREFUSED` — o mesmo 409 de `logs/11:87-88` para sempre.
+    Servidor e clientes aqui são sockets reais sobre `tmp_path`: a propriedade é a
+    sobrevivência do ouvinte, e nenhuma falsificação de servidor a prova.
+    """
+
+    class _SlowPeripheral:
+        def list_peripherals(self) -> dict[str, object]:
+            # Um handler lento é o que faz o cliente de 1 s expirar numa sessão presa
+            # (ele conversa com o emulador parado); aqui só garante que o cliente
+            # desapareceu ANTES de o servidor escrever a resposta.
+            time.sleep(0.3)
+            return {"state": "ready"}
+
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=cast(Any, _SlowPeripheral())
+    )
+    endpoint = str(control_path(session_id, root=tmp_path.parent))
+    try:
+        vanished = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        vanished.connect(endpoint)
+        vanished.sendall(
+            json.dumps(
+                {"sessionId": session_id, "gameId": game_id, "action": "listPeripherals"}
+            ).encode("utf-8")
+            + b"\n"
+        )
+        vanished.close()  # saiu sem ler: o sendall da resposta vai estourar EPIPE
+        time.sleep(0.6)  # margem sobre o handler lento; o sendall já falhou
+
+        remote = resolve_remote_session_control(
+            session_id,
+            game_id,
+            observe=lambda sid: observe_game_session(tmp_path / "state.db", sid),
+            root=tmp_path.parent,
+        )
+        assert remote is not None
+        # Um cliente novo, no mesmo caminho de socket, ainda recebe resposta normal.
+        data = remote.list_peripherals()
+        assert data["state"] == "ready"
+    finally:
+        server.close()
+
+
+class _LateWriteControl:
+    """O emulador aceita o pedido e o processo morre antes da confirmação."""
+
+    def save_state(self, slot: int) -> None:
+        raise RuntimeError("o dono da sessão não respondeu")
+
+    def state_path(self, slot: int) -> Path:
+        return paths.saves_dir() / "states" / "Mesen" / f"Jogo de Teste.state{slot}"
+
+
+class _EphemeralCommandControl:
+    """Periférico falso que grava os comandos transitórios recebidos pelo dono."""
+
+    def __init__(self) -> None:
+        self.commands: list[str] = []
+
+    def toggle_mute(self) -> None:
+        self.commands.append("mute")
+
+    def take_screenshot(self) -> None:
+        self.commands.append("screenshot")
+
+    def toggle_fast_forward(self) -> None:
+        self.commands.append("fastForward")
+
+    def step_rewind(self) -> None:
+        self.commands.append("rewind")
+
+
+def test_ephemeral_commands_travel_the_channel_and_reach_the_peripheral(
+    tmp_path: Path,
+) -> None:
+    """D-28: cada ação publicada precisa de porta real no backend; aqui, o caminho completo."""
+    signals: list[tuple[int, int]] = []
+    peripheral = _EphemeralCommandControl()
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=cast(Any, peripheral)
+    )
+    remote = resolve_remote_session_control(
+        session_id,
+        game_id,
+        observe=lambda requested: observe_game_session(tmp_path / "state.db", requested),
+        root=tmp_path.parent,
+    )
+    assert remote is not None
+    try:
+        assert remote.toggle_mute().state == "running"
+        assert remote.take_screenshot().state == "running"
+        assert remote.toggle_fast_forward().state == "running"
+        assert remote.step_rewind().state == "running"
+    finally:
+        server.close()
+    assert peripheral.commands == ["mute", "screenshot", "fastForward", "rewind"]
+
+
+def test_ephemeral_command_while_suspended_never_reaches_the_control_channel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """D-23/D-28: o gate de sessão viva vale para os comandos novos — nada enfileirado."""
+    signals: list[tuple[int, int]] = []
+    connections: list[str] = []
+
+    class SpySocket(socket.socket):
+        def connect(self, address: str) -> None:
+            connections.append(address)
+            super().connect(address)
+
+    def spy(*args: Any, **kwargs: Any) -> socket.socket:
+        return SpySocket(*args, **kwargs)
+
+    monkeypatch.setattr(session_control.socket, "socket", spy)
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=cast(Any, _EphemeralCommandControl())
+    )
+    try:
+        database = tmp_path / "state.db"
+        remote = resolve_remote_session_control(
+            session_id,
+            game_id,
+            observe=lambda sid: observe_game_session(database, sid),
+            root=tmp_path.parent,
+        )
+        assert remote is not None
+        connections.clear()
+        remote.suspend()
+        assert connections == [str(control_path(session_id, root=tmp_path.parent))]
+        signals.clear()
+        connections.clear()
+
+        with pytest.raises(SteamZeroError) as refusal:
+            remote.toggle_mute()
+
+        assert refusal.value.code == "E-SESSION-CHANNEL-SUSPENDED"
+        assert connections == []
+        assert signals == []
+    finally:
+        server.close()
+
+
+def test_channel_refuses_an_action_without_a_backend_port(tmp_path: Path) -> None:
+    """Não-vacuidade da D-28: `volume` não tem porta; o canal recusa, não finge."""
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    try:
+        result = server._dispatch({"sessionId": session_id, "gameId": game_id, "action": "volume"})
+    finally:
+        server.close()
+    assert result["accepted"] is False
+    assert result["diagnostic"] == "AURA-SESSION-CONTROL-REQUEST-002"
+    assert "volume" not in session_control.ACCEPTED_ACTIONS
+
+
+def _refuse_save_state(
+    tmp_path: Path, slot: int, *, peripheral_control: SessionPeripheralControl | None = None
+) -> dict[str, Any]:
+    """Despacha um `saveState` pelo `_dispatch` do canal e devolve a recusa publicada."""
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=peripheral_control
+    )
+    try:
+        return server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": slot}
+        )
+    finally:
+        server.close()
+
+
+def test_refused_save_state_after_dispatch_declares_the_possible_file(tmp_path: Path) -> None:
+    """D-26: o `saveState` recusado dos logs/12 escreveu o slot 1 e o produto negou tudo."""
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(
+        tmp_path, signals=signals, peripheral_control=_LateWriteControl()
+    )
+    try:
+        result = server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": 1}
+        )
+    finally:
+        server.close()
+    assert result["accepted"] is False
+    assert set(result) >= {"diagnostic", "detail", "written"}
+    assert result["written"]["slot"] == 1
+    written_path = Path(result["written"]["path"])
+    # O destino vem do adapter (state_path); aqui se afirma a raiz gerenciada e a
+    # sufixação por slot, não um caminho montado pelo teste.
+    assert written_path.is_relative_to(paths.saves_dir() / "states")
+    assert written_path.name.endswith(".state1")
+
+
+def test_refused_save_state_before_dispatch_declares_nothing(tmp_path: Path) -> None:
+    signals: list[tuple[int, int]] = []
+    _owner, server, session_id, game_id = _owner_and_server(tmp_path, signals=signals)
+    try:
+        result = server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState", "slot": 5_000}
+        )
+        # D-20: o OSD sem galeria despachava `saveState` sem slot; a recusa do
+        # canal passa a dizer a mesma faixa da rota /journey/event, não o genérico.
+        missing = server._dispatch(
+            {"sessionId": session_id, "gameId": game_id, "action": "saveState"}
+        )
+    finally:
+        server.close()
+    assert result["accepted"] is False
+    assert "written" not in result  # validou antes de enviar: efeito garantidamente ausente
+    assert result["diagnostic"] == "AURA-SESSION-CONTROL-REQUEST-002"
+    assert result["detail"] == "O slot de save-state deve estar entre 0 e 999."
+    assert result["recoveryAction"] == "choose-valid-slot"
+    assert missing["accepted"] is False
+    assert missing["detail"] == "O slot de save-state deve estar entre 0 e 999."
+    assert "written" not in missing
+
+
+def test_refused_save_state_declares_exists_when_the_file_landed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """O pior caso medido: o arquivo chegou apesar da recusa — a recusa tem de dizer isso.
+
+    É a asserção que separa "talvez tenha sido escrito" de "foi escrito": o produto
+    consulta o disco uma vez e publica `exists: true` com o destino do adapter. O
+    read-model da galeria já lê o mesmo `state_path` (o sufixo `.state1` existe em
+    disco), então o slot ocupado aparece em vez de fingir vazio.
+    """
+    # O write desta prova fica em tmp_path: sem o redirecionamento, mkdir+write_bytes
+    # cairiam no saves_dir real do usuário (estado home protegido).
+    monkeypatch.setattr(paths, "saves_dir", lambda: tmp_path / "saves")
+    control = _LateWriteControl()
+    landed = control.state_path(1)
+    landed.parent.mkdir(parents=True, exist_ok=True)
+    landed.write_bytes(b"escrito depois da recusa")
+    try:
+        result = _refuse_save_state(tmp_path, 1, peripheral_control=control)
+        assert result["accepted"] is False
+        assert result["written"] == {
+            "slot": 1,
+            "path": str(landed),
+            "exists": True,
+        }
+    finally:
+        landed.unlink()
+
+
+def test_refused_save_state_without_a_peripheral_offers_no_path(tmp_path: Path) -> None:
+    """Uma sessão sem adapter de save-state não pode ter escrito nada: nada de `written`."""
+    result = _refuse_save_state(tmp_path, 1)
+    assert result["accepted"] is False
+    assert "written" not in result
+
+
+def test_unresolvable_state_path_does_not_destroy_the_refusal(tmp_path: Path) -> None:
+    """O diagnóstico de efeito não pode custar a própria recusa nem mentir um caminho."""
+
+    class _BlindWriteControl:
+        def save_state(self, slot: int) -> None:
+            raise RuntimeError("o emulador não respondeu")
+
+        def state_path(self, slot: int) -> Path:
+            raise OSError("o adapter não conhece o próprio destino")
+
+    result = _refuse_save_state(tmp_path, 1, peripheral_control=_BlindWriteControl())
+    assert result["accepted"] is False
+    assert result["diagnostic"] == "AURA-SESSION-CONTROL-FAILED-003"
+    assert "written" not in result

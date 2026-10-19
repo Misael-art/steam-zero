@@ -1,0 +1,82 @@
+    button|Tentar novamente|ENABLED,SENSITIVE,FOCUSABLE
+      label|Digite o nome do jogo…|ENABLED,SENSITIVE,FOCUSABLE
+      button|X-Men 2 - Clone Wars (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      button|Yu Yu Hakusho Sunset Fighters (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      button|Yuu Yuu Hakusho - Makyou Toitsusen (Japan) (Translated En) (|ENABLED,SENSITIVE,FOCUSABLE
+      button|Addams Family, The (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      button|Adventures of Batman & Robin, The (USA) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      button|Aladdin (USA) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      button|Alien 3 (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      label|Estado da ponte: ● ONLINE|ENABLED,SENSITIVE,FOCUSABLE
+      label|Hora atual 17:26|ENABLED,SENSITIVE,FOCUSABLE
+    button|Biblioteca vazia|ENABLED,SENSITIVE,FOCUSABLE
+    label|Descrição ainda não disponível para este jogo.|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Jogar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Voltar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      button|Voltar para a página do jogo|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label|81 de 1170|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Atualizar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Cinema|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Jogar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE,FOCUSED
+    combo box|Plataforma|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|Gênero|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|Ano|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|Desenvolvedora|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|Publicadora|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|Família|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    combo box|Emulador|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+        label||
+    button|Voltar|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Nenhum resultado|ENABLED,SENSITIVE,FOCUSABLE
+    label|Limpe uma faceta, verifique os filtros ou atualize a fonte n|ENABLED,SENSITIVE,FOCUSABLE
+    button|Tentar novamente|ENABLED,SENSITIVE,FOCUSABLE
+    list item|Addams Family, The (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,SELECTED
+      label|Addams Family, The (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Adventures of Batman & Robin, The (USA) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Adventures of Batman & Robin, The (USA) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Aladdin (USA) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Aladdin (USA) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Alien 3 (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Alien 3 (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Alien Soldier (Europe) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Alien Soldier (Europe) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Alien Storm (World) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING
+      label|Alien Storm (World) (Translated PtBr)|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    list item|Altered Beast (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE
+      label|Altered Beast (USA, Europe) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,FOCUSABLE
+    list item|Castle of Illusion Starring Mickey Mouse (USA, Europe) (Tran|ENABLED,SENSITIVE
+      label|Castle of Illusion Starring Mickey Mouse (USA, Europe) (Tran|ENABLED,SENSITIVE,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,FOCUSABLE
+    list item|Chip 'n Dale - Rescue Rangers (pt) (Translated PtBr)|ENABLED,SENSITIVE
+      label|Chip 'n Dale - Rescue Rangers (pt) (Translated PtBr)|ENABLED,SENSITIVE,FOCUSABLE
+      label|Sega Mega Drive e Genesis|ENABLED,SENSITIVE,FOCUSABLE
+      label|Estado da ponte: ● ONLINE|ENABLED,SENSITIVE,FOCUSABLE
+      label|Hora atual 17:26|ENABLED,SENSITIVE,FOCUSABLE
+    label|↑ ↓ navegar · Enter abrir · P jogar · Esc voltar · Ações de |ENABLED,SENSITIVE,VISIBLE,SHOWING,FOCUSABLE
+    button|Pausar|VISIBLE,SHOWING
+    button|Retomar|VISIBLE,SHOWING
+    button|Abrir saves|VISIBLE,SHOWING
+    button|Salvar estado|VISIBLE,SHOWING
+    button|Carregar estado|VISIBLE,SHOWING
+    button|Sair do jogo|VISIBLE,SHOWING
+    label|Save-states da sessão|ENABLED,SENSITIVE,FOCUSABLE
+    button|Fechar|ENABLED,SENSITIVE,FOCUSABLE
+    label||ENABLED,SENSITIVE,FOCUSABLE
+    label|Slot|ENABLED,SENSITIVE,FOCUSABLE
+        label||ENABLED,SENSITIVE,FOCUSABLE
+    button|Salvar neste slot|
+    button|Fechar controle da sessão|ENABLED,SENSITIVE,FOCUSABLE

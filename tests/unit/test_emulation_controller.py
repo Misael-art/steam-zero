@@ -8,7 +8,7 @@ import queue
 import threading
 import time
 import zipfile
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import jsonschema.exceptions
@@ -21,6 +21,7 @@ from steamzero.adapters.ps5_runtime import Ps5RuntimeReadiness
 from steamzero.api.contracts import validate
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.state import StateStore
+from steamzero.domain.emulation_workspace import build_emulation_workspace
 from steamzero.domain.readiness import READINESS_CONTRACT_VERSION
 from steamzero.ports import CheatCandidate, CheatIdentity, ModCandidate, ModIdentity
 
@@ -5012,3 +5013,51 @@ class TestAdoptionReportTellsTheWholeStory:
         report = controller.adopt_known_bios()
         for entry in report["adopted"]:
             assert "sourceMember" in entry, "o nome do arquivo do usuário precisa viajar"
+
+
+def _enabled_by_id(payload: object, found: dict[str, set[bool]]) -> None:
+    if isinstance(payload, Mapping):
+        if "id" in payload and "enabled" in payload:
+            found.setdefault(str(payload["id"]), set()).add(bool(payload["enabled"]))
+        for value in payload.values():
+            _enabled_by_id(value, found)
+    elif isinstance(payload, Sequence) and not isinstance(payload, (str, bytes)):
+        for item in payload:
+            _enabled_by_id(item, found)
+
+
+def test_requirements_verify_has_one_publication_and_no_claimed_success(
+    monkeypatch, tmp_path: Path
+) -> None:
+    domain: dict[str, set[bool]] = {}
+    _enabled_by_id(build_emulation_workspace(), domain)  # superfície do desktop dashboard
+    adapter: dict[str, set[bool]] = {}
+    _enabled_by_id(_controller(monkeypatch, tmp_path).snapshot({"context": {}}), adapter)
+
+    for action_id in ("requirements.verify", "firmware.import"):
+        assert domain[action_id] == adapter[action_id], (
+            action_id,
+            domain[action_id],
+            adapter[action_id],
+        )
+
+    source = Path("src/steamzero/ui/qml/Main.qml").read_text(encoding="utf-8")
+    branch = source[source.index('action.id === "requirements.verify"') :]
+    assert "Ambiente de emulação verificado" not in branch[:2_000]
+
+
+def test_verify_requirements_returns_the_real_readiness_verdict(
+    monkeypatch, tmp_path: Path
+) -> None:  # type: ignore[no-untyped-def]
+    # D-27 unidade 6b: requirements.verify tem serviço de verdade. Roda o mesmo
+    # caminho que popula a prontidão no snapshot e devolve o veredito real, não
+    # um sucesso presumido.
+    controller = _controller(monkeypatch, tmp_path)
+    verdict = controller.verify_requirements()
+    platform = controller.snapshot({"context": {}})["platforms"][0]
+    assert verdict["state"] == platform["state"]
+    assert verdict["statusLabel"] == platform["statusLabel"]
+    assert verdict["readiness"] == platform["readiness"]
+    assert {"keys", "firmware"} <= set(verdict["requirements"])
+    # Ambiente vazio: keys e firmware ausentes bloqueiam; nada aqui alega "ok".
+    assert verdict["state"] == "blocked"
