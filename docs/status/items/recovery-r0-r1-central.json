@@ -93,12 +93,18 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/17-prepare-checkpoint.json",
       "command": "release_host.py prepare sobre d823ff857a35dedab8569a6b106e245d87ce8ce6, árvore limpa: exit 1, exige tip exato de refs/heads/main (2b7eb541b4a54f0930927a2b0f92cb45776ae4c7). Sem bundle, instalação ou bypass; PENDENTE_INTEGRACAO_REMOTA.",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/18-remote-authorization.json",
+      "command": "Registro da autorização remota explícita do proprietário para push da branch atual e integração governada em main incluindo #258; checks/proteções preservados, sem publicação pública.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "PENDENTE_INTEGRACAO_REMOTA: obter autorização explícita para push da branch existente e integração governada em main, reconciliando a base pendente do PR #258 e seu último gate visual falho. Após CI push terminal verde e checkout no SHA exato de main, executar resumeCommandAfterAuthorizedIntegrationAndGreenCI, conferir rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Instalação já autorizada; não pedir de novo. R2 não iniciado.",
+  "nextAction": "Autorização remota recebida em 2026-10-18 (18-remote-authorization.json). Push único do checkpoint limpo da branch existente, abrir PR cumulativo preservando a base #258; integrar somente após novos checks terminais verdes. Depois checkout no SHA exato de main e CI push verde, prepare pelo controlador, verificar rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Publicação pública não autorizada. R2 não iniciado.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R0-R1-CENTRAL"
   ],
-  "updatedAt": "2026-10-17",
-  "notes": "Execução serial no checkout oficial, commits core af8c0ad7be5862a8b0fef7b28a1105d9646547fc e QML 10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0. Código e testes locais, sem instalação/prova física nova. Gates: 6421 não visuais + 394 visuais em bytes de produção idênticos; 47 skips, cobertura integral 85,47%; a única falha bruta integral era fixture Sony/Nintendo corrigida e revalidada. Release ativa 2.0.0rc1-1470cf48bf7d e rollback read-only verificado. Instalação/artefatos/testes reais autorizados; push/merge ainda não. Sem bundle ou candidata instalada. R2 não iniciado; nenhum eixo preexistente promovido."
+  "updatedAt": "2026-10-18",
+  "notes": "Execução serial no checkout oficial, commits core af8c0ad7be5862a8b0fef7b28a1105d9646547fc e QML 10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0. Código e testes locais, sem instalação/prova física nova. Gates: 6421 não visuais + 394 visuais em bytes de produção idênticos; 47 skips, cobertura integral 85,47%; a única falha bruta integral era fixture Sony/Nintendo corrigida e revalidada. Release ativa 2.0.0rc1-1470cf48bf7d e rollback read-only verificado. Instalação/artefatos/testes reais autorizados; push e integração governada em main autorizados em 2026-10-18; publicação pública não autorizada. Sem bundle ou candidata instalada. R2 não iniciado; nenhum eixo preexistente promovido."
 }

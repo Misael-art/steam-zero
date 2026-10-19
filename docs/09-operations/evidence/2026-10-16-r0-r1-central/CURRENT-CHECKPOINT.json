@@ -22,15 +22,16 @@
   "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
   "rollbackActivationTested": false,
   "physicalAcceptance": "not-executed",
-  "authorization": "implementation, governed artifacts/install and real UI tests authorized by owner; remote push/merge/publication not granted",
+  "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
   "pending": [
-    "PENDENTE_INTEGRACAO_REMOTA",
+    "PENDENTE_CI_E_INTEGRACAO",
     "PENDENTE_JANELA_DE_TESTE"
   ],
-  "nextAction": "PENDENTE_INTEGRACAO_REMOTA: obter autorização explícita para push da branch existente e integração governada em main, reconciliando a base pendente do PR #258 e seu último gate visual falho. Após CI push terminal verde e checkout no SHA exato de main, executar resumeCommandAfterAuthorizedIntegrationAndGreenCI, conferir rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Instalação já autorizada; não pedir de novo. R2 não iniciado.",
-  "updatedAt": "2026-10-17",
+  "nextAction": "Autorização remota recebida em 2026-10-18 (18-remote-authorization.json). Push único do checkpoint limpo da branch existente, abrir PR cumulativo preservando a base #258; integrar somente após novos checks terminais verdes. Depois checkout no SHA exato de main e CI push verde, prepare pelo controlador, verificar rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Publicação pública não autorizada. R2 não iniciado.",
+  "updatedAt": "2026-10-18",
   "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
   "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
   "originMainAtPrepare": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
-  "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle"
+  "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle",
+  "remoteAuthorizationEvidence": "18-remote-authorization.json"
 }
