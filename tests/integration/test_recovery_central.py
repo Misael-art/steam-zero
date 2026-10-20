@@ -4,13 +4,18 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Event
 from typing import Any
 
 import pytest
 
 from steamzero.adapters.emulation import EmulationController, SessionSecretStore
-from steamzero.core.errors import SteamZeroError
+from steamzero.adapters.flatpak import CommandResult, FlatpakCLI
+from steamzero.adapters.registry import AdapterRegistry
+from steamzero.core.errors import LaunchNotStartedError, SteamZeroError
 from steamzero.core.state import StateStore
 
 
@@ -122,5 +127,118 @@ def test_bios_permission_failure_does_not_report_missing(
     try:
         with pytest.raises(PermissionError):
             controller._bios_present_for("amiga", "retroarch", "kick34005.A500")
+    finally:
+        controller.close()
+
+
+def _catalog_controller(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int
+) -> tuple[EmulationController, list[dict[str, Any]], dict[str, bool], list[tuple[str, ...]]]:
+    controller = _controller(tmp_path, monkeypatch)
+    games = []
+    for index in range(count):
+        directory = tmp_path / f"game-{index}"
+        directory.mkdir()
+        game = _game(directory, "nes-famicom")
+        game.update(id=f"nes-{index}", systemId="nes")
+        games.append(game)
+    monkeypatch.setattr(controller, "_load_library_cache", lambda: (games, 0))
+    monkeypatch.setattr(controller, "library_roots", lambda: [str(tmp_path)])
+    core = tmp_path / "mesen_libretro.so"
+    core.write_bytes(b"readiness-only-core-fixture")
+    monkeypatch.setattr("steamzero.adapters.emulation.find_core", lambda _core: core)
+    source = AdapterRegistry.bundled().get("retroarch").preferred_source(None)
+    deployment = {"installed": True}
+    commands: list[tuple[str, ...]] = []
+
+    def run(argv: Sequence[str], _timeout: float) -> CommandResult:
+        commands.append(tuple(argv))
+        if argv[1] == "list":
+            return CommandResult(
+                0, "org.libretro.RetroArch\tflathub\n" if deployment["installed"] else ""
+            )
+        assert argv[1] == "info"
+        return CommandResult(0, source.version)
+
+    monkeypatch.setattr(controller, "_flatpak_factory", lambda: FlatpakCLI(runner=run))
+    return controller, games, deployment, commands
+
+
+@pytest.mark.parametrize("count", [1, 100])
+def test_catalog_probe_budget_preserves_per_game_truth_and_fresh_launch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int
+) -> None:
+    controller, games, deployment, commands = _catalog_controller(tmp_path, monkeypatch, count)
+    try:
+        rows = controller._enrich_platform_games(games)
+        assert all(row["playAction"]["enabled"] for row in rows)
+        # O orçamento depende dos adapters, não do tamanho do acervo: antes
+        # cem jogos provocavam seiscentos comandos externos de instalação.
+        assert len(commands) <= 4
+
+        Path(games[0]["path"]).unlink()
+        commands.clear()
+        rows = controller._enrich_platform_games(games)
+        assert rows[0]["playAction"]["enabled"] is False
+        assert all(row["playAction"]["enabled"] for row in rows[1:])
+        assert len(commands) <= 4
+
+        deployment["installed"] = False
+        if count > 1:
+            assert controller.game_readiness(games[1]["id"])["playable"] is False
+            with pytest.raises(LaunchNotStartedError):
+                controller.launch_game(games[1]["id"])
+        rows = controller._enrich_platform_games(games)
+        assert all(row["playAction"]["enabled"] is False for row in rows)
+    finally:
+        controller.close()
+
+
+def test_catalog_probe_scope_is_discarded_when_projection_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    controller, games, deployment, _commands = _catalog_controller(tmp_path, monkeypatch, 1)
+
+    def fail(_game_id: str) -> dict[str, Any]:
+        raise RuntimeError("projection interrupted")
+
+    monkeypatch.setattr(controller, "game_readiness", fail)
+    try:
+        with pytest.raises(RuntimeError, match="projection interrupted"):
+            controller._enrich_platform_games(games)
+        deployment["installed"] = False
+        with pytest.raises(SteamZeroError):
+            controller._require_launchable_emulator("retroarch")
+    finally:
+        controller.close()
+
+
+def test_catalog_probe_scope_does_not_hide_uninstall_from_another_request(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    controller, games, deployment, _commands = _catalog_controller(tmp_path, monkeypatch, 2)
+    observing = Event()
+    release = Event()
+    readiness = controller.game_readiness
+
+    def paused(game_id: str) -> dict[str, Any]:
+        result = readiness(game_id)
+        if game_id == games[0]["id"]:
+            observing.set()
+            assert release.wait(5), "test did not release the snapshot request"
+        return result
+
+    monkeypatch.setattr(controller, "game_readiness", paused)
+    try:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            snapshot = pool.submit(controller._enrich_platform_games, games)
+            try:
+                assert observing.wait(5), "snapshot did not observe the installed runtime"
+                deployment["installed"] = False
+                assert readiness(games[1]["id"])["playable"] is False
+            finally:
+                release.set()
+            assert all(row["playAction"]["enabled"] for row in snapshot.result(timeout=5))
+        assert readiness(games[1]["id"])["playable"] is False
     finally:
         controller.close()

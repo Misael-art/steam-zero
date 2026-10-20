@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-19T01:24:54.488383+00:00",
+  "readOnly": true,
+  "release": "2.0.0rc1-1470cf48bf7d",
+  "sourceCommit": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
+  "wheelSha256": "155158b4dae9dee36eb7cf81aeda428713af1ac8039558f57b32ec921ce4ca3b",
+  "manifestSchemaVersion": 4,
+  "artifactIntegrityEntrypointsAndRootOwnership": "verified",
+  "isolatedSmoke": "passed",
+  "activationTargetOwnership": "verified",
+  "rollbackActivationTested": false
+}

@@ -17,7 +17,7 @@
     "tests/integration/test_emulation_storage.py",
     "tests/integration/test_cli_emulation.py"
   ],
-  "scopeDigest": "11d69a0229a484a59ffd9fbf8ec3e91d3651324ede805c587bf35ff072b6e2cd",
+  "scopeDigest": "edc1fcfef8271a2a26cf1c1c094c6edc2880fa9aa8e8767c2725387e51a82773",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL"
   ],
@@ -87,10 +87,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Validar a superfície física dos contratos restantes na release: destino para mover raiz, seleção/lote de compressão e ciclo de lançamento.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "O read model entrega observabilidade read-only por categoria, volume e integridade. Mover raiz e compactar ROMs possuem contratos transacionais e testes, mas ainda não têm seletor/jornada visual provados na release. O uninstall também é exposto no cartão de gerenciamento e preserva ROMs, saves e mídia: o executor Flatpak remove somente o deployment, sem --delete-data, com evidência em tests/integration/test_flatpak_executor.py e test_component_lifecycle.py. O ciclo físico de lançamento permanece separado."
 }

@@ -14,7 +14,7 @@
     "tests/unit/test_emulation_runtime_remediation.py",
     "docs/09-operations/evidence/2026-09-20-emulation-runtime-remediation"
   ],
-  "scopeDigest": "38ee16cb88777fbb556faaa544ffdce7456df426d3b336c03dbd41d69c518cda",
+  "scopeDigest": "ef2507dc2ae6bbe0ff50897fdb8466706191fa33bbe43d96fc9035bcc1fe2953",
   "dependsOn": [
     "SZ-EMULATION-REAL-DUMP-VALIDATION",
     "SZ-COMPONENT-LIFECYCLE",
@@ -80,12 +80,18 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-EMULATION-RUNTIME-REMEDIATION"
   ],
   "nextAction": "Promover uma release governada para provar PCSX2, materialização archive/multidisco, M3U, save/load e retorno físico; manter firmware e conteúdo proprietário sob confirmação explícita.",
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "O firmware oficial Sony só pode ser obtido mediante confirmação explícita do operador e verificação; nenhuma instalação de host, download proprietário ou reboot foi executado. A integração de archives mantém a origem intacta, recusa destino sem ownership e atualiza o catálogo somente após publicação atômica."
 }

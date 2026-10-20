@@ -19,7 +19,7 @@
     "tests/unit/test_ps3_firmware.py",
     "tests/unit/test_emulation_controller.py"
   ],
-  "scopeDigest": "edbca43248569f995c2039f778b2db48153164bfb647dd1687841467bf488950",
+  "scopeDigest": "6731a6580e17610d182131b576da27ed0f6208d64ecc39064bb18055e3c1ed57",
   "dependsOn": [
     "SZ-PLATFORM-REQUIREMENT-SCOPE",
     "SZ-EMULATION-REAL-DUMP-VALIDATION"
@@ -97,12 +97,18 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch, instalar uma release governada e executar a prova física do assistente com download oficial, erro controlado, cancelamento/rollback e lançamento posterior do RPCS3.",
   "activeWorkstreams": [
     "WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD"
   ],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "O fluxo de importação local continua disponível para firmware fornecido pelo usuário. A automação é deliberadamente limitada ao artefato oficial da Sony e não altera um console PS3 físico."
 }

@@ -15,7 +15,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_media_audit_platform_scope.py"
   ],
-  "scopeDigest": "de594e395880c1061276ed977ef2d43f0446062af908151dbe500374405ba50d",
+  "scopeDigest": "f651d87da8cc4e754f548672f737019ffad0b8bfa29719aef64f071adc09f02a",
   "dependsOn": [
     "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE"
   ],
@@ -72,10 +72,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Completar o contrato de qualidade: score perceptual e política de melhor candidato por kind, auditoria de hero/logo/icon/screenshot/manual/video e prova física de publicação/rollback Steam; só então promover a auditoria de integridade a qualidade garantida.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "A auditoria por plataforma está integrada e foi executada na release instalada em Switch. Ela prova integridade, dimensões, ausência de órfãos e consistência do registry; não prova que a melhor mídia foi escolhida, nem cobre todos os kinds ou publicação/rollback. Operação permanece degraded até esse contrato de qualidade ser medido."
 }

@@ -1,0 +1,27 @@
+{
+  "observedAt": "2026-10-19T01:18:08.221844+00:00",
+  "branch": "codex/product-recovery-2026-10-16",
+  "head": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "originMain": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "contentMatchesApprovedPR": true,
+  "PR259": {
+    "state": "MERGED",
+    "approvedHead": "b54073da26317f3a4b8a2989f04be0ce1f6c572f",
+    "ciRun": 39182622479,
+    "ciConclusion": "success",
+    "visualPassed": 382,
+    "visualSkipped": 13,
+    "pythonPassedPerVersion": 6418,
+    "pythonSkippedPerVersion": 50,
+    "coveragePercent": 85.28
+  },
+  "PR258": {
+    "state": "MERGED",
+    "headPreservedAsAncestor": "6475947c189f2d903b83f7f242a2c5ca535fb14c"
+  },
+  "mainPushRun": 39184691323,
+  "mainPushConclusion": "in_progress",
+  "hostInstalledCandidate": false,
+  "physicalAcceptance": "pending",
+  "nextAction": "Wait for terminal main push CI success; prepare exact main SHA via release_host.py, verify rollback/ownership and install with exact token. UI waits for dedicated desktop availability."
+}

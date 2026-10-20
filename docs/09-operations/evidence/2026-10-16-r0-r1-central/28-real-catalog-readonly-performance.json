@@ -1,0 +1,19 @@
+{
+  "mode": "real catalog/config read-only; XDG_STATE_HOME isolated, no UI or game launch",
+  "results": [
+    {
+      "label": "installed-baseline",
+      "exitCode": 0,
+      "wallSeconds": 8.19,
+      "snapshot": {
+        "seconds": 7.005,
+        "platforms": 64,
+        "games": 1145
+      }
+    },
+    {
+      "label": "main-candidate",
+      "timedOutAfterSeconds": 120
+    }
+  ]
+}

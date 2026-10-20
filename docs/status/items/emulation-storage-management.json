@@ -13,7 +13,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_emulation_storage_management.py"
   ],
-  "scopeDigest": "f1ec7bbf2442338671792433fff942bcb6ac175e9566e26d7c191dbb843ca627",
+  "scopeDigest": "2980b88411e288c8af9758097cde51b54991d960dd39d37f8811567b6b9eef6f",
   "dependsOn": [
     "SZ-EMULATION-STORAGE-READMODEL"
   ],
@@ -65,10 +65,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Integrar seletor visual de destino e seleção em lote no frontend proprietário e validar na release instalada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "O read model de armazenamento já publica estatísticas e atalhos de gestão. A compactação NSZ agora possui caminho individual e lote transacional; o seletor visual de destino e a validação física continuam pendentes."
 }

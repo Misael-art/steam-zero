@@ -603,6 +603,7 @@ class EmulationController:
         self._session_control_enabled = True
         # (identidade do arquivo, jogos normalizados, não identificados)
         self._library_cache_memo: tuple[tuple[int, int], list[dict[str, Any]], int] | None = None
+        self._read_model_installations = threading.local()
         self._background_lock = threading.Lock()
         self._background_runners: dict[str, JobManager] = {}
         self._background_threads: dict[str, threading.Thread] = {}
@@ -1053,6 +1054,20 @@ class EmulationController:
         return provide
 
     def _adapter_installed(self, adapter_id: str, route: lifecycle.LifecycleRoute) -> bool:
+        # Um acervo compartilha a instalação do adapter, não a prontidão de
+        # cada jogo. Só a projeção em lote abre este cache por thread; fora
+        # dela (inclusive no launch) a sondagem continua sempre fresca.
+        cache: dict[str, bool] | None = getattr(
+            getattr(self, "_read_model_installations", None), "values", None
+        )
+        if cache is not None and adapter_id in cache:
+            return cache[adapter_id]
+        installed = self._probe_adapter_installed(adapter_id, route)
+        if cache is not None:
+            cache[adapter_id] = installed
+        return installed
+
+    def _probe_adapter_installed(self, adapter_id: str, route: lifecycle.LifecycleRoute) -> bool:
         """Instalação real, consultada pelo executor da família da fonte.
 
         Falha de sondagem devolve False em vez de propagar: um componente que não
@@ -9232,27 +9247,32 @@ class EmulationController:
         """
         if not games:
             return []
-        settings = self._load_game_settings(strict=False)
-        enriched: list[dict[str, Any]] = []
-        for raw in games:
-            game = dict(raw)
-            selected = self._settings_for_game_with_global(game, settings)
-            emulator_id = selected.get("emulatorId")
-            readiness = self.game_readiness(str(game["id"]))
-            game["emulatorId"] = emulator_id
-            game["playAction"] = self._action(
-                f"game.launch:{game['id']}",
-                "Jogar",
-                enabled=readiness["playable"] is True,
-                reason=readiness.get("reason") or None,
-            )
-            game["launchReadiness"] = {
-                "state": "ready" if readiness["playable"] else "blocked",
-                "emulator": "installed" if readiness["playable"] else "unverified",
-                "reason": readiness.get("reason") or None,
-            }
-            enriched.append(game)
-        return enriched
+        previous = getattr(self._read_model_installations, "values", None)
+        self._read_model_installations.values = {}
+        try:
+            settings = self._load_game_settings(strict=False)
+            enriched: list[dict[str, Any]] = []
+            for raw in games:
+                game = dict(raw)
+                selected = self._settings_for_game_with_global(game, settings)
+                emulator_id = selected.get("emulatorId")
+                readiness = self.game_readiness(str(game["id"]))
+                game["emulatorId"] = emulator_id
+                game["playAction"] = self._action(
+                    f"game.launch:{game['id']}",
+                    "Jogar",
+                    enabled=readiness["playable"] is True,
+                    reason=readiness.get("reason") or None,
+                )
+                game["launchReadiness"] = {
+                    "state": "ready" if readiness["playable"] else "blocked",
+                    "emulator": "installed" if readiness["playable"] else "unverified",
+                    "reason": readiness.get("reason") or None,
+                }
+                enriched.append(game)
+            return enriched
+        finally:
+            self._read_model_installations.values = previous
 
     def _enrich_games(
         self,

@@ -30,11 +30,17 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Amarrar cada arquivo de teste ao item da capacidade que ele prova, comecando pelos que sustentam evidencia declarada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "Item AGREGADOR: existe para que nenhum arquivo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto da arvore. Promover um recorte a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.",
-  "scopeDigest": "d9d772243a6cf1d131fac0a8bc8b3eb067cb4498eaf70d2e92205d384132fe56"
+  "scopeDigest": "9ff757c8b17c527f0ec199f51f4beb4678172edbe52dc71cf4b4164697fbc11f"
 }

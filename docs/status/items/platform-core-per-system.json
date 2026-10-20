@@ -21,7 +21,7 @@
     "tests/unit/test_emulation_controller.py",
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun"
   ],
-  "scopeDigest": "eb8ebab7845b43aca0753815f36fd93b516b33a40cce5a8f41c9468191afab57",
+  "scopeDigest": "59134e2ad09c47a2da7037d14111176a808d2dcc64d8cad390e8dbc52c232700",
   "dependsOn": [
     "SZ-LIBRARY-CANONICAL",
     "SZ-AGG-PLATFORM-MANIFESTS"
@@ -79,10 +79,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/README.md",
       "command": "2026-10-16 R0/R1: reconciliação dos bytes compartilhados de emulation.py, platform_composer.py e Emulation.qml após correção de requisitos e readback não-Switch; não reexecuta o aceite integral deste item, não promove os cinco eixos e não substitui sua prova instalada. Gates do lote registrados no diretório de evidência.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
+      "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar/instalar release autorizada e provar no host Atari 5200/7800/Lynx/Jaguar e Sega 32X; cobrir adapters de cores ainda ausentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-19",
   "notes": "Defeito reproduzido na auditoria: atari-classics agrupava sete systems sob stella, embora o catálogo editorial declare atari800/prosystem/beetle-lynx/virtual-jaguar para parte deles; sega-cd-32x também agrupava Sega CD e 32X sob genesis_plus_gx, embora 32X exija picodrive. systemId já é preservado no cache canônico; falta fazê-lo participar da escolha do core no lançamento. A correção não baixa nem instala cores: quando o core específico não estiver presente, o jogo fica bloqueado com a causa verificável."
 }

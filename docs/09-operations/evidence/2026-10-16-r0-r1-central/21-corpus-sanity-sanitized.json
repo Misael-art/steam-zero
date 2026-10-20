@@ -1,0 +1,27 @@
+{
+  "validation": "read-only archive sanity; no gameplay or installed acceptance claim",
+  "rows": [
+    {
+      "platform": "nes",
+      "archiveSha256": "c97bf22a19f4bf8d9c3c89bb262edb760bce2325f404cb948e8593f5d2523da4",
+      "crcCheckPassed": true,
+      "memberCount": 1,
+      "expandedSize": 24592,
+      "expectedExtension": ".nes",
+      "nesHeaderValid": true,
+      "amigaDiskSizeStandard": null,
+      "contentExtractedByTestHarness": false
+    },
+    {
+      "platform": "amiga",
+      "archiveSha256": "c42d843d295cf17fbe166ff8103acbc2cbf62bda888fb72e1c95da8c438403a6",
+      "crcCheckPassed": true,
+      "memberCount": 1,
+      "expandedSize": 901120,
+      "expectedExtension": ".adf",
+      "nesHeaderValid": null,
+      "amigaDiskSizeStandard": true,
+      "contentExtractedByTestHarness": false
+    }
+  ]
+}

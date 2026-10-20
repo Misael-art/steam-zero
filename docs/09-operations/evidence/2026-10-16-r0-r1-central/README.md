@@ -4,6 +4,82 @@ Execução serial iniciada em 2026-10-16, exclusivamente no checkout canônico,
 branch `codex/product-recovery-2026-10-16`, base `a672c35a7b6e2794041941ff9617ac5cbc5f7266`.
 Um executor: codex-central-executor. R2 não foi iniciado.
 
+## Estado atual — retomada de 2026-10-19
+
+O PR #259 integrou a branch existente e os commits da base #258 em
+`356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6`. Oito jobs do CI do PR e oito do
+CI push em main passaram; ver `25-main-integration-checkpoint.json` e
+`34-main-before-performance-repair-ci.json`. Push e integração governada foram
+autorizados pelo proprietário em 2026-10-18 (`18-remote-authorization.json`).
+Publicação pública de release não está incluída. O checkout e a branch permanecem
+os mesmos, com avanço por fast-forward para o merge; nenhum worktree novo.
+
+Antes da ativação, a leitura do acervo real revelou regressão: a release ativa
+compôs 1145 jogos em 7,005 s; a candidata integrada excedeu 120 s, acima do
+`xhr.timeout=60000` da Central (`28-real-catalog-readonly-performance.json`).
+O perfil de dez jogos NES mostrou 30 sondagens de instalação e 60 subprocessos
+Flatpak (`29-enrichment-cprofile.log`). Por isso esse SHA não foi instalado,
+mesmo com CI verde. A release ativa segue `2.0.0rc1-1470cf48bf7d`.
+
+O reparo local compartilha a leitura de instalação somente durante o
+enriquecimento do catálogo e na thread desse pedido; arquivo/prontidão de cada
+jogo continuam verificados, e lançamento, outro pedido e próximo snapshot
+reconsultam o estado. `finally` descarta a leitura mesmo se a projeção falhar.
+Oito testes focados passaram sem delta no state real
+(`30-performance-focused-tests.log`). A mesma composição real foi concluída em
+13,725 s para os 1145 jogos (`31-real-catalog-repaired-performance.json`).
+Isso é medição de serviço na fonte local, sem homologação de UI ou gameplay.
+
+O perfil próprio e as cópias dos dois jogos/BIOS estão preservados em diretório
+privado indicado no checkpoint, sem caminhos originais ou conteúdo persistidos
+nesta evidência. BIOS conferem com o catálogo (`19-installed-baseline-sanitized.json`
+e `21-corpus-sanity-sanitized.json`), e o sandbox real do RetroArch consegue ler
+as cópias (`26-flatpak-profile-readability.json`). O baseline instalado corrigiu
+a descoberta do Flatpak via `FLATPAK_USER_DIR`, sem mudar overrides globais.
+O rollback ativo foi revalidado read-only (`27-refreshed-host-rollback-preflight.json`);
+nenhuma ativação de rollback foi executada.
+
+A retomada em filesystem somente leitura não executou nem promoveu os testes
+interrompidos. Com escrita restaurada, o runner foi executado no checkout
+canônico e o resultado dos oito casos foi registrado. Todos os comandos relativos
+a `.venv`, `tools` e `tests` pressupõem o diretório canônico, não a pasta acima.
+
+O reparo passou em 261 regressões e nos gates estáticos integrais
+(`32-performance-regression-tests.log`, `33-performance-static-gates.json`).
+A nova execução integral terminou com **6794 passes, 25 falhas e 47 skips**,
+cobertura **85,44%** e estado real sem delta (`36-performance-integral-tests.log`).
+O ambiente herdava `PYTEST_DEBUG_TEMPROOT`, desviando `tmp_path` para outro
+filesystem e um caminho longo. Os guards de filesystem/socket/independência
+não foram relaxados; a variável foi removida na invocação do runner. Outra
+falha era a visão de status gerada antes da inclusão de uma evidência.
+Os 25 casos falhos passaram após essas correções de ambiente/status
+(`37-integral-environment-diagnosis.json`, `38-environment-failure-retests.log`).
+Os 394 visuais passaram na integral, comprovados por join dos node IDs coletados
+com os resultados e vínculo aos mesmos bytes de fonte (`39-visual-source-contract.json`).
+Isso não transforma a execução integral bruta em verde.
+
+A tentativa não visual 40 foi interrompida em 16%, sem resultado final, antes
+da reinicialização do host. Conferidos o PID ausente e o log incompleto,
+a execução 41 foi iniciada sob isolamento corrigido e terminou com sucesso:
+**6425 passed, 47 skipped, 394 deselected**, runner exit 0, em 901,715 s;
+estado real byte/metadados sem delta (`41-resumed-nonvisual-checkpoint.log`).
+O conjunto complementar soma **6819 passes e 47 skips**. A união de cobertura
+da integral 36 com a não visual 41 atingiu **85,49%**, acima do baseline
+85,47% e do gate 85%; o resultado bruto falho da integral permanece preservado.
+`42-final-local-checkpoint.json` registra resultados, método e hashes da fonte.
+
+Próximo passo: validar as visões após as novas evidências, criar commits
+funcional/documental separados, um push/PR corretivo na mesma branch,
+main/CI push do novo SHA, bundle/instalação pelo controlador já autorizados
+e `ACEITE-INSTALADO.md` com janela dedicada. O reparo funcional está commitado em
+`cbcdf3e3cc0be75499b45272b20a0bf16503ae82`, ainda sem novo bundle ou instalação. Prova física e PNGs continuam pendentes; R2 não foi
+iniciado. `CURRENT-CHECKPOINT.json` é a entrada de continuidade.
+
+## Histórico da assunção e dos checkpoints até 2026-10-17
+
+As seções seguintes preservam os fatos anteriores à autorização e integração
+remotas. O estado vigente está acima e no checkpoint.
+
 ## Autorização e procedência
 
 O proprietário autorizou implementação, preparação de artefatos, instalação e

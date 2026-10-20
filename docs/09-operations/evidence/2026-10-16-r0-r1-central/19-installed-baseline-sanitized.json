@@ -1,0 +1,130 @@
+{
+  "observedAt": "2026-10-19T00:54:27.612679+00:00",
+  "release": "2.0.0rc1-1470cf48bf7d",
+  "sourceCommit": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
+  "mode": "installed CLI/controller with isolated XDG profile, no UI input",
+  "scanJobState": "succeeded",
+  "originalFilesWritten": false,
+  "guiStarted": false,
+  "platforms": [
+    {
+      "id": "nes-famicom",
+      "requirements": {},
+      "gameCount": 1,
+      "primaryEmulator": {
+        "id": "retroarch",
+        "name": "RetroArch",
+        "state": "ready",
+        "statusLabel": "Instalado",
+        "source": "precedence"
+      },
+      "scopes": [
+        {
+          "id": "global",
+          "enabled": true,
+          "reason": null
+        },
+        {
+          "id": "emulator",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        },
+        {
+          "id": "game",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        },
+        {
+          "id": "handheld",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        },
+        {
+          "id": "dock",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        }
+      ]
+    },
+    {
+      "id": "amiga",
+      "requirements": {
+        "bios": {
+          "kind": "bios",
+          "status": "missing",
+          "required": "kick34005.A500, kick40068.A1200",
+          "installed": null,
+          "detail": "BIOS de Commodore Amiga e Amiga CD32 · retroarch ausente: kick34005.A500, kick40068.A1200; importe o arquivo local.",
+          "blocksPlay": true,
+          "importAction": "bios.import"
+        }
+      },
+      "gameCount": 1,
+      "primaryEmulator": {
+        "id": "retroarch",
+        "name": "RetroArch",
+        "state": "ready",
+        "statusLabel": "Instalado",
+        "source": "precedence"
+      },
+      "scopes": [
+        {
+          "id": "global",
+          "enabled": true,
+          "reason": null
+        },
+        {
+          "id": "emulator",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        },
+        {
+          "id": "game",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        },
+        {
+          "id": "handheld",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        },
+        {
+          "id": "dock",
+          "enabled": false,
+          "reason": "Escopo depende da composição operacional da plataforma."
+        }
+      ]
+    }
+  ],
+  "biosCatalogValidation": [
+    {
+      "name": "kick34005.A500",
+      "size": 262144,
+      "sha256": "ee05862d8102a08436ac4056da7d549db31625c7d47b24dfb7b3c9a5c113ca53",
+      "matchesApprovedCatalog": true
+    },
+    {
+      "name": "kick40068.A1200",
+      "size": 524288,
+      "sha256": "6d43840d4099a74170ea0f0425b6257c3891ebcaa39c4d1840075a9ab22b5707",
+      "matchesApprovedCatalog": true
+    }
+  ],
+  "physicalAcceptance": false,
+  "sourcePreservation": [
+    {
+      "platform": "nes",
+      "sha256": "c97bf22a19f4bf8d9c3c89bb262edb760bce2325f404cb948e8593f5d2523da4",
+      "originalUnchanged": true,
+      "copyMatches": true
+    },
+    {
+      "platform": "amiga",
+      "sha256": "c42d843d295cf17fbe166ff8103acbc2cbf62bda888fb72e1c95da8c438403a6",
+      "originalUnchanged": true,
+      "copyMatches": true
+    }
+  ],
+  "profileRuntimeDiscovery": "FLATPAK_USER_DIR explicitly points to existing host user installation; Flatpak commit 9c51e2bcb6f7f29ecb327ee057b273c5b59efc22d35026e90aef601bc0052752; no global override mutation",
+  "initialSnapshotCaveat": "Initial XDG isolation hid the user Flatpak install. Platform rows below are the corrected installed baseline after explicit runtime discovery."
+}

@@ -5,15 +5,17 @@
   "owner": "codex-central-executor",
   "functionalCommits": {
     "core": "af8c0ad7be5862a8b0fef7b28a1105d9646547fc",
-    "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0"
+    "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
+    "performanceRepair": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82"
   },
-  "lastTestedCodeCommit": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
+  "lastTestedCodeCommit": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82",
   "testResults": {
-    "nonvisualPassed": 6421,
+    "nonvisualPassed": 6425,
     "visualPassedOnIdenticalSource": 394,
     "skipped": 47,
-    "coveragePercentBeforeFixtureOnlyRepair": 85.47,
-    "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
+    "coverageCombinedPercent": 85.49,
+    "coverageMethod": "complementary executions, union of 36 and 41; 36 remains a failed raw run",
+    "finalEvidence": "42-final-local-checkpoint.json"
   },
   "releaseActive": "2.0.0rc1-1470cf48bf7d",
   "releaseActiveSource": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
@@ -24,14 +26,101 @@
   "physicalAcceptance": "not-executed",
   "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
   "pending": [
-    "PENDENTE_CI_E_INTEGRACAO",
+    "PENDENTE_CI_CORRETIVO",
     "PENDENTE_JANELA_DE_TESTE"
   ],
-  "nextAction": "Autorização remota recebida em 2026-10-18 (18-remote-authorization.json). Push único do checkpoint limpo da branch existente, abrir PR cumulativo preservando a base #258; integrar somente após novos checks terminais verdes. Depois checkout no SHA exato de main e CI push verde, prepare pelo controlador, verificar rollback/ownership/tokens, instalar e executar ACEITE-INSTALADO.md em sessão dedicada. Publicação pública não autorizada. R2 não iniciado.",
-  "updatedAt": "2026-10-18",
+  "nextAction": "Reparo funcional commitado em cbcdf3e3cc0be75499b45272b20a0bf16503ae82; evidência final 42: 6425 não visuais + 394 visuais, 47 skips, cobertura combinada 85,49%, estado real sem delta. Fechar commit documental e enviar um checkpoint da branch existente; abrir PR corretivo para main, aguardar checks terminais verdes, merge governado e CI push do SHA exato. Depois fast-forward no mesmo checkout, prepare/install pelo controlador e ACEITE-INSTALADO.md. Não ativar 356ec8f7. Instalação e integração remota autorizadas, sem publicação pública. Desktop dedicado pendente; R0/R1 aberto, R2 não iniciado.",
+  "updatedAt": "2026-10-19",
   "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
   "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
   "originMainAtPrepare": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
   "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle",
-  "remoteAuthorizationEvidence": "18-remote-authorization.json"
+  "remoteAuthorizationEvidence": "18-remote-authorization.json",
+  "integratedCommit": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
+  "remotePR": 259,
+  "mainPushRun": 39184691323,
+  "candidateHold": "356ec8f7 excedeu timeout no acervo real. Reparo local medido em 13,725 s, pendente gates/commit/main/CI/instalação; não ativar SHA anterior.",
+  "performanceRepair": {
+    "state": "committed-awaiting-corrective-PR",
+    "focusedTestsPassed": 8,
+    "realCatalogGames": 1145,
+    "realCatalogSnapshotSeconds": 13.725,
+    "emulationPySha256": "182e837931d201aa1875d0e700635c87e84ea57915c007cd53ae553ad1e9a446",
+    "testLog": "30-performance-focused-tests.log",
+    "performanceEvidence": "31-real-catalog-repaired-performance.json",
+    "regressionTestsPassed": 261,
+    "integralGates": "completed through complementary executions: nonvisual 6425 passed + visual 394 passed; coverage union 85.49%; raw integral 36 remains failed",
+    "integralLog": "36-performance-integral-tests.log",
+    "staticGatesEvidence": "33-performance-static-gates.json",
+    "integralProcessIdentities": [],
+    "resumeAfterInterruption": "Reparo funcional commitado em cbcdf3e3cc0be75499b45272b20a0bf16503ae82; evidência final 42: 6425 não visuais + 394 visuais, 47 skips, cobertura combinada 85,49%, estado real sem delta. Fechar commit documental e enviar um checkpoint da branch existente; abrir PR corretivo para main, aguardar checks terminais verdes, merge governado e CI push do SHA exato. Depois fast-forward no mesmo checkout, prepare/install pelo controlador e ACEITE-INSTALADO.md. Não ativar 356ec8f7. Instalação e integração remota autorizadas, sem publicação pública. Desktop dedicado pendente; R0/R1 aberto, R2 não iniciado.",
+    "integralRawResult": {
+      "passed": 6794,
+      "failed": 25,
+      "skipped": 47,
+      "seconds": 2848.0,
+      "coveragePercent": 85.44,
+      "realStateUnchanged": true,
+      "log": "36-performance-integral-tests.log"
+    },
+    "environmentRetestsPassed": 25,
+    "visualPassedOnIdenticalSource": 394,
+    "visualEvidence": "39-visual-source-contract.json",
+    "nextCanonicalTestCommand": "rtk proxy env -u PYTEST_DEBUG_TEMPROOT .venv/bin/python tools/run_tests_isolated.py tests -q -m \"not visual\" --cov=steamzero --cov-report=term",
+    "nonvisualRevalidation": {
+      "state": "passed",
+      "logPrivate": "/home/misael/.cache/phasezero/agent-tmp/steamzero-r0-r1-physical-hvc36cbb/41-resumed-nonvisual-checkpoint.log",
+      "resultPrivate": "/home/misael/.cache/phasezero/agent-tmp/steamzero-r0-r1-physical-hvc36cbb/41-resumed-nonvisual-checkpoint-result.json",
+      "environmentCorrection": "unset PYTEST_DEBUG_TEMPROOT; runner owns TMPDIR and XDG; assertions unchanged",
+      "sourceUnchanged": true,
+      "processIdentities": [],
+      "lastObservation": {
+        "observedAt": "2026-10-19T13:30:10.581186+00:00",
+        "percent": 25,
+        "failureMarkers": 0,
+        "benchmark10kCompleted": true
+      },
+      "passed": 6425,
+      "skipped": 47,
+      "exitCode": 0,
+      "realStateUnchanged": true,
+      "evidence": "41-resumed-nonvisual-checkpoint.log"
+    },
+    "interruptedNonvisualRevalidation": {
+      "state": "interrupted-before-result",
+      "logPrivate": "/home/misael/.cache/phasezero/agent-tmp/steamzero-r0-r1-physical-hvc36cbb/40-final-nonvisual-checkpoint.log",
+      "resultPrivate": "/home/misael/.cache/phasezero/agent-tmp/steamzero-r0-r1-physical-hvc36cbb/40-final-nonvisual-checkpoint-result.json",
+      "processIdentities": [],
+      "environmentCorrection": "unset PYTEST_DEBUG_TEMPROOT; runner owns TMPDIR and XDG; assertions unchanged",
+      "sourceUnchanged": true,
+      "recoveryAudit": {
+        "checkedAt": "2026-10-19T13:21:58.576756+00:00",
+        "recordedPidAbsent": true,
+        "resultFileAbsent": true,
+        "lastLogModifiedAt": "2026-10-19T09:25:17.898646+00:00",
+        "currentBootAt": "2026-10-19T09:28:34+00:00",
+        "noFinalVerdict": true
+      }
+    },
+    "finalEvidence": "42-final-local-checkpoint.json",
+    "combinedCoveragePercent": 85.49,
+    "functionalCommit": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82"
+  },
+  "privateTestProfileRoot": "/home/misael/.cache/phasezero/agent-tmp/steamzero-r0-r1-physical-hvc36cbb",
+  "privateProfileEnvFile": "profile-env.json",
+  "resumeFocusedTestCommand": "rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/integration/test_recovery_central.py -q",
+  "mainPushPreviousCommitConclusion": "success",
+  "mainPushPreviousCommitEvidence": "34-main-before-performance-repair-ci.json",
+  "permissionCheckpoint": {
+    "observedAt": "2026-10-19T08:34:30.846620+00:00",
+    "filesystem": "write access restored; canonical checkout only",
+    "authorizationUnchanged": true
+  },
+  "historicalTestResultsBeforePerformanceRepair": {
+    "nonvisualPassed": 6421,
+    "visualPassedOnIdenticalSource": 394,
+    "skipped": 47,
+    "coveragePercentBeforeFixtureOnlyRepair": 85.47,
+    "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
+  }
 }

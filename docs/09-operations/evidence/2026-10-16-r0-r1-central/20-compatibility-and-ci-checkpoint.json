@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-19T00:56:36.023491+00:00",
+  "sourceRelease": "2.0.0rc1-1470cf48bf7d",
+  "candidateHead": "b54073da26317f3a4b8a2989f04be0ce1f6c572f",
+  "runtimeChangedPaths": [
+    "src/steamzero/adapters/emulation.py",
+    "src/steamzero/domain/platform_composer.py",
+    "src/steamzero/ui/qml/Emulation.qml"
+  ],
+  "databaseMigrationChanged": false,
+  "bootOrInstallerChanged": false,
+  "realConfigBaselineFileCount": 36,
+  "realConfigSnapshotStoredInPrivateTestDirectory": true,
+  "rollback": "2.0.0rc1-1470cf48bf7d",
+  "rollbackActivationTested": false,
+  "remotePR": 259,
+  "remoteRun": 39182622479,
+  "installedAcceptance": "pending"
+}

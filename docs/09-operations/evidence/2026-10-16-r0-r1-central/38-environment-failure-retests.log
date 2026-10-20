@@ -1,0 +1,4 @@
+.........................                                                [100%]
+25 passed in 4.04s
+real-state before: exists=True files=12948 directories=2115 bytes=1430352248 max_mtime_ns=1792371087464207067 source=HOME-default
+real-state after:  exists=True files=12948 directories=2115 bytes=1430352248 max_mtime_ns=1792371087464207067 source=HOME-default
