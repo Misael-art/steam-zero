@@ -19,7 +19,7 @@
     "tests/unit/test_ps3_firmware.py",
     "tests/unit/test_emulation_controller.py"
   ],
-  "scopeDigest": "6731a6580e17610d182131b576da27ed0f6208d64ecc39064bb18055e3c1ed57",
+  "scopeDigest": "c38789077a9b8eaf7f2f1f29f86d683d9c04c0512c0cd88e12e69ef755dadced",
   "dependsOn": [
     "SZ-PLATFORM-REQUIREMENT-SCOPE",
     "SZ-EMULATION-REAL-DUMP-VALIDATION"
@@ -110,5 +110,5 @@
     "WS-2026-09-PS3-OFFICIAL-FIRMWARE-DOWNLOAD"
   ],
   "updatedAt": "2026-10-19",
-  "notes": "O fluxo de importação local continua disponível para firmware fornecido pelo usuário. A automação é deliberadamente limitada ao artefato oficial da Sony e não altera um console PS3 físico."
+  "notes": "O fluxo de importação local continua disponível para firmware fornecido pelo usuário. A automação é deliberadamente limitada ao artefato oficial da Sony e não altera um console PS3 físico.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada."
 }

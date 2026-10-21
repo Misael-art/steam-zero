@@ -20,7 +20,7 @@
     "tests/unit/test_desktop_dashboard.py",
     "docs/09-operations/evidence/2026-09-22-gamemode-readonly"
   ],
-  "scopeDigest": "cb9021e23428e225b4ffca7614cdee1ab3589bd6296d3bab4b4d8dde6a8bd82e",
+  "scopeDigest": "2b2256690075e69e1033a09144a4480d1ae3a791de3b2d81383ffce713ee19be",
   "dependsOn": [
     "SZ-JOB-RECOVERY-DOCTOR"
   ],
@@ -89,5 +89,5 @@
     "WS-2026-09-GAMEMODE-READINESS-G29"
   ],
   "updatedAt": "2026-10-09",
-  "notes": "O software está integrado e instalado. A leitura no host encontrou o binário, mas não conseguiu provar daemon, autorização ou efeitos; portanto a capacidade permanece unknown/degraded. Nenhuma mutação administrativa foi executada."
+  "notes": "O software está integrado e instalado. A leitura no host encontrou o binário, mas não conseguiu provar daemon, autorização ou efeitos; portanto a capacidade permanece unknown/degraded. Nenhuma mutação administrativa foi executada.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada."
 }

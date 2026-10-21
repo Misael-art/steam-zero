@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "unknown",
   "distribution": "not-packaged",
-  "scopeDigest": "6edfb15cdc67d4c77309eb3a3b7277c1a50734baf3dd2dbe8ceb01bb0a0df3bb",
+  "scopeDigest": "42bc234b95184050cae682f5734893562008f6d2a79b2bc8b75035237125f220",
   "scopePaths": [
     "src/steamzero/adapters/desktop_dashboard.py",
     "src/steamzero/domain/theme_import_esde.py",
@@ -109,5 +109,5 @@
     "WS-2026-09-ESDE-ACTIVE-SURFACE"
   ],
   "updatedAt": "2026-10-09",
-  "notes": "A ponte técnica agora preserva background estático, permite aplicar o tema pela rota transacional existente e renderiza a camada ativa com fallback. A prova física requer release instalada; decoder de vídeo e read model de jogo ainda não foram promovidos."
+  "notes": "A ponte técnica agora preserva background estático, permite aplicar o tema pela rota transacional existente e renderiza a camada ativa com fallback. A prova física requer release instalada; decoder de vídeo e read model de jogo ainda não foram promovidos.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada."
 }

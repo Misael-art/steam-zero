@@ -5,7 +5,7 @@
   "item": "SZ-RECOVERY-R0-R1-CENTRAL",
   "branch": "codex/product-recovery-2026-10-16",
   "baseRef": "a672c35a7b6e2794041941ff9617ac5cbc5f7266",
-  "owner": "codex-central-executor",
+  "owner": "claude-code-central-executor",
   "state": "active",
   "exclusivePaths": [
     "src/steamzero/ui/qml/Emulation.qml",
@@ -19,7 +19,9 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_recovery_central.py",
     "tests/integration/test_emulation_platform_scope.py",
-    "tests/unit/test_launch_sony_nintendo.py"
+    "tests/unit/test_launch_sony_nintendo.py",
+    "src/steamzero/ui/qml/Main.qml",
+    "src/steamzero/ui/qml/SteamComboBox.qml"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -27,6 +29,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Execução serial no checkout e branch existentes, base integrada 356ec8f7. Claims preservados; cessões/histórico em git/README/35/CURRENT-CHECKPOINT. Reparo funcional commitado em cbcdf3e3cc0be75499b45272b20a0bf16503ae82; evidência final 42: 6425 não visuais + 394 visuais, 47 skips, cobertura combinada 85,49%, estado real sem delta. Fechar commit documental e enviar um checkpoint da branch existente; abrir PR corretivo para main, aguardar checks terminais verdes, merge governado e CI push do SHA exato. Depois fast-forward no mesmo checkout, prepare/install pelo controlador e ACEITE-INSTALADO.md. Não ativar 356ec8f7. Instalação e integração remota autorizadas, sem publicação pública. Desktop dedicado pendente; R0/R1 aberto, R2 não iniciado.",
-  "updatedAt": "2026-10-19"
+  "nextAction": "Release 2.0.0rc1-319de6524db7 (main 319de652, PR #260, push-run 39357199913 verde) ativa e convergida; wheel 3d9741e5 idêntico ao bundle verificado; rollback 2.0.0rc1-1470cf48bf7d presente, ativação não testada. Não reinstalar. PENDENTE_JANELA_DE_TESTE: executar ACEITE-INSTALADO.md a partir do passo 4 em janela dedicada (perfil isolado, NES/Amiga, 1280×800, mouse/teclado, PNGs 01-03). Evidência 43. R0/R1 aberto; R2 não iniciado. Aceite instalado parcial em 1280×800 (eDP-1) reprovou: banda morta do ScrollView, popup de plataforma ilegível, texto escuro sobre ciano e subtítulo do cabeçalho preso em Nintendo Switch. Correção no mesmo checkout; Main.qml recebido por cessão serial de WS-2026-10-STUDIO-DRAFT-HISTORY; SteamComboBox.qml sem claim ativo.",
+  "updatedAt": "2026-10-20"
 }

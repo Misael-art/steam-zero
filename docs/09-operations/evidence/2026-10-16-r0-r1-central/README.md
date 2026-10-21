@@ -4,7 +4,27 @@ Execução serial iniciada em 2026-10-16, exclusivamente no checkout canônico,
 branch `codex/product-recovery-2026-10-16`, base `a672c35a7b6e2794041941ff9617ac5cbc5f7266`.
 Um executor: codex-central-executor. R2 não foi iniciado.
 
-## Estado atual — retomada de 2026-10-19
+## Estado atual — retomada de 2026-10-20
+
+O PR #260 foi integrado pelo proprietário em `319de6524db7868e3fa2964db29ac086e8c27687`
+(2026-10-20T02:07Z); o CI push 39357199913 terminou verde. O mesmo checkout
+avançou por fast-forward. `release_host.py prepare`/`verify-bundle` produziram
+`2.0.0rc1-319de6524db7`, wheel `3d9741e5…`, idêntico ao manifesto da release já
+ativa (instalada 2026-10-20T07:30Z pelo instalador governado, antes desta
+retomada; não reinstalada). CLI, daemon e proveniência convergem; rollback
+`2.0.0rc1-1470cf48bf7d` presente, ativação não testada. Leitura read-only do
+catálogo instalado: 20,86 s, 64 plataformas — não é prova de UI. Aceite físico:
+`PENDENTE_JANELA_DE_TESTE` (sessão seat0 ativa em uso; sem entrada às cegas).
+Ver `43-installed-candidate-checkpoint.json`.
+
+**Aceite GUI 2026-10-20 (1280×800, eDP-1, perfil isolado):** reprovado na release
+instalada `319de652` — banda morta de ~80 px no ScrollView, seletor de plataforma
+ilegível no estilo KDE, texto escuro sobre ciano no tema claro e subtítulo do
+cabeçalho compacto fixo em Nintendo Switch. Correção `7ab1b76e`, conferida a partir
+da fonte no mesmo painel (não é prova instalada). PNGs em `aceite-2026-10-20/`.
+Entrada só via AT-SPI/ydotool com foco da janela verificado a cada tecla.
+
+## Retomada de 2026-10-19
 
 O PR #259 integrou a branch existente e os commits da base #258 em
 `356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6`. Oito jobs do CI do PR e oito do
