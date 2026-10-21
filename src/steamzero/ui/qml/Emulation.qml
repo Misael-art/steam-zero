@@ -718,18 +718,26 @@ Item {
         return mutedColor
     }
 
+    // Os chips seguem o conteúdo declarado pela plataforma: um jogo de NES não
+    // exibe contadores de DLC, mods ou updates que a plataforma não tem.
     function gameFeatures(game) {
-        return [
-            {"icon": "document-save", "label": game.saveState || qsTr("Save —")},
-            {"icon": "extension", "label": game.modsCount !== undefined
+        const chips = [
+            {"content": "saves", "icon": "document-save", "label": game.saveState || qsTr("Save —")},
+            {"content": "mods", "icon": "extension", "label": game.modsCount !== undefined
                 ? qsTr("Mods %1").arg(game.modsCount) : qsTr("Mods —")},
-            {"icon": "package-x-generic", "label": game.dlcCount !== undefined
+            {"content": "dlc", "icon": "package-x-generic", "label": game.dlcCount !== undefined
                 ? qsTr("DLC %1").arg(game.dlcCount) : qsTr("DLC —")},
-            {"icon": "system-software-update", "label": game.updateVersion
+            {"content": "updates", "icon": "system-software-update", "label": game.updateVersion
                 ? qsTr("Update %1").arg(game.updateVersion) : qsTr("Update —")},
-            {"icon": "applications-graphics", "label": game.shaderCount !== undefined
+            {"content": "shaders", "icon": "applications-graphics", "label": game.shaderCount !== undefined
                 ? qsTr("Shaders %1").arg(game.shaderCount) : qsTr("Shaders —")}
         ]
+        return chips.filter(function(chip) { return page.gameContentDeclares(chip.content) })
+    }
+
+    function firmwareApplies() {
+        const requirements = (selectedPlatform && selectedPlatform.requirements) || {}
+        return requirements.firmware !== undefined && requirements.firmware !== null
     }
 
     function gameEmulatorIndex(game) {
@@ -1382,6 +1390,67 @@ Item {
         return index >= 0 ? index : 0
     }
 
+    // Conteúdo de jogo vem do manifesto da plataforma: NES gerencia patches,
+    // cheats, saves, conquistas e HD packs; o bloco de updates/DLC/mods só
+    // aparece onde a plataforma o declara.
+    function gameContentItems() {
+        return (selectedPlatform && selectedPlatform.gameContent) || []
+    }
+
+    function gameContentDeclares(contentId) {
+        return gameContentItems().some(function(item) { return item.id === contentId })
+    }
+
+    function gameContentRows() {
+        const hasModActions = gameContentDeclares("mods")
+        return gameContentItems().filter(function(item) {
+            return !(hasModActions && ["updates", "dlc", "mods", "cheats"].indexOf(item.id) >= 0)
+        })
+    }
+
+    // Só arquivo NSP converte para NSZ; um ZIP de NES não ganha o botão.
+    function canConvertToNsz(game) {
+        return String((game && game.format) || "").toLowerCase() === "nsp"
+    }
+
+    // A linha selecionada era um azul-escuro fixo sob o texto do tema; no tema
+    // claro o nome do jogo sumia. A tinta parte da própria superfície do tema.
+    function selectedRowColor() {
+        return Qt.tint(surfaceColor, Qt.rgba(cyanColor.r, cyanColor.g, cyanColor.b, 0.16))
+    }
+
+    function gameContentStateLabel(state) {
+        if (state === "ready")
+            return qsTr("Disponível")
+        if (state === "unavailable")
+            return qsTr("Indisponível")
+        return qsTr("Planejado")
+    }
+
+    function gameMetadata() {
+        const metadata = selectedGame && selectedGame.metadata
+        return metadata && metadata.fields ? metadata : {"state": "empty", "fields": {}, "sources": {}}
+    }
+
+    // Uma linha por campo descritivo presente, com a origem que o backend
+    // registrou; campo ausente não vira linha vazia nem valor inventado.
+    function gameMetadataRows() {
+        const metadata = gameMetadata()
+        const fields = metadata.fields
+        const sources = metadata.sources || {}
+        const rows = []
+        const add = function(key, label, value) {
+            if (value)
+                rows.push({"key": key, "label": label, "value": value, "source": sources[key] || ""})
+        }
+        add("releaseDate", qsTr("Ano"), fields.releaseDate ? String(fields.releaseDate).slice(0, 4) : "")
+        add("genres", qsTr("Gênero"), (fields.genres || []).join(" · "))
+        add("developer", qsTr("Desenvolvedor"), fields.developer || "")
+        add("publisher", qsTr("Publicadora"), fields.publisher || "")
+        add("description", qsTr("Descrição"), fields.description || "")
+        return rows
+    }
+
     function dispatchAction(action) {
         if (!action || action.enabled !== true) {
             page.actionRequested(action)
@@ -1694,14 +1763,29 @@ Item {
                         Layout.preferredWidth: page.compactLayout ? 180 : 220
                         Layout.minimumHeight: page.minimumTouchTarget
                         Accessible.name: qsTr("Selecionar plataforma de emulação")
+                        objectName: "platformPicker"
+                        // A escolha do usuário atribui currentIndex e desfaz o binding, e
+                        // a troca do modelo zera o índice; sem ressincronizar, o refresh
+                        // após uma ação voltava o seletor a "Gestão geral" com a página
+                        // ainda na plataforma escolhida.
+                        function restoreSelectionBinding() {
+                            currentIndex = Qt.binding(function() {
+                                return page.globalManagementActive ? 0 : page.platformIndex + 1
+                            })
+                        }
+                        // Trocar o modelo também zera o índice por dentro do ComboBox.
+                        onModelChanged: restoreSelectionBinding()
+                        onCountChanged: restoreSelectionBinding()
                         onActivated: {
                             if (currentIndex === 0) {
                                 page.globalManagementActive = true
+                                restoreSelectionBinding()
                                 return
                             }
                             page.platformIndex = currentIndex - 1
                             page.globalManagementActive = false
                             page.resetContext()
+                            restoreSelectionBinding()
                         }
                     }
                 }
@@ -2708,7 +2792,7 @@ Item {
                                     page.gamePlayAction(modelData)
                                 Layout.fillWidth: true
                                 Layout.minimumHeight: compactGameCardContent.implicitHeight + 20
-                                color: selected ? "#10283a" : page.surfaceColor
+                                color: selected ? page.selectedRowColor() : page.surfaceColor
                                 border.color: selected ? page.cyanColor : page.borderColor
                                 border.width: selected ? 2 : 1
                                 radius: 8
@@ -2918,7 +3002,7 @@ Item {
                                     && page.selectedGame.path === modelData.path
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 150
-                                color: selected ? "#10283a" : page.surfaceColor
+                                color: selected ? page.selectedRowColor() : page.surfaceColor
                                 border.color: selected ? page.cyanColor : page.borderColor
                                 border.width: selected ? 2 : 1
                                 radius: 8
@@ -3090,6 +3174,7 @@ Item {
                                         Label { text: page.formatBytes(gameRow.modelData.size); color: page.textColor; font.bold: true }
                                         Label { text: String(gameRow.modelData.format || "—").toUpperCase(); color: page.mutedColor; font.pixelSize: page.scaledTextSize(11) }
                                         Label {
+                                            visible: page.firmwareApplies()
                                             text: gameRow.modelData.requiresFirmware
                                                 && gameRow.modelData.requiresFirmware.required
                                                 ? qsTr("FW ≥ %1").arg(gameRow.modelData.requiresFirmware.required)
@@ -4051,6 +4136,84 @@ Item {
                             }
                         }
 
+                        Rectangle {
+                            id: gameDataPanel
+                            objectName: "gameDataPanel"
+                            visible: page.selectedGame.id !== undefined && page.selectedGame.id !== ""
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: gameDataBody.implicitHeight + 24
+                            color: page.backgroundColor
+                            border.color: page.borderColor
+                            radius: 8
+                            ColumnLayout {
+                                id: gameDataBody
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.top: parent.top
+                                anchors.margins: 12
+                                spacing: 6
+                                RowLayout {
+                                    ModernIcon { iconName: "dialog-information"; iconColor: page.cyanColor; Layout.preferredWidth: 20; Layout.preferredHeight: 20 }
+                                    Label { text: qsTr("Dados do jogo"); color: page.textColor; font.bold: true; Layout.fillWidth: true }
+                                }
+                                Label {
+                                    objectName: "gameDataEmpty"
+                                    visible: page.gameMetadataRows().length === 0
+                                    text: page.gameMetadata().state === "unreadable"
+                                        ? qsTr("Os dados salvos deste jogo não puderam ser lidos; uma nova busca os recompõe.")
+                                        : qsTr("Sem ano, gênero, desenvolvedor ou descrição ainda.")
+                                    color: page.mutedColor
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                }
+                                Repeater {
+                                    model: page.gameMetadataRows()
+                                    delegate: RowLayout {
+                                        required property var modelData
+                                        Layout.fillWidth: true
+                                        spacing: 8
+                                        Label {
+                                            text: modelData.label
+                                            color: page.mutedColor
+                                            font.pixelSize: page.scaledTextSize(11)
+                                            Layout.preferredWidth: 96
+                                            Layout.alignment: Qt.AlignTop
+                                        }
+                                        Label {
+                                            objectName: "gameData_" + modelData.key
+                                            text: modelData.value
+                                            color: page.textColor
+                                            wrapMode: Text.WordWrap
+                                            maximumLineCount: modelData.key === "description" ? 6 : 2
+                                            elide: Text.ElideRight
+                                            Layout.fillWidth: true
+                                        }
+                                        Label {
+                                            text: modelData.source
+                                            visible: text !== ""
+                                            color: page.mutedColor
+                                            font.pixelSize: page.scaledTextSize(10)
+                                            Layout.alignment: Qt.AlignTop
+                                        }
+                                    }
+                                }
+                                Button {
+                                    objectName: "gameDataSearchButton"
+                                    text: qsTr("Buscar dados e mídias")
+                                    icon.name: "edit-find"
+                                    Layout.minimumHeight: page.minimumTouchTarget
+                                    Accessible.description: qsTr("Busca ano, gênero, desenvolvedor, descrição e mídias deste jogo nos provedores configurados.")
+                                    onClicked: page.dispatchAction({
+                                        "id": "game.media.search:" + page.selectedGame.id,
+                                        "label": qsTr("Buscar dados e mídias"),
+                                        "enabled": true,
+                                        "requiresConfirmation": false,
+                                        "gameId": page.selectedGame.id
+                                    })
+                                }
+                            }
+                        }
+
                         Label {
                             text: qsTr("Title ID: %1").arg(
                                 page.selectedGame.titleId || qsTr("não identificado"))
@@ -4184,9 +4347,44 @@ Item {
                                 spacing: 7
                                 RowLayout {
                                     ModernIcon { iconName: "package-x-generic"; iconColor: page.cyanColor; Layout.preferredWidth: 20; Layout.preferredHeight: 20 }
-                                    Label { text: qsTr("Conteúdo e modding"); color: page.textColor; font.bold: true; Layout.fillWidth: true }
+                                    Label { text: qsTr("Conteúdo do jogo"); color: page.textColor; font.bold: true; Layout.fillWidth: true }
                                 }
                                 Label {
+                                    objectName: "gameContentUndeclared"
+                                    visible: page.gameContentItems().length === 0
+                                    text: qsTr("Esta plataforma ainda não declara conteúdo de jogo gerenciável.")
+                                    color: page.mutedColor
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                }
+                                Repeater {
+                                    model: page.gameContentRows()
+                                    delegate: ColumnLayout {
+                                        required property var modelData
+                                        objectName: "gameContent_" + modelData.id
+                                        Layout.fillWidth: true
+                                        spacing: 1
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Label { text: modelData.label; color: page.textColor; font.bold: true; Layout.fillWidth: true }
+                                            Label {
+                                                text: page.gameContentStateLabel(modelData.state)
+                                                color: modelData.state === "ready" ? page.greenColor : page.mutedColor
+                                                font.pixelSize: page.scaledTextSize(10)
+                                                font.bold: true
+                                            }
+                                        }
+                                        Label {
+                                            text: modelData.detail
+                                            color: page.mutedColor
+                                            font.pixelSize: page.scaledTextSize(11)
+                                            wrapMode: Text.WordWrap
+                                            Layout.fillWidth: true
+                                        }
+                                    }
+                                }
+                                Label {
+                                    visible: page.gameContentDeclares("updates") || page.gameContentDeclares("mods")
                                     text: qsTr("Updates: %1 • DLCs: %2 • Mods: %3")
                                         .arg(page.selectedGame.updateVersion || "—")
                                         .arg(page.selectedGame.dlcCount !== undefined
@@ -4199,8 +4397,10 @@ Item {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
+                                    visible: page.gameContentDeclares("updates") || page.gameContentDeclares("mods")
                                     Button {
                                         text: qsTr("Updates e DLC")
+                                        visible: page.gameContentDeclares("updates") || page.gameContentDeclares("dlc")
                                         palette.button: page.raisedColor
                                         palette.buttonText: page.textColor
                                         Layout.fillWidth: true
@@ -4215,6 +4415,7 @@ Item {
                                     }
                                     Button {
                                         text: qsTr("Mods e cheats")
+                                        visible: page.gameContentDeclares("mods")
                                         palette.button: page.raisedColor
                                         palette.buttonText: page.textColor
                                         Layout.fillWidth: true
@@ -4428,7 +4629,7 @@ Item {
                                         })
                                     }
                                     Button {
-                                        text: qsTr("Buscar")
+                                        text: qsTr("Buscar dados e mídias")
                                         icon.name: "edit-find"
                                         palette.button: page.raisedColor
                                         palette.buttonText: page.textColor
@@ -4440,10 +4641,10 @@ Item {
                                                 ? page.cyanColor : page.borderColor
                                             radius: 6
                                         }
-                                        Accessible.description: qsTr("Buscar mídia na internet.")
+                                        Accessible.description: qsTr("Buscar dados e mídias na internet.")
                                         onClicked: page.dispatchAction({
                                             "id": "game.media.search:" + page.selectedGame.id,
-                                            "label": qsTr("Buscar mídia na internet"),
+                                            "label": qsTr("Buscar dados e mídias"),
                                             "enabled": true,
                                             "requiresConfirmation": false,
                                             "gameId": page.selectedGame.id
@@ -4599,6 +4800,7 @@ Item {
                                 }
                                 Button {
                                     text: qsTr("Converter NSP → NSZ")
+                                    visible: page.canConvertToNsz(page.selectedGame)
                                     icon.name: "document-export"
                                     palette.button: page.raisedColor
                                     palette.buttonText: page.textColor

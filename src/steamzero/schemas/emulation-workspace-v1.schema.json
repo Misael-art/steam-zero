@@ -81,6 +81,17 @@
     }
   },
   "$defs": {
+    "gameContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "state", "detail"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "state": {"enum": ["ready", "planned", "unavailable"]},
+        "detail": {"type": "string", "minLength": 1}
+      }
+    },
     "globalManagement": {
       "type": "object",
       "additionalProperties": false,
@@ -317,6 +328,10 @@
         "requirements": {
           "type": "object",
           "additionalProperties": true
+        },
+        "gameContent": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/gameContent"}
         },
         "subsystems": {
           "type": "array",
@@ -1780,6 +1795,10 @@
           "items": {
             "$ref": "#/$defs/game"
           }
+        },
+        "gameContent": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/gameContent"}
         },
         "requirements": {
           "type": "object",

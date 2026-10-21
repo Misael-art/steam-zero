@@ -900,6 +900,10 @@ def test_library_keeps_games_without_title_id_as_unverified(monkeypatch, tmp_pat
             "identityVerified": False,
             "contentKind": "base",
             "metadataSource": "format",
+            # Contrato alterado em 2026-10-21 (R2): toda linha publica os
+            # metadados descritivos persistidos; sem busca, o estado vazio é
+            # explícito em vez de campo ausente.
+            "metadata": {"state": "empty", "fields": {}, "sources": {}},
             "version": None,
             "updateCount": 0,
             "updateVersion": None,

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-RECOVERY-R2-GAME-DATA",
+  "item": "SZ-RECOVERY-R2-GAME-DATA",
+  "branch": "codex/product-recovery-2026-10-16",
+  "baseRef": "7b4f38facf24ec283cfe7f35c006226e2d9ea36d",
+  "owner": "claude-code-central-executor",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/adapters/scraping/screenscraper.py",
+    "src/steamzero/adapters/state_store_game_metadata.py",
+    "src/steamzero/core/migrations/m0023_game_metadata.py",
+    "src/steamzero/ui/qml/Emulation.qml",
+    "tests/unit/scraping/test_screenscraper.py",
+    "tests/unit/test_game_metadata_store.py",
+    "tests/unit/test_game_metadata_job.py",
+    "tests/qml/check_emulation.qml",
+    "src/steamzero/ui/qml/Main.qml",
+    "tests/integration/test_state.py",
+    "src/steamzero/core/migrations/__init__.py",
+    "tests/qml/check_media_search_summary.qml",
+    "docs/09-operations/evidence/2026-10-21-r2-game-data",
+    "src/steamzero/schemas/platform-manifest-v1.schema.json",
+    "src/steamzero/schemas/emulation-workspace-v1.schema.json",
+    "src/steamzero/domain/platforms.py",
+    "src/steamzero/domain/emulation_workspace.py"
+  ],
+  "sharedPaths": [
+    "src/steamzero/adapters/emulation.py",
+    "src/steamzero/platform_manifests",
+    "tests/unit/test_emulation_controller.py",
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Slice 1: metadados do ScreenScraper (ano, genero, desenvolvedor, descricao) como GameRecord com proveniencia, persistidos por jogo e fundidos pela politica existente na busca de midia; exibidos na Central. Launcher via handoff de launcher_catalog.py.",
+  "updatedAt": "2026-10-21"
+}

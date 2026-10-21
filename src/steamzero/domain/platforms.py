@@ -41,6 +41,8 @@ class PlatformManifest:
     presets: tuple[dict[str, Any], ...]
     cloud: dict[str, Any] | None
     requirements: tuple[str, ...]
+    #: Conteúdo de jogo gerenciado pela plataforma (patches, cheats, saves…).
+    game_content: tuple[dict[str, Any], ...] = ()
 
 
 def load_platform_manifest(data: dict[str, Any]) -> PlatformManifest:
@@ -148,6 +150,7 @@ def load_platform_manifest(data: dict[str, Any]) -> PlatformManifest:
         presets=tuple(dict(item) for item in data["presets"]),
         cloud=dict(cloud) if cloud is not None else None,
         requirements=requirements,
+        game_content=tuple(dict(item) for item in data.get("gameContent", ())),
     )
 
 
@@ -292,6 +295,7 @@ def platform_placeholder(manifest: PlatformManifest) -> dict[str, Any]:
         "name": manifest.name,
         "shortName": manifest.short_name,
         "iconKey": manifest.icon_key,
+        "gameContent": [dict(item) for item in manifest.game_content],
         "state": "planned",
         "statusLabel": "Integração planejada",
         # Sem composição não há o que medir: ``percent=0`` parecia uma medição

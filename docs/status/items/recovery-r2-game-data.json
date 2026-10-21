@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-RECOVERY-R2-GAME-DATA",
+  "title": "R2 — Página de jogo com dados e mídias completos",
+  "domain": "media",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "unit",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "src/steamzero/adapters/scraping/screenscraper.py",
+    "src/steamzero/adapters/state_store_game_metadata.py",
+    "src/steamzero/core/migrations/m0023_game_metadata.py",
+    "src/steamzero/ui/qml/Emulation.qml",
+    "tests/unit/scraping/test_screenscraper.py",
+    "tests/unit/test_game_metadata_store.py",
+    "tests/unit/test_game_metadata_job.py",
+    "tests/qml/check_emulation.qml",
+    "src/steamzero/ui/qml/Main.qml",
+    "tests/integration/test_state.py",
+    "src/steamzero/core/migrations/__init__.py",
+    "tests/qml/check_media_search_summary.qml",
+    "docs/09-operations/evidence/2026-10-21-r2-game-data",
+    "src/steamzero/schemas/platform-manifest-v1.schema.json",
+    "src/steamzero/schemas/emulation-workspace-v1.schema.json",
+    "src/steamzero/domain/platforms.py",
+    "src/steamzero/domain/emulation_workspace.py"
+  ],
+  "scopeDigest": "0a4da936dcb74649f4831c09cfc7fbea400867044f6f10ffd29cea2a262410b7",
+  "dependsOn": [
+    "SZ-MEDIA-SCRAPING",
+    "SZ-AURA-METADATA",
+    "SZ-AURA-RICH-MEDIA-PROJECTION",
+    "SZ-AURA-PLATFORM-MEDIA-SCOPE"
+  ],
+  "knownGaps": [
+    "GAP-R2-LAUNCHER-PROJECTION",
+    "GAP-R2-REMOTE-PROVIDER-PROOF",
+    "GAP-R2-PLATFORM-GAME-CONTENT",
+    "GAP-R2-CONTENT-ADAPTERS"
+  ],
+  "acceptanceCriteria": [
+    "Ano, gênero, desenvolvedor e descrição de fixture conhecida chegam à Central e ao Launcher com procedência por campo.",
+    "Capa/fanart/logo se associam ao mesmo jogo.",
+    "Reinício e modo offline conservam os dados.",
+    "Erro de autenticação, quota, rede e resultado vazio não apagam o existente; valor manual não é sobrescrito.",
+    "Prova com provedor remoto real registrada separada dos fixtures quando houver credencial."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_game_metadata_store.py",
+      "command": "pytest tests/unit/scraping tests/unit/test_game_metadata_store.py tests/unit/test_game_metadata_job.py tests/integration/test_state.py + QML check_emulation/check_media_search_summary; negative controls fail against previous files",
+      "result": "passed"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-21-r2-game-data/01-fonte-dados-do-jogo-dp1.png",
+      "command": "Fonte (nao instalada), perfil isolado, NES com metadados de fixture rotulados 'fixture'; busca sem credencial degradou e preservou os dados (02)",
+      "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-21-r2-game-data/04-fonte-conteudo-do-jogo-nes-dp1.png",
+      "command": "Fonte, perfil isolado, janela 1920x1900 em DP-1: painel do jogo NES com 'Conteudo do jogo' do manifesto (patches, cheats, saves, save states, RetroAchievements, HD packs, todos Planejado), sem updates/DLC/mods; linha selecionada legivel (05)",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Slices 1-2 na fonte (9f559b59..HEAD): metadados com proveniencia na Central; conteudo de jogo por manifesto (pedido do operador) com NES em patches/cheats/saves/save states/RetroAchievements/HD packs como planejados; chips e FW so onde declarados; linha selecionada legivel. Proximo: PR, CI, release, instalacao com senha do operador e aceite instalado. Abertos: GAP-R2-CONTENT-ADAPTERS (aplicar patches/cheats/achievements/HD packs de verdade), GAP-R2-LAUNCHER-PROJECTION (handoff de launcher_catalog.py), GAP-R2-REMOTE-PROVIDER-PROOF (credencial ScreenScraper). Residual: 'Saves e shader cache' do Switch ainda aparece para NES e duplica o item Saves.",
+  "activeWorkstreams": [
+    "WS-2026-10-RECOVERY-R2-GAME-DATA"
+  ],
+  "updatedAt": "2026-10-21",
+  "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado."
+}

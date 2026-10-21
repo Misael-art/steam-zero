@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-21",
+  "reason": "Revalidacao de escopo apos slice 2 de R2 (manifestos, schemas, Emulation.qml compartilhados). Sem promocao de estagio.",
+  "items": {
+    "SZ-EMULATION-STORAGE-READMODEL": {
+      "from": "d3b343bd1d668a0252cc55cff8199c1f0afc9aaadcf8024b38f61eac6695779e",
+      "to": "1c5c86c8bac08f043cc8771739cb51bf4d91510d7beefa597ab0d494e5a3fb81"
+    },
+    "SZ-LIBRARY-CANONICAL": {
+      "from": "bb04c14248a9a537a29a193b3cb00f86e69f3640df79e44bdb44c20695a2c468",
+      "to": "1feb2c137f77e9d9aa427a2e8f01baf9f4b09fe0411ff8f9328445e192ae2476"
+    },
+    "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION": {
+      "from": "387af28c9e24d2f63f3745db07085d42d6e44334c549ccee9794b5fab117843b",
+      "to": "6e76dff34a38acdff644cf576258404bc410a747a191880371318ec61f720dd7"
+    },
+    "SZ-PLATFORM-CORE-PER-SYSTEM": {
+      "from": "826129b5d4b2f6de709f579a7376a152570eeae1a7135830aa0bcff144689ee6",
+      "to": "a39a1fff0c55b25ab1d1b1af4c84a5e74eaf04efa796de8ec81a3943ea30fceb"
+    },
+    "SZ-PLATFORM-REQUIREMENT-SCOPE": {
+      "from": "3482134e5f7299b3e7b6a352f8646e821c7aac110fd5cd760e00bff2522fa182",
+      "to": "45c2b1b7449a1eec57e125c5e82e374947e1022cdbb936be6755b919deaf8505"
+    },
+    "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD": {
+      "from": "b401825e9a113e54b0b421e8a3ec49233873c4e35d4ef6598ed85f1739281188",
+      "to": "728955b3d9115f6634ecfa125289176e3df02f2acdae5172c2e6e7489e131a0c"
+    },
+    "SZ-RECOVERY-R0-R1-CENTRAL": {
+      "from": "7af8cbd23ee88e1614da6681a517b10151a6acee888c95e7ca56899968826fc6",
+      "to": "6a08b16bc38faa90d193ad05684053650d631d2a73c4744e75d6ec0df3c6c8d0"
+    },
+    "SZ-RECOVERY-R2-GAME-DATA": {
+      "from": "2e1f77c45cd1bd23fa3eb9ef5b0583b4e6d8d8f9bb4632d0970696deb5bc890f",
+      "to": "f5e606c1f8b4d0317d6ce90df2c3b2b6750a49c79171079f840af60f63e494c7"
+    },
+    "SZ-THEME-ENGINE": {
+      "from": "9164a536fb1fe70096e6357332ee5b700943d4438318fe2cc1612eefc1d02036",
+      "to": "536e67eaf59cd2daeff184f0adda05e7910648991a1b950851791cd78fb83ba6"
+    },
+    "SZ-UI-DESKTOP-AUDIT": {
+      "from": "462df02756185bd60d260386e99f265c696ea7b5048edc77289ca5c3195c4d6d",
+      "to": "f427c6ece67c72261ebd0d0261321d3f5524d7c29ef3e0667998261b76b1a1a7"
+    },
+    "SZ-MULTIDISC-SESSION-DISC-IDENTITY": {
+      "from": "7ee03299de567af2084d92f6e0fce92a3cb468998b7624e75aa5a90d58253327",
+      "to": "e319d52488f7e9175b88fd36defa0197ada910bd03e6e068ed7fd17fc613e42c"
+    }
+  }
+}

@@ -34,6 +34,7 @@ from steamzero.core.migrations import (
     m0020_libretro_cores,
     m0021_media_platform_scope,
     m0022_multidisc_reconciliation,
+    m0023_game_metadata,
 )
 
 Migration = Callable[[sqlite3.Connection], None]
@@ -62,6 +63,7 @@ MIGRATIONS: list[tuple[int, Migration]] = [
     (20, m0020_libretro_cores.up),
     (21, m0021_media_platform_scope.up),
     (22, m0022_multidisc_reconciliation.up),
+    (23, m0023_game_metadata.up),
 ]
 
 LATEST = max(v for v, _ in MIGRATIONS)

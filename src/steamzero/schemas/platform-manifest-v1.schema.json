@@ -124,9 +124,27 @@
           "firmware"
         ]
       }
+    },
+    "gameContent": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 10,
+      "items": {"$ref": "#/$defs/gameContent"}
     }
   },
   "$defs": {
+    "gameContent": {
+      "description": "Conteúdo de jogo que a plataforma gerencia (R2). O painel do jogo mostra só o declarado, com estado honesto.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "state", "detail"],
+      "properties": {
+        "id": {"enum": ["updates", "dlc", "mods", "cheats", "patches", "saves", "saveStates", "achievements", "hdPacks", "shaders"]},
+        "label": {"type": "string", "minLength": 1, "maxLength": 80},
+        "state": {"enum": ["ready", "planned", "unavailable"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 300}
+      }
+    },
     "action": {
       "type": "object",
       "additionalProperties": false,

@@ -516,3 +516,81 @@ def test_search_results_do_not_contain_credentials(
     assert all("devpassword" not in c.url for c in results)
     assert all("test-pass" not in c.url for c in results)
     assert all(c.url.startswith("https://") for c in results)
+
+
+# --- Metadados descritivos (R2) ----------------------------------------------
+
+_JSON_WITH_METADATA = json.dumps(
+    {
+        "response": {
+            "jeu": {
+                "id": 1234,
+                "synopsis": [
+                    {"langue": "fr", "text": "Description française."},
+                    {"langue": "en", "text": "English description."},
+                ],
+                "developpeur": {"id": "1", "text": "Nintendo R&D4"},
+                "editeur": {"id": "2", "text": "Nintendo"},
+                "dates": [
+                    {"region": "jp", "text": "1985-09-13"},
+                    {"region": "us", "text": "1985-10-18"},
+                ],
+                "genres": [
+                    {"id": "7", "noms": [{"langue": "en", "text": "Platform"}]},
+                    {"id": "8", "noms": [{"langue": "fr", "text": "Action"}]},
+                    {"id": "9", "noms": [{"langue": "en", "text": "Platform"}]},
+                ],
+                "medias": [
+                    {"type": "box-2d", "region": "us", "url": "https://example.com/box2d.png"},
+                ],
+            }
+        }
+    }
+).encode()
+
+
+def test_search_with_metadata_reads_descriptive_fields_from_same_response(
+    adapter: ScreenScraperAdapter, identity: GameIdentity
+) -> None:
+    with patch.object(adapter, "_fetch_url", return_value=_JSON_WITH_METADATA) as fetch:
+        candidates, metadata = adapter.search_with_metadata(identity, ["boxart"])
+    assert fetch.call_count == 1
+    assert [c.url for c in candidates] == ["https://example.com/box2d.png"]
+    assert metadata == {
+        "description": "English description.",
+        "developer": "Nintendo R&D4",
+        "publisher": "Nintendo",
+        "releaseDate": "1985-10-18",
+        "genres": ["Platform", "Action"],
+    }
+
+
+def test_search_with_metadata_drops_partial_dates_instead_of_inventing_them(
+    adapter: ScreenScraperAdapter, identity: GameIdentity
+) -> None:
+    body = json.dumps(
+        {"response": {"jeu": {"id": 1, "dates": [{"region": "wor", "text": "1990"}]}}}
+    ).encode()
+    with patch.object(adapter, "_fetch_url", return_value=body):
+        _, metadata = adapter.search_with_metadata(identity, ["boxart"])
+    assert "releaseDate" not in metadata
+
+
+def test_search_with_metadata_empty_and_not_found_return_no_metadata(
+    adapter: ScreenScraperAdapter, identity: GameIdentity
+) -> None:
+    for body in (_JSON_EMPTY, _JSON_NOTFOUND, _XML_OK):
+        with patch.object(adapter, "_fetch_url", return_value=body):
+            _, metadata = adapter.search_with_metadata(identity, ["boxart"])
+        assert metadata == {}
+
+
+def test_search_with_metadata_quota_still_raises(
+    adapter: ScreenScraperAdapter, identity: GameIdentity
+) -> None:
+    with (
+        patch.object(adapter, "_fetch_url", return_value=_JSON_ERROR),
+        pytest.raises(SteamZeroError) as exc,
+    ):
+        adapter.search_with_metadata(identity, ["boxart"])
+    assert exc.value.code == "E-SCRAPE-QUOTA-EXCEEDED"

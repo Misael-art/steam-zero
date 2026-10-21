@@ -170,6 +170,125 @@ Window {
 
     // Aceite instalado R0/R1 em 1280×800: padding de ScrollView reduz a viewport
     // (banda morta fixa) e texto do tema claro some sobre ciano escuro.
+    function testGameDataPanelShowsDescriptiveFieldsWithSource() {
+        const object = makePage({
+            "platforms": [
+                {"id": "nes", "name": "Nintendo Entertainment System e Famicom", "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []},
+                 "emulators": [],
+                 "games": [
+                    {"id": "smb", "path": "/roms/nes/smb.nes", "name": "Super Mario Bros.",
+                     "state": "ready", "statusLabel": "NES",
+                     "metadata": {"state": "available",
+                        "fields": {"releaseDate": "1985-10-18", "genres": ["Platform", "Action"],
+                                   "developer": "Nintendo R&D4", "description": "English description."},
+                        "sources": {"releaseDate": "screenscraper", "genres": "screenscraper",
+                                    "developer": "screenscraper", "description": "screenscraper"}}},
+                    {"id": "blank", "path": "/roms/nes/blank.nes", "name": "Sem dados",
+                     "state": "ready", "statusLabel": "NES"}
+                 ]}
+            ]
+        })
+        if (!object)
+            return
+        object.selectGame(object.games[0])
+        const rows = object.gameMetadataRows()
+        check(rows.length === 4, "quatro campos presentes devem virar quatro linhas")
+        check(rows[0].key === "releaseDate" && rows[0].value === "1985", "ano vem da data de lançamento")
+        check(rows[1].value === "Platform · Action", "gêneros juntam-se em uma linha")
+        check(rows.every(function(row) { return row.source === "screenscraper" }),
+              "cada linha deve mostrar a origem registrada")
+        check(rows.every(function(row) { return row.key !== "publisher" }),
+              "campo ausente não vira linha vazia")
+        object.selectGame(object.games[1])
+        check(object.gameMetadataRows().length === 0, "jogo sem metadado não inventa linhas")
+        check(object.gameMetadata().state === "empty", "ausência de metadado é estado vazio explícito")
+        object.destroy()
+    }
+
+    function testPlatformPickerKeepsSelectionAcrossRefresh() {
+        const payload = {
+            "platforms": [
+                {"id": "switch", "name": "Nintendo Switch", "state": "ready",
+                 "readiness": {"percent": 80, "title": "Pronto", "blockers": []}, "emulators": [], "games": []},
+                {"id": "nes", "name": "Nintendo Entertainment System e Famicom", "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []}
+            ]
+        }
+        const object = makePage(payload)
+        if (!object)
+            return
+        const picker = allChildren(object, []).filter(function(child) {
+            return child.objectName === "platformPicker"
+        })[0]
+        check(picker !== undefined, "seletor de plataforma deve existir")
+        if (!picker) {
+            object.destroy()
+            return
+        }
+        picker.currentIndex = 2
+        picker.activated(2)
+        check(object.platformIndex === 1, "escolha deve selecionar NES")
+        // O refresh real passa por um payload com outra contagem antes do
+        // definitivo; trocar o modelo com a mesma contagem não reproduzia.
+        object.emulation = {"platforms": [payload.platforms[1]]}
+        object.emulation = JSON.parse(JSON.stringify(payload))
+        check(picker.currentIndex === object.platformIndex + 1,
+              "após refresh o seletor deve continuar na plataforma da página, não em Gestão geral")
+        object.destroy()
+    }
+
+    function testGameContentFollowsPlatformManifest() {
+        const nesContent = [
+            {"id": "patches", "label": "Patches", "state": "planned", "detail": "IPS/BPS/UPS"},
+            {"id": "cheats", "label": "Cheats", "state": "planned", "detail": "Game Genie"},
+            {"id": "saves", "label": "Saves", "state": "planned", "detail": "SRAM"},
+            {"id": "achievements", "label": "RetroAchievements", "state": "planned", "detail": "hash"},
+            {"id": "hdPacks", "label": "HD packs", "state": "planned", "detail": "Mesen"}
+        ]
+        const switchContent = [
+            {"id": "updates", "label": "Updates", "state": "ready", "detail": "Title ID"},
+            {"id": "dlc", "label": "DLC", "state": "ready", "detail": "Title ID"},
+            {"id": "mods", "label": "Mods", "state": "ready", "detail": "Build ID"},
+            {"id": "cheats", "label": "Cheats", "state": "ready", "detail": "Atmosphere"},
+            {"id": "saves", "label": "Saves", "state": "ready", "detail": "backup"}
+        ]
+        const object = makePage({
+            "platforms": [
+                {"id": "nes", "name": "NES", "state": "ready", "gameContent": nesContent,
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []},
+                {"id": "switch", "name": "Nintendo Switch", "state": "ready", "gameContent": switchContent,
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []},
+                {"id": "amiga", "name": "Amiga", "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []}
+            ]
+        })
+        if (!object)
+            return
+        object.platformIndex = 0
+        check(!object.gameContentDeclares("mods") && !object.gameContentDeclares("dlc"),
+              "NES não pode herdar updates/DLC/mods do Switch")
+        check(object.gameContentRows().map(function(r) { return r.id }).join(",")
+              === "patches,cheats,saves,achievements,hdPacks", "NES lista o conteúdo declarado")
+        check(object.gameContentStateLabel("planned") === "Planejado", "planejado não vira ação disponível")
+        object.platformIndex = 1
+        check(object.gameContentDeclares("mods"), "Switch mantém os botões de mods/DLC")
+        check(object.gameContentRows().map(function(r) { return r.id }).join(",") === "saves",
+              "no Switch as linhas cobrem só o que não tem botão próprio")
+        object.platformIndex = 2
+        check(object.gameContentItems().length === 0 && object.gameContentRows().length === 0,
+              "plataforma sem declaração não mostra conteúdo inventado")
+        object.platformIndex = 0
+        check(object.gameFeatures({}).map(function(c) { return c.content }).join(",") === "saves",
+              "NES mostra só o chip de saves declarado")
+        check(!object.firmwareApplies(), "NES sem requisito de firmware não mostra 'FW em análise'")
+        object.platformIndex = 1
+        check(object.gameFeatures({}).length === 4, "Switch mantém saves, mods, DLC e updates")
+                check(object.canConvertToNsz({"format": "nsp"}) && !object.canConvertToNsz({"format": "zip"})
+              && !object.canConvertToNsz({"format": "nsz"}), "conversão NSZ só para NSP")
+        object.destroy()
+    }
+
     function testInstalledViewportAndContrastRegressions() {
         const object = makePage({
             "contextLabel": "Nintendo Switch · Global",
@@ -207,6 +326,9 @@ Window {
                   "inset inferior deve rolar com o conteúdo, não encolher a viewport")
         object.textColor = "#16212a"
         object.backgroundColor = "#e7ebec"
+        object.surfaceColor = "#f1f4f5"
+        check(object._contrastRatio(object.textColor, object.selectedRowColor()) >= 4.5,
+              "nome do jogo na linha selecionada deve ser legível no tema claro")
         check(object._contrastRatio(object._contrastTextColor(object.cyanDarkColor),
                                     object.cyanDarkColor) >= 4.5,
               "texto sobre ciano escuro deve manter contraste AA no tema claro")
@@ -1108,6 +1230,9 @@ Window {
             testSafeFallback()
             testManifestDrivenPlatformSelection()
             testInstalledViewportAndContrastRegressions()
+            testGameDataPanelShowsDescriptiveFieldsWithSource()
+            testPlatformPickerKeepsSelectionAcrossRefresh()
+            testGameContentFollowsPlatformManifest()
             testGlobalManagementOpensPlatformWithoutCreatingAnotherTechnicalId()
             testGlobalInstallPanelHelpers()
             testPlatformCardJourney()

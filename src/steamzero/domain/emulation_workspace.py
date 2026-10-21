@@ -318,6 +318,7 @@ def build_emulation_workspace(
         "emulators": emulators,
         "games": game_rows,
         "requirements": requirements,
+        "gameContent": [dict(item) for item in switch_manifest.game_content],
         "fallbackArtworkAsset": switch_manifest.artwork_asset,
         "capabilities": [
             {

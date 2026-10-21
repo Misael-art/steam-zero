@@ -117,7 +117,7 @@ def test_descriptor_refuses_format_not_accepted_by_adapter(tmp_path: Path) -> No
 def test_state_store_persists_set_disc_identity_and_history(tmp_path: Path) -> None:
     db = tmp_path / "state.db"
     with StateStore(db) as store:
-        assert store.migrate() == 22
+        assert store.migrate() == 23
         store.save_multidisc_set(
             {
                 "id": "set-1",
