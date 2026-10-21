@@ -21,7 +21,9 @@
     "tests/integration/test_emulation_platform_scope.py",
     "tests/unit/test_launch_sony_nintendo.py",
     "src/steamzero/ui/qml/Main.qml",
-    "src/steamzero/ui/qml/SteamComboBox.qml"
+    "src/steamzero/ui/qml/SteamComboBox.qml",
+    "src/steamzero/ui/qml/SteamGameplay.qml",
+    "tests/unit/test_qml_scroll_inset.py"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -29,6 +31,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Release 2.0.0rc1-319de6524db7 (main 319de652, PR #260, push-run 39357199913 verde) ativa e convergida; wheel 3d9741e5 idêntico ao bundle verificado; rollback 2.0.0rc1-1470cf48bf7d presente, ativação não testada. Não reinstalar. PENDENTE_JANELA_DE_TESTE: executar ACEITE-INSTALADO.md a partir do passo 4 em janela dedicada (perfil isolado, NES/Amiga, 1280×800, mouse/teclado, PNGs 01-03). Evidência 43. R0/R1 aberto; R2 não iniciado. Aceite instalado parcial em 1280×800 (eDP-1) reprovou: banda morta do ScrollView, popup de plataforma ilegível, texto escuro sobre ciano e subtítulo do cabeçalho preso em Nintendo Switch. Correção no mesmo checkout; Main.qml recebido por cessão serial de WS-2026-10-STUDIO-DRAFT-HISTORY; SteamComboBox.qml sem claim ativo.",
+  "nextAction": "Residuais do aceite instalado 60f2d590 corrigidos na fonte (faixa morta Visao geral/Perfis/Sync/Transmissao/Sistema/Gameplay, contraste da faixa de prontidao, icones da navegacao desktop); PR, CI, release, instalacao com senha do operador e novo aceite GUI.",
   "updatedAt": "2026-10-20"
 }
