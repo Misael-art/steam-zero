@@ -20,10 +20,15 @@
     "tests/integration/test_state.py",
     "src/steamzero/core/migrations/__init__.py",
     "tests/qml/check_media_search_summary.qml",
-    "docs/09-operations/evidence/2026-10-21-r2-game-data"
+    "docs/09-operations/evidence/2026-10-21-r2-game-data",
+    "src/steamzero/schemas/platform-manifest-v1.schema.json",
+    "src/steamzero/schemas/emulation-workspace-v1.schema.json",
+    "src/steamzero/domain/platforms.py",
+    "src/steamzero/domain/emulation_workspace.py"
   ],
   "sharedPaths": [
     "src/steamzero/adapters/emulation.py",
+    "src/steamzero/platform_manifests",
     "tests/unit/test_emulation_controller.py",
     "docs/STATUS.md",
     "docs/ACTIVE-WORK.md",

@@ -22,9 +22,13 @@
     "tests/integration/test_state.py",
     "src/steamzero/core/migrations/__init__.py",
     "tests/qml/check_media_search_summary.qml",
-    "docs/09-operations/evidence/2026-10-21-r2-game-data"
+    "docs/09-operations/evidence/2026-10-21-r2-game-data",
+    "src/steamzero/schemas/platform-manifest-v1.schema.json",
+    "src/steamzero/schemas/emulation-workspace-v1.schema.json",
+    "src/steamzero/domain/platforms.py",
+    "src/steamzero/domain/emulation_workspace.py"
   ],
-  "scopeDigest": "2e1f77c45cd1bd23fa3eb9ef5b0583b4e6d8d8f9bb4632d0970696deb5bc890f",
+  "scopeDigest": "7fe17d32c6c0d0fd22043a2072ac9972b674238b2a1d895126c84713572845ba",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",
@@ -35,7 +39,7 @@
     "GAP-R2-LAUNCHER-PROJECTION",
     "GAP-R2-REMOTE-PROVIDER-PROOF",
     "GAP-R2-PLATFORM-GAME-CONTENT",
-    "GAP-R2-SELECTED-ROW-CONTRAST"
+    "GAP-R2-CONTENT-ADAPTERS"
   ],
   "acceptanceCriteria": [
     "Ano, gênero, desenvolvedor e descrição de fixture conhecida chegam à Central e ao Launcher com procedência por campo.",
@@ -56,9 +60,15 @@
       "reference": "docs/09-operations/evidence/2026-10-21-r2-game-data/01-fonte-dados-do-jogo-dp1.png",
       "command": "Fonte (nao instalada), perfil isolado, NES com metadados de fixture rotulados 'fixture'; busca sem credencial degradou e preservou os dados (02)",
       "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-21-r2-game-data/04-fonte-conteudo-do-jogo-nes-dp1.png",
+      "command": "Fonte, perfil isolado, janela 1920x1900 em DP-1: painel do jogo NES com 'Conteudo do jogo' do manifesto (patches, cheats, saves, save states, RetroAchievements, HD packs, todos Planejado), sem updates/DLC/mods; linha selecionada legivel (05)",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Slice 1 na fonte (commits 9f559b59..be979246): metadados do ScreenScraper como GameRecord com proveniencia, persistencia m0023, fusao na busca, painel 'Dados do jogo' na Central, resumo honesto da busca e seletor preservado no refresh. Proximo: (a) GAP-R2-PLATFORM-GAME-CONTENT — pedido do operador 2026-10-21: para NES e afins o painel do jogo mostra Updates/DLC/Mods do Switch; deve vir de declaracao por plataforma no manifesto: patches (IPS/BPS/UPS), cheats, saves/save states, RetroAchievements e HD packs, cada um com estado honesto; (b) projecao no Launcher (launcher_catalog.py sob claim ativo de journey-launcher-session: handoff); (c) prova com provedor remoto real quando houver credencial; (d) contraste do nome na linha selecionada da biblioteca por jogo; depois PR, CI, release e aceite instalado.",
+  "nextAction": "Slices 1-2 na fonte (9f559b59..HEAD): metadados com proveniencia na Central; conteudo de jogo por manifesto (pedido do operador) com NES em patches/cheats/saves/save states/RetroAchievements/HD packs como planejados; chips e FW so onde declarados; linha selecionada legivel. Proximo: PR, CI, release, instalacao com senha do operador e aceite instalado. Abertos: GAP-R2-CONTENT-ADAPTERS (aplicar patches/cheats/achievements/HD packs de verdade), GAP-R2-LAUNCHER-PROJECTION (handoff de launcher_catalog.py), GAP-R2-REMOTE-PROVIDER-PROOF (credencial ScreenScraper). Residual: 'Saves e shader cache' do Switch ainda aparece para NES e duplica o item Saves.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R2-GAME-DATA"
   ],
