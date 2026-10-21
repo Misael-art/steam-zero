@@ -1651,7 +1651,7 @@ Item {
                         visible: !page.compactLayout
                         text: page.globalManagementActive
                             ? qsTr("Recursos, diretórios e componentes compartilhados")
-                            // contextLabel do payload descreve só o Switch; o contexto segue a seleção.
+                            // contextLabel do payload descreve só a plataforma padrão; o contexto segue a seleção.
                             : page.headerContext && page.headerContext.name && page.scopes[page.scopeIndex]
                             ? qsTr("%1 · %2").arg(page.headerContext.name).arg(page.scopes[page.scopeIndex].label)
                             : qsTr("Dados locais • sem downloads automáticos de conteúdo")
