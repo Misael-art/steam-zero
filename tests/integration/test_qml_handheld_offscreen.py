@@ -272,6 +272,8 @@ def _error_server() -> tuple[int, threading.Thread, HTTPServer]:
         # executadas lado a lado porque o defeito é justamente a divergência entre
         # elas — o mesmo 1073741824 B lido como GiB, GB e MB conforme a tela.
         "check_storage_units.qml",
+        # R2: resumo da busca de dados e mídias declara o destino dos metadados.
+        "check_media_search_summary.qml",
         "check_main_handheld_sections.qml",
         "check_credentials.qml",
         "check_credential_dialog_responsive.qml",

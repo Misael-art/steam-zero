@@ -761,10 +761,11 @@ ApplicationWindow {
         if (job.type === "media.search") {
             const providerErrors = result.provider_errors || {}
             const degraded = Object.keys(providerErrors).length
-            return degraded > 0
+            const media = degraded > 0
                 ? qsTr("%1 candidato(s); %2 provider(s) degradado(s)")
                     .arg(result.candidate_count || 0).arg(degraded)
                 : qsTr("%1 candidato(s) encontrado(s)").arg(result.candidate_count || 0)
+            return media + " · " + mediaSearchMetadataSummary(result.metadata || {})
         }
         if (job.type === "media.global") {
             const outcome = result.outcome || "success"
@@ -786,6 +787,21 @@ ApplicationWindow {
         if (job.errorCode)
             return qsTr("Código: %1. Abra os detalhes para tentar novamente.").arg(job.errorCode)
         return taskStateLabel(job.state)
+    }
+
+    // O que a busca fez com ano, gênero, desenvolvedor e descrição: o
+    // resultado parcial diz o que faltou em vez de parecer sucesso.
+    function mediaSearchMetadataSummary(metadata) {
+        const conflicts = (metadata.conflicts || []).length
+        const preserved = conflicts > 0
+            ? qsTr("; %1 valor(es) manual(is) preservado(s)").arg(conflicts) : ""
+        if (metadata.state === "updated")
+            return qsTr("dados: %1 campo(s) atualizado(s)").arg((metadata.changed || []).length) + preserved
+        if (metadata.state === "unchanged")
+            return qsTr("dados sem mudança") + preserved
+        if (metadata.state === "skipped-no-path")
+            return qsTr("dados não gravados: jogo sem caminho")
+        return qsTr("nenhum dado descritivo recebido; os existentes foram mantidos")
     }
 
     function refreshTasks() {
@@ -2139,8 +2155,17 @@ ApplicationWindow {
                                 root.notify(qsTr("Auditoria iniciada; a central permanece disponível."), false)
                                 return
                             }
+                            const isMediaSearch = root.emulationPlan
+                                && String(root.emulationPlan.action).indexOf("game.media.search:") === 0
                             emulationDialog.close()
                             root.emulationPlan = null
+                            if (isMediaSearch && response.jobId) {
+                                // A busca roda como tarefa: "aplicada e verificada"
+                                // anunciava sucesso antes de existir resultado.
+                                root.refreshTasks()
+                                root.refreshStatus(qsTr("Busca de dados e mídias iniciada; o resultado aparece em Tarefas."))
+                                return
+                            }
                             root.refreshStatus(qsTr("Operação aplicada e verificada"))
                         })
                     }
