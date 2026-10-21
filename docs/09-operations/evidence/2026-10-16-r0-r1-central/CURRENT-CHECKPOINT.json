@@ -2,7 +2,7 @@
   "batch": "R0/R1",
   "directory": "/home/misael/Projects/Steam Zero/Canonical/2026-09-21",
   "branch": "codex/product-recovery-2026-10-16",
-  "owner": "codex-central-executor",
+  "owner": "claude-code (serial takeover 2026-10-20)",
   "functionalCommits": {
     "core": "af8c0ad7be5862a8b0fef7b28a1105d9646547fc",
     "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
@@ -17,31 +17,34 @@
     "coverageMethod": "complementary executions, union of 36 and 41; 36 remains a failed raw run",
     "finalEvidence": "42-final-local-checkpoint.json"
   },
-  "releaseActive": "2.0.0rc1-1470cf48bf7d",
-  "releaseActiveSource": "1470cf48bf7df4abdb3876176a7965f81e7c4455",
-  "bundle": null,
-  "releaseCandidate": null,
+  "releaseActive": "2.0.0rc1-319de6524db7",
+  "releaseActiveSource": "319de6524db7868e3fa2964db29ac086e8c27687",
+  "bundle": {
+    "release": "2.0.0rc1-319de6524db7",
+    "wheelSha256": "3d9741e590df2c903866a8585f5276beb72001578733ff3c6b57c87dfb9d4b46",
+    "verify": "ok"
+  },
+  "releaseCandidate": "2.0.0rc1-319de6524db7",
   "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
   "rollbackActivationTested": false,
-  "physicalAcceptance": "not-executed",
+  "physicalAcceptance": "not-executed: PENDENTE_JANELA_DE_TESTE",
   "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
   "pending": [
-    "PENDENTE_CI_CORRETIVO",
     "PENDENTE_JANELA_DE_TESTE"
   ],
-  "nextAction": "Reparo funcional commitado em cbcdf3e3cc0be75499b45272b20a0bf16503ae82; evidência final 42: 6425 não visuais + 394 visuais, 47 skips, cobertura combinada 85,49%, estado real sem delta. Fechar commit documental e enviar um checkpoint da branch existente; abrir PR corretivo para main, aguardar checks terminais verdes, merge governado e CI push do SHA exato. Depois fast-forward no mesmo checkout, prepare/install pelo controlador e ACEITE-INSTALADO.md. Não ativar 356ec8f7. Instalação e integração remota autorizadas, sem publicação pública. Desktop dedicado pendente; R0/R1 aberto, R2 não iniciado.",
-  "updatedAt": "2026-10-19",
+  "nextAction": "Release 2.0.0rc1-319de6524db7 ativa e convergida (CLI/daemon/proveniência), rollback 2.0.0rc1-1470cf48bf7d presente. Não reinstalar. Com janela dedicada do operador, executar ACEITE-INSTALADO.md a partir do passo 4 (perfil isolado, NES/Amiga, 1280×800, mouse/teclado, PNGs 01-03). R0/R1 aberto até esse aceite; R2 não iniciado.",
+  "updatedAt": "2026-10-20",
   "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
   "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
   "originMainAtPrepare": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
   "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle",
   "remoteAuthorizationEvidence": "18-remote-authorization.json",
-  "integratedCommit": "356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6",
-  "remotePR": 259,
-  "mainPushRun": 39184691323,
-  "candidateHold": "356ec8f7 excedeu timeout no acervo real. Reparo local medido em 13,725 s, pendente gates/commit/main/CI/instalação; não ativar SHA anterior.",
+  "integratedCommit": "319de6524db7868e3fa2964db29ac086e8c27687",
+  "remotePR": 260,
+  "mainPushRun": 39357199913,
+  "candidateHold": "Resolvido: 319de652 contém o reparo cbcdf3e3 e está ativo; 356ec8f7 nunca foi ativado.",
   "performanceRepair": {
-    "state": "committed-awaiting-corrective-PR",
+    "state": "integrated-and-installed",
     "focusedTestsPassed": 8,
     "realCatalogGames": 1145,
     "realCatalogSnapshotSeconds": 13.725,
@@ -53,7 +56,7 @@
     "integralLog": "36-performance-integral-tests.log",
     "staticGatesEvidence": "33-performance-static-gates.json",
     "integralProcessIdentities": [],
-    "resumeAfterInterruption": "Reparo funcional commitado em cbcdf3e3cc0be75499b45272b20a0bf16503ae82; evidência final 42: 6425 não visuais + 394 visuais, 47 skips, cobertura combinada 85,49%, estado real sem delta. Fechar commit documental e enviar um checkpoint da branch existente; abrir PR corretivo para main, aguardar checks terminais verdes, merge governado e CI push do SHA exato. Depois fast-forward no mesmo checkout, prepare/install pelo controlador e ACEITE-INSTALADO.md. Não ativar 356ec8f7. Instalação e integração remota autorizadas, sem publicação pública. Desktop dedicado pendente; R0/R1 aberto, R2 não iniciado.",
+    "resumeAfterInterruption": "Release 2.0.0rc1-319de6524db7 ativa e convergida (CLI/daemon/proveniência), rollback 2.0.0rc1-1470cf48bf7d presente. Não reinstalar. Com janela dedicada do operador, executar ACEITE-INSTALADO.md a partir do passo 4 (perfil isolado, NES/Amiga, 1280×800, mouse/teclado, PNGs 01-03). R0/R1 aberto até esse aceite; R2 não iniciado.",
     "integralRawResult": {
       "passed": 6794,
       "failed": 25,
@@ -122,5 +125,8 @@
     "skipped": 47,
     "coveragePercentBeforeFixtureOnlyRepair": 85.47,
     "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
-  }
+  },
+  "mainPushConclusion": "success",
+  "rollbackRelease": "2.0.0rc1-1470cf48bf7d",
+  "latestEvidence": "43-installed-candidate-checkpoint.json"
 }

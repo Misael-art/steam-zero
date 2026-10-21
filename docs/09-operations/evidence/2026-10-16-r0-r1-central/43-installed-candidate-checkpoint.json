@@ -1,0 +1,63 @@
+{
+  "observedAt": "2026-10-21T01:45:00Z",
+  "executor": "claude-code (serial takeover of codex-central-executor)",
+  "integration": {
+    "pr": 260,
+    "state": "MERGED",
+    "mergedAt": "2026-10-20T02:07:24Z",
+    "mergedBy": "owner",
+    "mergeCommit": "319de6524db7868e3fa2964db29ac086e8c27687",
+    "mainPushRun": 39357199913,
+    "mainPushConclusion": "success"
+  },
+  "checkout": {
+    "branch": "codex/product-recovery-2026-10-16",
+    "head": "319de6524db7868e3fa2964db29ac086e8c27687",
+    "clean": true,
+    "localMainFastForwarded": true
+  },
+  "bundle": {
+    "tool": "tools/release_host.py prepare + verify-bundle",
+    "release": "2.0.0rc1-319de6524db7",
+    "sourceRef": "refs/heads/main",
+    "runId": "39357199913",
+    "wheelSha256": "3d9741e590df2c903866a8585f5276beb72001578733ff3c6b57c87dfb9d4b46",
+    "verify": "ok",
+    "rootPrivate": "~/.cache/phasezero/agent-tmp/steamzero-r0-r1-physical-hvc36cbb/bundle-319de652"
+  },
+  "installedRelease": {
+    "release": "2.0.0rc1-319de6524db7",
+    "installedAt": "2026-10-20T07:30:18.634969+00:00",
+    "installedBy": "governed installer before this takeover (not performed in this session)",
+    "sourceCommit": "319de6524db7868e3fa2964db29ac086e8c27687",
+    "sourceTreeState": "clean",
+    "wheelSha256": "3d9741e590df2c903866a8585f5276beb72001578733ff3c6b57c87dfb9d4b46",
+    "wheelhouseRunId": "39357199913",
+    "previousRelease": "2.0.0rc1-1470cf48bf7d",
+    "rollbackReleaseDirPresent": true,
+    "rollbackActivationTested": false,
+    "bundleMatchesInstalled": true,
+    "reinstallPerformed": false
+  },
+  "readOnlyProbes": {
+    "cliVersion": "2.0.0rc1",
+    "serviceStatus": "converged",
+    "daemonRelease": "2.0.0rc1-319de6524db7",
+    "daemonCommit": "319de6524db7868e3fa2964db29ac086e8c27687",
+    "doctor": "degraded: warnings only (9 orphan backups, 9 orphan journals, deck.input.keys, boot.direct unknown without permission); integrity ok, 0 pending ops",
+    "inspectMismatch": "host differs from last tagged release v2.0.0rc1 (expected: rc not tagged)"
+  },
+  "installedCatalogRead": {
+    "command": "steamzero emulation workspace",
+    "wallSeconds": 20.86,
+    "truthState": "ready",
+    "platforms": 64,
+    "canonicalExperiences": 156,
+    "note": "CLI read-only of installed release; not a UI timing nor user-experience proof"
+  },
+  "physicalAcceptance": {
+    "state": "PENDENTE_JANELA_DE_TESTE",
+    "reason": "seat0 Wayland session active and in use by operator (IdleHint=no); no verified dedicated window/focus; no blind automated input performed",
+    "screenshots": []
+  }
+}

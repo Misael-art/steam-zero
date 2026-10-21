@@ -96,7 +96,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PRODUCT-RECOVERY-2026-10 | 22 | 6 | 4 | dev |  |
 | SZ-PROJECT-DESIGN-AUDIT | 12 | 25 | 6 | dev |  |
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 11 | 3 | unit |  |
-| SZ-RECOVERY-R0-R1-CENTRAL | 57 | 22 | 14 | none |  |
+| SZ-RECOVERY-R0-R1-CENTRAL | 58 | 22 | 14 | none |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
