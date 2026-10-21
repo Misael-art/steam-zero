@@ -172,13 +172,17 @@ Window {
     // (banda morta fixa) e texto do tema claro some sobre ciano escuro.
     function testInstalledViewportAndContrastRegressions() {
         const object = makePage({
+            "contextLabel": "Nintendo Switch · Global",
             "platforms": [
                 {"id": "switch", "name": "Nintendo Switch", "state": "ready",
                  "readiness": {"percent": 80, "title": "Pronto", "blockers": []},
                  "emulators": [], "games": []},
                 {"id": "nes", "name": "Nintendo Entertainment System e Famicom",
                  "state": "ready",
-                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []},
+                 "readiness": {"contractVersion": 2, "state": "ready", "label": "Pronto",
+                     "verification": "verified", "basis": "preflight", "blockers": [],
+                     "measure": {"dimension": "launch_preflight", "percent": null,
+                         "absentReason": "not_measured"}},
                  "emulators": [], "games": []}
             ]
         })
@@ -188,6 +192,12 @@ Window {
         object.resetContext()
         check(object.headerContext.name === "Nintendo Entertainment System e Famicom",
               "contexto do cabeçalho deve seguir a plataforma selecionada")
+        check(object.readinessValueText() === "Pronto",
+              "estado verificado sem medição deve mostrar o rótulo, não um traço")
+        const labels = allChildren(object, []).filter(function(child) {
+            return child.text !== undefined && String(child.text).indexOf("Nintendo Switch ·") === 0
+        })
+        check(labels.length === 0, "contexto não pode ficar preso no Switch após trocar de plataforma")
         const scrolls = allChildren(object, []).filter(function(child) {
             return String(child).indexOf("ScrollView") >= 0
         })

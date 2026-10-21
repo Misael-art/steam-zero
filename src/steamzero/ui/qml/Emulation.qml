@@ -483,7 +483,12 @@ Item {
         return tint === "" ? raisedColor : tint
     }
 
+    // Sem medição publicada não há número, mas um estado verificado ("Pronto")
+    // ainda é informação; "—" fica para o que não foi inspecionado.
     function readinessValueText() {
+        if (Readiness.percent(readiness) === null && Readiness.verification(readiness) === "verified"
+                && Readiness.headline(readiness) !== "")
+            return Readiness.headline(readiness)
         return Readiness.percentText(readiness, "—")
     }
 
@@ -1646,8 +1651,10 @@ Item {
                         visible: !page.compactLayout
                         text: page.globalManagementActive
                             ? qsTr("Recursos, diretórios e componentes compartilhados")
-                            : page.emulation && page.emulation.contextLabel
-                            ? page.emulation.contextLabel : qsTr("Dados locais • sem downloads automáticos de conteúdo")
+                            // contextLabel do payload descreve só o Switch; o contexto segue a seleção.
+                            : page.headerContext && page.headerContext.name && page.scopes[page.scopeIndex]
+                            ? qsTr("%1 · %2").arg(page.headerContext.name).arg(page.scopes[page.scopeIndex].label)
+                            : qsTr("Dados locais • sem downloads automáticos de conteúdo")
                         color: page.mutedColor
                         font.pixelSize: page.scaledTextSize(11)
                     }
@@ -1714,7 +1721,8 @@ Item {
                         Label {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: page.globalManagementActive ? qsTr("técnicas") : qsTr("prontidão")
-                            color: page.mutedColor
+                            color: page.globalManagementActive ? page.mutedColor
+                                : page._contrastTextColor(page.readinessSurface())
                             font.pixelSize: page.scaledTextSize(11)
                         }
                     }
@@ -1926,7 +1934,8 @@ Item {
                                 }
                                 Label {
                                     text: modelData.label
-                                    color: parent.parent.checked ? page.textColor : page.mutedColor
+                                    color: parent.parent.checked ? page._contrastTextColor("#122b3d")
+                                        : page._contrastTextColor(page.sidebarColor || page.surfaceColor)
                                     font.bold: parent.parent.checked
                                     elide: Text.ElideRight
                                     Layout.fillWidth: true
@@ -3190,7 +3199,7 @@ Item {
                                 text: page.contextTitle()
                                 visible: !page.compactLayout && (page.width >= 1250
                                     || (page.scopeId() !== "emulator" && page.scopeId() !== "game"))
-                                color: page.cyanColor
+                                color: page._contrastTextColor(page.cyanDarkColor)
                                 font.bold: true
                                 leftPadding: 10
                                 rightPadding: 10
