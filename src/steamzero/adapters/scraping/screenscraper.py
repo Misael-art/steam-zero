@@ -18,6 +18,7 @@ Rate limits: 50k req/dia (grátis), até +5 threads por €10/mês.
 from __future__ import annotations
 
 import json
+import re
 import xml.etree.ElementTree as ET
 from urllib.parse import urlencode
 
@@ -270,6 +271,19 @@ class ScreenScraperAdapter(BaseMediaProvider):
         media_kinds: list[str],
         region_priority: list[str] | None = None,
     ) -> list[MediaCandidate]:
+        return self.search_with_metadata(identity, media_kinds, region_priority)[0]
+
+    def search_with_metadata(
+        self,
+        identity: GameIdentity,
+        media_kinds: list[str],
+        region_priority: list[str] | None = None,
+    ) -> tuple[list[MediaCandidate], dict[str, object]]:
+        """Candidatos de mídia e metadados descritivos da MESMA resposta ``jeuInfos``.
+
+        Os campos descritivos já vinham no ``jeu`` baixado para a arte e eram
+        descartados; extraí-los aqui não custa outra requisição nem cota.
+        """
         if self._devid is None or self._devpassword is None:
             raise SteamZeroError(
                 "E-SCRAPE-CREDENTIAL-MISSING",
@@ -283,12 +297,13 @@ class ScreenScraperAdapter(BaseMediaProvider):
 
         body_text = raw.decode("utf-8", errors="replace")
         if body_text.startswith("Erreur"):
-            return []
+            return [], {}
 
         try:
             payload = json.loads(body_text)
         except json.JSONDecodeError:
-            return self._search_from_xml(raw, identity, media_kinds, region_priority)
+            # O fallback XML só lê mídia; metadado ausente é declarado, não inventado.
+            return self._search_from_xml(raw, identity, media_kinds, region_priority), {}
 
         jeu_raw = _json_get(payload, "response", "jeu")
         jeu: dict[str, object] = {}
@@ -310,7 +325,7 @@ class ScreenScraperAdapter(BaseMediaProvider):
                         "E-SCRAPE-CREDENTIAL-REJECTED",
                         detail="ScreenScraper recusou as credenciais informadas",
                     )
-            return []
+            return [], {}
 
         medias_raw = jeu.get("medias", [])
         medias_list: list[dict[str, object]] = medias_raw if isinstance(medias_raw, list) else []
@@ -367,7 +382,7 @@ class ScreenScraperAdapter(BaseMediaProvider):
         else:
             candidates.sort(key=lambda c: -c.confidence)
 
-        return candidates
+        return candidates, _jeu_metadata(jeu)
 
     def _search_from_xml(
         self,
@@ -507,6 +522,57 @@ class ScreenScraperAdapter(BaseMediaProvider):
             params["ssid"] = self._ssid
             params["sspassword"] = self._sspassword
         return params
+
+
+_METADATA_LANGUAGES = ("pt", "en", "fr")
+_METADATA_REGIONS = ("br", "wor", "us", "eu", "ss", "jp")
+_FULL_DATE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+
+
+def _by_preference(entries: object, key: str, preference: tuple[str, ...]) -> str:
+    """Texto da entrada de maior preferência (idioma ou região); vazio se nenhuma."""
+    if not isinstance(entries, list):
+        return ""
+    texts = {
+        str(entry.get(key, "")).lower(): str(entry.get("text", "")).strip()
+        for entry in entries
+        if isinstance(entry, dict) and str(entry.get("text", "")).strip()
+    }
+    for wanted in preference:
+        if texts.get(wanted):
+            return texts[wanted]
+    return next(iter(texts.values()), "")
+
+
+def _jeu_metadata(jeu: dict[str, object]) -> dict[str, object]:
+    """Campos descritivos do ``jeu`` no vocabulário do ``GameRecord``.
+
+    Só entram campos presentes e válidos pelo schema: data parcial (só o ano)
+    fica de fora em vez de ganhar dia e mês inventados.
+    """
+    metadata: dict[str, object] = {}
+    description = _by_preference(jeu.get("synopsis"), "langue", _METADATA_LANGUAGES)
+    if description:
+        metadata["description"] = description[:20000]
+    for field_name, source in (("developer", "developpeur"), ("publisher", "editeur")):
+        company = jeu.get(source)
+        if isinstance(company, dict) and str(company.get("text", "")).strip():
+            metadata[field_name] = str(company["text"]).strip()[:256]
+    release = _by_preference(jeu.get("dates"), "region", _METADATA_REGIONS)
+    if _FULL_DATE.match(release):
+        metadata["releaseDate"] = release
+    genres_raw = jeu.get("genres")
+    genres: list[str] = []
+    if isinstance(genres_raw, list):
+        for genre in genres_raw:
+            if not isinstance(genre, dict):
+                continue
+            name = _by_preference(genre.get("noms"), "langue", _METADATA_LANGUAGES)[:64]
+            if name and name not in genres:
+                genres.append(name)
+    if genres:
+        metadata["genres"] = genres[:32]
+    return metadata
 
 
 def _json_get(obj: object, *keys: str) -> object | None:
