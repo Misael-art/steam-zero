@@ -77,6 +77,13 @@ Item {
         return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
     }
 
+    // Mantém a cor preferida (estado, legenda) quando ela já é legível sobre a
+    // superfície; as tintas de prontidão são escuras fixas e o verde do tema
+    // claro some sobre elas.
+    function _readableOn(preferred: color, surface: color): color {
+        return _contrastRatio(preferred, surface) >= 4.5 ? preferred : _contrastTextColor(surface)
+    }
+
     function _contrastTextColor(surface: color): color {
         return _contrastRatio(textColor, surface)
             >= _contrastRatio(backgroundColor, surface)
@@ -1714,7 +1721,7 @@ Item {
                             text: page.globalManagementActive
                                 ? page.globalManagement.technicalPlatformCount
                                 : page.readinessValueText()
-                            color: page.globalManagementActive ? page.cyanColor : page.readinessColor()
+                            color: page.globalManagementActive ? page.cyanColor : page._readableOn(page.readinessColor(), page.readinessSurface())
                             font.pixelSize: page.scaledTextSize(page.compactLayout ? 20 : 24)
                             font.bold: true
                         }
@@ -3366,7 +3373,7 @@ Item {
                                     objectName: "readinessHeadline"
                                     text: Readiness.headline(page.readiness)
                                         || qsTr("Verificando plataforma")
-                                    color: page.readinessColor()
+                                    color: page._readableOn(page.readinessColor(), page.readinessSurface())
                                     font.bold: true
                                     font.pixelSize: page.scaledTextSize(14)
                                     elide: Text.ElideRight
@@ -3375,7 +3382,7 @@ Item {
                                 Label {
                                     objectName: "readinessCause"
                                     text: Readiness.cause(page.readiness)
-                                    color: page.mutedColor
+                                    color: page._readableOn(page.mutedColor, page.readinessSurface())
                                     // A causa é o "porquê" da jornada estado → causa →
                                     // ação. Cortada em uma linha, o cartão mostrava o
                                     // estado e o número e escondia a explicação.
@@ -3386,7 +3393,7 @@ Item {
                                     objectName: "readinessAction"
                                     visible: text !== ""
                                     text: page.readinessActionVisible() ? page.readinessActionText() : ""
-                                    color: page.readinessColor()
+                                    color: page._readableOn(page.readinessColor(), page.readinessSurface())
                                     font.pixelSize: page.scaledTextSize(11)
                                     wrapMode: Text.WordWrap
                                     Layout.fillWidth: true
@@ -3397,7 +3404,7 @@ Item {
                                 Label {
                                     objectName: "readinessValue"
                                     text: page.readinessValueText()
-                                    color: page.readinessColor()
+                                    color: page._readableOn(page.readinessColor(), page.readinessSurface())
                                     font.bold: true
                                     font.pixelSize: page.scaledTextSize(14)
                                     horizontalAlignment: Text.AlignRight
@@ -3926,7 +3933,7 @@ Item {
                             anchors.top: parent.top
                             anchors.margins: 12
                             spacing: 5
-                            Label { text: qsTr("Antes de continuar"); color: page.readinessColor(); font.bold: true }
+                            Label { text: qsTr("Antes de continuar"); color: page._readableOn(page.readinessColor(), page.readinessBlockersSurface()); font.bold: true }
                             Label {
                                 objectName: "readinessContextAction"
                                 visible: text !== ""

@@ -210,6 +210,16 @@ Window {
         check(object._contrastRatio(object._contrastTextColor(object.cyanDarkColor),
                                     object.cyanDarkColor) >= 4.5,
               "texto sobre ciano escuro deve manter contraste AA no tema claro")
+        // Verde escuro do tema claro sobre a tinta fixa de "pronto".
+        object.greenColor = "#1f6b3a"
+        const readinessLabels = allChildren(object, []).filter(function(child) {
+            return ["readinessHeadline", "readinessCause", "readinessValue"]
+                .indexOf(child.objectName) >= 0
+        })
+        check(readinessLabels.length > 0, "faixa de prontidão deve publicar seus rótulos")
+        for (let index = 0; index < readinessLabels.length; index++)
+            check(object._contrastRatio(readinessLabels[index].color, object.readinessSurface()) >= 4.5,
+                  "rótulo " + readinessLabels[index].objectName + " deve ser legível sobre a faixa de prontidão")
         object.destroy()
     }
 
