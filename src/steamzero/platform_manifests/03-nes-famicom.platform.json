@@ -158,5 +158,43 @@
       "detail": "Aprimoramentos opt-in."
     }
   ],
-  "cloud": null
+  "cloud": null,
+  "gameContent": [
+    {
+      "id": "patches",
+      "label": "Patches",
+      "state": "planned",
+      "detail": "IPS/BPS/UPS por soft-patching do core, sem alterar a ROM original."
+    },
+    {
+      "id": "cheats",
+      "label": "Cheats",
+      "state": "planned",
+      "detail": "Cheats do core (Game Genie e códigos RAM) pelo RetroArch."
+    },
+    {
+      "id": "saves",
+      "label": "Saves",
+      "state": "planned",
+      "detail": "Backup e restauração da SRAM do jogo."
+    },
+    {
+      "id": "saveStates",
+      "label": "Save states",
+      "state": "planned",
+      "detail": "Estados salvos do RetroArch por jogo."
+    },
+    {
+      "id": "achievements",
+      "label": "RetroAchievements",
+      "state": "planned",
+      "detail": "Conquistas por hash do jogo; exige conta RetroAchievements."
+    },
+    {
+      "id": "hdPacks",
+      "label": "HD packs",
+      "state": "planned",
+      "detail": "Pacotes HD do Mesen por jogo."
+    }
+  ]
 }

@@ -292,5 +292,37 @@
       "detail": "Será definido pelo registry de experiência sem inventar timing."
     }
   ],
-  "cloud": null
+  "cloud": null,
+  "gameContent": [
+    {
+      "id": "updates",
+      "label": "Updates",
+      "state": "ready",
+      "detail": "Importação de updates por Title ID."
+    },
+    {
+      "id": "dlc",
+      "label": "DLC",
+      "state": "ready",
+      "detail": "Importação de DLC por Title ID."
+    },
+    {
+      "id": "mods",
+      "label": "Mods",
+      "state": "ready",
+      "detail": "Mods por Build ID com prioridade e catálogo."
+    },
+    {
+      "id": "cheats",
+      "label": "Cheats",
+      "state": "ready",
+      "detail": "Cheats Atmosphere por Build ID."
+    },
+    {
+      "id": "saves",
+      "label": "Saves",
+      "state": "ready",
+      "detail": "Backup e restauração de saves do emulador."
+    }
+  ]
 }
