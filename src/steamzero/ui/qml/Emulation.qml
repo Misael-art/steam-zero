@@ -1718,14 +1718,29 @@ Item {
                         Layout.preferredWidth: page.compactLayout ? 180 : 220
                         Layout.minimumHeight: page.minimumTouchTarget
                         Accessible.name: qsTr("Selecionar plataforma de emulação")
+                        objectName: "platformPicker"
+                        // A escolha do usuário atribui currentIndex e desfaz o binding, e
+                        // a troca do modelo zera o índice; sem ressincronizar, o refresh
+                        // após uma ação voltava o seletor a "Gestão geral" com a página
+                        // ainda na plataforma escolhida.
+                        function restoreSelectionBinding() {
+                            currentIndex = Qt.binding(function() {
+                                return page.globalManagementActive ? 0 : page.platformIndex + 1
+                            })
+                        }
+                        // Trocar o modelo também zera o índice por dentro do ComboBox.
+                        onModelChanged: restoreSelectionBinding()
+                        onCountChanged: restoreSelectionBinding()
                         onActivated: {
                             if (currentIndex === 0) {
                                 page.globalManagementActive = true
+                                restoreSelectionBinding()
                                 return
                             }
                             page.platformIndex = currentIndex - 1
                             page.globalManagementActive = false
                             page.resetContext()
+                            restoreSelectionBinding()
                         }
                     }
                 }

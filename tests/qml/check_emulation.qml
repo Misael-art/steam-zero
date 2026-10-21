@@ -206,6 +206,38 @@ Window {
         object.destroy()
     }
 
+    function testPlatformPickerKeepsSelectionAcrossRefresh() {
+        const payload = {
+            "platforms": [
+                {"id": "switch", "name": "Nintendo Switch", "state": "ready",
+                 "readiness": {"percent": 80, "title": "Pronto", "blockers": []}, "emulators": [], "games": []},
+                {"id": "nes", "name": "Nintendo Entertainment System e Famicom", "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []}
+            ]
+        }
+        const object = makePage(payload)
+        if (!object)
+            return
+        const picker = allChildren(object, []).filter(function(child) {
+            return child.objectName === "platformPicker"
+        })[0]
+        check(picker !== undefined, "seletor de plataforma deve existir")
+        if (!picker) {
+            object.destroy()
+            return
+        }
+        picker.currentIndex = 2
+        picker.activated(2)
+        check(object.platformIndex === 1, "escolha deve selecionar NES")
+        // O refresh real passa por um payload com outra contagem antes do
+        // definitivo; trocar o modelo com a mesma contagem não reproduzia.
+        object.emulation = {"platforms": [payload.platforms[1]]}
+        object.emulation = JSON.parse(JSON.stringify(payload))
+        check(picker.currentIndex === object.platformIndex + 1,
+              "após refresh o seletor deve continuar na plataforma da página, não em Gestão geral")
+        object.destroy()
+    }
+
     function testInstalledViewportAndContrastRegressions() {
         const object = makePage({
             "contextLabel": "Nintendo Switch · Global",
@@ -1145,6 +1177,7 @@ Window {
             testManifestDrivenPlatformSelection()
             testInstalledViewportAndContrastRegressions()
             testGameDataPanelShowsDescriptiveFieldsWithSource()
+            testPlatformPickerKeepsSelectionAcrossRefresh()
             testGlobalManagementOpensPlatformWithoutCreatingAnotherTechnicalId()
             testGlobalInstallPanelHelpers()
             testPlatformCardJourney()
