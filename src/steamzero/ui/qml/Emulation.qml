@@ -718,18 +718,26 @@ Item {
         return mutedColor
     }
 
+    // Os chips seguem o conteúdo declarado pela plataforma: um jogo de NES não
+    // exibe contadores de DLC, mods ou updates que a plataforma não tem.
     function gameFeatures(game) {
-        return [
-            {"icon": "document-save", "label": game.saveState || qsTr("Save —")},
-            {"icon": "extension", "label": game.modsCount !== undefined
+        const chips = [
+            {"content": "saves", "icon": "document-save", "label": game.saveState || qsTr("Save —")},
+            {"content": "mods", "icon": "extension", "label": game.modsCount !== undefined
                 ? qsTr("Mods %1").arg(game.modsCount) : qsTr("Mods —")},
-            {"icon": "package-x-generic", "label": game.dlcCount !== undefined
+            {"content": "dlc", "icon": "package-x-generic", "label": game.dlcCount !== undefined
                 ? qsTr("DLC %1").arg(game.dlcCount) : qsTr("DLC —")},
-            {"icon": "system-software-update", "label": game.updateVersion
+            {"content": "updates", "icon": "system-software-update", "label": game.updateVersion
                 ? qsTr("Update %1").arg(game.updateVersion) : qsTr("Update —")},
-            {"icon": "applications-graphics", "label": game.shaderCount !== undefined
+            {"content": "shaders", "icon": "applications-graphics", "label": game.shaderCount !== undefined
                 ? qsTr("Shaders %1").arg(game.shaderCount) : qsTr("Shaders —")}
         ]
+        return chips.filter(function(chip) { return page.gameContentDeclares(chip.content) })
+    }
+
+    function firmwareApplies() {
+        const requirements = (selectedPlatform && selectedPlatform.requirements) || {}
+        return requirements.firmware !== undefined && requirements.firmware !== null
     }
 
     function gameEmulatorIndex(game) {
@@ -1403,6 +1411,12 @@ Item {
     // Só arquivo NSP converte para NSZ; um ZIP de NES não ganha o botão.
     function canConvertToNsz(game) {
         return String((game && game.format) || "").toLowerCase() === "nsp"
+    }
+
+    // A linha selecionada era um azul-escuro fixo sob o texto do tema; no tema
+    // claro o nome do jogo sumia. A tinta parte da própria superfície do tema.
+    function selectedRowColor() {
+        return Qt.tint(surfaceColor, Qt.rgba(cyanColor.r, cyanColor.g, cyanColor.b, 0.16))
     }
 
     function gameContentStateLabel(state) {
@@ -2778,7 +2792,7 @@ Item {
                                     page.gamePlayAction(modelData)
                                 Layout.fillWidth: true
                                 Layout.minimumHeight: compactGameCardContent.implicitHeight + 20
-                                color: selected ? "#10283a" : page.surfaceColor
+                                color: selected ? page.selectedRowColor() : page.surfaceColor
                                 border.color: selected ? page.cyanColor : page.borderColor
                                 border.width: selected ? 2 : 1
                                 radius: 8
@@ -2988,7 +3002,7 @@ Item {
                                     && page.selectedGame.path === modelData.path
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 150
-                                color: selected ? "#10283a" : page.surfaceColor
+                                color: selected ? page.selectedRowColor() : page.surfaceColor
                                 border.color: selected ? page.cyanColor : page.borderColor
                                 border.width: selected ? 2 : 1
                                 radius: 8
@@ -3160,6 +3174,7 @@ Item {
                                         Label { text: page.formatBytes(gameRow.modelData.size); color: page.textColor; font.bold: true }
                                         Label { text: String(gameRow.modelData.format || "—").toUpperCase(); color: page.mutedColor; font.pixelSize: page.scaledTextSize(11) }
                                         Label {
+                                            visible: page.firmwareApplies()
                                             text: gameRow.modelData.requiresFirmware
                                                 && gameRow.modelData.requiresFirmware.required
                                                 ? qsTr("FW ≥ %1").arg(gameRow.modelData.requiresFirmware.required)

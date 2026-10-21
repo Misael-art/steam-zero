@@ -278,7 +278,13 @@ Window {
         object.platformIndex = 2
         check(object.gameContentItems().length === 0 && object.gameContentRows().length === 0,
               "plataforma sem declaração não mostra conteúdo inventado")
-        check(object.canConvertToNsz({"format": "nsp"}) && !object.canConvertToNsz({"format": "zip"})
+        object.platformIndex = 0
+        check(object.gameFeatures({}).map(function(c) { return c.content }).join(",") === "saves",
+              "NES mostra só o chip de saves declarado")
+        check(!object.firmwareApplies(), "NES sem requisito de firmware não mostra 'FW em análise'")
+        object.platformIndex = 1
+        check(object.gameFeatures({}).length === 4, "Switch mantém saves, mods, DLC e updates")
+                check(object.canConvertToNsz({"format": "nsp"}) && !object.canConvertToNsz({"format": "zip"})
               && !object.canConvertToNsz({"format": "nsz"}), "conversão NSZ só para NSP")
         object.destroy()
     }
@@ -320,6 +326,9 @@ Window {
                   "inset inferior deve rolar com o conteúdo, não encolher a viewport")
         object.textColor = "#16212a"
         object.backgroundColor = "#e7ebec"
+        object.surfaceColor = "#f1f4f5"
+        check(object._contrastRatio(object.textColor, object.selectedRowColor()) >= 4.5,
+              "nome do jogo na linha selecionada deve ser legível no tema claro")
         check(object._contrastRatio(object._contrastTextColor(object.cyanDarkColor),
                                     object.cyanDarkColor) >= 4.5,
               "texto sobre ciano escuro deve manter contraste AA no tema claro")
