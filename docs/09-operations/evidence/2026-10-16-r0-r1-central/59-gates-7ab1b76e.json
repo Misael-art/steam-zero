@@ -1,0 +1,28 @@
+{
+  "commit": "7ab1b76e",
+  "date": "2026-10-21",
+  "integral": {
+    "passed": 6818,
+    "failed": 1,
+    "skipped": 47,
+    "seconds": 3489.48,
+    "coveragePercent": 85.46,
+    "baselinePercent": 85.47,
+    "failure": "test_committed_catalog_and_generated_views_are_consistent: COVERAGE.md view stale (docs edited after render); regenerated, 13/13 status tests passed, make status-check OK",
+    "coverageNote": "-0.01 pp; no Python source change since cbcdf3e3 (QML only); environmental variance, not reclassified as green",
+    "realStateUnchanged": true,
+    "log": "57-integral-7ab1b76e.log"
+  },
+  "static": {
+    "ruff": "ok",
+    "format": "ok",
+    "mypy": "ok (303 files)",
+    "independence": "ok",
+    "boundaries": "ok (0)",
+    "statusCheck": "ok"
+  },
+  "focused": {
+    "check_emulation+check_main_emulation": "2 passed",
+    "negativeControl": "padding regression -> exit 36"
+  }
+}

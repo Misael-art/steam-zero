@@ -17,6 +17,13 @@ catálogo instalado: 20,86 s, 64 plataformas — não é prova de UI. Aceite fí
 `PENDENTE_JANELA_DE_TESTE` (sessão seat0 ativa em uso; sem entrada às cegas).
 Ver `43-installed-candidate-checkpoint.json`.
 
+**Aceite GUI 2026-10-20 (1280×800, eDP-1, perfil isolado):** reprovado na release
+instalada `319de652` — banda morta de ~80 px no ScrollView, seletor de plataforma
+ilegível no estilo KDE, texto escuro sobre ciano no tema claro e subtítulo do
+cabeçalho compacto fixo em Nintendo Switch. Correção `7ab1b76e`, conferida a partir
+da fonte no mesmo painel (não é prova instalada). PNGs em `aceite-2026-10-20/`.
+Entrada só via AT-SPI/ydotool com foco da janela verificado a cada tecla.
+
 ## Retomada de 2026-10-19
 
 O PR #259 integrou a branch existente e os commits da base #258 em

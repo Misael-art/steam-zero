@@ -16,7 +16,7 @@
     "tests/qml/check_main_handheld_sections.qml",
     "docs/09-operations/evidence/2026-09-22-system-diagnostics-guidance/README.md"
   ],
-  "scopeDigest": "7d728cf0a89b49c5a148b1b3f355c7fc71fd83df58a6f5a4c98c419599eb941f",
+  "scopeDigest": "b0b0f38d84e6eb7b2759dd5c727f1aa852aaf9a51d48918d99c742ae9fc08908",
   "dependsOn": [],
   "knownGaps": [
     "GAP-EMULATION-PHYSICAL-LAUNCH"
@@ -86,5 +86,5 @@
   "nextAction": "HARD-EXTERNAL-SUBITEM: repetir a jornada na release instalada com um estado de atenção e confirmar foco/ação pelo operador; não executar recovery no host sem autorização.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-09",
-  "notes": "O Doctor publica guidance estruturado sem caminhos pessoais nos checks, e a tela Sistema renderiza observado, impacto, orientação e ações allowlisted. Ações de tarefas e exportação apenas abrem rotas já publicadas; nenhum recovery é executado automaticamente. A prova física na release instalada continua externa."
+  "notes": "O Doctor publica guidance estruturado sem caminhos pessoais nos checks, e a tela Sistema renderiza observado, impacto, orientação e ações allowlisted. Ações de tarefas e exportação apenas abrem rotas já publicadas; nenhum recovery é executado automaticamente. A prova física na release instalada continua externa.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada."
 }

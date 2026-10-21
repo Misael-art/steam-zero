@@ -6,9 +6,10 @@
   "functionalCommits": {
     "core": "af8c0ad7be5862a8b0fef7b28a1105d9646547fc",
     "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
-    "performanceRepair": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82"
+    "performanceRepair": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82",
+    "installedViewportFix": "7ab1b76e"
   },
-  "lastTestedCodeCommit": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82",
+  "lastTestedCodeCommit": "7ab1b76e",
   "testResults": {
     "nonvisualPassed": 6425,
     "visualPassedOnIdenticalSource": 394,
@@ -27,12 +28,14 @@
   "releaseCandidate": "2.0.0rc1-319de6524db7",
   "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
   "rollbackActivationTested": false,
-  "physicalAcceptance": "not-executed: PENDENTE_JANELA_DE_TESTE",
+  "physicalAcceptance": "FAILED on installed 2.0.0rc1-319de6524db7 at 1280x800 (eDP-1): dead band, illegible picker, dark-on-cyan text, stale header subtitle; fix 7ab1b76e verified from source on same panel, not installed",
   "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
   "pending": [
-    "PENDENTE_JANELA_DE_TESTE"
+    "PENDENTE_PR_CI_MAIN",
+    "PENDENTE_INSTALACAO_CANDIDATA",
+    "PENDENTE_ACEITE_FISICO_REPETIDO"
   ],
-  "nextAction": "Release 2.0.0rc1-319de6524db7 ativa e convergida (CLI/daemon/proveniência), rollback 2.0.0rc1-1470cf48bf7d presente. Não reinstalar. Com janela dedicada do operador, executar ACEITE-INSTALADO.md a partir do passo 4 (perfil isolado, NES/Amiga, 1280×800, mouse/teclado, PNGs 01-03). R0/R1 aberto até esse aceite; R2 não iniciado.",
+  "nextAction": "Concluir integral de 7ab1b76e; commit documental; push da branch, PR para main, CI verde, merge por merge commit, CI push do SHA; prepare/verify/install pelo release_host.py com rollback 2.0.0rc1-319de6524db7; repetir aceite GUI (NES/Amiga, 1280x800 eDP-1 e DP-1, mouse/teclado, PNGs 01-03). R0/R1 aberto; R2 não iniciado.",
   "updatedAt": "2026-10-20",
   "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
   "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
@@ -128,5 +131,10 @@
   },
   "mainPushConclusion": "success",
   "rollbackRelease": "2.0.0rc1-1470cf48bf7d",
-  "latestEvidence": "43-installed-candidate-checkpoint.json"
+  "latestEvidence": "59-gates-7ab1b76e.json",
+  "physicalAcceptanceEvidence": [
+    "aceite-2026-10-20/",
+    "58-installed-fix-status-reconciliation.json"
+  ],
+  "headlessInstalledAcceptance": "done by prior executor 2026-10-20 (NES ready; Amiga BIOS import; preferences cancel/apply/readback; catalog 20.162 s/1145 games); private summary 56 in privateTestProfileRoot"
 }

@@ -30,7 +30,7 @@
     "tests/qml/check_component_job_presentation.qml",
     "docs/status/workstreams/r05-component-operation-trace-2026-10-05.json"
   ],
-  "scopeDigest": "0d140cbe23a78b5192e6894fc22486549b3e7b9591fb11c5d1a5ed6949311473",
+  "scopeDigest": "a679a28842406c97734cd335da23086cb2172d2ff10e26ce11f668565ab71734",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -194,5 +194,5 @@
     "WS-2026-10-R05-COMPONENT-OPERATION-TRACE"
   ],
   "updatedAt": "2026-10-09",
-  "notes": "A matriz read-only da release instalada revelou uma falha historica E-TX-VERIFY-FAILED/rolled-back sem operationId na public view. A branch de R05 corrige a perda de operation_id, expõe metadados publicos de artefato e diferencia rollback confirmado de falha sem operacao vinculada na UI. A release instalada nao foi atualizada nesta tarefa. 2026-10-07: R05 foi dividido em commit core e integração compartilhada. Full suite 6676/47/1 com falha somente no catálogo/digests; não instalado."
+  "notes": "A matriz read-only da release instalada revelou uma falha historica E-TX-VERIFY-FAILED/rolled-back sem operationId na public view. A branch de R05 corrige a perda de operation_id, expõe metadados publicos de artefato e diferencia rollback confirmado de falha sem operacao vinculada na UI. A release instalada nao foi atualizada nesta tarefa. 2026-10-07: R05 foi dividido em commit core e integração compartilhada. Full suite 6676/47/1 com falha somente no catálogo/digests; não instalado.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada."
 }

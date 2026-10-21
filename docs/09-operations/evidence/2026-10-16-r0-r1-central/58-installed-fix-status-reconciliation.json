@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-20",
+  "scopeOnly": true,
+  "axesPromoted": false,
+  "commit": "7ab1b76e",
+  "destination": "WS-2026-10-RECOVERY-R0-R1-CENTRAL",
+  "records": [
+    {
+      "item": "SZ-AURA-ESDE-ACTIVE-SURFACE",
+      "path": "docs/status/items/aura-esde-active-surface-2026-09-17.json",
+      "beforeDigest": "6edfb15cdc67d4c77309eb3a3b7277c1a50734baf3dd2dbe8ceb01bb0a0df3bb",
+      "afterDigest": "42bc234b95184050cae682f5734893562008f6d2a79b2bc8b75035237125f220",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "feature-branch",
+        "verification": "dev",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-COMPONENT-LIFECYCLE",
+      "path": "docs/status/items/component-lifecycle.json",
+      "beforeDigest": "0d140cbe23a78b5192e6894fc22486549b3e7b9591fb11c5d1a5ed6949311473",
+      "afterDigest": "a679a28842406c97734cd335da23086cb2172d2ff10e26ce11f668565ab71734",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-GAMEMODE-READINESS",
+      "path": "docs/status/items/gamemode-readiness-g29.json",
+      "beforeDigest": "cb9021e23428e225b4ffca7614cdee1ab3589bd6296d3bab4b4d8dde6a8bd82e",
+      "afterDigest": "2b2256690075e69e1033a09144a4480d1ae3a791de3b2d81383ffce713ee19be",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-LIBRARY-CANONICAL",
+      "path": "docs/status/items/library-canonical.json",
+      "beforeDigest": "d9c71f614acf71f163bd09171879d9af21a422d840fdd749bb1739382f3fee91",
+      "afterDigest": "1fc4186274517e949968b1116e5d17b25f3e1c26f34660a968c13d0d55a5589b",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD",
+      "path": "docs/status/items/ps3-official-firmware-download.json",
+      "beforeDigest": "6731a6580e17610d182131b576da27ed0f6208d64ecc39064bb18055e3c1ed57",
+      "afterDigest": "c38789077a9b8eaf7f2f1f29f86d683d9c04c0512c0cd88e12e69ef755dadced",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "feature-branch",
+        "verification": "unit",
+        "operation": "unknown",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-SYSTEM-DIAGNOSTICS-GUIDANCE",
+      "path": "docs/status/items/system-diagnostics-guidance.json",
+      "beforeDigest": "7d728cf0a89b49c5a148b1b3f355c7fc71fd83df58a6f5a4c98c419599eb941f",
+      "afterDigest": "b0b0f38d84e6eb7b2759dd5c727f1aa852aaf9a51d48918d99c742ae9fc08908",
+      "axesUnchanged": {
+        "implementation": "complete",
+        "integration": "integrated",
+        "verification": "dev",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-THEME-ENGINE",
+      "path": "docs/status/items/theme-engine.json",
+      "beforeDigest": "9931b6c89eae45d03a6bf6dc772249b2ae5970151b6699aa4d3c96c2c0d679ef",
+      "afterDigest": "29160ce3516b63fbe9c7d0f153ab50f0743758fc5cce7de25925a2bffd60f7c6",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "installed"
+      }
+    },
+    {
+      "item": "SZ-THEME-IMPORT-ESDE-LAYOUT",
+      "path": "docs/status/items/theme-import-esde-layout.json",
+      "beforeDigest": "9d86d9e92a6aac1a2154867f0547e89880887a8d70dcc0ff81a85b0aad91e29f",
+      "afterDigest": "3dabc292698d73c0b69636b523152805f31405354c87a0091bb33e26e578a3c8",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "hw",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    },
+    {
+      "item": "SZ-UI-DESKTOP-AUDIT",
+      "path": "docs/status/items/ui-desktop-audit.json",
+      "beforeDigest": "aa3c301b640e0c37f69394f1f72a8470f89c79483d9b40a315c43086476c8343",
+      "afterDigest": "ee4f00810e61896eaf11f26e2a4a1c53b46f5dba04a4c33e9a842e00b9a73857",
+      "axesUnchanged": {
+        "implementation": "partial",
+        "integration": "integrated",
+        "verification": "dev",
+        "operation": "degraded",
+        "distribution": "not-packaged"
+      }
+    }
+  ]
+}
