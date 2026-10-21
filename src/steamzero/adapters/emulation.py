@@ -3820,7 +3820,7 @@ class EmulationController:
                     # era uma busca de Switch. A plataforma está aqui.
                     "platform_slug": platform_id,
                     "media_kinds": payload.get("mediaKinds"),
-                    "local_media_source": str(game.get("mediaSource", "fallback")),
+                    "local_media_source": str(game.get("mediaSource") or "fallback"),
                     "local_media_url": str(game.get("coverUrl", "")),
                     "game_path": str(game.get("path") or ""),
                 },
