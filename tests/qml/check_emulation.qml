@@ -170,6 +170,42 @@ Window {
 
     // Aceite instalado R0/R1 em 1280×800: padding de ScrollView reduz a viewport
     // (banda morta fixa) e texto do tema claro some sobre ciano escuro.
+    function testGameDataPanelShowsDescriptiveFieldsWithSource() {
+        const object = makePage({
+            "platforms": [
+                {"id": "nes", "name": "Nintendo Entertainment System e Famicom", "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []},
+                 "emulators": [],
+                 "games": [
+                    {"id": "smb", "path": "/roms/nes/smb.nes", "name": "Super Mario Bros.",
+                     "state": "ready", "statusLabel": "NES",
+                     "metadata": {"state": "available",
+                        "fields": {"releaseDate": "1985-10-18", "genres": ["Platform", "Action"],
+                                   "developer": "Nintendo R&D4", "description": "English description."},
+                        "sources": {"releaseDate": "screenscraper", "genres": "screenscraper",
+                                    "developer": "screenscraper", "description": "screenscraper"}}},
+                    {"id": "blank", "path": "/roms/nes/blank.nes", "name": "Sem dados",
+                     "state": "ready", "statusLabel": "NES"}
+                 ]}
+            ]
+        })
+        if (!object)
+            return
+        object.selectGame(object.games[0])
+        const rows = object.gameMetadataRows()
+        check(rows.length === 4, "quatro campos presentes devem virar quatro linhas")
+        check(rows[0].key === "releaseDate" && rows[0].value === "1985", "ano vem da data de lançamento")
+        check(rows[1].value === "Platform · Action", "gêneros juntam-se em uma linha")
+        check(rows.every(function(row) { return row.source === "screenscraper" }),
+              "cada linha deve mostrar a origem registrada")
+        check(rows.every(function(row) { return row.key !== "publisher" }),
+              "campo ausente não vira linha vazia")
+        object.selectGame(object.games[1])
+        check(object.gameMetadataRows().length === 0, "jogo sem metadado não inventa linhas")
+        check(object.gameMetadata().state === "empty", "ausência de metadado é estado vazio explícito")
+        object.destroy()
+    }
+
     function testInstalledViewportAndContrastRegressions() {
         const object = makePage({
             "contextLabel": "Nintendo Switch · Global",
@@ -1108,6 +1144,7 @@ Window {
             testSafeFallback()
             testManifestDrivenPlatformSelection()
             testInstalledViewportAndContrastRegressions()
+            testGameDataPanelShowsDescriptiveFieldsWithSource()
             testGlobalManagementOpensPlatformWithoutCreatingAnotherTechnicalId()
             testGlobalInstallPanelHelpers()
             testPlatformCardJourney()

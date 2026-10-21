@@ -1382,6 +1382,30 @@ Item {
         return index >= 0 ? index : 0
     }
 
+    function gameMetadata() {
+        const metadata = selectedGame && selectedGame.metadata
+        return metadata && metadata.fields ? metadata : {"state": "empty", "fields": {}, "sources": {}}
+    }
+
+    // Uma linha por campo descritivo presente, com a origem que o backend
+    // registrou; campo ausente não vira linha vazia nem valor inventado.
+    function gameMetadataRows() {
+        const metadata = gameMetadata()
+        const fields = metadata.fields
+        const sources = metadata.sources || {}
+        const rows = []
+        const add = function(key, label, value) {
+            if (value)
+                rows.push({"key": key, "label": label, "value": value, "source": sources[key] || ""})
+        }
+        add("releaseDate", qsTr("Ano"), fields.releaseDate ? String(fields.releaseDate).slice(0, 4) : "")
+        add("genres", qsTr("Gênero"), (fields.genres || []).join(" · "))
+        add("developer", qsTr("Desenvolvedor"), fields.developer || "")
+        add("publisher", qsTr("Publicadora"), fields.publisher || "")
+        add("description", qsTr("Descrição"), fields.description || "")
+        return rows
+    }
+
     function dispatchAction(action) {
         if (!action || action.enabled !== true) {
             page.actionRequested(action)
@@ -4051,6 +4075,84 @@ Item {
                             }
                         }
 
+                        Rectangle {
+                            id: gameDataPanel
+                            objectName: "gameDataPanel"
+                            visible: page.selectedGame.id !== undefined && page.selectedGame.id !== ""
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: gameDataBody.implicitHeight + 24
+                            color: page.backgroundColor
+                            border.color: page.borderColor
+                            radius: 8
+                            ColumnLayout {
+                                id: gameDataBody
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.top: parent.top
+                                anchors.margins: 12
+                                spacing: 6
+                                RowLayout {
+                                    ModernIcon { iconName: "dialog-information"; iconColor: page.cyanColor; Layout.preferredWidth: 20; Layout.preferredHeight: 20 }
+                                    Label { text: qsTr("Dados do jogo"); color: page.textColor; font.bold: true; Layout.fillWidth: true }
+                                }
+                                Label {
+                                    objectName: "gameDataEmpty"
+                                    visible: page.gameMetadataRows().length === 0
+                                    text: page.gameMetadata().state === "unreadable"
+                                        ? qsTr("Os dados salvos deste jogo não puderam ser lidos; uma nova busca os recompõe.")
+                                        : qsTr("Sem ano, gênero, desenvolvedor ou descrição ainda.")
+                                    color: page.mutedColor
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                }
+                                Repeater {
+                                    model: page.gameMetadataRows()
+                                    delegate: RowLayout {
+                                        required property var modelData
+                                        Layout.fillWidth: true
+                                        spacing: 8
+                                        Label {
+                                            text: modelData.label
+                                            color: page.mutedColor
+                                            font.pixelSize: page.scaledTextSize(11)
+                                            Layout.preferredWidth: 96
+                                            Layout.alignment: Qt.AlignTop
+                                        }
+                                        Label {
+                                            objectName: "gameData_" + modelData.key
+                                            text: modelData.value
+                                            color: page.textColor
+                                            wrapMode: Text.WordWrap
+                                            maximumLineCount: modelData.key === "description" ? 6 : 2
+                                            elide: Text.ElideRight
+                                            Layout.fillWidth: true
+                                        }
+                                        Label {
+                                            text: modelData.source
+                                            visible: text !== ""
+                                            color: page.mutedColor
+                                            font.pixelSize: page.scaledTextSize(10)
+                                            Layout.alignment: Qt.AlignTop
+                                        }
+                                    }
+                                }
+                                Button {
+                                    objectName: "gameDataSearchButton"
+                                    text: qsTr("Buscar dados e mídias")
+                                    icon.name: "edit-find"
+                                    Layout.minimumHeight: page.minimumTouchTarget
+                                    Accessible.description: qsTr("Busca ano, gênero, desenvolvedor, descrição e mídias deste jogo nos provedores configurados.")
+                                    onClicked: page.dispatchAction({
+                                        "id": "game.media.search:" + page.selectedGame.id,
+                                        "label": qsTr("Buscar dados e mídias"),
+                                        "enabled": true,
+                                        "requiresConfirmation": false,
+                                        "gameId": page.selectedGame.id
+                                    })
+                                }
+                            }
+                        }
+
                         Label {
                             text: qsTr("Title ID: %1").arg(
                                 page.selectedGame.titleId || qsTr("não identificado"))
@@ -4428,7 +4530,7 @@ Item {
                                         })
                                     }
                                     Button {
-                                        text: qsTr("Buscar")
+                                        text: qsTr("Buscar dados e mídias")
                                         icon.name: "edit-find"
                                         palette.button: page.raisedColor
                                         palette.buttonText: page.textColor
@@ -4440,10 +4542,10 @@ Item {
                                                 ? page.cyanColor : page.borderColor
                                             radius: 6
                                         }
-                                        Accessible.description: qsTr("Buscar mídia na internet.")
+                                        Accessible.description: qsTr("Buscar dados e mídias na internet.")
                                         onClicked: page.dispatchAction({
                                             "id": "game.media.search:" + page.selectedGame.id,
-                                            "label": qsTr("Buscar mídia na internet"),
+                                            "label": qsTr("Buscar dados e mídias"),
                                             "enabled": true,
                                             "requiresConfirmation": false,
                                             "gameId": page.selectedGame.id
