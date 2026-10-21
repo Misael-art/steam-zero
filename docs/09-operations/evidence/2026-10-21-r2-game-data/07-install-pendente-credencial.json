@@ -1,0 +1,4 @@
+{
+  "error": "autorização interativa ausente ou não concluída em 90s: Command '['bigsudo', '/usr/bin/python3', '/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tools/install_host.py', '--help']' timed out after 90 seconds",
+  "ok": false
+}

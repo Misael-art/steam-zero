@@ -97,7 +97,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PROJECT-DESIGN-AUDIT | 12 | 25 | 6 | dev |  |
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 11 | 3 | unit |  |
 | SZ-RECOVERY-R0-R1-CENTRAL | 94 | 24 | 16 | dev |  |
-| SZ-RECOVERY-R2-GAME-DATA | 22 | 3 | 1 | unit |  |
+| SZ-RECOVERY-R2-GAME-DATA | 23 | 3 | 1 | unit |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
