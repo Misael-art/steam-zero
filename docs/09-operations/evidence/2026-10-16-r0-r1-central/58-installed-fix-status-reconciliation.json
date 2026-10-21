@@ -121,6 +121,20 @@
         "operation": "degraded",
         "distribution": "not-packaged"
       }
+    },
+    {
+      "item": "SZ-THEME-ENGINE",
+      "path": "docs/status/items/theme-engine.json",
+      "commit": "4b1352a5",
+      "beforeDigest": "29160ce3516b63fbe9c7d0f153ab50f0743758fc5cce7de25925a2bffd60f7c6",
+      "afterDigest": "eb98668c380b6c0a5469d94fb6f7ed69dea8f9ae6509e7cb0446bda36ddfc9a8"
+    },
+    {
+      "item": "SZ-UI-DESKTOP-AUDIT",
+      "path": "docs/status/items/ui-desktop-audit.json",
+      "commit": "4b1352a5",
+      "beforeDigest": "ee4f00810e61896eaf11f26e2a4a1c53b46f5dba04a4c33e9a842e00b9a73857",
+      "afterDigest": "350eab95987972b5672784683efacd2cc5300cb71088c0c94760a25803aaf0c7"
     }
   ]
 }
