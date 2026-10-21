@@ -28,7 +28,7 @@
     "src/steamzero/domain/platforms.py",
     "src/steamzero/domain/emulation_workspace.py"
   ],
-  "scopeDigest": "7fe17d32c6c0d0fd22043a2072ac9972b674238b2a1d895126c84713572845ba",
+  "scopeDigest": "0a4da936dcb74649f4831c09cfc7fbea400867044f6f10ffd29cea2a262410b7",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",

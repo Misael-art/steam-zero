@@ -16,7 +16,7 @@
     "tests/unit/test_session_peripherals.py",
     "docs/09-operations/evidence/2026-09-20-aura-multidisc-physical"
   ],
-  "scopeDigest": "7ee03299de567af2084d92f6e0fce92a3cb468998b7624e75aa5a90d58253327",
+  "scopeDigest": "e319d52488f7e9175b88fd36defa0197ada910bd03e6e068ed7fd17fc613e42c",
   "dependsOn": [
     "SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION",
     "SZ-AURA-SESSION-OSD"
