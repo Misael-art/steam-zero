@@ -14905,3 +14905,23 @@ senha eventualmente solicitada somente no terminal/diálogo. Jornada permanece
 aberta; R2 não iniciado. Retomada sem reconstrução em
 `docs/09-operations/evidence/2026-10-16-r0-r1-central/CURRENT-CHECKPOINT.json`
 e roteiro `ACEITE-INSTALADO.md` no mesmo diretório.
+
+## 2026-10-21 — R0/R1 Central: fechamento instalado
+
+Executor claude-code-central-executor, assunção serial da linha
+`codex/product-recovery-2026-10-16` no checkout canônico. Aceite GUI da release
+2.0.0rc1-319de6524db7 reprovou (faixa morta, seletor ilegível, contraste,
+contexto preso no Switch); correções 7ab1b76e e 4b1352a5. PR #261 (com pillow
+13.0.0 por 9 CVEs OSV e dono dos locks em SZ-GOVERNANCE-STATUS) mergeado em
+60f2d590; release 2.0.0rc1-60f2d590481f instalada com senha do operador; aceite
+NES/Amiga OK com três residuais (faixa morta na Visão geral, contraste da faixa
+Pronto, ícones da navegação desktop). Correção 1f97956d, PR #262 mergeado em
+3f87657c, push-run 39605159739 verde; release 2.0.0rc1-3f87657c0a6c instalada
+via release_host.py (rollback 2.0.0rc1-60f2d590481f). Aceite instalado OK em
+eDP-1 1280x800 e DP-1, NES e Amiga, recuperação; evidência 62–66 e PNGs.
+
+Eixos de SZ-RECOVERY-R0-R1-CENTRAL: complete/released/dev/degraded/installed.
+Limites: suíte integral local não rodada (memória do host; CI remoto verde),
+sem hardware Deck, sem gameplay, sem daemon. Desvio registrado: branch de lote
+criada e desfeita (commits movidos por fast-forward). Main.qml devolvido a
+WS-2026-10-STUDIO-DRAFT-HISTORY. R2 não iniciado.
