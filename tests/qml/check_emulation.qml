@@ -238,6 +238,51 @@ Window {
         object.destroy()
     }
 
+    function testGameContentFollowsPlatformManifest() {
+        const nesContent = [
+            {"id": "patches", "label": "Patches", "state": "planned", "detail": "IPS/BPS/UPS"},
+            {"id": "cheats", "label": "Cheats", "state": "planned", "detail": "Game Genie"},
+            {"id": "saves", "label": "Saves", "state": "planned", "detail": "SRAM"},
+            {"id": "achievements", "label": "RetroAchievements", "state": "planned", "detail": "hash"},
+            {"id": "hdPacks", "label": "HD packs", "state": "planned", "detail": "Mesen"}
+        ]
+        const switchContent = [
+            {"id": "updates", "label": "Updates", "state": "ready", "detail": "Title ID"},
+            {"id": "dlc", "label": "DLC", "state": "ready", "detail": "Title ID"},
+            {"id": "mods", "label": "Mods", "state": "ready", "detail": "Build ID"},
+            {"id": "cheats", "label": "Cheats", "state": "ready", "detail": "Atmosphere"},
+            {"id": "saves", "label": "Saves", "state": "ready", "detail": "backup"}
+        ]
+        const object = makePage({
+            "platforms": [
+                {"id": "nes", "name": "NES", "state": "ready", "gameContent": nesContent,
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []},
+                {"id": "switch", "name": "Nintendo Switch", "state": "ready", "gameContent": switchContent,
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []},
+                {"id": "amiga", "name": "Amiga", "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []}, "emulators": [], "games": []}
+            ]
+        })
+        if (!object)
+            return
+        object.platformIndex = 0
+        check(!object.gameContentDeclares("mods") && !object.gameContentDeclares("dlc"),
+              "NES não pode herdar updates/DLC/mods do Switch")
+        check(object.gameContentRows().map(function(r) { return r.id }).join(",")
+              === "patches,cheats,saves,achievements,hdPacks", "NES lista o conteúdo declarado")
+        check(object.gameContentStateLabel("planned") === "Planejado", "planejado não vira ação disponível")
+        object.platformIndex = 1
+        check(object.gameContentDeclares("mods"), "Switch mantém os botões de mods/DLC")
+        check(object.gameContentRows().map(function(r) { return r.id }).join(",") === "saves",
+              "no Switch as linhas cobrem só o que não tem botão próprio")
+        object.platformIndex = 2
+        check(object.gameContentItems().length === 0 && object.gameContentRows().length === 0,
+              "plataforma sem declaração não mostra conteúdo inventado")
+        check(object.canConvertToNsz({"format": "nsp"}) && !object.canConvertToNsz({"format": "zip"})
+              && !object.canConvertToNsz({"format": "nsz"}), "conversão NSZ só para NSP")
+        object.destroy()
+    }
+
     function testInstalledViewportAndContrastRegressions() {
         const object = makePage({
             "contextLabel": "Nintendo Switch · Global",
@@ -1178,6 +1223,7 @@ Window {
             testInstalledViewportAndContrastRegressions()
             testGameDataPanelShowsDescriptiveFieldsWithSource()
             testPlatformPickerKeepsSelectionAcrossRefresh()
+            testGameContentFollowsPlatformManifest()
             testGlobalManagementOpensPlatformWithoutCreatingAnotherTechnicalId()
             testGlobalInstallPanelHelpers()
             testPlatformCardJourney()

@@ -1382,6 +1382,37 @@ Item {
         return index >= 0 ? index : 0
     }
 
+    // Conteúdo de jogo vem do manifesto da plataforma: NES gerencia patches,
+    // cheats, saves, conquistas e HD packs; o bloco de updates/DLC/mods só
+    // aparece onde a plataforma o declara.
+    function gameContentItems() {
+        return (selectedPlatform && selectedPlatform.gameContent) || []
+    }
+
+    function gameContentDeclares(contentId) {
+        return gameContentItems().some(function(item) { return item.id === contentId })
+    }
+
+    function gameContentRows() {
+        const hasModActions = gameContentDeclares("mods")
+        return gameContentItems().filter(function(item) {
+            return !(hasModActions && ["updates", "dlc", "mods", "cheats"].indexOf(item.id) >= 0)
+        })
+    }
+
+    // Só arquivo NSP converte para NSZ; um ZIP de NES não ganha o botão.
+    function canConvertToNsz(game) {
+        return String((game && game.format) || "").toLowerCase() === "nsp"
+    }
+
+    function gameContentStateLabel(state) {
+        if (state === "ready")
+            return qsTr("Disponível")
+        if (state === "unavailable")
+            return qsTr("Indisponível")
+        return qsTr("Planejado")
+    }
+
     function gameMetadata() {
         const metadata = selectedGame && selectedGame.metadata
         return metadata && metadata.fields ? metadata : {"state": "empty", "fields": {}, "sources": {}}
@@ -4301,9 +4332,44 @@ Item {
                                 spacing: 7
                                 RowLayout {
                                     ModernIcon { iconName: "package-x-generic"; iconColor: page.cyanColor; Layout.preferredWidth: 20; Layout.preferredHeight: 20 }
-                                    Label { text: qsTr("Conteúdo e modding"); color: page.textColor; font.bold: true; Layout.fillWidth: true }
+                                    Label { text: qsTr("Conteúdo do jogo"); color: page.textColor; font.bold: true; Layout.fillWidth: true }
                                 }
                                 Label {
+                                    objectName: "gameContentUndeclared"
+                                    visible: page.gameContentItems().length === 0
+                                    text: qsTr("Esta plataforma ainda não declara conteúdo de jogo gerenciável.")
+                                    color: page.mutedColor
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                }
+                                Repeater {
+                                    model: page.gameContentRows()
+                                    delegate: ColumnLayout {
+                                        required property var modelData
+                                        objectName: "gameContent_" + modelData.id
+                                        Layout.fillWidth: true
+                                        spacing: 1
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Label { text: modelData.label; color: page.textColor; font.bold: true; Layout.fillWidth: true }
+                                            Label {
+                                                text: page.gameContentStateLabel(modelData.state)
+                                                color: modelData.state === "ready" ? page.greenColor : page.mutedColor
+                                                font.pixelSize: page.scaledTextSize(10)
+                                                font.bold: true
+                                            }
+                                        }
+                                        Label {
+                                            text: modelData.detail
+                                            color: page.mutedColor
+                                            font.pixelSize: page.scaledTextSize(11)
+                                            wrapMode: Text.WordWrap
+                                            Layout.fillWidth: true
+                                        }
+                                    }
+                                }
+                                Label {
+                                    visible: page.gameContentDeclares("updates") || page.gameContentDeclares("mods")
                                     text: qsTr("Updates: %1 • DLCs: %2 • Mods: %3")
                                         .arg(page.selectedGame.updateVersion || "—")
                                         .arg(page.selectedGame.dlcCount !== undefined
@@ -4316,8 +4382,10 @@ Item {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
+                                    visible: page.gameContentDeclares("updates") || page.gameContentDeclares("mods")
                                     Button {
                                         text: qsTr("Updates e DLC")
+                                        visible: page.gameContentDeclares("updates") || page.gameContentDeclares("dlc")
                                         palette.button: page.raisedColor
                                         palette.buttonText: page.textColor
                                         Layout.fillWidth: true
@@ -4332,6 +4400,7 @@ Item {
                                     }
                                     Button {
                                         text: qsTr("Mods e cheats")
+                                        visible: page.gameContentDeclares("mods")
                                         palette.button: page.raisedColor
                                         palette.buttonText: page.textColor
                                         Layout.fillWidth: true
@@ -4716,6 +4785,7 @@ Item {
                                 }
                                 Button {
                                     text: qsTr("Converter NSP → NSZ")
+                                    visible: page.canConvertToNsz(page.selectedGame)
                                     icon.name: "document-export"
                                     palette.button: page.raisedColor
                                     palette.buttonText: page.textColor
