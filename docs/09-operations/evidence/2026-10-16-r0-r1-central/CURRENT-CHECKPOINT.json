@@ -9,7 +9,8 @@
     "performanceRepair": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82",
     "installedViewportFix": "7ab1b76e",
     "desktopContextReadinessFix": "4b1352a5",
-    "depsAndCommentFix": "d0d93149"
+    "depsAndCommentFix": "d0d93149",
+    "residualsFix": "1f97956d"
   },
   "lastTestedCodeCommit": "7ab1b76e (integral 6818 passed/1 stale-view failed, fixed); 4b1352a5 focused only (check_emulation passed, negative control exit 35)",
   "testResults": {
@@ -20,34 +21,33 @@
     "coverageMethod": "complementary executions, union of 36 and 41; 36 remains a failed raw run",
     "finalEvidence": "42-final-local-checkpoint.json"
   },
-  "releaseActive": "2.0.0rc1-60f2d590481f",
-  "releaseActiveSource": "60f2d590481ff838dff002edd3c3777fa4d516c4",
+  "releaseActive": "2.0.0rc1-3f87657c0a6c",
+  "releaseActiveSource": "3f87657c0a6ccd2ff6805f3f505a5bbe0f3db563",
   "bundle": {
-    "release": "2.0.0rc1-60f2d590481f",
-    "wheelSha256": "1a20eb41f8bb2e9366411dcd82fdd244c42412098d0676ea8f6684955bbc9d0f",
+    "release": "2.0.0rc1-3f87657c0a6c",
+    "wheelSha256": "539db839e4f91e96ae68ccd89b73686d2c5d742208e2c32a4418460c64bd7ed0",
     "verify": "ok"
   },
-  "releaseCandidate": "2.0.0rc1-60f2d590481f",
+  "releaseCandidate": "2.0.0rc1-3f87657c0a6c",
   "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
   "rollbackActivationTested": false,
-  "physicalAcceptance": "GUI instalada OK em eDP-1 1280x800 e DP-1 para NES e Amiga, com recuperacao; residuais registrados em 63",
+  "physicalAcceptance": "GUI instalada OK (eDP-1 1280x800 e DP-1, NES e Amiga, recuperacao); residuais de 63 fechados",
   "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
   "pending": [
-    "PENDENTE_GATES_INTEGRAIS_LOCAIS_4b1352a5 (CI remoto verde em PR e main; integral local nao rodado por memoria)",
-    "DEFEITO_RESIDUAL Visao geral faixa vazia/Favoritos cortado em 1280x800",
-    "DEFEITO_RESIDUAL contraste faixa Pronto e icones nav desktop",
-    "LIMITE sem hardware Deck e sem gameplay"
+    "PENDENTE_GATES_INTEGRAIS_LOCAIS (memoria do host; CI remoto verde)",
+    "RESIDUAL_FORA_DE_ESCOPO ScrollViews de temas (frente de temas)",
+    "LIMITE sem hardware Deck, sem gameplay, sem daemon"
   ],
-  "nextAction": "Decidir com o operador se os residuais entram em R0/R1 (correcao curta em Main.qml/Overview) ou viram itens de R2; depois fechar R0/R1 nos cinco eixos com WORKLOG e devolver Main.qml.",
+  "nextAction": "Fechar R0/R1 nos cinco eixos com WORKLOG e devolver Main.qml a WS-2026-10-STUDIO-DRAFT-HISTORY; rodar a suite integral local quando houver memoria.",
   "updatedAt": "2026-10-21",
   "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
   "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
   "originMainAtPrepare": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
   "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle",
   "remoteAuthorizationEvidence": "18-remote-authorization.json",
-  "integratedCommit": "60f2d590481ff838dff002edd3c3777fa4d516c4",
-  "remotePR": "#261 merged (merge commit 60f2d590)",
-  "mainPushRun": "39571710037",
+  "integratedCommit": "3f87657c0a6ccd2ff6805f3f505a5bbe0f3db563",
+  "remotePR": "#262 merged (merge commit 3f87657c)",
+  "mainPushRun": "39605159739",
   "candidateHold": "Resolvido: 319de652 contém o reparo cbcdf3e3 e está ativo; 356ec8f7 nunca foi ativado.",
   "performanceRepair": {
     "state": "integrated-and-installed",
@@ -133,8 +133,8 @@
     "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
   },
   "mainPushConclusion": "success",
-  "rollbackRelease": "2.0.0rc1-319de6524db7",
-  "latestEvidence": "63-installed-gui-acceptance-60f2d590.json",
-  "physicalAcceptanceEvidence": "63-installed-gui-acceptance-60f2d590.json",
+  "rollbackRelease": "2.0.0rc1-60f2d590481f",
+  "latestEvidence": "66-installed-gui-acceptance-3f87657c.json",
+  "physicalAcceptanceEvidence": "66-installed-gui-acceptance-3f87657c.json",
   "headlessInstalledAcceptance": "done by prior executor 2026-10-20 (NES ready; Amiga BIOS import; preferences cancel/apply/readback; catalog 20.162 s/1145 games); private summary 56 in privateTestProfileRoot"
 }
