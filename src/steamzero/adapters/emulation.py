@@ -96,6 +96,10 @@ from steamzero.adapters.session_peripherals import (
     default_retroarch_runtime_log_root,
     prepare_retroarch_session_config,
 )
+from steamzero.adapters.state_store_game_metadata import (
+    StateStoreGameMetadataAdapter,
+)
+from steamzero.adapters.state_store_game_metadata import public_view as game_metadata_view
 from steamzero.adapters.state_store_media import StateStoreGameMediaAdapter
 from steamzero.adapters.state_store_provider_health import StateStoreProviderHealthAdapter
 from steamzero.adapters.steam_shortcuts import SteamShortcutManager
@@ -762,6 +766,7 @@ class EmulationController:
             }
         )
         games = [enriched_by_id.get(str(game.get("id")), dict(game)) for game in raw_games]
+        games = self._attach_game_metadata(games)
         games = self._publish_ps5_content_state(games)
         games = self._publish_ps5_compatibility(games)
         content = self._content.list_records()
@@ -3817,6 +3822,7 @@ class EmulationController:
                     "media_kinds": payload.get("mediaKinds"),
                     "local_media_source": str(game.get("mediaSource", "fallback")),
                     "local_media_url": str(game.get("coverUrl", "")),
+                    "game_path": str(game.get("path") or ""),
                 },
             )
         elif action.startswith("game.media.import:"):
@@ -4113,6 +4119,7 @@ class EmulationController:
                         "media_kinds": meta.get("media_kinds"),
                         "local_media_source": meta.get("local_media_source", "fallback"),
                         "local_media_url": meta.get("local_media_url", ""),
+                        "game_path": meta.get("game_path", ""),
                     },
                     priority="interactive",
                     created_by="ui",
@@ -7974,6 +7981,7 @@ class EmulationController:
         )
         all_candidates: list[MediaCandidate] = []
         provider_errors: dict[str, str] = {}
+        metadata_hits: list[tuple[str, dict[str, object]]] = []
         providers = self._ordered_media_providers(
             mgr._providers, kinds, platform_slug=identity.platform_slug
         )
@@ -7985,13 +7993,15 @@ class EmulationController:
             ctx.safepoint()
             supported_kinds = [kind for kind in kinds if kind in provider_item.supported_kinds()]
             try:
-                results = self._search_provider_with_retry(
+                results, metadata = self._search_provider_with_retry(
                     provider_item,
                     identity,
                     supported_kinds,
                     ctx,
                 )
                 all_candidates.extend(results)
+                if metadata:
+                    metadata_hits.append((provider_item.name, metadata))
                 health.record_success(provider_item.name)
             except SteamZeroError as exc:
                 provider_errors[provider_item.name] = exc.code
@@ -8064,6 +8074,7 @@ class EmulationController:
         state.checked_at = datetime.now(UTC).isoformat()
         state.selected_candidate_idx = -1
         mgr._store.save(state)
+        metadata_result = self._merge_provider_metadata(store, params, metadata_hits)
         ctx.set_progress(
             "done",
             current=len(candidates_data),
@@ -8075,6 +8086,49 @@ class EmulationController:
             "provider_errors": provider_errors,
             "remote_state": state.metadata_state,
             "fallback_source": local_source if local_source != "fallback" else "platform-icon",
+            "metadata": metadata_result,
+        }
+
+    @staticmethod
+    def _merge_provider_metadata(
+        store: StateStore,
+        params: Mapping[str, Any],
+        hits: list[tuple[str, dict[str, object]]],
+    ) -> dict[str, Any]:
+        """Funde metadados descritivos dos providers no registro do jogo (R2).
+
+        Só providers que responderam entram aqui; falha de autenticação, quota
+        ou rede nunca chega à fusão, então nada existente é apagado. Sem
+        caminho do jogo o registro não satisfaz o schema e o motivo é
+        devolvido em vez de gravar um registro inválido.
+        """
+        if not hits:
+            return {"state": "no-metadata", "changed": [], "conflicts": []}
+        path = str(params.get("game_path") or "")
+        if not path:
+            return {"state": "skipped-no-path", "changed": [], "conflicts": []}
+        adapter = StateStoreGameMetadataAdapter(store.adapter_connection())
+        changed: list[str] = []
+        conflicts: list[str] = []
+        sources: list[str] = []
+        for provider_name, fields in hits:
+            update = adapter.merge_provider_fields(
+                game_id=str(params["game_id"]),
+                title=str(params.get("title") or params["game_id"]),
+                platform_id=str(params.get("platform_slug") or "unknown"),
+                path=path,
+                fields=fields,
+                source=provider_name,
+                confidence=1.0,
+            )
+            changed.extend(key for key in update.changed if key not in changed)
+            conflicts.extend(key for key in update.conflicts if key not in conflicts)
+            sources.append(provider_name)
+        return {
+            "state": "updated" if changed else "unchanged",
+            "changed": changed,
+            "conflicts": conflicts,
+            "sources": sources,
         }
 
     @staticmethod
@@ -8102,11 +8156,15 @@ class EmulationController:
         identity: GameIdentity,
         media_kinds: list[str],
         ctx: JobContext,
-    ) -> list[MediaCandidate]:
+    ) -> tuple[list[MediaCandidate], dict[str, object]]:
+        search_with_metadata = getattr(provider, "search_with_metadata", None)
         for attempt in range(3):
             ctx.safepoint()
             try:
-                return provider.search(identity, media_kinds)
+                if callable(search_with_metadata):
+                    candidates, metadata = search_with_metadata(identity, media_kinds)
+                    return list(candidates), dict(metadata)
+                return provider.search(identity, media_kinds), {}
             except SteamZeroError as exc:
                 if exc.code not in _RETRYABLE_SCRAPE_ERRORS or attempt == 2:
                     raise
@@ -8118,7 +8176,7 @@ class EmulationController:
                     }
                 )
                 self._media_retry_delay(0.25 * (2**attempt))
-        return []
+        return [], {}
 
     def _media_global_job_handler(self, job: Job, ctx: JobContext) -> dict[str, Any]:
         mode = str(job.params.get("mode") or "")
@@ -9273,6 +9331,18 @@ class EmulationController:
             return enriched
         finally:
             self._read_model_installations.values = previous
+
+    def _attach_game_metadata(self, games: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Publica em toda plataforma os metadados descritivos persistidos (R2)."""
+        if not games:
+            return games
+        with self._store_factory() as store:
+            store.migrate()
+            adapter = StateStoreGameMetadataAdapter(store.adapter_connection())
+            return [
+                {**game, "metadata": game_metadata_view(adapter, str(game.get("id") or ""))}
+                for game in games
+            ]
 
     def _enrich_games(
         self,
