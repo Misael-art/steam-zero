@@ -66,5 +66,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-16",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
-  "scopeDigest": "88b9a682e1c8881e877d8a4fd7c1577aa3c92cd89a9c287681d2e740e657fe42"
+  "scopeDigest": "129a24215438793263f0fd22149746d5c8eec7a820f9d450bea88c521f1bf91a"
 }
