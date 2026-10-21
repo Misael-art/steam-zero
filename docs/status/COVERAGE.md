@@ -70,7 +70,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-SRM | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
-| SZ-GOVERNANCE-STATUS | 22 | 29 | 15 | dev |  |
+| SZ-GOVERNANCE-STATUS | 24 | 29 | 15 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
