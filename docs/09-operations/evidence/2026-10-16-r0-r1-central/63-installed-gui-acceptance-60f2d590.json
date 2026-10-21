@@ -1,0 +1,97 @@
+{
+  "release": "2.0.0rc1-60f2d590481f",
+  "sourceCommit": "60f2d590481ff838dff002edd3c3777fa4d516c4",
+  "wheelSha256": "1a20eb41f8bb2e9366411dcd82fdd244c42412098d0676ea8f6684955bbc9d0f",
+  "rollbackRelease": "2.0.0rc1-319de6524db7",
+  "date": "2026-10-21",
+  "profile": "isolado (profile-env.json, STEAMZERO_NO_DAEMON=1)",
+  "input": "teclado (ydotool com guarda de foco) e AT-SPI; roda do mouse nao rolou o conteudo (coordenadas absolutas em multi-tela)",
+  "scenarios": [
+    {
+      "id": "01-baseline",
+      "screen": "eDP-1 949x593 @1.35 (1280x800 fisico)",
+      "result": "OK",
+      "shots": [
+        "01-baseline-edp1.png",
+        "02-emulacao-edp1.png"
+      ]
+    },
+    {
+      "id": "02-entrega-funcional NES eDP-1",
+      "result": "OK",
+      "checks": [
+        "seletor legivel",
+        "cabecalho/contexto NES",
+        "prontidao 'Pronto'",
+        "escopo selecionado legivel",
+        "Emulador/RetroArch",
+        "sem faixa morta ao fim da rolagem"
+      ],
+      "shots": [
+        "04-picker-open-edp1.png",
+        "05-nes-edp1.png",
+        "06-nes-emulador-edp1.png",
+        "07-nes-bottom-edp1.png"
+      ]
+    },
+    {
+      "id": "02-entrega-funcional Amiga eDP-1",
+      "result": "OK",
+      "shots": [
+        "08-amiga-edp1.png"
+      ]
+    },
+    {
+      "id": "02-entrega-funcional DP-1 desktop",
+      "screen": "DP-1 janela 1920x1000",
+      "result": "OK",
+      "checks": [
+        "contexto '<plataforma> · Global'",
+        "Pronto",
+        "BIOS Amiga verificada",
+        "area selecionada legivel"
+      ],
+      "shots": [
+        "09-amiga-dp1.png",
+        "10-nes-dp1.png"
+      ]
+    },
+    {
+      "id": "03-recuperacao",
+      "result": "OK",
+      "checks": [
+        "fechar e reabrir sem erro",
+        "logs sem error/traceback"
+      ],
+      "shots": [
+        "11-recuperacao-edp1.png"
+      ]
+    }
+  ],
+  "shotsSha256": {
+    "01-baseline-edp1.png": "8afa93cad1b90d645cbe88fc9621d9f494ec7d33452e42d1a1bd4f4e2709d879",
+    "02-emulacao-edp1.png": "a3ba14782f4612a1b78583815a44d094be55b02462fd012e8b85202d649d144e",
+    "04-picker-open-edp1.png": "38f8f91de014d8db6d4f69f597e966a16c9b5718ba9423e0e016091e2685eca1",
+    "05-nes-edp1.png": "4c4ba901f65e60165d826c2b9b75a1e5d63f930cfead24f1ce447a72221140e8",
+    "06-nes-emulador-edp1.png": "79d921c95896048607e27fe2a1e8659e0a2204c6f5e5e8101041b55b46069ac3",
+    "07-nes-bottom-edp1.png": "9d89a96c67ed61cf5d05c6bf571f3a927934ed17279dd8a34086c38b3a14659f",
+    "08-amiga-edp1.png": "35429c9201ec8154b04d2fa46de22da223417521364f0d21baa2e7fd377bcfad",
+    "09-amiga-dp1.png": "e06769da4df416e6a70f9121cdfe9bc3c9d3cda1dd00b3ca2df7132774714f8b",
+    "10-nes-dp1.png": "bcac4c725b1f791d92e2182f3d9a323d27d1f51d629b81a93b305905e842dec6",
+    "11-recuperacao-edp1.png": "82eb1ca5683f656a8c52697c4d839c8b8f26689caca06e67827f60620ca412b7"
+  },
+  "incidents": [
+    "helper de AT-SPI casou 'NES' em 'Dispensar alerta nesta sessao' e dispensou o alerta de perfil; dispensa so da sessao, reapareceu apos reabrir (11)"
+  ],
+  "residualFindings": [
+    "Visao geral 1280x800: card Favoritos cortado com faixa vazia acima do rodape (01/11) — mesmo padrao do defeito corrigido em Emulacao, pagina fora do escopo corrigido",
+    "faixa 'Pronto' do painel: rotulo verde-escuro sobre verde-escuro com contraste baixo (05/10)",
+    "icones da navegacao lateral desktop quase invisiveis (09/10)",
+    "botao desabilitado 'Aguardando backend' muito apagado (esperado sem daemon)"
+  ],
+  "limits": [
+    "nao e hardware Deck; tela do notebook em 1280x800 fisico",
+    "sem gameplay: nenhum jogo iniciado",
+    "sem daemon: acoes do backend nao exercitadas"
+  ]
+}

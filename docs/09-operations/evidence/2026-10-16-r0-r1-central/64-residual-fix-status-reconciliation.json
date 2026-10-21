@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-21",
+  "reason": "Renovacao de scopeDigest por revalidacao de escopo apos correcao dos residuais do aceite instalado 60f2d590 (QML compartilhado Main.qml/Emulation.qml/SteamGameplay.qml). Sem promocao de estagio, sem nova prova fisica alegada.",
+  "items": {
+    "SZ-AURA-ESDE-ACTIVE-SURFACE": {
+      "from": "42bc234b95184050cae682f5734893562008f6d2a79b2bc8b75035237125f220",
+      "to": "50ab3268990087d8540eccad984c64f4f29beb82f7dddc57d9295d3ef309496c"
+    },
+    "SZ-COMPONENT-LIFECYCLE": {
+      "from": "a679a28842406c97734cd335da23086cb2172d2ff10e26ce11f668565ab71734",
+      "to": "005f24661df397824d95ec40a151b885bf93c3e47c8061080b6caf37c5f2911a"
+    },
+    "SZ-GAMEMODE-READINESS": {
+      "from": "2b2256690075e69e1033a09144a4480d1ae3a791de3b2d81383ffce713ee19be",
+      "to": "8a56f7c4f7a8cfd95bcf1e7f51f46d37394a55f4f4c958cf1e69e5429fc45f57"
+    },
+    "SZ-LIBRARY-CANONICAL": {
+      "from": "1fc4186274517e949968b1116e5d17b25f3e1c26f34660a968c13d0d55a5589b",
+      "to": "8905bbc90be95c6deef88f3b087221b1c89ed6dc15430b1e7eda634c262080f5"
+    },
+    "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD": {
+      "from": "c38789077a9b8eaf7f2f1f29f86d683d9c04c0512c0cd88e12e69ef755dadced",
+      "to": "5944f0d9804d6c86cdc1ff022264fdd4eddb9fca691f85b19e8d334e34bee0fc"
+    },
+    "SZ-SYSTEM-DIAGNOSTICS-GUIDANCE": {
+      "from": "b0b0f38d84e6eb7b2759dd5c727f1aa852aaf9a51d48918d99c742ae9fc08908",
+      "to": "a86ad6c8be860107a78b7d373bcaec2fafe4d23343a0c61f34545f45fc18bb79"
+    },
+    "SZ-THEME-ENGINE": {
+      "from": "37b729c7d3559a54a7be3fef1c5f2251bffbdbd5c8a1bc83c1a60ef61a4e02be",
+      "to": "957cce127a26f488d6d2435819efa66f0c55644a050d002006784b3d22c53ef1"
+    },
+    "SZ-THEME-IMPORT-ESDE-LAYOUT": {
+      "from": "3dabc292698d73c0b69636b523152805f31405354c87a0091bb33e26e578a3c8",
+      "to": "3da0ea969fa68a12ef37087d764cc1e398e453c47d7d319dab178db978238ba2"
+    },
+    "SZ-UI-DESKTOP-AUDIT": {
+      "from": "388b0a97c6b172b943e9e4054c1ebf4bdcbcd6bb5000ba13ce492bbbe9df1d4e",
+      "to": "a34768978a0e63cf62b7338d259d2f4418d40b851c41bfd28c484aa7e301b4f9"
+    }
+  }
+}

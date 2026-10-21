@@ -1418,6 +1418,11 @@ ApplicationWindow {
         return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
     }
 
+    // Mantém a cor preferida quando já é legível sobre a superfície.
+    function _readableOn(preferred: color, surface: color): color {
+        return _contrastRatio(preferred, surface) >= 4.5 ? preferred : _contrastTextColor(surface)
+    }
+
     function _contrastTextColor(surface: color): color {
         return _contrastRatio(textColor, surface)
             >= _contrastRatio(backgroundColor, surface)
@@ -3811,16 +3816,24 @@ ApplicationWindow {
                                 }
                                 contentItem: RowLayout {
                                     spacing: root.compactLayout ? 0 : 12
+                                    // Desabilitado, o estilo desktop encolhia e apagava o ícone; ativo e
+                                    // sem foco, o clique segue para a navegação como no rótulo.
                                     ToolButton {
-                                        enabled: false
+                                        focusPolicy: Qt.NoFocus
+                                        hoverEnabled: false
                                         Accessible.ignored: true  // ícone decorativo: o texto vizinho nomeia
                                         icon.name: modelData.icon
-                                        icon.color: root.sectionIndex === index ? root.cyanColor : root.mutedColor
+                                        icon.color: root.sectionIndex === index
+                                            ? root._readableOn(root.cyanColor, "#183044")
+                                            : root._readableOn(root.textColor, root.sidebarColor)
                                         icon.width: 24
                                         icon.height: 24
+                                        padding: 0
                                         background: Item {}
                                         Layout.preferredWidth: 28
+                                        Layout.preferredHeight: 28
                                         Layout.alignment: Qt.AlignHCenter
+                                        onClicked: root.sectionIndex = index
                                     }
                                     ColumnLayout {
                                         visible: !root.compactLayout
@@ -3828,7 +3841,8 @@ ApplicationWindow {
                                         spacing: 1
                                         Label {
                                             text: modelData.label
-                                            color: root.sectionIndex === index ? root.cyanColor : root.textColor
+                                            color: root.sectionIndex === index
+                                                ? root._readableOn(root.cyanColor, "#183044") : root.textColor
                                             font.pixelSize: root.scaledTextSize(15)
                                             Layout.fillWidth: true
                                             elide: Text.ElideRight
@@ -4346,7 +4360,6 @@ ApplicationWindow {
                                 id: overviewScroll
                                 clip: true
                                 contentWidth: availableWidth
-                                bottomPadding: root.bottomSafeInset
                                 ColumnLayout {
                                     width: Math.min(parent.width, root.contentMaxWidth)
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -4719,6 +4732,8 @@ ApplicationWindow {
                                             }
                                         }
                                     }
+                                    // Inset no fim do conteúdo: bottomPadding do ScrollView encolhia o viewport e deixava faixa morta.
+                                    Item { Layout.fillWidth: true; Layout.preferredHeight: root.bottomSafeInset }
                                 }
                             }
 
@@ -5413,7 +5428,6 @@ ApplicationWindow {
                                 id: profilesScroll
                                 clip: true
                                 contentWidth: availableWidth
-                                bottomPadding: root.bottomSafeInset
                                 ColumnLayout {
                                     width: parent.width
                                     spacing: 16
@@ -5643,6 +5657,8 @@ ApplicationWindow {
                                             }
                                         }
                                     }
+                                    // Inset no fim do conteúdo: bottomPadding do ScrollView encolhia o viewport e deixava faixa morta.
+                                    Item { Layout.fillWidth: true; Layout.preferredHeight: root.bottomSafeInset }
                                 }
                             }
 
@@ -5651,7 +5667,6 @@ ApplicationWindow {
                                 id: syncScroll
                                 clip: true
                                 contentWidth: availableWidth
-                                bottomPadding: root.bottomSafeInset
                                 ColumnLayout {
                                     width: parent.width
                                     spacing: 16
@@ -5851,6 +5866,8 @@ ApplicationWindow {
                                         Accessible.name: text
                                         onClicked: root.refreshStatus(qsTr("Status de sincronização atualizado"))
                                     }
+                                    // Inset no fim do conteúdo: bottomPadding do ScrollView encolhia o viewport e deixava faixa morta.
+                                    Item { Layout.fillWidth: true; Layout.preferredHeight: root.bottomSafeInset }
                                 }
                             }
 
@@ -5859,7 +5876,6 @@ ApplicationWindow {
                                 id: castScroll
                                 clip: true
                                 contentWidth: availableWidth
-                                bottomPadding: root.bottomSafeInset
                                 ColumnLayout {
                                     width: parent.width
                                     spacing: 16
@@ -6080,6 +6096,8 @@ ApplicationWindow {
                                             function(err) { root.pushError(err) }
                                         )
                                     }
+                                    // Inset no fim do conteúdo: bottomPadding do ScrollView encolhia o viewport e deixava faixa morta.
+                                    Item { Layout.fillWidth: true; Layout.preferredHeight: root.bottomSafeInset }
                                 }
                             }
 
@@ -6088,7 +6106,6 @@ ApplicationWindow {
                                 id: systemScroll
                                 clip: true
                                 contentWidth: availableWidth
-                                bottomPadding: root.bottomSafeInset
                                 ColumnLayout {
                                     width: parent.width
                                     spacing: 16
@@ -6659,6 +6676,8 @@ ApplicationWindow {
                                             onClicked: recoveryDialog.open()
                                         }
                                     }
+                                    // Inset no fim do conteúdo: bottomPadding do ScrollView encolhia o viewport e deixava faixa morta.
+                                    Item { Layout.fillWidth: true; Layout.preferredHeight: root.bottomSafeInset }
                                 }
                             }
                             // Temas. Uma seção só, com duas abas: obter um tema e

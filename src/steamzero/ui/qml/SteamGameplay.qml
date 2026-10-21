@@ -851,7 +851,6 @@ Item {
         anchors.bottom: fixedActions.top
         clip: true
         contentWidth: availableWidth
-        bottomPadding: page.bottomSafeInset
 
         ColumnLayout {
             width: Math.min(gameplayScroll.availableWidth, page.contentMaxWidth)
@@ -2033,6 +2032,8 @@ Item {
                 onGamemodeReturnRequested: page.desktopGamemodeReturnRequested()
             }
 
+            // Inset no fim do conteúdo: bottomPadding do ScrollView encolhia o viewport e deixava faixa morta.
+            Item { Layout.fillWidth: true; Layout.preferredHeight: page.bottomSafeInset }
         }
     }
 

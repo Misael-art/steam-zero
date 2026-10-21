@@ -30,7 +30,7 @@
     "tests/qml/check_component_job_presentation.qml",
     "docs/status/workstreams/r05-component-operation-trace-2026-10-05.json"
   ],
-  "scopeDigest": "a679a28842406c97734cd335da23086cb2172d2ff10e26ce11f668565ab71734",
+  "scopeDigest": "005f24661df397824d95ec40a151b885bf93c3e47c8061080b6caf37c5f2911a",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
