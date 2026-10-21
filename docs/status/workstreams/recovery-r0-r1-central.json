@@ -6,7 +6,7 @@
   "branch": "codex/product-recovery-2026-10-16",
   "baseRef": "a672c35a7b6e2794041941ff9617ac5cbc5f7266",
   "owner": "claude-code-central-executor",
-  "state": "active",
+  "state": "closed",
   "exclusivePaths": [
     "src/steamzero/ui/qml/Emulation.qml",
     "src/steamzero/domain/platform_composer.py",
@@ -20,7 +20,6 @@
     "tests/integration/test_recovery_central.py",
     "tests/integration/test_emulation_platform_scope.py",
     "tests/unit/test_launch_sony_nintendo.py",
-    "src/steamzero/ui/qml/Main.qml",
     "src/steamzero/ui/qml/SteamComboBox.qml",
     "src/steamzero/ui/qml/SteamGameplay.qml",
     "tests/unit/test_qml_scroll_inset.py"
@@ -31,6 +30,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Residuais do aceite instalado 60f2d590 corrigidos na fonte (faixa morta Visao geral/Perfis/Sync/Transmissao/Sistema/Gameplay, contraste da faixa de prontidao, icones da navegacao desktop); PR, CI, release, instalacao com senha do operador e novo aceite GUI.",
-  "updatedAt": "2026-10-20"
+  "nextAction": "Fechado em 2026-10-21 (release 2.0.0rc1-3f87657c0a6c). Main.qml devolvido a WS-2026-10-STUDIO-DRAFT-HISTORY.",
+  "updatedAt": "2026-10-21"
 }

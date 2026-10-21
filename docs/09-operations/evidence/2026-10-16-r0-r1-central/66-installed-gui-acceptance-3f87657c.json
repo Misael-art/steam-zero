@@ -1,0 +1,91 @@
+{
+  "release": "2.0.0rc1-3f87657c0a6c",
+  "sourceCommit": "3f87657c0a6ccd2ff6805f3f505a5bbe0f3db563",
+  "wheelSha256": "539db839e4f91e96ae68ccd89b73686d2c5d742208e2c32a4418460c64bd7ed0",
+  "mainPushRun": "39605159739",
+  "rollbackRelease": "2.0.0rc1-60f2d590481f",
+  "date": "2026-10-21",
+  "profile": "isolado, STEAMZERO_NO_DAEMON=1",
+  "input": "teclado (ydotool com guarda de foco) e AT-SPI",
+  "scenarios": [
+    {
+      "id": "01-baseline / Visao geral eDP-1 1280x800",
+      "result": "OK",
+      "checks": [
+        "sem faixa morta: conteudo ate o rodape",
+        "rolagem ate o fim sem faixa"
+      ],
+      "shots": [
+        "01-baseline-edp1.png",
+        "02-overview-bottom-edp1.png"
+      ]
+    },
+    {
+      "id": "02-entrega-funcional NES eDP-1",
+      "result": "OK",
+      "checks": [
+        "contexto NES",
+        "bloco Pronto legivel"
+      ],
+      "shots": [
+        "03-nes-edp1.png"
+      ]
+    },
+    {
+      "id": "02-entrega-funcional Amiga eDP-1",
+      "result": "OK",
+      "shots": [
+        "04-amiga-edp1.png"
+      ]
+    },
+    {
+      "id": "02-entrega-funcional DP-1 Amiga e NES",
+      "result": "OK",
+      "checks": [
+        "icones da navegacao em tamanho e cor plenos",
+        "rotulo selecionado legivel",
+        "faixa Pronto com rotulos claros",
+        "BIOS Amiga verificada"
+      ],
+      "shots": [
+        "05-amiga-dp1.png",
+        "06-nes-dp1.png"
+      ]
+    },
+    {
+      "id": "03-recuperacao",
+      "result": "OK",
+      "checks": [
+        "fechar e reabrir sem erro",
+        "logs sem error/traceback"
+      ],
+      "shots": [
+        "07-recuperacao-edp1.png"
+      ]
+    }
+  ],
+  "shotsSha256": {
+    "01-baseline-edp1.png": "164aee27f4c46767bc7de8e7da197773cbacc7cef94d683b35919ba69b019b45",
+    "02-overview-bottom-edp1.png": "9b1ef307863ea638f599cb0a9c135bd1f32e41a041743bf26d76bf0058b916f0",
+    "03-nes-edp1.png": "68abe348e26e9069d78679f5028472411db2a1afc820f9137900f8a48fdc4baf",
+    "04-amiga-edp1.png": "c31ba4d60f289e7ee26f1ece19cf67b5379e04b668bcca293c1c6036369e6ed5",
+    "05-amiga-dp1.png": "f0e810679e52fca046c79e0c586e6458ac6d95990862c7e497b0a5ea96d5003e",
+    "06-nes-dp1.png": "d2945286a2a2ec67dd4bf4b7053a1de53edb4dd3b2113139af094092d405000c",
+    "07-recuperacao-edp1.png": "9838d07a4ab529310bfe43d369806c3250b30b6b0a9803d825ddcba45a653945"
+  },
+  "residualsClosed": [
+    "faixa morta Visao geral",
+    "contraste faixa Pronto",
+    "icones navegacao desktop"
+  ],
+  "residualsOpen": [
+    "ScrollViews de catalogo/editor de temas mantem bottomPadding (frente de temas)",
+    "botao desabilitado 'Aguardando backend' apagado (esperado sem daemon)"
+  ],
+  "limits": [
+    "nao e hardware Deck",
+    "sem gameplay",
+    "sem daemon",
+    "suite integral local nao executada por memoria do host; CI remoto verde em PR #262 e main 39605159739"
+  ]
+}

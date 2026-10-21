@@ -4,11 +4,11 @@
   "id": "SZ-RECOVERY-R0-R1-CENTRAL",
   "title": "R0/R1 — Central com requisitos aplicáveis e retorno preservado",
   "domain": "emulation",
-  "implementation": "partial",
-  "integration": "integrated",
-  "verification": "none",
-  "operation": "unknown",
-  "distribution": "not-packaged",
+  "implementation": "complete",
+  "integration": "released",
+  "verification": "dev",
+  "operation": "degraded",
+  "distribution": "installed",
   "scopePaths": [
     "src/steamzero/ui/qml/Emulation.qml",
     "src/steamzero/domain/platform_composer.py",
@@ -21,6 +21,7 @@
     "tests/integration/test_emulation_platform_scope.py",
     "tests/unit/test_launch_sony_nintendo.py"
   ],
+  "scopeDigest": "6bcc1a251944f13c66eefd4e9dd91815bb9efe2230eacafb2e472a466aa1fdec",
   "dependsOn": [
     "SZ-EMULATION-PLATFORM-SCOPE",
     "SZ-EMULATION-PLATFORM-CONTEXT",
@@ -30,7 +31,6 @@
   ],
   "knownGaps": [
     "GAP-R1-REQUIREMENTS-FALLBACK",
-    "GAP-R1-INSTALLED-ACCEPTANCE",
     "GAP-R1-CATALOG-SNAPSHOT-TIMEOUT"
   ],
   "acceptanceCriteria": [
@@ -171,12 +171,22 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/42-final-local-checkpoint.json",
       "command": "Checkpoint complementar final do reparo: 6425 não visuais passed, 47 skipped, 394 visuais passed sobre fonte idêntica; 6819 passes ao total. Runner exit 0, estado real sem delta. Cobertura combinada 85,49% >= baseline 85,47%; gates estáticos em 33. Integral bruta 36 preservada falha.",
       "result": "passed"
+    },
+    {
+      "kind": "release",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/65-install-3f87657c.json",
+      "command": "tools/release_host.py install --bundle bundle-3f87657c --rollback-release 2.0.0rc1-60f2d590481f; release 2.0.0rc1-3f87657c0a6c de main 3f87657c (PR #262, push-run 39605159739 verde), wheel 539db839, service/socket ativos",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/66-installed-gui-acceptance-3f87657c.json",
+      "command": "Aceite GUI na release instalada, perfil isolado: NES e Amiga em eDP-1 1280x800 e DP-1, Visao geral sem faixa morta, recuperacao fechar/reabrir; 7 PNGs com sha256",
+      "result": "passed"
     }
   ],
-  "nextAction": "Release 2.0.0rc1-319de6524db7 (main 319de652, PR #260, push-run 39357199913 verde) ativa e convergida; wheel 3d9741e5 idêntico ao bundle verificado; rollback 2.0.0rc1-1470cf48bf7d presente, ativação não testada. Não reinstalar. PENDENTE_JANELA_DE_TESTE: executar ACEITE-INSTALADO.md a partir do passo 4 em janela dedicada (perfil isolado, NES/Amiga, 1280×800, mouse/teclado, PNGs 01-03). Evidência 43. R0/R1 aberto; R2 não iniciado.",
-  "activeWorkstreams": [
-    "WS-2026-10-RECOVERY-R0-R1-CENTRAL"
-  ],
-  "updatedAt": "2026-10-19",
-  "notes": "R0/R1 original integrado via PR #259/#258 em 356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6; CI PR/push main verde. Defeito de performance identificado antes da ativação: 1145 jogos excediam 120 s. Reparo em cbcdf3e3cc0be75499b45272b20a0bf16503ae82, medido em 13,725 s na fonte. Checkpoint local final: 6425 não visuais + 394 visuais sobre fonte idêntica, 47 skips; cobertura combinada 85,49% >= baseline 85,47%, estado real sem delta e gates estáticos/status verdes. A integral bruta 36 permanece falha por ambiente/status, com 25 retestes e conjunto não visual completo posteriormente aprovados; tentativa 40 interrompida antes do reboot, 41 concluída. Sem instalação, gameplay, PNG funcional ou ativação de rollback novos. Release ativa conhecida 2.0.0rc1-1470cf48bf7d; revalidar antes de instalar. Eixos de aceite preservados. Push/integração governada e instalação autorizados; publicação pública não autorizada."
+  "nextAction": "R0/R1 fechado em 2026-10-21 na release 2.0.0rc1-3f87657c0a6c. Pendentes fora do fechamento: suite integral local (memoria do host; CI remoto verde), hardware Deck, gameplay e acoes com daemon. Proximo lote: R2.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-21",
+  "notes": "R0/R1 original integrado via PR #259/#258 em 356ec8f7c5d345abdee80c2ef385ed94ce8a1ae6; CI PR/push main verde. Defeito de performance identificado antes da ativação: 1145 jogos excediam 120 s. Reparo em cbcdf3e3cc0be75499b45272b20a0bf16503ae82, medido em 13,725 s na fonte. Checkpoint local final: 6425 não visuais + 394 visuais sobre fonte idêntica, 47 skips; cobertura combinada 85,49% >= baseline 85,47%, estado real sem delta e gates estáticos/status verdes. A integral bruta 36 permanece falha por ambiente/status, com 25 retestes e conjunto não visual completo posteriormente aprovados; tentativa 40 interrompida antes do reboot, 41 concluída. Sem instalação, gameplay, PNG funcional ou ativação de rollback novos. Release ativa conhecida 2.0.0rc1-1470cf48bf7d; revalidar antes de instalar. Eixos de aceite preservados. Push/integração governada e instalação autorizados; publicação pública não autorizada. 2026-10-21: fechamento instalado. Verificacao 'dev' e nao 'hw': prova em host notebook real a 1280x800 fisico, sem hardware Deck; operacao 'degraded' porque acoes do backend nao foram exercitadas (perfil sem daemon). Residuais de 63 corrigidos em 1f97956d; ScrollViews de temas ficam com a frente de temas."
 }
