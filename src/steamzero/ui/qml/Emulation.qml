@@ -58,6 +58,31 @@ Item {
     readonly property int bottomSafeInset: minimumTouchTarget + responsiveGutter
     readonly property int motionDuration: reducedMotion ? 0 : 180
 
+    // Mesma regra de Main.qml: o texto sobre ciano escuro precisa escolher entre
+    // textColor e backgroundColor, pois textColor é escuro no tema claro.
+    function _channelLuminance(value) {
+        return value <= 0.03928 ? value / 12.92
+                                : Math.pow((value + 0.055) / 1.055, 2.4)
+    }
+
+    function _relativeLuminance(value: color): real {
+        return 0.2126 * _channelLuminance(value.r)
+             + 0.7152 * _channelLuminance(value.g)
+             + 0.0722 * _channelLuminance(value.b)
+    }
+
+    function _contrastRatio(first: color, second: color): real {
+        const a = _relativeLuminance(first)
+        const b = _relativeLuminance(second)
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+    }
+
+    function _contrastTextColor(surface: color): color {
+        return _contrastRatio(textColor, surface)
+            >= _contrastRatio(backgroundColor, surface)
+            ? textColor : backgroundColor
+    }
+
     function scaledTextSize(value) {
         return Math.max(1, Math.round(Number(value) * visualScale))
     }
@@ -1754,7 +1779,8 @@ Item {
                             }
                             Label {
                                 text: modelData.label
-                                color: page.textColor
+                                color: parent.parent.checked
+                                    ? page._contrastTextColor(page.cyanDarkColor) : page.textColor
                                 font.bold: parent.parent.checked
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
@@ -1918,7 +1944,6 @@ Item {
                 Layout.fillHeight: true
                 clip: true
                 contentWidth: availableWidth
-                bottomPadding: page.bottomSafeInset
                 background: Rectangle { color: page.backgroundColor }
 
                 ColumnLayout {
@@ -2269,7 +2294,6 @@ Item {
                 Layout.fillHeight: true
                 clip: true
                 contentWidth: availableWidth
-                bottomPadding: page.bottomSafeInset
                 background: Rectangle { color: page.backgroundColor }
                 Connections {
                     target: contentScroll.contentItem
@@ -2314,8 +2338,8 @@ Item {
                                 id: compactPrimaryAction
                                 text: page.primaryAction().label
                                 enabled: page.primaryAction().enabled !== false
-                                // CTA sobre ciano escuro: herda a cor clara do tema da página.
-                                palette.buttonText: page.textColor
+                                // CTA sobre ciano escuro: cor de texto com contraste em ambos os temas.
+                                palette.buttonText: page._contrastTextColor(page.cyanDarkColor)
                                 Layout.preferredWidth: Math.min(250, contentScroll.width * 0.34)
                                 Layout.minimumHeight: page.minimumTouchTarget
                                 Accessible.name: text
@@ -3806,7 +3830,7 @@ Item {
                         }
                     }
 
-                    Item { Layout.fillWidth: true; Layout.preferredHeight: 18 }
+                    Item { Layout.fillWidth: true; Layout.preferredHeight: page.bottomSafeInset }
                 }
             }
 
@@ -3971,7 +3995,7 @@ Item {
                     leftPadding: 16
                     rightPadding: 16
                     topPadding: 14
-                    bottomPadding: page.bottomSafeInset
+                    bottomPadding: 14
 
                     ColumnLayout {
                         width: gamePanelScroll.availableWidth
@@ -4717,6 +4741,7 @@ Item {
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
                         }
+                        Item { Layout.fillWidth: true; Layout.preferredHeight: page.bottomSafeInset }
                     }
                 }
             }

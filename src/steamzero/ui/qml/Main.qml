@@ -4030,9 +4030,10 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                     }
                                     Label {
-                                        text: root.sectionIndex === 1 && root.emulationData.platforms
-                                            && root.emulationData.platforms.length > 0
-                                            ? root.emulationData.platforms[0].name
+                                        // Segue a plataforma escolhida na página, não a primeira publicada.
+                                        text: root.sectionIndex === 1 && emulationPage.headerContext
+                                            && emulationPage.headerContext.name
+                                            ? emulationPage.headerContext.name
                                             : root.sectionIndex === 2 ? qsTr("%1 · %2").arg(root.steamArea).arg(root.deviceSummary())
                                             : root.deviceSummary()
                                         color: root.mutedColor

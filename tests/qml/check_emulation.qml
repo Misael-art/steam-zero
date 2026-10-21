@@ -168,6 +168,41 @@ Window {
         object.destroy()
     }
 
+    // Aceite instalado R0/R1 em 1280×800: padding de ScrollView reduz a viewport
+    // (banda morta fixa) e texto do tema claro some sobre ciano escuro.
+    function testInstalledViewportAndContrastRegressions() {
+        const object = makePage({
+            "platforms": [
+                {"id": "switch", "name": "Nintendo Switch", "state": "ready",
+                 "readiness": {"percent": 80, "title": "Pronto", "blockers": []},
+                 "emulators": [], "games": []},
+                {"id": "nes", "name": "Nintendo Entertainment System e Famicom",
+                 "state": "ready",
+                 "readiness": {"percent": 100, "title": "Pronto", "blockers": []},
+                 "emulators": [], "games": []}
+            ]
+        })
+        if (!object)
+            return
+        object.platformIndex = 1
+        object.resetContext()
+        check(object.headerContext.name === "Nintendo Entertainment System e Famicom",
+              "contexto do cabeçalho deve seguir a plataforma selecionada")
+        const scrolls = allChildren(object, []).filter(function(child) {
+            return String(child).indexOf("ScrollView") >= 0
+        })
+        check(scrolls.length > 0, "página deve publicar ScrollViews")
+        for (let index = 0; index < scrolls.length; index++)
+            check(scrolls[index].bottomPadding < object.bottomSafeInset,
+                  "inset inferior deve rolar com o conteúdo, não encolher a viewport")
+        object.textColor = "#16212a"
+        object.backgroundColor = "#e7ebec"
+        check(object._contrastRatio(object._contrastTextColor(object.cyanDarkColor),
+                                    object.cyanDarkColor) >= 4.5,
+              "texto sobre ciano escuro deve manter contraste AA no tema claro")
+        object.destroy()
+    }
+
     function testManifestDrivenPlatformSelection() {
         const object = makePage({
             "platforms": [
@@ -1052,6 +1087,7 @@ Window {
             testHierarchy()
             testSafeFallback()
             testManifestDrivenPlatformSelection()
+            testInstalledViewportAndContrastRegressions()
             testGlobalManagementOpensPlatformWithoutCreatingAnotherTechnicalId()
             testGlobalInstallPanelHelpers()
             testPlatformCardJourney()

@@ -68,6 +68,15 @@ ComboBox {
         highlighted: control.highlightedIndex === index
         palette.text: control.textColor
         palette.highlightedText: control.textColor
+        // Estilos de desktop (ex.: org.kde.desktop) ignoram palette.text e
+        // pintam o texto com a cor do tema do sistema sobre o popup escuro.
+        contentItem: Text {
+            text: parent.text
+            color: control.textColor
+            font: control.font
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
         background: Rectangle {
             color: parent.highlighted ? "#183044" : "transparent"
             radius: 6
