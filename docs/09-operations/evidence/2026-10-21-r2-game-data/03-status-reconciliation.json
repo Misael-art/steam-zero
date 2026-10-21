@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-21",
+  "reason": "Renovacao de scopeDigest por revalidacao de escopo apos slice 1 de R2 (emulation.py, Emulation.qml, Main.qml compartilhados). Sem promocao de estagio, sem prova fisica alegada.",
+  "items": {
+    "SZ-AURA-CINEMA-COMPLETION": {
+      "from": "30db7035ea21e8cae08f04a7109a3225360bf16ba8f7c7428ee6dc6a41b70c46",
+      "to": "0747510135254dd6531102c2124da2169abf03c388e0ec859595986ac0b3d242"
+    },
+    "SZ-AURA-ESDE-ACTIVE-SURFACE": {
+      "from": "50ab3268990087d8540eccad984c64f4f29beb82f7dddc57d9295d3ef309496c",
+      "to": "b708b4010569932c7f5d10b90fceb0cefe62380e58acd4adc2a300ec7937c18c"
+    },
+    "SZ-AURA-LAUNCHER": {
+      "from": "907078002e75397ae7c924e4590a653b3d4df98d211653e392d214c7c328d279",
+      "to": "1683cefc2925f3a93ab90d235cc6d2dda4cd3bab689307720f9b3d1801697930"
+    },
+    "SZ-AURA-SAVE-STATE-GALLERY": {
+      "from": "ef1336d36463c01a5313c5f82bf12990e12ee5f09f4467bcf5a60892fe0971b2",
+      "to": "82e7ec5b79ad5b1492eadfa3785e53424359b81ddc76767db36e0f8b35e65828"
+    },
+    "SZ-AURA-SESSION-OSD": {
+      "from": "dda8cf64725a565a5fd939ddd296690dd05b031b9e3c359c266c4d660009373d",
+      "to": "22ecf5c432ce3b4ffa9c31b16e8c107ba39cb5fbdfd24ceb58d6b5caa28a2790"
+    },
+    "SZ-AURA-UI": {
+      "from": "7febf7e6e3b0d434b82435e724d941924e64121fb6b3d79600db3b34251becc4",
+      "to": "65f9911287c3110bc9b61de937efb446172c5a8566a6ff9cc6d94feecddb686f"
+    },
+    "SZ-COMPONENT-LIFECYCLE": {
+      "from": "005f24661df397824d95ec40a151b885bf93c3e47c8061080b6caf37c5f2911a",
+      "to": "51210a58485bf754af06d17c4602421c9df1383717182900a10a5d889e32549e"
+    },
+    "SZ-EMULATION-PLATFORM-SCOPE": {
+      "from": "0d4a0560b17ed75fa421772bc80ca17b82134c8601c1e51b0d95b9ed14c00dd6",
+      "to": "2921ccfadaa371736e7a9febabfb7e31cfa46797e7a2266cf4045b399a7b511d"
+    },
+    "SZ-EMULATION-RUNTIME-REMEDIATION": {
+      "from": "ef2507dc2ae6bbe0ff50897fdb8466706191fa33bbe43d96fc9035bcc1fe2953",
+      "to": "ec86761416bb0e1feeb0b023650bfe1830c177b328429e52eb0c8ef3dbb5895d"
+    },
+    "SZ-EMULATION-STORAGE-MANAGEMENT": {
+      "from": "2980b88411e288c8af9758097cde51b54991d960dd39d37f8811567b6b9eef6f",
+      "to": "c1b74535c2aa3ede0f5dd3296a3276d4ebeef4b49ff8994faf67deef2b6c8f7d"
+    },
+    "SZ-EMULATION-STORAGE-PLATFORM-SCOPE": {
+      "from": "619a91dc3ad81e231e31c4890a7f8ae8a42453dab06402f372f4c5c2806dda5c",
+      "to": "e870539cee0551cb3509f538bfa7d53ad9077c4d5feda43b58471470d1e58b2e"
+    },
+    "SZ-EMULATION-STORAGE-READMODEL": {
+      "from": "edc1fcfef8271a2a26cf1c1c094c6edc2880fa9aa8e8767c2725387e51a82773",
+      "to": "d3b343bd1d668a0252cc55cff8199c1f0afc9aaadcf8024b38f61eac6695779e"
+    },
+    "SZ-EMULATION-ENHANCEMENTS": {
+      "from": "02614dbce9d7be9d81f4e8e096fda541169705a670155c15845007514f2b4645",
+      "to": "d6c178d54f594c4161c3f2379ba6161590d34aa54d71a4840c42be57c21d44a2"
+    },
+    "SZ-GAMEMODE-READINESS": {
+      "from": "8a56f7c4f7a8cfd95bcf1e7f51f46d37394a55f4f4c958cf1e69e5429fc45f57",
+      "to": "93973cc096e1794c505666732f12d7b6b059b62e19094e9630b03742d3b262ec"
+    },
+    "SZ-EMULATION-HIGH-END-RUNTIME-READINESS": {
+      "from": "b37371b09f79bd41eeb0ee612f1c79200bb0670d501e42b624db24c08927579d",
+      "to": "9de1cac2e54a39925273a4b83baad9431927e83c1873cc95a61f85758506f727"
+    },
+    "SZ-LIBRARY-CANONICAL": {
+      "from": "8905bbc90be95c6deef88f3b087221b1c89ed6dc15430b1e7eda634c262080f5",
+      "to": "bb04c14248a9a537a29a193b3cb00f86e69f3640df79e44bdb44c20695a2c468"
+    },
+    "SZ-MAIN-WORKTREE-RECONCILIATION": {
+      "from": "e1284ee81fac4eb8e426fbc18e320ae89e143254fb44f2e96249b5bf9dd5a2da",
+      "to": "272da0d075365cc81947a28858047092c6781d033c57c75d34c098f5d4e77d30"
+    },
+    "SZ-MEDIA-AUDIT-PLATFORM-SCOPE": {
+      "from": "f651d87da8cc4e754f548672f737019ffad0b8bfa29719aef64f071adc09f02a",
+      "to": "2c59b2d8c0ddb593908dffa73085968b26ac45590e9f83065ba6db029df433dd"
+    },
+    "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE": {
+      "from": "ac67ee7317629ccf8329a14b8e7198d20335b63f76bac5cf1217932437520c4c",
+      "to": "235024fbe794f7b4e6a837917d992045d198581c963c7835570aa3b8ec025ce3"
+    },
+    "SZ-MEDIA-PROVIDER-PLATFORM-FILTER": {
+      "from": "23ce3091d798c29a3e3a4d2015906eafdaec69b11b1abe23696629b5373d21b9",
+      "to": "1862c9e310a9a328b1f8e47c2c7a5d9803399380b2878b5b20a40a546214563e"
+    },
+    "SZ-MEDIA-SCRAPING": {
+      "from": "8e2656a297ebee7f7227624eea44cbb667e1ad9932f32a139a466bb2c763ea14",
+      "to": "a2695ecf1c4ce45a6f8d9e1ab6a4df27812870f5d1fb8c3639bf5309cb9ad6ea"
+    },
+    "SZ-MULTIDISC-MATERIALIZATION-INGESTION": {
+      "from": "a85c8d0a80873c78ddd88061d19489c03cb4a817ca0834742dadb1c1f5640a2c",
+      "to": "9bc2120caab807c9ce66fb03a0b0b35a0f7fbabba79d69f98652668b1d7866d4"
+    },
+    "SZ-PLATFORM-CORE-PER-SYSTEM": {
+      "from": "59134e2ad09c47a2da7037d14111176a808d2dcc64d8cad390e8dbc52c232700",
+      "to": "826129b5d4b2f6de709f579a7376a152570eeae1a7135830aa0bcff144689ee6"
+    },
+    "SZ-PLATFORM-REQUIREMENT-SCOPE": {
+      "from": "5a293d80471d6f1be865e74e580965f8ebd7e82a973def9aae479ccab431f437",
+      "to": "3482134e5f7299b3e7b6a352f8646e821c7aac110fd5cd760e00bff2522fa182"
+    },
+    "SZ-PLATFORM-VITA-CATALOG": {
+      "from": "b135fcbbc209d355865d1a9d4082fbed968a77f546a79dd8a01c5dcc53f027bf",
+      "to": "a07c9f6572fa3b7ff295b1725f1a3d5034e5208a8c23c09913e8fdda0eb2cd05"
+    },
+    "SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD": {
+      "from": "5944f0d9804d6c86cdc1ff022264fdd4eddb9fca691f85b19e8d334e34bee0fc",
+      "to": "b401825e9a113e54b0b421e8a3ec49233873c4e35d4ef6598ed85f1739281188"
+    },
+    "SZ-RECOVERY-R0-R1-CENTRAL": {
+      "from": "6bcc1a251944f13c66eefd4e9dd91815bb9efe2230eacafb2e472a466aa1fdec",
+      "to": "7af8cbd23ee88e1614da6681a517b10151a6acee888c95e7ca56899968826fc6"
+    },
+    "SZ-SYSTEM-DIAGNOSTICS-GUIDANCE": {
+      "from": "a86ad6c8be860107a78b7d373bcaec2fafe4d23343a0c61f34545f45fc18bb79",
+      "to": "70ef9d2358b9d5e49ce391d5640f2974685a1c4fc81403a6cbcc8474103b0b92"
+    },
+    "SZ-THEME-ENGINE": {
+      "from": "957cce127a26f488d6d2435819efa66f0c55644a050d002006784b3d22c53ef1",
+      "to": "9164a536fb1fe70096e6357332ee5b700943d4438318fe2cc1612eefc1d02036"
+    },
+    "SZ-THEME-IMPORT-ESDE-LAYOUT": {
+      "from": "3da0ea969fa68a12ef37087d764cc1e398e453c47d7d319dab178db978238ba2",
+      "to": "6c2a11922939793bb28b008a43e4ce53da0c66cdb4050350693ebe3f7450ef3b"
+    },
+    "SZ-UI-DESKTOP-AUDIT": {
+      "from": "a34768978a0e63cf62b7338d259d2f4418d40b851c41bfd28c484aa7e301b4f9",
+      "to": "462df02756185bd60d260386e99f265c696ea7b5048edc77289ca5c3195c4d6d"
+    },
+    "SZ-RECOVERY-R2-GAME-DATA": {
+      "from": null,
+      "to": "8e69378d2b81c45a53690060c60d2dea59e24b7b339de951120ecb79ce082d37"
+    }
+  }
+}

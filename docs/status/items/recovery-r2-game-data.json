@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-RECOVERY-R2-GAME-DATA",
+  "title": "R2 — Página de jogo com dados e mídias completos",
+  "domain": "media",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "unit",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "src/steamzero/adapters/scraping/screenscraper.py",
+    "src/steamzero/adapters/state_store_game_metadata.py",
+    "src/steamzero/core/migrations/m0023_game_metadata.py",
+    "src/steamzero/ui/qml/Emulation.qml",
+    "tests/unit/scraping/test_screenscraper.py",
+    "tests/unit/test_game_metadata_store.py",
+    "tests/unit/test_game_metadata_job.py",
+    "tests/qml/check_emulation.qml",
+    "src/steamzero/ui/qml/Main.qml",
+    "tests/integration/test_state.py",
+    "src/steamzero/core/migrations/__init__.py",
+    "tests/qml/check_media_search_summary.qml",
+    "docs/09-operations/evidence/2026-10-21-r2-game-data"
+  ],
+  "scopeDigest": "2e1f77c45cd1bd23fa3eb9ef5b0583b4e6d8d8f9bb4632d0970696deb5bc890f",
+  "dependsOn": [
+    "SZ-MEDIA-SCRAPING",
+    "SZ-AURA-METADATA",
+    "SZ-AURA-RICH-MEDIA-PROJECTION",
+    "SZ-AURA-PLATFORM-MEDIA-SCOPE"
+  ],
+  "knownGaps": [
+    "GAP-R2-LAUNCHER-PROJECTION",
+    "GAP-R2-REMOTE-PROVIDER-PROOF",
+    "GAP-R2-PLATFORM-GAME-CONTENT",
+    "GAP-R2-SELECTED-ROW-CONTRAST"
+  ],
+  "acceptanceCriteria": [
+    "Ano, gênero, desenvolvedor e descrição de fixture conhecida chegam à Central e ao Launcher com procedência por campo.",
+    "Capa/fanart/logo se associam ao mesmo jogo.",
+    "Reinício e modo offline conservam os dados.",
+    "Erro de autenticação, quota, rede e resultado vazio não apagam o existente; valor manual não é sobrescrito.",
+    "Prova com provedor remoto real registrada separada dos fixtures quando houver credencial."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_game_metadata_store.py",
+      "command": "pytest tests/unit/scraping tests/unit/test_game_metadata_store.py tests/unit/test_game_metadata_job.py tests/integration/test_state.py + QML check_emulation/check_media_search_summary; negative controls fail against previous files",
+      "result": "passed"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/09-operations/evidence/2026-10-21-r2-game-data/01-fonte-dados-do-jogo-dp1.png",
+      "command": "Fonte (nao instalada), perfil isolado, NES com metadados de fixture rotulados 'fixture'; busca sem credencial degradou e preservou os dados (02)",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Slice 1 na fonte (commits 9f559b59..be979246): metadados do ScreenScraper como GameRecord com proveniencia, persistencia m0023, fusao na busca, painel 'Dados do jogo' na Central, resumo honesto da busca e seletor preservado no refresh. Proximo: (a) GAP-R2-PLATFORM-GAME-CONTENT — pedido do operador 2026-10-21: para NES e afins o painel do jogo mostra Updates/DLC/Mods do Switch; deve vir de declaracao por plataforma no manifesto: patches (IPS/BPS/UPS), cheats, saves/save states, RetroAchievements e HD packs, cada um com estado honesto; (b) projecao no Launcher (launcher_catalog.py sob claim ativo de journey-launcher-session: handoff); (c) prova com provedor remoto real quando houver credencial; (d) contraste do nome na linha selecionada da biblioteca por jogo; depois PR, CI, release e aceite instalado.",
+  "activeWorkstreams": [
+    "WS-2026-10-RECOVERY-R2-GAME-DATA"
+  ],
+  "updatedAt": "2026-10-21",
+  "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado."
+}
