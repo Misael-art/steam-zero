@@ -8,7 +8,8 @@
     "sharedQml": "10a2fac69ca1b5198f3cb4a7ccf044f2ef82b5d0",
     "performanceRepair": "cbcdf3e3cc0be75499b45272b20a0bf16503ae82",
     "installedViewportFix": "7ab1b76e",
-    "desktopContextReadinessFix": "4b1352a5"
+    "desktopContextReadinessFix": "4b1352a5",
+    "depsAndCommentFix": "d0d93149"
   },
   "lastTestedCodeCommit": "7ab1b76e (integral 6818 passed/1 stale-view failed, fixed); 4b1352a5 focused only (check_emulation passed, negative control exit 35)",
   "testResults": {
@@ -19,35 +20,34 @@
     "coverageMethod": "complementary executions, union of 36 and 41; 36 remains a failed raw run",
     "finalEvidence": "42-final-local-checkpoint.json"
   },
-  "releaseActive": "2.0.0rc1-319de6524db7",
-  "releaseActiveSource": "319de6524db7868e3fa2964db29ac086e8c27687",
+  "releaseActive": "2.0.0rc1-60f2d590481f",
+  "releaseActiveSource": "60f2d590481ff838dff002edd3c3777fa4d516c4",
   "bundle": {
-    "release": "2.0.0rc1-319de6524db7",
-    "wheelSha256": "3d9741e590df2c903866a8585f5276beb72001578733ff3c6b57c87dfb9d4b46",
+    "release": "2.0.0rc1-60f2d590481f",
+    "wheelSha256": "1a20eb41f8bb2e9366411dcd82fdd244c42412098d0676ea8f6684955bbc9d0f",
     "verify": "ok"
   },
-  "releaseCandidate": "2.0.0rc1-319de6524db7",
+  "releaseCandidate": "2.0.0rc1-60f2d590481f",
   "rollbackArtifactPreflight": "14-host-rollback-preflight.json",
   "rollbackActivationTested": false,
-  "physicalAcceptance": "FAILED on installed 2.0.0rc1-319de6524db7 at 1280x800 (eDP-1): dead band, illegible picker, dark-on-cyan text, stale header subtitle; fix 7ab1b76e verified from source on same panel, not installed",
+  "physicalAcceptance": "GUI instalada OK em eDP-1 1280x800 e DP-1 para NES e Amiga, com recuperacao; residuais registrados em 63",
   "authorization": "Implementação, artefatos/instalação governados e UI real autorizados; em 2026-10-18 proprietário respondeu prossiga ao pedido explícito de push e integração governada em main incluindo base #258. Publicação pública não autorizada.",
   "pending": [
-    "PENDENTE_GATES_INTEGRAIS_4b1352a5 (run interrupted at 26% by host memory pressure; not restarted)",
-    "PENDENTE_PR_CI_MAIN",
-    "PENDENTE_INSTALACAO_CANDIDATA",
-    "PENDENTE_CREDENCIAL",
-    "PENDENTE_ACEITE_FISICO_REPETIDO"
+    "PENDENTE_GATES_INTEGRAIS_LOCAIS_4b1352a5 (CI remoto verde em PR e main; integral local nao rodado por memoria)",
+    "DEFEITO_RESIDUAL Visao geral faixa vazia/Favoritos cortado em 1280x800",
+    "DEFEITO_RESIDUAL contraste faixa Pronto e icones nav desktop",
+    "LIMITE sem hardware Deck e sem gameplay"
   ],
-  "nextAction": "Com memória disponível: rodar integral em 4b1352a5 (log 61), renovar scopeDigests e status-check, commit documental, CI verde do PR #261, merge por merge commit, CI push do SHA; prepare/verify/install via release_host.py (rollback 2.0.0rc1-319de6524db7) com senha do operador no bigsudo; repetir aceite GUI NES/Amiga em 1280x800 e DP-1. R0/R1 aberto; R2 não iniciado.",
+  "nextAction": "Decidir com o operador se os residuais entram em R0/R1 (correcao curta em Main.qml/Overview) ou viram itens de R2; depois fechar R0/R1 nos cinco eixos com WORKLOG e devolver Main.qml.",
   "updatedAt": "2026-10-21",
   "documentationCommitBeforePrepare": "d823ff857a35dedab8569a6b106e245d87ce8ce6",
   "prepareResult": "refused: prepare aceita somente o tip exato de refs/heads/main",
   "originMainAtPrepare": "2b7eb541b4a54f0930927a2b0f92cb45776ae4c7",
   "resumeCommandAfterAuthorizedIntegrationAndGreenCI": "rtk proxy env PYTHONPATH=src .venv/bin/python tools/release_host.py prepare --commit <SHA-main-completo> --output /tmp/steamzero-r0-r1-bundle",
   "remoteAuthorizationEvidence": "18-remote-authorization.json",
-  "integratedCommit": "319de6524db7868e3fa2964db29ac086e8c27687",
-  "remotePR": 261,
-  "mainPushRun": 39357199913,
+  "integratedCommit": "60f2d590481ff838dff002edd3c3777fa4d516c4",
+  "remotePR": "#261 merged (merge commit 60f2d590)",
+  "mainPushRun": "39571710037",
   "candidateHold": "Resolvido: 319de652 contém o reparo cbcdf3e3 e está ativo; 356ec8f7 nunca foi ativado.",
   "performanceRepair": {
     "state": "integrated-and-installed",
@@ -133,11 +133,8 @@
     "integralRawResult": "6807 passed, 47 skipped, 1 obsolete-fixture failure; repaired by 35 focused passes and full nonvisual checkpoint"
   },
   "mainPushConclusion": "success",
-  "rollbackRelease": "2.0.0rc1-1470cf48bf7d",
-  "latestEvidence": "59-gates-7ab1b76e.json",
-  "physicalAcceptanceEvidence": [
-    "aceite-2026-10-20/",
-    "58-installed-fix-status-reconciliation.json"
-  ],
+  "rollbackRelease": "2.0.0rc1-319de6524db7",
+  "latestEvidence": "63-installed-gui-acceptance-60f2d590.json",
+  "physicalAcceptanceEvidence": "63-installed-gui-acceptance-60f2d590.json",
   "headlessInstalledAcceptance": "done by prior executor 2026-10-20 (NES ready; Amiga BIOS import; preferences cancel/apply/readback; catalog 20.162 s/1145 games); private summary 56 in privateTestProfileRoot"
 }
