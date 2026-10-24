@@ -16,7 +16,7 @@
     "tests/unit/test_catalog_search.py",
     "tests/integration/test_launcher_search_contract.py"
   ],
-  "scopeDigest": "c17c3713c5e5f435ca7eaf279ffc8d77c43daa7b1c7f8020732e58afb449f24f",
+  "scopeDigest": "a480839ae52b5125623e2da89e9c2a694af2b8a2d67f32456a7f9959a6ac78dc",
   "dependsOn": [
     "SZ-AURA-METADATA"
   ],
@@ -84,6 +84,12 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
+      "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch integrada e, após a release governada, provar busca por nome/filtro na janela real; conteúdo PS4 legítimo ainda é necessário para a prova de jogo.",

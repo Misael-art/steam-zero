@@ -1,0 +1,63 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_central_persistence_reaches_launcher_after_restart_with_same_media_identity _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-m8j7h5sq/tmp/pytest-of-misael/pytest-0/test_central_persistence_reach0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5374209810>
+
+    def test_central_persistence_reaches_launcher_after_restart_with_same_media_identity(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        for name in ("DATA", "STATE", "CONFIG", "CACHE"):
+            monkeypatch.setenv(f"XDG_{name}_HOME", str(tmp_path / name.lower()))
+        library = tmp_path / "library.json"
+        library.write_text(json.dumps({"games": [{
+            "id": GAME, "name": "Jogo de fixture", "platform": "nes-famicom",
+            "description": "Descrição antiga do cache", "developer": "Cache antigo",
+        }]}))
+        with StateStore(paths.state_db()) as store:
+            store.migrate()
+            StateStoreGameMetadataAdapter(store.adapter_connection()).merge_provider_fields(
+                game_id=GAME, title="Jogo de fixture", platform_id="nes-famicom",
+                path="/fixtures/game.nes", fields=FIELDS, source="fixture", confidence=1.0,
+            )
+        controller = EmulationController(store_factory=lambda: StateStore(paths.state_db()))
+        central = controller._attach_game_metadata([{"id": GAME}])[0]["metadata"]
+        media_root = paths.media_dir()
+        masters = {}
+        for role in ("boxart", "fanart", "logo"):
+            image = media_root / "masters" / f"{role}.png"
+            image.parent.mkdir(parents=True, exist_ok=True)
+            image.write_bytes(b"fixture: not a real image")
+            masters[role] = str(image.relative_to(media_root))
+        registry = media_root / "registry" / "assignments-v1.json"
+        registry.parent.mkdir(parents=True)
+        registry.write_text(json.dumps({"entries": [
+            {"gameId": GAME, "platformId": "nes-famicom", "masters": masters},
+            {"gameId": "outside", "platformId": "nes-famicom", "masters": masters},
+        ]}))
+        monkeypatch.setattr("steamzero.launcher.app._steam_catalog", lambda: ())
+        monkeypatch.setattr("steamzero.launcher.app._host_accessibility", lambda: {})
+        observed = []
+    
+        def capture(bridge):
+            observed.append(bridge)
+            return 0
+    
+        monkeypatch.setattr("steamzero.adapters.launcher_ui.launch_launcher_ui", capture)
+        for _ in range(2):
+            assert main(["--library", str(library)]) == 0
+            bridge = observed[-1]
+            item = bridge.model()["sections"][0]["items"][0]
+>           assert item["description"] == FIELDS["description"]
+E           AssertionError: assert 'Descrição antiga do cache' == 'Descrição de...sulta remota.'
+E             
+E             - Descrição de fixture, sem consulta remota.
+E             + Descrição antiga do cache
+
+tests/integration/test_launcher_game_metadata.py:70: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_launcher_game_metadata.py::test_central_persistence_reaches_launcher_after_restart_with_same_media_identity
+1 failed in 1.98s
+real-state before: exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default
+real-state after:  exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default

@@ -4,8 +4,8 @@
   "id": "WS-2026-10-RECOVERY-R2-GAME-DATA",
   "item": "SZ-RECOVERY-R2-GAME-DATA",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "7b4f38facf24ec283cfe7f35c006226e2d9ea36d",
-  "owner": "claude-code-central-executor",
+  "baseRef": "c2929ff0a6c3f175f393c36e62707b06ac565480",
+  "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
     "src/steamzero/adapters/scraping/screenscraper.py",
@@ -24,7 +24,14 @@
     "src/steamzero/schemas/platform-manifest-v1.schema.json",
     "src/steamzero/schemas/emulation-workspace-v1.schema.json",
     "src/steamzero/domain/platforms.py",
-    "src/steamzero/domain/emulation_workspace.py"
+    "src/steamzero/domain/emulation_workspace.py",
+    "src/steamzero/adapters/launcher_game_metadata.py",
+    "tests/unit/test_launcher_game_metadata.py",
+    "tests/integration/test_launcher_metadata_projection.py",
+    "src/steamzero/ui/qml/launcher/LauncherGamePage.qml",
+    "tests/qml/launcher/check_launcher_game_page.qml",
+    "tests/integration/test_game_metadata_migration_recovery.py",
+    "docs/recovery/2026-10-16/README.md"
   ],
   "sharedPaths": [
     "src/steamzero/adapters/emulation.py",
@@ -33,8 +40,9 @@
     "docs/STATUS.md",
     "docs/ACTIVE-WORK.md",
     "docs/status/COVERAGE.md",
-    "docs/WORKLOG.md"
+    "docs/WORKLOG.md",
+    "src/steamzero/launcher/app.py"
   ],
-  "nextAction": "Slice 1: metadados do ScreenScraper (ano, genero, desenvolvedor, descricao) como GameRecord com proveniencia, persistidos por jogo e fundidos pela politica existente na busca de midia; exibidos na Central. Launcher via handoff de launcher_catalog.py.",
-  "updatedAt": "2026-10-21"
+  "nextAction": "Lote R2 Launcher implementado e testado: registro canônico/medias por ID na abertura, fontes por campo, leitura sem migracao, timeout unico, erro/recuperacao e v23 em fixtures. Integral local 6845 passed + 3 retestes de residuo proprio, 47 skips; cobertura 85,53%; 9 testes de cleanup sem ResourceWarning. Checkpoint detalhado em docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md. Fechar commits funcionais e documentais, push unico do codigo e CI terminal antes de integrar. Instalacao/prova fisica e credencial remota permanecem pendentes; nao iniciar autenticacao na ausencia. README de recuperacao (ponteiro de continuidade, sem claim ativo concorrente observado) registrado neste claim; demais claims preservados.",
+  "updatedAt": "2026-10-23"
 }

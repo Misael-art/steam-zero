@@ -1,0 +1,10 @@
+{
+  "path": "build/journey-complete-facets-e2e.json",
+  "sha256": "b721af1425bd18c9a8f5b4e3f228c7fe0cee7193fc7a2f93a6128035f660d401",
+  "mtime_ns": 1792804080538452639,
+  "size": 114,
+  "mode": "navigate",
+  "token": "REDACTED",
+  "cause": "Residuo da integral interrompida pelo proprio executor durante harness de facetas; remover somente este arquivo, sem alterar fontes ou guards",
+  "action": "removed owned ephemeral fixture config; repeat the three affected tests after terminal full-suite result"
+}

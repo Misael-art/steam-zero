@@ -105,7 +105,7 @@
     "tools/ui_dialog_probe.qml",
     "tools/ui_scenario_fixtures.py"
   ],
-  "scopeDigest": "f427c6ece67c72261ebd0d0261321d3f5524d7c29ef3e0667998261b76b1a1a7",
+  "scopeDigest": "58a8edca388cdc25e239b93afb4745b29ec9792b85915716edcc9c4741133ace",
   "dependsOn": [],
   "knownGaps": [
     "GAP-UI-LIVE-LAUNCHER-ROUTING",
@@ -1369,6 +1369,12 @@
       "kind": "diagnostic",
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
       "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
+      "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
       "result": "recorded"
     }
   ],

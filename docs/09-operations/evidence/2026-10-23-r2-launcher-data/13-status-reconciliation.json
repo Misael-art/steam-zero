@@ -1,0 +1,42 @@
+[
+  {
+    "id": "SZ-AURA-LAUNCHER",
+    "from": "1683cefc2925f3a93ab90d235cc6d2dda4cd3bab689307720f9b3d1801697930",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-AURA-SEARCH-CONTRACT",
+    "from": "c17c3713c5e5f435ca7eaf279ffc8d77c43daa7b1c7f8020732e58afb449f24f",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-AURA-SESSION-OSD",
+    "from": "22ecf5c432ce3b4ffa9c31b16e8c107ba39cb5fbdfd24ceb58d6b5caa28a2790",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-AURA-VISUAL-COMPLETION",
+    "from": "23c75a024784770d093f689bdde5e1a7e511b1bc4b5f728458df878c892f47cb",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-PRODUCT-RECOVERY-2026-10",
+    "from": "129a24215438793263f0fd22149746d5c8eec7a820f9d450bea88c521f1bf91a",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-RECOVERY-R2-GAME-DATA",
+    "from": "9e01ca64f2b551253554c1987b9f4a17515193597f4990c8cbd12d5ccfedc971",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-ROADMAP-CONTINUATION",
+    "from": "23cbca1991e7e66809e50033702bd60a59eaaf77849e0b76ef2ec8d79747e793",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  },
+  {
+    "id": "SZ-UI-DESKTOP-AUDIT",
+    "from": "f427c6ece67c72261ebd0d0261321d3f5524d7c29ef3e0667998261b76b1a1a7",
+    "reason": "Somente reconciliação documental/de bytes compartilhados; não reexecuta aceites integrais dos outros itens nem promove eixos."
+  }
+]

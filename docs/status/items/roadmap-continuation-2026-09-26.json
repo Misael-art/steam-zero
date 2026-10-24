@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "23cbca1991e7e66809e50033702bd60a59eaaf77849e0b76ef2ec8d79747e793",
+  "scopeDigest": "bc3f51317cde9ad02a6becf7e2de55cffc4dfa9f1d3f0c1ab839a794bac0ddb3",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -266,6 +266,12 @@
       "reference": "tests/integration/test_journey_complete_facets.py",
       "command": "Prova focal anterior à integral, checkout offscreen: 15 passed sem o marcador visual e 3 passed no QML; 37 passed em runtime, domínio, ponte do template e e2e do launcher sem visual. A prévia do Studio mantém as linhas de jogo e publica grupos distintos. Não é a release instalada e não promove marco.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
+      "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
+      "result": "recorded"
     }
   ],
   "nextAction": "A integral instrumentada da árvore corrigida passou em 2026-10-05: 6675 passed, 47 skipped, 0 failed; o guard detectou escritas do daemon externo já ativo e marcou a atribuição do state home como degradada. Este passe não explica o seis-vs-cinco: preservar o log 04 vermelho e o gap histórico sem causa. Revisar os diffs, fechar os commits separados, fazer push/PR e aguardar CI terminal no SHA exato antes do merge commit; depois devolver serialmente o path reservado à Biblioteca. Instalação, rollback e B_VISUAL continuam fora da autorização atual.",

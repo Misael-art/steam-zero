@@ -60,11 +60,17 @@
       "reference": "docs/recovery/2026-10-16/baseline-execucao-centralizada.json",
       "command": "2026-10-16: um worktree registrado, árvore inicialmente limpa e 16 registros active; inspecionados gates prepare/load_bundle. Prompt e normas alinhados, sem alteração de runtime, claims antigos ou host.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
+      "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Assumir PROMPT-EXECUCAO-CENTRALIZADA.md no checkout oficial e executar R0/R1 com inventário C0; fechar instalação e prova física do lote antes de avançar. Credencial e checkpoint main/CI pendentes devem ser explícitos.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-16",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
-  "scopeDigest": "129a24215438793263f0fd22149746d5c8eec7a820f9d450bea88c521f1bf91a"
+  "scopeDigest": "576dabbb2ce787bece817c676305da9ce369f5d2e131b21469a754f07b78ae03"
 }
