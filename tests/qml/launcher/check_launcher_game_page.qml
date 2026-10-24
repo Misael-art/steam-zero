@@ -48,6 +48,10 @@ Item {
             "requirements": ["Controle compatível"],
             "controls": ["A · confirmar", "Analógico · mover"],
             "releaseDate": "2018-01-25", "genres": ["Plataforma"],
+            "developer": "Fixture Studio",
+            "metadata": {"gameMetadata": {"state": "available", "fields": {},
+                "sources": {"developer": "fixture", "genres": "fixture",
+                    "releaseDate": "fixture", "description": "user"}}},
             "players": 1, "rating": 92, "playtime": 7200,
             "lastPlayed": "2026-08-18T21:00:00Z", "initialFocus": "action:play",
             "actions": [
@@ -83,6 +87,26 @@ Item {
         running: true
         repeat: false
         onTriggered: {
+            const developer = harness.findByName(playable, "gameDeveloper")
+            const sources = harness.findByName(playable, "gameMetadataSources")
+            harness.check(developer !== null && developer.visible
+                          && developer.text.indexOf("Fixture Studio") >= 0,
+                          "desenvolvedor persistido precisa aparecer na página")
+            harness.check(sources !== null && sources.visible
+                          && sources.text.indexOf("Desenvolvedor: fixture") >= 0
+                          && sources.text.indexOf("Descrição: user") >= 0
+                          && sources.textFormat === Text.PlainText,
+                          "procedência por campo precisa chegar pelo modelo de detalhes")
+            harness.check(blocked.metadataSources === "",
+                          "dado ausente não pode inventar procedência")
+            blocked.model = Object.assign({}, blocked.model,
+                {"gameMetadata": {"state": "unavailable", "fields": {}, "sources": {}}})
+            harness.check(harness.findByName(blocked, "gameMetadataDiagnostic").visible === false,
+                          "página oculta continua oculta mesmo com diagnóstico")
+            blocked.visible = true
+            harness.check(harness.findByName(blocked, "gameMetadataDiagnostic").visible,
+                          "armazenamento indisponível precisa de diagnóstico visível")
+            blocked.visible = false
             harness.check(playable.currentFocus === "action:play",
                           "a página precisa começar no foco resolvido")
             harness.check(playable.actionCount === 3, "as ações não chegaram ao QML")

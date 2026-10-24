@@ -109,7 +109,7 @@ def test_search_persists_descriptive_fields_with_provenance(tmp_path: Path) -> N
 
 def test_provider_error_after_success_keeps_existing_metadata(tmp_path: Path) -> None:
     _run(_controller(tmp_path, MetadataProvider()))
-    for code in ("E-SCRAPE-CREDENTIAL-REJECTED", "E-SCRAPE-QUOTA-EXCEEDED"):
+    for code in ("E-SCRAPE-CREDENTIAL-REJECTED", "E-SCRAPE-QUOTA-EXCEEDED", "E-SCRAPE-OFFLINE"):
         result = _run(_controller(tmp_path, MetadataProvider(error_code=code)))
         assert result["metadata"]["state"] == "no-metadata"
         record = _record(tmp_path)
