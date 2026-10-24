@@ -14925,3 +14925,18 @@ Limites: suíte integral local não rodada (memória do host; CI remoto verde),
 sem hardware Deck, sem gameplay, sem daemon. Desvio registrado: branch de lote
 criada e desfeita (commits movidos por fast-forward). Main.qml devolvido a
 WS-2026-10-STUDIO-DRAFT-HISTORY. R2 não iniciado.
+
+## 2026-10-21 — Preparação para reinstalação do host
+
+Operador vai formatar o host e retomar só pelo GitHub. Auditoria Git: 370
+branches e 5 stashes; somente 6 branches e os 5 stashes tinham commits fora de
+refs remotas, publicados em `archive/host-2026-10-21/*` (11 refs, varredura de
+segredos sem achados reais); depois disso nenhuma ref local fica fora do GitHub.
+Evidência privada do executor (19–56, perfil isolado, auxiliares de GUI) e
+plugins empacotados em `~/steamzero-continuidade-2026-10-21` para cópia externa
+pelo operador, junto de `~/emulation`, estado/configuração do SteamZero, chaves e
+memória dos agentes. Guia de reconstrução, validação pós-formatação e retomada em
+`docs/recovery/2026-10-16/REINSTALACAO-HOST-2026-10-21.md`. Pendências que
+atravessam a formatação: candidata R2 `2.0.0rc1-0979765171a3` não instalada
+(`PENDENTE_CREDENCIAL`), suíte integral local nunca rodada nesta sessão,
+GAP-R2-CONTENT-ADAPTERS/LAUNCHER-PROJECTION/REMOTE-PROVIDER-PROOF.

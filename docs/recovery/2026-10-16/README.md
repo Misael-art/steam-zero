@@ -1,5 +1,9 @@
 # Recuperação da proposta SteamZero
 
+> **Continuidade vigente em 2026-10-23:** ambiente existente; seguir o [checkpoint R2 e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Durante a ausência do operador, desenvolvimento e testes independentes continuam, sem iniciar autenticação de instalação. O guia abaixo é para eventual reinstalação futura.
+
+> **2026-10-21 — host será reformatado.** Retomada a partir do GitHub: leia primeiro [`REINSTALACAO-HOST-2026-10-21.md`](REINSTALACAO-HOST-2026-10-21.md).
+
 Direção estabelecida pelo proprietário em 16 de outubro de 2026. O SteamZero deve oferecer experiências de jogo prontas para computadores, emulação e plataformas web, com configuração avançada acessível e uma experiência de sala/handheld completa.
 
 **Conclusão:** há uma base técnica substancial que merece ser preservada, mas a integração das jornadas e a definição de produto estão fragmentadas. A recuperação deve fechar jornadas completas sobre essa base. Aura passa a designar o tema demonstrativo do Launcher; Central Desktop, Launcher e Theme Engine têm responsabilidades e critérios de aceite próprios.

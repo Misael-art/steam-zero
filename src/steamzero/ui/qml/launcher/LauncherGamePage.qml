@@ -26,6 +26,20 @@ FocusScope {
     readonly property int actionReasonPixelSize: actionReason.font.pixelSize
     readonly property string description: model && model.description
         ? String(model.description) : qsTr("Descrição ainda não disponível para este jogo.")
+    readonly property var gameMetadata: model && model.gameMetadata
+        ? model.gameMetadata : model && model.metadata && model.metadata.gameMetadata
+        ? model.metadata.gameMetadata : ({"state": "empty", "fields": {}, "sources": {}})
+    readonly property string metadataSources: {
+        const sources = gameMetadata.sources || {}
+        const labels = {"releaseDate": qsTr("Ano"), "genres": qsTr("Gênero"),
+            "developer": qsTr("Desenvolvedor"), "publisher": qsTr("Publicadora"),
+            "description": qsTr("Descrição")}
+        const entries = []
+        for (const key in labels)
+            if (sources[key])
+                entries.push(labels[key] + ": " + String(sources[key]))
+        return entries.length ? qsTr("Fontes — ") + entries.join(" · ") : ""
+    }
     readonly property var screenshots: {
         const supplied = model && Array.isArray(model.screenshotUrls)
             ? model.screenshotUrls : []
@@ -254,6 +268,40 @@ FocusScope {
                     id: detailContent
                     width: detailScroll.width
                     spacing: 18
+                    Text {
+                        objectName: "gameDeveloper"
+                        width: parent.width
+                        visible: String(page.model.developer || "") !== ""
+                        text: qsTr("Desenvolvedor: %1").arg(String(page.model.developer || ""))
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        color: "#ffffff"
+                        font.pixelSize: 16 * page.textScale
+                        Accessible.name: text
+                    }
+                    Text {
+                        objectName: "gameMetadataSources"
+                        width: parent.width
+                        visible: text !== ""
+                        text: page.metadataSources
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        color: page._hc("#c6d0db", "#ffffff")
+                        font.pixelSize: 14 * page.textScale
+                        Accessible.name: text
+                    }
+                    Text {
+                        objectName: "gameMetadataDiagnostic"
+                        width: parent.width
+                        visible: page.gameMetadata.state === "unreadable"
+                            || page.gameMetadata.state === "unavailable"
+                        text: qsTr("Não foi possível ler os metadados salvos. Reabra o Launcher para tentar novamente; a biblioteca continua disponível.")
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        color: "#ffffff"
+                        font.pixelSize: 14 * page.textScale
+                        Accessible.name: text
+                    }
                     Text {
                         id: descriptionText
                         objectName: "gameDescription"

@@ -1,0 +1,30 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________________ test_locked_database_recovers_on_next_open __________________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-spyrjfsh/tmp/pytest-of-misael/pytest-0/test_locked_database_recovers_0')
+
+    def test_locked_database_recovers_on_next_open(tmp_path: Path) -> None:
+        database = tmp_path / "state.db"
+        _seed(database)
+        with sqlite3.connect(database) as connection:
+            # WAL permits readers during an exclusive writer. A rollback-journal
+            # database reproduces the genuinely unavailable storage case.
+            connection.execute("PRAGMA journal_mode = DELETE")
+            connection.execute("BEGIN EXCLUSIVE")
+            game_ids = [GAME, *(f"missing-{index}" for index in range(31))]
+            started = time.monotonic()
+            unavailable = launcher_game_metadata(database, game_ids)
+            elapsed = time.monotonic() - started
+            assert all(view["state"] == "unavailable" for view in unavailable.values())
+            assert len(unavailable) == len(game_ids)
+>           assert elapsed < 2.0, "storage timeout must not repeat for every catalog game"
+E           AssertionError: storage timeout must not repeat for every catalog game
+E           assert 6.75542261999999 < 2.0
+
+tests/unit/test_launcher_game_metadata.py:128: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_launcher_game_metadata.py::test_locked_database_recovers_on_next_open
+1 failed, 6 deselected in 8.31s
+real-state before: exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default
+real-state after:  exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default

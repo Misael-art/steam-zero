@@ -653,6 +653,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     return_context = restored_context if isinstance(restored_context, Mapping) else None
 
     library, payload = _read_library_payload(args.library)
+    from steamzero.adapters.launcher_game_metadata import launcher_game_metadata
+
+    descriptive = launcher_game_metadata(
+        paths.state_db(), [str(record["id"]) for record in library if record.get("id")]
+    )
+    library = [
+        {**record, **descriptive.get(str(record.get("id")), {}).get("fields", {})}
+        for record in library
+    ]
     emulation = catalog_games(library)
     steam = () if args.isolated_library else _steam_catalog()
     catalog = (*emulation, *steam)
@@ -720,6 +729,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not game_id:
             continue
         projected = cinema_metadata(record)
+        if str(game_id) in descriptive:
+            projected["gameMetadata"] = descriptive[str(game_id)]
         projected.update(registry_media.get(str(game_id), {}))
         metadata[str(game_id)] = projected
         if not covers.get(str(game_id)):
