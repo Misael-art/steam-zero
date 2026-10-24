@@ -1,0 +1,12 @@
+{
+  "baseR2Main": "927dee4a1b3492c1509451683586a18c1c66a74b",
+  "r3PrHead": "b59651dbc92152d6cf06a4918a4662c8a5835066",
+  "changedFunctionalPaths": [
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "tests/qml/launcher/check_launcher_journey.qml"
+  ],
+  "pythonProductionAndTestsIdentical": true,
+  "ciAndCoverageConfigurationIdentical": true,
+  "coverageMeasuresPythonNotQml": true,
+  "qmlEvidence": "negative control 2 failing cases before fix; full isolated suite 6848 passed/47 skipped with new QML cases; terminal remote visual gate pending"
+}

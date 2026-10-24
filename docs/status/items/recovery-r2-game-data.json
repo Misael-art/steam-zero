@@ -36,7 +36,7 @@
     "docs/09-operations/evidence/2026-10-23-r2-launcher-data",
     "tests/integration/test_game_metadata_migration_recovery.py"
   ],
-  "scopeDigest": "df07195495d5838c6f0eaf64355b76e629f588cf35fe0f8a04be6faca58acf5a",
+  "scopeDigest": "b7dc76633dc660321bd0e8f477cc16fe094f81ea1a8e4d02252a83b840b1e0f6",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",
@@ -88,7 +88,7 @@
       "result": "passed"
     }
   ],
-  "nextAction": "R2 integrado pelo PR #265 em main 927dee4a; CI PR 40053026587 e push 40054839735: oito jobs verdes, cobertura equivalente sem regressao. Consolidar R3/D-08 antes de preparar candidata. Instalacao/aceite e provedor remoto PENDENTE_CREDENCIAL; sem autenticacao durante ausencia. Atualizacao ao vivo no Launcher aberto nao implementada. Fila unica no checkpoint R2.",
+  "nextAction": "Operador presente em 24/10 autorizou instalacao imediata da main aprovada 59ecc2d8, CI push 40083592868 oito jobs verdes. Preparar/verificar bundle e instalar pelo controlador com rollback 3f87657c. R2/year-alias 7d89ab0f preservado, integral exit0 6849 passed/47 skipped e gates verdes, ainda sem CI remoto; excluido desta candidata.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R2-GAME-DATA"
   ],

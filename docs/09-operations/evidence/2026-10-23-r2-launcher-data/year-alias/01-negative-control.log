@@ -1,0 +1,102 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_central_persistence_reaches_launcher_after_restart_with_same_media_identity[True] _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-gvh8xt7l/tmp/pytest-of-misael/pytest-0/test_central_persistence_reach0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f92053756e0>
+has_canonical_date = True
+
+    @pytest.mark.parametrize("has_canonical_date", [True, False])
+    def test_central_persistence_reaches_launcher_after_restart_with_same_media_identity(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, has_canonical_date: bool
+    ) -> None:
+        fields = {key: value for key, value in FIELDS.items() if has_canonical_date or key != "releaseDate"}
+        for name in ("DATA", "STATE", "CONFIG", "CACHE"):
+            monkeypatch.setenv(f"XDG_{name}_HOME", str(tmp_path / name.lower()))
+        library = tmp_path / "library.json"
+        library.write_text(
+            json.dumps(
+                {
+                    "games": [
+                        {
+                            "id": GAME,
+                            "name": "Jogo de fixture",
+                            "platform": "nes-famicom",
+                            "description": "Descrição antiga do cache",
+                            "developer": "Cache antigo",
+                            "year": 1999,
+                        }
+                    ]
+                }
+            )
+        )
+        with StateStore(paths.state_db()) as store:
+            store.migrate()
+            StateStoreGameMetadataAdapter(store.adapter_connection()).merge_provider_fields(
+                game_id=GAME,
+                title="Jogo de fixture",
+                platform_id="nes-famicom",
+                path="/fixtures/game.nes",
+                fields=fields,
+                source="fixture",
+                confidence=1.0,
+            )
+        controller = EmulationController(store_factory=lambda: StateStore(paths.state_db()))
+        central = controller._attach_game_metadata([{"id": GAME}])[0]["metadata"]
+        media_root = paths.media_dir()
+        masters = {}
+        for role in ("boxart", "fanart", "logo"):
+            image = media_root / "masters" / f"{role}.png"
+            image.parent.mkdir(parents=True, exist_ok=True)
+            image.write_bytes(b"fixture: not a real image")
+            masters[role] = str(image.relative_to(media_root))
+        registry = media_root / "registry" / "assignments-v1.json"
+        registry.parent.mkdir(parents=True)
+        registry.write_text(
+            json.dumps(
+                {
+                    "entries": [
+                        {"gameId": GAME, "platformId": "nes-famicom", "masters": masters},
+                        {"gameId": "outside", "platformId": "nes-famicom", "masters": masters},
+                    ]
+                }
+            )
+        )
+        monkeypatch.setattr("steamzero.launcher.app._steam_catalog", lambda: ())
+        monkeypatch.setattr("steamzero.launcher.app._host_accessibility", lambda: {})
+        observed = []
+        public_rows = []
+    
+        def capture_public_row(record, *, source):
+            row = project_game_row(record, source=source)
+            public_rows.append(row)
+            return row
+    
+        monkeypatch.setattr("steamzero.launcher.app.project_game_row", capture_public_row)
+    
+        def capture(bridge):
+            observed.append(bridge)
+            return 0
+    
+        monkeypatch.setattr("steamzero.adapters.launcher_ui.launch_launcher_ui", capture)
+        for _ in range(2):
+            assert main(["--library", str(library)]) == 0
+            bridge = observed[-1]
+            item = bridge.model()["sections"][0]["items"][0]
+            assert item["description"] == FIELDS["description"]
+            assert item["gameMetadata"] == central
+            for field, value in fields.items():
+                assert item[field] == value
+                assert item["gameMetadata"]["sources"][field] == "fixture"
+            assert item["id"] == GAME
+            assert all(item[key].startswith("file://") for key in ("coverUrl", "fanartUrl", "logoUrl"))
+            expected_year = 1985 if has_canonical_date else 1999
+>           assert public_rows[-1]["year"] == expected_year
+E           assert 1999 == 1985
+
+tests/integration/test_launcher_metadata_projection.py:112: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_launcher_metadata_projection.py::test_central_persistence_reaches_launcher_after_restart_with_same_media_identity[True]
+1 failed, 1 passed in 0.95s
+real-state before: exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default
+real-state after:  exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default

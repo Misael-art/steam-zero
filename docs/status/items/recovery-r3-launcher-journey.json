@@ -5,7 +5,7 @@
   "title": "R3 — Recuperação e continuidade da Jornada no Launcher",
   "domain": "ui",
   "implementation": "partial",
-  "integration": "feature-branch",
+  "integration": "integrated",
   "verification": "unit",
   "operation": "unknown",
   "distribution": "not-packaged",
@@ -41,13 +41,19 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery/05-local-checkpoint.json",
       "command": "Integral isolada exit 0: 6848 passed, 47 skipped; fonte congelada por hash, gates estaticos aprovados. Variacao local de cobertura registrada, comparacao equivalente CI pendente. Sem prova instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery/06-pr-ci-terminal.json",
+      "command": "PR #266 CI oito jobs success no head b59651db; merge 59ecc2d8. Cobertura equivalente sem regressao contra base integrada, recibo 07. Sem promocao operacional/fisica.",
+      "result": "passed"
     }
   ],
-  "nextAction": "D-08 corrigido em 02248b0d3d666124bafe253b708a2d36a29f0bf0; integral isolada exit 0: 6848 passed/47 skipped, 85,5078%, estado real intacto. Gates estaticos passaram. Publicar branch existente, comparar cobertura CI Python 3.14 equivalente e integrar somente oito jobs verdes. Depois candidata consolidada. Instalacao/jornada fisica pendentes; sem autenticacao durante ausencia.",
+  "nextAction": "Slice refresh integrado PR #266/main 59ecc2d8, oito jobs CI 40082089157 verdes e cobertura equivalente 85,3352% >= base main 85,3323%. Consolidar candidata apos R2/year-alias, cuja integral local esta ativa. Aceite instalado de refresh, overlay D-08 e sessao D-12/D-22/D-23 pendente; fila unica R2, sem autenticacao durante ausencia.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R3-LAUNCHER-JOURNEY"
   ],
   "updatedAt": "2026-10-24",
   "notes": "Slice de R3/D-08 do PLANO existente, assumido apos conclusao local de R2 conforme autorizacao para ausencia. Um executor, checkout e branch existentes. Handoffs prospectivos dos dois paths pela WS-JOURNEY-PLATFORM-PROJECTION e README pela WS-RECOVERY-R2; nao ha implementacao concorrente. Fixtures/offscreen nao provam gameplay, instalacao, hardware ou recuperacao de sessao.",
-  "scopeDigest": "d0619b2d93827f3fe1c58d4ba00d3314f7053ad78ed5d352df5b0b4072f182c5"
+  "scopeDigest": "143a3c3a88b09fdecca205c43f123e1b1c49f96a842dd511ece73c4a8dd12eb4"
 }

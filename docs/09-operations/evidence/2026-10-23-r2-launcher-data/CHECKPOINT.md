@@ -63,3 +63,7 @@ Para acompanhar a próxima operação, usar `rtk proxy gh run list --branch code
 PR [#265](https://github.com/Misael-art/steam-zero/pull/265), head `63434b1f78b79ca69ed21ec6b3fc3cd55e9e2b99`, merge normal `927dee4a1b3492c1509451683586a18c1c66a74b` em 2026-10-24T02:35:57Z. CI PR [40053026587](https://github.com/Misael-art/steam-zero/actions/runs/40053026587) e CI push exato [40054839735](https://github.com/Misael-art/steam-zero/actions/runs/40054839735): oito jobs success. Cobertura equivalente Python 3.14 passou de 85,32805755395684% (09797651) a 85,33807010226244% (PR R2), +0,01001254830560 ponto; recibos 14/15. Nenhum bypass ou force push.
 
 Retomada atual: consolidar R3/D-08 após CI/integração e só então preparar candidata útil pelo controlador. As instruções anteriores de push/PR R2 são histórico concluído. Release instalada continua 3f87657c, sem alteração ou nova tentativa do bundle 09797651. Fila acima permanece única.
+
+## Janela de instalação autorizada em 2026-10-24
+
+Operador voltou e autorizou instalação imediata da main mais recente com CI verde: `59ecc2d8f0f66e27ce9aefa1dd7656451a610997`, CI push `40083592868`, oito jobs success. Retomada pela preparação governada, árvore limpa, HEAD exato, rollback instalado 3f87657c. A antiga tentativa expirada 09797651 não será repetida. R2/year-alias `7d89ab0fce0486fabb51560a87ee7d1fde7fe890` tem integral própria 6849 passed/47 skipped mas fica preservado fora dessa candidata até CI remoto. Autorização de presença aplica-se a esta janela, sem senha no chat.
