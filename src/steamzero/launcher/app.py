@@ -658,10 +658,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     descriptive = launcher_game_metadata(
         paths.state_db(), [str(record["id"]) for record in library if record.get("id")]
     )
-    library = [
-        {**record, **descriptive.get(str(record.get("id")), {}).get("fields", {})}
-        for record in library
-    ]
+    projected_library: list[Mapping[str, Any]] = []
+    for cached_record in library:
+        fields = descriptive.get(str(cached_record.get("id")), {}).get("fields", {})
+        metadata_record = {**cached_record, **fields}
+        if "releaseDate" in fields:
+            # Journey derives year from releaseDate. A stale cache alias must
+            # not override the Central's canonical date; keep it as fallback
+            # only when there is no persisted date.
+            metadata_record.pop("year", None)
+        projected_library.append(metadata_record)
+    library = projected_library
     emulation = catalog_games(library)
     steam = () if args.isolated_library else _steam_catalog()
     catalog = (*emulation, *steam)
