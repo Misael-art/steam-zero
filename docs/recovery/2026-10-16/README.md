@@ -1,6 +1,6 @@
 # Recuperação da proposta SteamZero
 
-> **Continuidade vigente em 2026-10-24:** ambiente existente; seguir o [checkpoint R2 e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Trabalho serial atual: [R3, recuperação D-08](../../09-operations/evidence/2026-10-23-r3-refresh-recovery/CHECKPOINT.md), com integral isolada aprovada; R2 já integrado pelo PR #265 com CI verde. Durante a ausência do operador, desenvolvimento e testes independentes continuam, sem iniciar autenticação de instalação. O guia abaixo é para eventual reinstalação futura.
+> **Continuidade vigente em 2026-10-24:** desenvolvimento contínuo na branch existente, **sem pedir senha ou iniciar autenticação até nova direção do proprietário**. Instalada `2.0.0rc1-59ecc2d8f0f6`; [checkpoint R2 e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Retomada atual: PR/CI do ajuste de ano `7d89ab0f`, com integral local já aprovada (6849 passed/47 skipped, bytes conferidos), seguido do próximo trabalho independente do plano. Fonte nova continua separada da instalação/aceite.
 
 > **2026-10-21 — host será reformatado.** Retomada a partir do GitHub: leia primeiro [`REINSTALACAO-HOST-2026-10-21.md`](REINSTALACAO-HOST-2026-10-21.md).
 

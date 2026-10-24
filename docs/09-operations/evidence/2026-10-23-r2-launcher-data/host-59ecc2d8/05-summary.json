@@ -1,0 +1,28 @@
+{
+  "release": "2.0.0rc1-59ecc2d8f0f6",
+  "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997",
+  "controllerExitCode": 0,
+  "service": "active",
+  "socket": "active",
+  "doctor": {
+    "ok": true,
+    "pendingOperations": 0,
+    "schemaVersion": 23,
+    "status": "degraded",
+    "version": "2.0.0rc1"
+  },
+  "qmlSmoke": {
+    "exitCode": 124,
+    "state": "started",
+    "windowSeconds": 5
+  },
+  "rollbackRelease": "2.0.0rc1-3f87657c0a6c",
+  "activeSymlink": "/opt/steamzero/releases/2.0.0rc1-59ecc2d8f0f6",
+  "bundle": "/home/misael/.cache/phasezero/agent-tmp/steamzero-recovery-2026-10-24/bundle-59ecc2d8",
+  "rollbackExecuted": false,
+  "gameplayValidated": false,
+  "hardwareValidated": false,
+  "yearAliasFixIncluded": false,
+  "yearAliasFixCommit": "7d89ab0f",
+  "installedAt": "2026-10-24T10:19:03.640645+00:00"
+}

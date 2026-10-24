@@ -30,7 +30,8 @@
     "tests/integration/test_launcher_metadata_projection.py",
     "src/steamzero/ui/qml/launcher/LauncherGamePage.qml",
     "tests/qml/launcher/check_launcher_game_page.qml",
-    "tests/integration/test_game_metadata_migration_recovery.py"
+    "tests/integration/test_game_metadata_migration_recovery.py",
+    "docs/recovery/2026-10-16/README.md"
   ],
   "sharedPaths": [
     "src/steamzero/adapters/emulation.py",
@@ -42,6 +43,6 @@
     "docs/WORKLOG.md",
     "src/steamzero/launcher/app.py"
   ],
-  "nextAction": "R2 integrado pelo PR #265 em main 927dee4a; CI PR 40053026587 e push 40054839735: oito jobs verdes, cobertura equivalente sem regressao. Consolidar R3/D-08 antes de preparar candidata. Instalacao/aceite e provedor remoto PENDENTE_CREDENCIAL; sem autenticacao durante ausencia. Atualizacao ao vivo no Launcher aberto nao implementada. Fila unica no checkpoint R2.",
+  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
   "updatedAt": "2026-10-24"
 }

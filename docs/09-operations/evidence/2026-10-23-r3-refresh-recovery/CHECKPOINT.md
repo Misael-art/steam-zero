@@ -27,3 +27,15 @@ Integral **exit 0, 6848 passed, 47 skipped**, 2676,52 s (`03-full-local.log`), s
 Cobertura local **85,50778834121996%**, acima do gate 85, mas -0,01725948192788 ponto percentual contra R2 combinado. Os únicos deltas são em Python inalterado: corrida de leitura /proc, espera do teclado virtual, sondagem de arquivo, retry SQLite WAL e ramo SSE. Não apresentar como ausência de regressão equivalente. A comparação decisória será CI Python 3.14 `not visual`, igual ao perfil R2; fonte Python e testes Python iguais.
 
 Próxima ação: fechar docs/claims e status, alinhar main sem perder commits no mesmo checkout e publicar a branch existente. Integrar somente com oito jobs terminais verdes e comparação equivalente registrada. Nenhum pacote, instalação, autenticação ou prova física novos.
+
+## Integração remota de 2026-10-24
+
+PR [#266](https://github.com/Misael-art/steam-zero/pull/266), head `b59651dbc92152d6cf06a4918a4662c8a5835066`, CI [40082089157](https://github.com/Misael-art/steam-zero/actions/runs/40082089157): **oito jobs terminais success**. Merge normal `59ecc2d8f0f66e27ce9aefa1dd7656451a610997` em 2026-10-24T09:51:08Z, sem bypass/force push.
+
+Comparação equivalente CI Python 3.14 `not visual`: base main `927dee4a`, run 40054839735, **85,33231694161981%**; R3 PR **85,33519352194112%**, +0,00287658032131 ponto. Sem regressão contra a base integrada. PR R2 marcou 85,33807010226244%, preservado no recibo; não confundir PR e push da mesma fonte Python, sujeitos a ramos de ambiente. Somente os dois arquivos QML mudaram funcionalmente entre base e PR (recibos 06–09).
+
+R3 não recebeu nova prova instalada, de gameplay ou hardware. Os 19 warnings da integral local foram preservados (incluem ResourceWarning SQLite em testes preexistentes), sem apresentar a suite como livre de avisos. Este slice não fecha a recusa D-08 observada na overlay real nem D-12/D-22/D-23.
+
+Próximo trabalho serial já assumido: R2/year-alias, integral ativa em /tmp/steamzero-r2-year-full.log. A árvore local só será alinhada ao merge após resultado e commit limpo; não misturar Git local com os bytes congelados. Preparação consolidada aguarda também esse lote.
+
+CI push [40083592868](https://github.com/Misael-art/steam-zero/actions/runs/40083592868) concluiu **oito jobs success** no merge exato `59ecc2d8f0f66e27ce9aefa1dd7656451a610997` (recibo 10). Operador presente em 24/10 solicita instalação agora dessa main aprovada; ajuste R2/year-alias 7d89ab0f preservado separadamente, ainda sem CI remoto.
