@@ -8,6 +8,7 @@ Item {
     width: 1100
     height: 820
 
+    property var currentReply: null
     property var requests: []
     property var delayedResponse: null
     property bool delayNextPlay: false
@@ -82,6 +83,10 @@ Item {
         view: harness.nextView
         requestFunction: function(method, path, body, done) {
             if (method === "GET" && path === "/journey/current") {
+                if (harness.currentReply !== null) {
+                    done(harness.currentReply.status, harness.currentReply.text)
+                    return true
+                }
                 done(200, JSON.stringify(harness.nextView))
                 return true
             }
@@ -365,6 +370,55 @@ Item {
             compare(harness.requests[harness.requests.length - 1].event, "exit")
             compare(harness.requests[harness.requests.length - 1].confirmed, true)
             compare(journey.message.indexOf("aguardando") >= 0, true)
+        }
+
+        function test_refresh_failure_does_not_resurrect_an_old_launch_error_data() {
+            return [
+                {tag: "malformed-json", status: 200, text: "{",
+                    code: "JOURNEY-LAUNCHER-RESPONSE-002"},
+                {tag: "null-json", status: 200, text: "null",
+                    code: "JOURNEY-LAUNCHER-RESPONSE-002"},
+                {tag: "http-unavailable", status: 503, text: "unavailable",
+                    code: "JOURNEY-LAUNCHER-OFFLINE-001"},
+                {tag: "inactive-view", status: 200,
+                    text: JSON.stringify({active: false, diagnosticMessage: "Fonte indisponível"}),
+                    code: "Fonte indisponível"}
+            ]
+        }
+
+        function test_refresh_failure_does_not_resurrect_an_old_launch_error(data) {
+            journey.cinemaMode = false
+            journey.view = harness.nextView
+            journey.showLaunchError("OLD-LAUNCH-REFUSED")
+            harness.currentReply = {status: data.status, text: data.text}
+            verify(journey.refresh())
+            compare(journey.busy, false)
+            verify(journey.message.indexOf(data.code) >= 0)
+            compare(journey.pendingLaunchError, "",
+                    "a causa atual substituiu a recusa antiga; ela não pode ressurgir")
+            const recovered = Object.assign({}, harness.nextView, {
+                selectedItemId: "snes", focusId: "row:snes", scrollPosition: 42
+            })
+            harness.currentReply = {status: 200, text: JSON.stringify(recovered)}
+            verify(journey.refresh())
+            compare(journey.message, "")
+            compare(journey.messageIsError, false)
+            compare(journey.view.selectedItemId, "snes")
+            compare(journey.currentIndex, 1)
+            compare(journey.view.scrollPosition, 42)
+            harness.currentReply = null
+        }
+
+        function test_valid_refresh_publishes_a_launch_error_only_once() {
+            harness.currentReply = null
+            journey.showLaunchError("CURRENT-LAUNCH-REFUSED")
+            verify(journey.refresh())
+            compare(journey.message, "CURRENT-LAUNCH-REFUSED")
+            compare(journey.messageIsError, true)
+            compare(journey.pendingLaunchError, "")
+            verify(journey.refresh())
+            compare(journey.message, "")
+            compare(journey.messageIsError, false)
         }
 
         function test_many_facets_stay_inside_the_window() {
