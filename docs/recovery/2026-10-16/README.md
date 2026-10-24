@@ -1,6 +1,6 @@
 # Recuperação da proposta SteamZero
 
-> **Continuidade vigente em 2026-10-24:** **instalada no host `2.0.0rc1-59ecc2d8f0f6`**, a main mais recente aprovada na janela do operador (CI push `40083592868`, oito jobs verdes). Controlador confirmou CLI/daemon, serviço/socket e banco íntegro no schema 23. [Checkpoint R2, recibos e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Aceites funcionais/físicos continuam próprios. Ajuste de ano `7d89ab0f` está testado e preservado na branch, ainda sem CI/integração e fora desta release. A janela de autenticação foi somente agora; não presumir nova disponibilidade.
+> **Continuidade vigente em 2026-10-24:** desenvolvimento contínuo na branch existente, **sem pedir senha ou iniciar autenticação até nova direção do proprietário**. Instalada `2.0.0rc1-59ecc2d8f0f6`; [checkpoint R2 e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Retomada atual: PR/CI do ajuste de ano `7d89ab0f`, com integral local já aprovada (6849 passed/47 skipped, bytes conferidos), seguido do próximo trabalho independente do plano. Fonte nova continua separada da instalação/aceite.
 
 > **2026-10-21 — host será reformatado.** Retomada a partir do GitHub: leia primeiro [`REINSTALACAO-HOST-2026-10-21.md`](REINSTALACAO-HOST-2026-10-21.md).
 

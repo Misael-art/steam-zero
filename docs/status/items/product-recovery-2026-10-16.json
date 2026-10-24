@@ -68,9 +68,9 @@
       "result": "recorded"
     }
   ],
-  "nextAction": "Retomada vigente no checkpoint R2: main59ecc2d8 instalada em24/10 com CI verde e controlador aprovado; aceite funcional/fisico e provedor remoto conservam pendencias. Year-alias7d89ab0f preservado/testado localmente, aguarda PR/CI na branch existente. Durante ausencia, trabalho independente continua; nova senha nao deve ser presumida apos janela concedida agora.",
+  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-24",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
-  "scopeDigest": "53cc74a317c96ca4ae12ec436db780954ecdaaef2f8ee1c2c8bc82d1daab8d67"
+  "scopeDigest": "21cbb6018d23f9dcc33df4ef248fb895601777e24c327e0db364514a5c8d2a94"
 }

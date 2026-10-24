@@ -43,6 +43,6 @@
     "docs/WORKLOG.md",
     "src/steamzero/launcher/app.py"
   ],
-  "nextAction": "Main 59ecc2d8 instalada em 24/10 pelo controlador, bundle/CI push 40083592868 verificados, CLI/daemon convergentes, servico/socket ativos e banco integro no schema23. Aceite funcional/fisico e provedor remoto seguem pendentes. R2/year-alias 7d89ab0f tem 6849 passed/47 skipped e gates locais verdes; proximo passo PR/CI na mesma branch, ainda fora da release instalada. Janela de senha concedida somente agora, sem inferir nova disponibilidade.",
+  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
   "updatedAt": "2026-10-24"
 }

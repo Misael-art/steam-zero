@@ -80,3 +80,9 @@ Bundle privado `/home/misael/.cache/phasezero/agent-tmp/steamzero-recovery-2026-
 Branch de desenvolvimento restaurada com commits preservados, inclusive **7d89ab0f**, cujo ajuste de ano ainda não tem CI/integração remota e **não está instalado**. Próxima ação: integração governada desse ajuste na mesma branch, sem repetir suíte local por documentação; depois aceite funcional instalado de dados/fontes/mídias e refresh. Nenhuma operação longa de teste/instalação está ativa neste fechamento. WORKLOG recebe apenas apêndice.
 
 Doctor detalhado pós-instalação: banco íntegro, proveniência e geração do serviço pass, sem bloqueadores/erros/pendências. Avisos: 9 backups e 9 journals sem operação correspondente, entrada Deck não comprovada e boot direto sem permissão de inspeção. Preservados; não houve limpeza nem alteração de boot/input. Recibo host-59ecc2d8/06-doctor.json. A migração real alcançou schema 23; não equivale a teste de restauração real.
+
+## Retomada contínua sem autenticação — 2026-10-24
+
+Orientação expressa posterior do proprietário: retomar continuamente o desenvolvimento e **não voltar a pedir senha até nova direção dele**. A janela anterior terminou; não iniciar bigsudo, install/rollback/cycle nem preflight interativo. Trabalho, testes e integração remota já autorizados continuam; instalação fica na fila. Ativa preservada 59ecc2d8.
+
+Retomada conferida em c4216aaa4e457b276c15b901efa3e0010997732e, mesma branch/checkout, árvore limpa, main59ecc2d8 sem mudança e sem PR aberto para esta branch. Os 1262 hashes de código/testes/tools são idênticos ao recibo da integral year-alias: 6849 passed/47 skipped exit0, 85,5115%. Não repetir a integral por documentos. Próximo passo: PR/CI e integração governada de7d89ab0f, depois próximo slice elegível do plano existente, com assunção/claims antes de editar. Sem promover instalação/aceite para fonte nova.
