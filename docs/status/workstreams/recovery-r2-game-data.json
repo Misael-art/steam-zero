@@ -43,6 +43,6 @@
     "docs/WORKLOG.md",
     "src/steamzero/launcher/app.py"
   ],
-  "nextAction": "Operador presente em 24/10 autorizou instalacao imediata da main aprovada 59ecc2d8, CI push 40083592868 oito jobs verdes. Preparar/verificar bundle e instalar pelo controlador com rollback 3f87657c. R2/year-alias 7d89ab0f preservado, integral exit0 6849 passed/47 skipped e gates verdes, ainda sem CI remoto; excluido desta candidata.",
+  "nextAction": "Main 59ecc2d8 instalada em 24/10 pelo controlador, bundle/CI push 40083592868 verificados, CLI/daemon convergentes, servico/socket ativos e banco integro no schema23. Aceite funcional/fisico e provedor remoto seguem pendentes. R2/year-alias 7d89ab0f tem 6849 passed/47 skipped e gates locais verdes; proximo passo PR/CI na mesma branch, ainda fora da release instalada. Janela de senha concedida somente agora, sem inferir nova disponibilidade.",
   "updatedAt": "2026-10-24"
 }

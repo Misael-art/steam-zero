@@ -36,7 +36,7 @@
     "docs/09-operations/evidence/2026-10-23-r2-launcher-data",
     "tests/integration/test_game_metadata_migration_recovery.py"
   ],
-  "scopeDigest": "b7dc76633dc660321bd0e8f477cc16fe094f81ea1a8e4d02252a83b840b1e0f6",
+  "scopeDigest": "7287da0e2e00c624b72f65fe666d95ea0abf34b07f8fcb7b09648e20a7540fa2",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",
@@ -86,12 +86,18 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/12-local-checkpoint.json",
       "command": "Integral bruta exit 1: 6845 passed, 3 falhas por residuo do proprio harness, 47 skipped; 3 retestes passed sem alterar producao/QML/guards, cobertura 85,53%; cleanup test-only 9 passed com ResourceWarning como erro. Sem prova instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "release",
+      "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/host-59ecc2d8/05-summary.json",
+      "command": "prepare/verify/install exit0 da main 59ecc2d8 e CI push40083592868 verde; CLI/daemon/servico/socket e schema23 integros. Release parcial instalada nao inclui year-alias7d89ab0f; esse snapshot do item permanece not-packaged. Sem gameplay/hardware/rollback executado.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Operador presente em 24/10 autorizou instalacao imediata da main aprovada 59ecc2d8, CI push 40083592868 oito jobs verdes. Preparar/verificar bundle e instalar pelo controlador com rollback 3f87657c. R2/year-alias 7d89ab0f preservado, integral exit0 6849 passed/47 skipped e gates verdes, ainda sem CI remoto; excluido desta candidata.",
+  "nextAction": "Main 59ecc2d8 instalada em 24/10 pelo controlador, bundle/CI push 40083592868 verificados, CLI/daemon convergentes, servico/socket ativos e banco integro no schema23. Aceite funcional/fisico e provedor remoto seguem pendentes. R2/year-alias 7d89ab0f tem 6849 passed/47 skipped e gates locais verdes; proximo passo PR/CI na mesma branch, ainda fora da release instalada. Janela de senha concedida somente agora, sem inferir nova disponibilidade.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R2-GAME-DATA"
   ],
   "updatedAt": "2026-10-24",
-  "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado. 2026-10-23: assuncao serial Codex, projecao canonica no Launcher implementada; provas de fixture/offscreen separadas de instalacao e provedor remoto. Nenhum eixo promovido ate gates e aceite aplicavel."
+  "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado. 2026-10-23: assuncao serial Codex, projecao canonica no Launcher implementada; provas de fixture/offscreen separadas de instalacao e provedor remoto. Nenhum eixo promovido ate gates e aceite aplicavel. 2026-10-24: instalada main 59ecc2d8 com operador; distribution not-packaged conserva o snapshot local com year-alias 7d89ab0f ainda nao integrado/empacotado, sem negar a release parcial instalada e comprovada no recibo host-59ecc2d8."
 }

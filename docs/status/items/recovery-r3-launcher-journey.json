@@ -8,7 +8,7 @@
   "integration": "integrated",
   "verification": "unit",
   "operation": "unknown",
-  "distribution": "not-packaged",
+  "distribution": "installed",
   "scopePaths": [
     "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
     "tests/qml/launcher/check_launcher_journey.qml",
@@ -47,9 +47,15 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery/06-pr-ci-terminal.json",
       "command": "PR #266 CI oito jobs success no head b59651db; merge 59ecc2d8. Cobertura equivalente sem regressao contra base integrada, recibo 07. Sem promocao operacional/fisica.",
       "result": "passed"
+    },
+    {
+      "kind": "release",
+      "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/host-59ecc2d8/05-summary.json",
+      "command": "Controlador install exit0 da main59ecc2d8; servico/socket ativos, CLI/daemon convergentes, QML iniciou no smoke5s. Sem prova instalada de acao/refrescamento/gameplay/hardware.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Slice refresh integrado PR #266/main 59ecc2d8, oito jobs CI 40082089157 verdes e cobertura equivalente 85,3352% >= base main 85,3323%. Consolidar candidata apos R2/year-alias, cuja integral local esta ativa. Aceite instalado de refresh, overlay D-08 e sessao D-12/D-22/D-23 pendente; fila unica R2, sem autenticacao durante ausencia.",
+  "nextAction": "Slice refresh integrado e instalado em 2.0.0rc1-59ecc2d8f0f6, CI push40083592868 oito jobs verdes; controlador confirmou CLI/daemon e smoke QML. Executar aceite de erro/recuperacao instalado e sessao real D-08 overlay/D-12/D-22/D-23 com perfil/hardware apropriados; sem promover jornada completa. Year-alias7d89ab0f permanece fora desta release.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R3-LAUNCHER-JOURNEY"
   ],

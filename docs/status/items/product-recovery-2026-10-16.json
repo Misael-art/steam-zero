@@ -68,9 +68,9 @@
       "result": "recorded"
     }
   ],
-  "nextAction": "Assumir PROMPT-EXECUCAO-CENTRALIZADA.md no checkout oficial e executar R0/R1 com inventário C0; fechar instalação e prova física do lote antes de avançar. Credencial e checkpoint main/CI pendentes devem ser explícitos.",
+  "nextAction": "Retomada vigente no checkpoint R2: main59ecc2d8 instalada em24/10 com CI verde e controlador aprovado; aceite funcional/fisico e provedor remoto conservam pendencias. Year-alias7d89ab0f preservado/testado localmente, aguarda PR/CI na branch existente. Durante ausencia, trabalho independente continua; nova senha nao deve ser presumida apos janela concedida agora.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-24",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
-  "scopeDigest": "cc2386246e67d7a5d802e7361e68315a25023fe2bbf912afc1f9b042e133c8ec"
+  "scopeDigest": "53cc74a317c96ca4ae12ec436db780954ecdaaef2f8ee1c2c8bc82d1daab8d67"
 }

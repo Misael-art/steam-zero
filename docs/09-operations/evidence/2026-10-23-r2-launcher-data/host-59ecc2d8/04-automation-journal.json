@@ -1,0 +1,204 @@
+{
+  "events": [
+    {
+      "at": "2026-10-24T07:19:23-0300",
+      "data": {
+        "activation": {
+          "data": {
+            "daemonRefresh": {
+              "command": "/usr/local/sbin/steamzero-host converge --expect-release 2.0.0rc1-59ecc2d8f0f6",
+              "detail": "release publicada, mas o servi\u00e7o em segundo plano ainda executa a gera\u00e7\u00e3o anterior; execute o comando daemonRefresh.command na sess\u00e3o do usu\u00e1rio para confirmar a release ativa",
+              "state": "pending"
+            },
+            "dependencies": [
+              {
+                "filename": "attrs-26.1.0-py3-none-any.whl",
+                "package": "attrs",
+                "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+                "version": "26.1.0"
+              },
+              {
+                "filename": "jsonschema-4.26.0-py3-none-any.whl",
+                "package": "jsonschema",
+                "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce",
+                "version": "4.26.0"
+              },
+              {
+                "filename": "jsonschema_specifications-2025.9.1-py3-none-any.whl",
+                "package": "jsonschema-specifications",
+                "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+                "version": "2025.9.1"
+              },
+              {
+                "filename": "pillow-13.0.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+                "package": "pillow",
+                "sha256": "e91c2b1cbeae768c98752e67e717e283d68dae45717b41f2d91eaee648e37b7d",
+                "version": "13.0.0"
+              },
+              {
+                "filename": "referencing-0.37.0-py3-none-any.whl",
+                "package": "referencing",
+                "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+                "version": "0.37.0"
+              },
+              {
+                "filename": "rpds_py-2026.6.3-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                "package": "rpds-py",
+                "sha256": "dc319e5a1de4b6913aac94bf6a2f9e847371e0a140a43dd4991db1a09bc2d504",
+                "version": "2026.6.3"
+              }
+            ],
+            "installedAt": "2026-10-24T10:19:03.640645+00:00",
+            "installerSha256": "bac9f32d13c6b9b8ea6abab7b4f88747ca0cdc36fef5166783357e45d13affcf",
+            "packageVersion": "2.0.0rc1",
+            "previousRelease": "2.0.0rc1-3f87657c0a6c",
+            "python": "3.14.7",
+            "release": "2.0.0rc1-59ecc2d8f0f6",
+            "requirementsSha256": "049605bfb531b8f5ab20b9ab0c802ff61102018ea0ca1a8871ce08ed54f7036f",
+            "schemaVersion": 4,
+            "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997",
+            "sourceTreeState": "clean",
+            "wheelFile": "steamzero-2.0.0rc1-py3-none-any.whl",
+            "wheelSha256": "635d075ddc11949f51bbc12986decace21de067c39c28f72c40cc9194a717187",
+            "wheelhouseRunId": "40083592868",
+            "wheelhouseSourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997"
+          },
+          "ok": true
+        },
+        "release": "2.0.0rc1-59ecc2d8f0f6",
+        "rollbackRelease": "2.0.0rc1-3f87657c0a6c",
+        "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997",
+        "verification": {
+          "convergence": {
+            "first": {
+              "data": {
+                "activatedRelease": "2.0.0rc1-59ecc2d8f0f6",
+                "attempts": 0,
+                "daemon": {
+                  "contractVersion": "2.0",
+                  "daemonVersion": "2.0.0rc1",
+                  "identity": {
+                    "packageVersion": "2.0.0rc1",
+                    "releaseId": "2.0.0rc1-59ecc2d8f0f6",
+                    "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997",
+                    "sourceDirty": false
+                  },
+                  "pid": 2195759,
+                  "transport": "unix-peercred"
+                },
+                "detail": "daemon 2195759 confirmou release e execut\u00e1vel '2.0.0rc1-59ecc2d8f0f6'",
+                "expectedRelease": "2.0.0rc1-59ecc2d8f0f6",
+                "restarted": false,
+                "state": "converged"
+              },
+              "ok": true
+            },
+            "idempotent": {
+              "data": {
+                "activatedRelease": "2.0.0rc1-59ecc2d8f0f6",
+                "attempts": 0,
+                "daemon": {
+                  "contractVersion": "2.0",
+                  "daemonVersion": "2.0.0rc1",
+                  "identity": {
+                    "packageVersion": "2.0.0rc1",
+                    "releaseId": "2.0.0rc1-59ecc2d8f0f6",
+                    "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997",
+                    "sourceDirty": false
+                  },
+                  "pid": 2195759,
+                  "transport": "unix-peercred"
+                },
+                "detail": "daemon 2195759 confirmou release e execut\u00e1vel '2.0.0rc1-59ecc2d8f0f6'",
+                "expectedRelease": "2.0.0rc1-59ecc2d8f0f6",
+                "restarted": false,
+                "state": "converged"
+              },
+              "ok": true
+            }
+          },
+          "doctor": {
+            "ok": true,
+            "pendingOperations": 0,
+            "schemaVersion": 23,
+            "status": "degraded",
+            "version": "2.0.0rc1"
+          },
+          "gameMode": "{\"desktopFallback\": true, \"directBoot\": {\"backoff\": false, \"changesGrub\": true, \"configured\": false, \"consecutiveFailures\": 0, \"lastFailure\": null, \"lastStartedBootId\": null, \"marker\": \"steamzero.gamemode=1\", \"permissionDenied\": true, \"reason\": \"Sem permiss\u00e3o para inspecionar a configura\u00e7\u00e3o de boot.\", \"session\": \"steamzero-gamemode.desktop\", \"state\": \"unknown\"}, \"gamescope\": true, \"gamescopeSession\": true, \"independentRuntime\": true, \"sessionId\": \"steamzero-gamemode\", \"state\": \"ready\", \"statusLabel\": \"Game Mode dispon\u00edvel\", \"steam\": true}",
+          "host": {
+            "installed": true,
+            "ok": true,
+            "packageVersion": "2.0.0rc1",
+            "release": "2.0.0rc1-59ecc2d8f0f6",
+            "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997"
+          },
+          "manifest": {
+            "dependencies": [
+              {
+                "filename": "attrs-26.1.0-py3-none-any.whl",
+                "package": "attrs",
+                "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+                "version": "26.1.0"
+              },
+              {
+                "filename": "jsonschema-4.26.0-py3-none-any.whl",
+                "package": "jsonschema",
+                "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce",
+                "version": "4.26.0"
+              },
+              {
+                "filename": "jsonschema_specifications-2025.9.1-py3-none-any.whl",
+                "package": "jsonschema-specifications",
+                "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+                "version": "2025.9.1"
+              },
+              {
+                "filename": "pillow-13.0.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+                "package": "pillow",
+                "sha256": "e91c2b1cbeae768c98752e67e717e283d68dae45717b41f2d91eaee648e37b7d",
+                "version": "13.0.0"
+              },
+              {
+                "filename": "referencing-0.37.0-py3-none-any.whl",
+                "package": "referencing",
+                "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+                "version": "0.37.0"
+              },
+              {
+                "filename": "rpds_py-2026.6.3-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                "package": "rpds-py",
+                "sha256": "dc319e5a1de4b6913aac94bf6a2f9e847371e0a140a43dd4991db1a09bc2d504",
+                "version": "2026.6.3"
+              }
+            ],
+            "installedAt": "2026-10-24T10:19:03.640645+00:00",
+            "installerSha256": "bac9f32d13c6b9b8ea6abab7b4f88747ca0cdc36fef5166783357e45d13affcf",
+            "packageVersion": "2.0.0rc1",
+            "previousRelease": "2.0.0rc1-3f87657c0a6c",
+            "python": "3.14.7",
+            "release": "2.0.0rc1-59ecc2d8f0f6",
+            "requirementsSha256": "049605bfb531b8f5ab20b9ab0c802ff61102018ea0ca1a8871ce08ed54f7036f",
+            "schemaVersion": 4,
+            "sourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997",
+            "sourceTreeState": "clean",
+            "wheelFile": "steamzero-2.0.0rc1-py3-none-any.whl",
+            "wheelSha256": "635d075ddc11949f51bbc12986decace21de067c39c28f72c40cc9194a717187",
+            "wheelhouseRunId": "40083592868",
+            "wheelhouseSourceCommit": "59ecc2d8f0f66e27ce9aefa1dd7656451a610997"
+          },
+          "qml": {
+            "exitCode": 124,
+            "state": "started",
+            "windowSeconds": 5
+          },
+          "service": "active",
+          "socket": "active",
+          "version": "2.0.0rc1"
+        }
+      },
+      "phase": "install"
+    }
+  ],
+  "release": "2.0.0rc1-59ecc2d8f0f6",
+  "schemaVersion": 1
+}

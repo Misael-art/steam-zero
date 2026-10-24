@@ -10,15 +10,16 @@ Baseline: Central anexa `public_view` de `game_metadata`; Launcher usa somente `
 
 | Entrega | Implementação/integração | Pacote | Instalação/aceite | Dependências |
 |---|---|---|---|---|
-| R2 Central, migração v23, conteúdo NES | Integrada em main 09797651 | 2.0.0rc1-0979765171a3, bundle privado histórico bundle-09797651 | PENDENTE_CREDENCIAL; tentativa anterior expirou; não repetir | Presença do operador; revalidar bundle/CI/SHA/rollback com controlador antes da retomada |
-| R2 Launcher | Integrado pelo PR #265, main 927dee4a; oito jobs verdes no PR e push | Não preparado | Pendente; consolidar candidata coerente após checks/integração | Instalação governada; aceite Central/Launcher do mesmo jogo |
-| R3/D-08 recuperação do refresh | D-08 corrigido em 02248b0d; integral 6848 passed, 47 skipped, exit 0; integração pendente | Não preparado | Pendente; mesmo fluxo de consolidação, sem instalação por microalteração | Gates/CI/integração e aceite instalado de erro/recuperação; jornada completa conserva provas próprias |
+| R2 Central, migração v23, conteúdo NES | Incluída em main 59ecc2d8 | INSTALADO: 2.0.0rc1-59ecc2d8f0f6; bundle 09797651 é somente histórico | Schema real 23 e integridade pass; aceite funcional/físico pendente | Mesma release CLI/daemon/UI; provedor remoto exige credencial própria |
+| R2 Launcher | PR #265 integrado; incluído em main 59ecc2d8 | Bundle 2.0.0rc1-59ecc2d8f0f6 preparado/verificado | INSTALADO em 24/10; serviço/socket/convergência e smoke QML aprovados; aceite do mesmo jogo pendente | Perfil real, consulta remota com credencial e aceite funcional/físico próprios |
+| R3 recuperação do refresh | PR #266 integrado em main 59ecc2d8; integral 6848 passed/47 skipped | Mesmo bundle 59ecc2d8 | INSTALADO em 24/10; aceite de erro/recuperação e sessão real pendente | Recusa D-08 na overlay, D-12/D-22/D-23 e hardware conservam provas próprias |
+| R2 ano canônico sobre alias legado | 7d89ab0f, integral 6849 passed/47 skipped, gates locais verdes; CI remoto pendente | Não incluído no bundle instalado | Pendente de integração, pacote e futura janela de instalação | Preservado na branch existente; não apresentar como já instalado |
 
-Release ativa conferida por symlink: `2.0.0rc1-3f87657c0a6c`. Nenhuma instalação, rollback ou prova física nesta sessão. R0/R1 conserva a prova de interface, NES/Amiga e reabertura em perfil sem daemon; não comprova gameplay, Deck ou jornada completa.
+Fotografia histórica inicial de 23/10, anterior à instalação registrada ao fim: release ativa `2.0.0rc1-3f87657c0a6c`; até ali nenhuma instalação, rollback ou prova física. **Ativa atual: 2.0.0rc1-59ecc2d8f0f6**. R0/R1 conserva a prova de interface, NES/Amiga e reabertura em perfil sem daemon; não comprova gameplay, Deck ou jornada completa.
 
 Banco real, ROMs, BIOS, saves, mídias e preferências não são corpus de teste. Migração v23 e recuperação exigem prova própria: rollback do executável não demonstra recuperação dos dados.
 
-Próxima ação: regressão isolada do entrypoint Launcher com GameRecord persistido, seguida da correção mínima e gates integrais.
+Ação histórica de 23/10, já concluída: regressão isolada do entrypoint Launcher com GameRecord persistido, correção e gates integrais. Retomada vigente: instalação concluída abaixo; integrar 7d89ab0f por PR/CI e executar aceite funcional instalado conforme disponibilidade, sem inferir nova janela de senha.
 
 ## Verificação em andamento
 
@@ -67,3 +68,15 @@ Retomada atual: consolidar R3/D-08 após CI/integração e só então preparar c
 ## Janela de instalação autorizada em 2026-10-24
 
 Operador voltou e autorizou instalação imediata da main mais recente com CI verde: `59ecc2d8f0f66e27ce9aefa1dd7656451a610997`, CI push `40083592868`, oito jobs success. Retomada pela preparação governada, árvore limpa, HEAD exato, rollback instalado 3f87657c. A antiga tentativa expirada 09797651 não será repetida. R2/year-alias `7d89ab0fce0486fabb51560a87ee7d1fde7fe890` tem integral própria 6849 passed/47 skipped mas fica preservado fora dessa candidata até CI remoto. Autorização de presença aplica-se a esta janela, sem senha no chat.
+
+## Instalação concluída — 2026-10-24T10:19:03Z
+
+Operador presente forneceu autenticação no diálogo do sistema. Candidata mais recente aprovada em main naquele momento: **2.0.0rc1-59ecc2d8f0f6**, SHA `59ecc2d8f0f66e27ce9aefa1dd7656451a610997`, CI push `40083592868`, oito jobs success. Prepare, verify-bundle e install pelo `tools/release_host.py` terminaram **exit 0**, `ok=true`. [Recibos da instalação](host-59ecc2d8/05-summary.json).
+
+CLI/manifesto/daemon confirmam mesma release; serviço e socket ativos. Convergência e segunda passagem idempotente confirmadas. Doctor `ok=true`, status `degraded`, schema 23, zero operações pendentes; não promover ready a partir do smoke. QML iniciou no limite de 5 s (exit 124 intencional da janela de smoke), sem prova de pixel, gameplay, foco/controle/toque ou hardware. Sem rollback executado: anterior **3f87657c** preservada como rollback instalado; recuperação real de dados v23 não foi exercitada.
+
+Bundle privado `/home/misael/.cache/phasezero/agent-tmp/steamzero-recovery-2026-10-24/bundle-59ecc2d8`; wheel SHA256 `635d075ddc11949f51bbc12986decace21de067c39c28f72c40cc9194a717187`. A tentativa histórica 09797651 não foi retomada. A janela de autenticação foi concedida somente agora; não inferir disponibilidade futura nem abrir novos diálogos após esse pedido.
+
+Branch de desenvolvimento restaurada com commits preservados, inclusive **7d89ab0f**, cujo ajuste de ano ainda não tem CI/integração remota e **não está instalado**. Próxima ação: integração governada desse ajuste na mesma branch, sem repetir suíte local por documentação; depois aceite funcional instalado de dados/fontes/mídias e refresh. Nenhuma operação longa de teste/instalação está ativa neste fechamento. WORKLOG recebe apenas apêndice.
+
+Doctor detalhado pós-instalação: banco íntegro, proveniência e geração do serviço pass, sem bloqueadores/erros/pendências. Avisos: 9 backups e 9 journals sem operação correspondente, entrada Deck não comprovada e boot direto sem permissão de inspeção. Preservados; não houve limpeza nem alteração de boot/input. Recibo host-59ecc2d8/06-doctor.json. A migração real alcançou schema 23; não equivale a teste de restauração real.
