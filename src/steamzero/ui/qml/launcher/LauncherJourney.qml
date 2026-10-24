@@ -227,6 +227,9 @@ FocusScope {
             } catch (error) {
                 message = qsTr("JOURNEY-LAUNCHER-RESPONSE-002\nA resposta da Jornada está ilegível.")
                 messageIsError = true
+                // A causa de leitura substituiu a recusa anterior, como nos
+                // outros ramos de falha; recuperá-la não pode ressuscitar o erro.
+                pendingLaunchError = ""
             }
         })
         return true

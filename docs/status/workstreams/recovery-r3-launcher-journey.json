@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-RECOVERY-R3-LAUNCHER-JOURNEY",
+  "item": "SZ-RECOVERY-R3-LAUNCHER-JOURNEY",
+  "branch": "codex/product-recovery-2026-10-16",
+  "baseRef": "63434b1f78b79ca69ed21ec6b3fc3cd55e9e2b99",
+  "owner": "codex-central-executor",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "tests/qml/launcher/check_launcher_journey.qml",
+    "docs/recovery/2026-10-16/README.md",
+    "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "D-08 corrigido em 02248b0d3d666124bafe253b708a2d36a29f0bf0; integral isolada exit 0: 6848 passed/47 skipped, 85,5078%, estado real intacto. Gates estaticos passaram. Publicar branch existente, comparar cobertura CI Python 3.14 equivalente e integrar somente oito jobs verdes. Depois candidata consolidada. Instalacao/jornada fisica pendentes; sem autenticacao durante ausencia.",
+  "updatedAt": "2026-10-24"
+}

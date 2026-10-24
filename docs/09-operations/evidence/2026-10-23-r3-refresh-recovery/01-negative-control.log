@@ -1,0 +1,76 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_launcher_journey_qml_accepts_keyboard_facets_theme_and_stale_recovery __
+
+tmp_path = PosixPath('/tmp/steamzero-tests-8e8iy2n3/tmp/pytest-of-misael/pytest-0/test_launcher_journey_qml_acce0')
+
+    @pytest.mark.visual
+    def test_launcher_journey_qml_accepts_keyboard_facets_theme_and_stale_recovery(
+        tmp_path: Path,
+    ) -> None:
+        assert RUNNER is not None, "qmltestrunner Qt 6 é obrigatório para o controle Qt da Jornada"
+        env = os.environ.copy()
+        env.update(
+            {
+                "QT_QPA_PLATFORM": "offscreen",
+                "QT_QUICK_BACKEND": "software",
+                "QT_FORCE_STDERR_LOGGING": "1",
+                "QT_LOGGING_RULES": "",
+                "QML_XHR_ALLOW_FILE_READ": "1",
+                "XDG_CONFIG_HOME": str(tmp_path / "config"),
+                "XDG_DATA_HOME": str(tmp_path / "data"),
+                "XDG_STATE_HOME": str(tmp_path / "state"),
+                "XDG_CACHE_HOME": str(tmp_path / "cache"),
+                "XDG_RUNTIME_DIR": str(tmp_path / "runtime"),
+            }
+        )
+        for key in (
+            "XDG_CONFIG_HOME",
+            "XDG_DATA_HOME",
+            "XDG_STATE_HOME",
+            "XDG_CACHE_HOME",
+            "XDG_RUNTIME_DIR",
+        ):
+            Path(env[key]).mkdir(mode=0o700, parents=True, exist_ok=True)
+        completed = subprocess.run(
+            [str(RUNNER), "-input", str(QML_HARNESS)],
+            cwd=ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=90,
+            check=False,
+        )
+        output = (completed.stdout or "") + (completed.stderr or "")
+>       assert completed.returncode == 0, f"interação QML da Jornada reprovou:\n{output[-6000:]}"
+E       AssertionError: interação QML da Jornada reprovou:
+E         ********* Start testing of qmltestrunner *********
+E         Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), biglinux unknown
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::initTestCase()
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_keyboard_facets_theme_and_stale_response_recovery()
+E         QWARN  : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_many_facets_stay_inside_the_window() file:///home/misael/Projects/Steam Zero/Canonical/2026-09-21/src/steamzero/ui/qml/SceneEsdeView.qml:642: TypeError: Value is undefined and could not be converted to an object
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_many_facets_stay_inside_the_window()
+E         FAIL!  : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_refresh_failure_does_not_resurrect_an_old_launch_error(malformed-json) a causa atual substituiu a recusa antiga; ela não pode ressurgir
+E            Actual   (): OLD-LAUNCH-REFUSED
+E            Expected (): 
+E            Loc: [/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/qml/launcher/check_launcher_journey.qml(397)]
+E         FAIL!  : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_refresh_failure_does_not_resurrect_an_old_launch_error(null-json) a causa atual substituiu a recusa antiga; ela não pode ressurgir
+E            Actual   (): OLD-LAUNCH-REFUSED
+E            Expected (): 
+E            Loc: [/home/misael/Projects/Steam Zero/Canonical/2026-09-21/tests/qml/launcher/check_launcher_journey.qml(397)]
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_refresh_failure_does_not_resurrect_an_old_launch_error(http-unavailable)
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_refresh_failure_does_not_resurrect_an_old_launch_error(inactive-view)
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::test_valid_refresh_publishes_a_launch_error_only_once()
+E         PASS   : qmltestrunner::LauncherJourneyKeyboardAndTheme::cleanupTestCase()
+E         Totals: 7 passed, 2 failed, 0 skipped, 0 blacklisted, 78ms
+E         ********* Finished testing of qmltestrunner *********
+E         
+E       assert 2 == 0
+E        +  where 2 = CompletedProcess(args=['/usr/lib/qt6/bin/qmltestrunner', '-input', '/home/misael/Projects/Steam Zero/Canonical/2026-09... passed, 2 failed, 0 skipped, 0 blacklisted, 78ms\n********* Finished testing of qmltestrunner *********\n', stderr='').returncode
+
+tests/integration/test_launcher_journey_e2e.py:1165: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_launcher_journey_e2e.py::test_launcher_journey_qml_accepts_keyboard_facets_theme_and_stale_recovery
+1 failed, 4 deselected in 0.96s
+real-state before: exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default
+real-state after:  exists=True files=12954 directories=2115 bytes=1430521883 max_mtime_ns=1792614336961607685 source=HOME-default

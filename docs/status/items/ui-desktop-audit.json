@@ -105,7 +105,7 @@
     "tools/ui_dialog_probe.qml",
     "tools/ui_scenario_fixtures.py"
   ],
-  "scopeDigest": "58a8edca388cdc25e239b93afb4745b29ec9792b85915716edcc9c4741133ace",
+  "scopeDigest": "2843412332a420d197e423ff54264d2a366027735ad96883124ff0b3d1de8406",
   "dependsOn": [],
   "knownGaps": [
     "GAP-UI-LIVE-LAUNCHER-ROUTING",

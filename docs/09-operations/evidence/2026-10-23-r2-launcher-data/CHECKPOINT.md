@@ -11,7 +11,8 @@ Baseline: Central anexa `public_view` de `game_metadata`; Launcher usa somente `
 | Entrega | Implementação/integração | Pacote | Instalação/aceite | Dependências |
 |---|---|---|---|---|
 | R2 Central, migração v23, conteúdo NES | Integrada em main 09797651 | 2.0.0rc1-0979765171a3, bundle privado histórico bundle-09797651 | PENDENTE_CREDENCIAL; tentativa anterior expirou; não repetir | Presença do operador; revalidar bundle/CI/SHA/rollback com controlador antes da retomada |
-| R2 Launcher — este lote | Em execução | Não preparado | Pendente; consolidar candidata coerente após checks/integração | Instalação governada; aceite Central/Launcher do mesmo jogo |
+| R2 Launcher | Integrado pelo PR #265, main 927dee4a; oito jobs verdes no PR e push | Não preparado | Pendente; consolidar candidata coerente após checks/integração | Instalação governada; aceite Central/Launcher do mesmo jogo |
+| R3/D-08 recuperação do refresh | D-08 corrigido em 02248b0d; integral 6848 passed, 47 skipped, exit 0; integração pendente | Não preparado | Pendente; mesmo fluxo de consolidação, sem instalação por microalteração | Gates/CI/integração e aceite instalado de erro/recuperação; jornada completa conserva provas próprias |
 
 Release ativa conferida por symlink: `2.0.0rc1-3f87657c0a6c`. Nenhuma instalação, rollback ou prova física nesta sessão. R0/R1 conserva a prova de interface, NES/Amiga e reabertura em perfil sem daemon; não comprova gameplay, Deck ou jornada completa.
 
@@ -56,3 +57,9 @@ Próximos passos autorizados no mesmo checkout: push da branch atual; PR para ma
 A candidata histórica **09797651 não inclui estes commits** e não pode comprovar a projeção nova. Seu bundle privado histórico permanece preservado, sem nova tentativa. Uma candidata consolidada deve ser preparada de tip exato de main e CI push verde do SHA exato, com checkout limpo e alinhado. A instalação continua PENDENTE_CREDENCIAL e requer o operador; nenhum install/preflight interativo será iniciado nesta ausência. Rollback histórico instalado 3f87657c não foi ativado nem revalidado para dados reais v23 nesta sessão.
 
 Para acompanhar a próxima operação, usar `rtk proxy gh run list --branch codex/product-recovery-2026-10-16 --event push --limit 3` e consultar o run do SHA corrente no estado terminal. Logs locais completos já terminaram; não há teste/GUI ou operação de host em andamento neste checkpoint.
+
+## Integração R2 confirmada em 2026-10-24
+
+PR [#265](https://github.com/Misael-art/steam-zero/pull/265), head `63434b1f78b79ca69ed21ec6b3fc3cd55e9e2b99`, merge normal `927dee4a1b3492c1509451683586a18c1c66a74b` em 2026-10-24T02:35:57Z. CI PR [40053026587](https://github.com/Misael-art/steam-zero/actions/runs/40053026587) e CI push exato [40054839735](https://github.com/Misael-art/steam-zero/actions/runs/40054839735): oito jobs success. Cobertura equivalente Python 3.14 passou de 85,32805755395684% (09797651) a 85,33807010226244% (PR R2), +0,01001254830560 ponto; recibos 14/15. Nenhum bypass ou force push.
+
+Retomada atual: consolidar R3/D-08 após CI/integração e só então preparar candidata útil pelo controlador. As instruções anteriores de push/PR R2 são histórico concluído. Release instalada continua 3f87657c, sem alteração ou nova tentativa do bundle 09797651. Fila acima permanece única.
