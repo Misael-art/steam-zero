@@ -36,7 +36,7 @@
     "docs/09-operations/evidence/2026-10-23-r2-launcher-data",
     "tests/integration/test_game_metadata_migration_recovery.py"
   ],
-  "scopeDigest": "ea2017c8dc35f5ba9744659c9efe8818f76fc00aadb7ee8882401adde6b21488",
+  "scopeDigest": "df07195495d5838c6f0eaf64355b76e629f588cf35fe0f8a04be6faca58acf5a",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",
@@ -88,10 +88,10 @@
       "result": "passed"
     }
   ],
-  "nextAction": "R2 Launcher implementado/testado na abertura/reabertura: fechar checkpoint remoto com CI terminal e integrar, depois consolidar candidata pelo fluxo governado. PENDENTE_CREDENCIAL para instalacao e consulta remota, sem iniciar bigsudo/preflight interativo na ausencia. Aceite instalado e atualizacao em processo ja aberto nao comprovados. Fila unica e comandos de retomada em docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md.",
+  "nextAction": "R2 integrado pelo PR #265 em main 927dee4a; CI PR 40053026587 e push 40054839735: oito jobs verdes, cobertura equivalente sem regressao. Consolidar R3/D-08 antes de preparar candidata. Instalacao/aceite e provedor remoto PENDENTE_CREDENCIAL; sem autenticacao durante ausencia. Atualizacao ao vivo no Launcher aberto nao implementada. Fila unica no checkpoint R2.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R2-GAME-DATA"
   ],
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-24",
   "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado. 2026-10-23: assuncao serial Codex, projecao canonica no Launcher implementada; provas de fixture/offscreen separadas de instalacao e provedor remoto. Nenhum eixo promovido ate gates e aceite aplicavel."
 }

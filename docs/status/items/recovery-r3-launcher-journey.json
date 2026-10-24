@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-RECOVERY-R3-LAUNCHER-JOURNEY",
+  "title": "R3 — Recuperação e continuidade da Jornada no Launcher",
+  "domain": "ui",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "unit",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "tests/qml/launcher/check_launcher_journey.qml",
+    "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery"
+  ],
+  "dependsOn": [
+    "SZ-RECOVERY-R0-R1-CENTRAL",
+    "SZ-RECOVERY-R2-GAME-DATA",
+    "SZ-AURA-LAUNCHER"
+  ],
+  "knownGaps": [
+    "GAP-R3-REFRESH-RECOVERY",
+    "GAP-R3-INSTALLED-LAUNCH-RETURN"
+  ],
+  "acceptanceCriteria": [
+    "Resposta ilegivel publica a causa atual e nao conserva uma recusa antiga para reaparecer depois.",
+    "Erro HTTP e fonte indisponivel mantem degradacao recuperavel; sucesso seguinte limpa erro e mantem selecao/contexto publicado.",
+    "Recusa de launch entregue ao primeiro refresh valido aparece uma vez; resposta atrasada nao altera pedido novo.",
+    "Jornada instalada emulacao/PC/web com sessao e retorno conserva aceite proprio; este slice isolado nao o promove."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery/02-focused.log",
+      "command": "Runner isolado: 14 passed; QtTest negativo falhou em JSON malformado/null antes da correção; erro HTTP, view inativa, recuperação, seleção, resposta atrasada e recusa válida de uma só exibição. Offscreen/fixtures; não prova jornada instalada.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery/05-local-checkpoint.json",
+      "command": "Integral isolada exit 0: 6848 passed, 47 skipped; fonte congelada por hash, gates estaticos aprovados. Variacao local de cobertura registrada, comparacao equivalente CI pendente. Sem prova instalada.",
+      "result": "passed"
+    }
+  ],
+  "nextAction": "D-08 corrigido em 02248b0d3d666124bafe253b708a2d36a29f0bf0; integral isolada exit 0: 6848 passed/47 skipped, 85,5078%, estado real intacto. Gates estaticos passaram. Publicar branch existente, comparar cobertura CI Python 3.14 equivalente e integrar somente oito jobs verdes. Depois candidata consolidada. Instalacao/jornada fisica pendentes; sem autenticacao durante ausencia.",
+  "activeWorkstreams": [
+    "WS-2026-10-RECOVERY-R3-LAUNCHER-JOURNEY"
+  ],
+  "updatedAt": "2026-10-24",
+  "notes": "Slice de R3/D-08 do PLANO existente, assumido apos conclusao local de R2 conforme autorizacao para ausencia. Um executor, checkout e branch existentes. Handoffs prospectivos dos dois paths pela WS-JOURNEY-PLATFORM-PROJECTION e README pela WS-RECOVERY-R2; nao ha implementacao concorrente. Fixtures/offscreen nao provam gameplay, instalacao, hardware ou recuperacao de sessao.",
+  "scopeDigest": "d0619b2d93827f3fe1c58d4ba00d3314f7053ad78ed5d352df5b0b4072f182c5"
+}

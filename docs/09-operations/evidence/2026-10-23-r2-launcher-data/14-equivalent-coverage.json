@@ -1,0 +1,56 @@
+{
+  "baselineRun": 39636317805,
+  "baselineSha": "0979765171a32e7532f1f650a889962ba375d58d",
+  "candidateRun": 40053026587,
+  "candidateHeadSha": "63434b1f78b79ca69ed21ec6b3fc3cd55e9e2b99",
+  "profile": "CI Python 3.14, not visual, same workflow and requirements lock",
+  "baselineMeta": {
+    "format": 3,
+    "version": "7.15.1",
+    "timestamp": "2026-10-21T16:45:11.630309",
+    "branch_coverage": true,
+    "show_contexts": false
+  },
+  "candidateMeta": {
+    "format": 3,
+    "version": "7.15.1",
+    "timestamp": "2026-10-24T02:19:47.674320",
+    "branch_coverage": true,
+    "show_contexts": false
+  },
+  "baselineTotals": {
+    "covered_lines": 45771,
+    "num_statements": 51954,
+    "percent_covered": 85.32805755395684,
+    "percent_covered_display": "85.33",
+    "missing_lines": 6183,
+    "excluded_lines": 421,
+    "percent_statements_covered": 88.09908765446356,
+    "percent_statements_covered_display": "88.10",
+    "num_branches": 17546,
+    "num_partial_branches": 3218,
+    "covered_branches": 13532,
+    "missing_branches": 4014,
+    "percent_branches_covered": 77.1229909950986,
+    "percent_branches_covered_display": "77.12"
+  },
+  "candidateTotals": {
+    "covered_lines": 45796,
+    "num_statements": 51977,
+    "percent_covered": 85.33807010226244,
+    "percent_covered_display": "85.34",
+    "missing_lines": 6181,
+    "excluded_lines": 421,
+    "percent_statements_covered": 88.1082017046001,
+    "percent_statements_covered_display": "88.11",
+    "num_branches": 17550,
+    "num_partial_branches": 3217,
+    "covered_branches": 13537,
+    "missing_branches": 4013,
+    "percent_branches_covered": 77.13390313390313,
+    "percent_branches_covered_display": "77.13"
+  },
+  "deltaPercentagePoints": 0.01001254830559617,
+  "baselineJsonSha256": "f3260683063a7433351f28b63184c7cc534624ee0c14a4bff71a547143f1c2ac",
+  "candidateJsonSha256": "1bfe511c3bf0125859eccbb48088e961fd33140227c3a1c21b352880210a11de"
+}
