@@ -24,6 +24,7 @@ Item {
     property var accessibility: ({"highContrast": false, "visualScale": 1.0, "reducedMotion": false})
     // Função que devolve a página de um jogo, injetada por quem monta o shell.
     property var resolveGamePage: null
+    property var readinessRequest: null
     // Contexto gravado antes do lançamento, lido na inicialização.
     property var returnContext: null
 
@@ -291,6 +292,7 @@ Item {
             : ({"gameId": "", "title": "", "platform": "", "lastPlayed": null,
                 "initialFocus": "", "actions": []})
         accessibility: shell.accessibility
+        readinessRequest: shell.readinessRequest
         onActivated: function(actionId) {
             if (actionId === "play")
                 shell.launchFocused()

@@ -24,6 +24,7 @@ import signal
 import stat
 from collections.abc import Iterator
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path, PurePosixPath
 from types import TracebackType
 from typing import IO
@@ -118,12 +119,19 @@ _RENAME_NOREPLACE = 1 << 0
 _RENAME_EXCHANGE = 1 << 1
 
 
+@cache
+def _libc_name() -> str:
+    """Resolve a biblioteca uma vez, sem repetir ldconfig para cada rename."""
+    import ctypes.util
+
+    return ctypes.util.find_library("c") or "libc.so.6"
+
+
 def _renameat2(first: Path, second: Path, flags: int) -> bool:
     """``renameat2`` cru. ``False`` quando kernel/FS não suportam a flag."""
     import ctypes
-    import ctypes.util
 
-    libc = ctypes.CDLL(ctypes.util.find_library("c") or "libc.so.6", use_errno=True)
+    libc = ctypes.CDLL(_libc_name(), use_errno=True)
     try:
         syscall = libc.renameat2
     except AttributeError:  # pragma: no cover - glibc antiga

@@ -19,7 +19,7 @@ import secrets
 import shutil
 import threading
 from collections.abc import Callable, Iterator, Mapping, Sequence
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, cast
@@ -101,6 +101,18 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path == "/model":
             self._send(200, self._bridge.model())
             return
+        if self.path == "/readiness" or self.path.startswith("/readiness?"):
+            game_id = self._query_param("gameId")
+            if not game_id:
+                self._send(400, {"error": "gameId ausente"})
+                return
+            try:
+                result = self._bridge.readiness(game_id)
+            except KeyError:
+                self._send(404, {"error": "LAUNCHER-GAME-NOT-FOUND-001"})
+                return
+            self._send(200, result)
+            return
         if self.path == "/journey/current":
             self._send(200, self._bridge.journey_current())
             return
@@ -154,7 +166,7 @@ class _Handler(BaseHTTPRequestHandler):
         if not self._authorized():
             self._send(403, {"error": "token inválido"})
             return
-        if self.path not in {"/launch", "/session/action", "/journey/event"}:
+        if self.path not in {"/launch", "/prepare", "/session/action", "/journey/event"}:
             self._send(404, {"error": "rota desconhecida"})
             return
         try:
@@ -172,6 +184,19 @@ class _Handler(BaseHTTPRequestHandler):
             return
         if not isinstance(payload, dict):
             self._send(400, {"error": "corpo inválido"})
+            return
+        if self.path == "/prepare":
+            game_id = payload.get("gameId")
+            if not isinstance(game_id, str) or not game_id:
+                self._send(400, {"error": "gameId inválido"})
+                return
+            try:
+                result = self._bridge.prepare_game(game_id)
+            except KeyError:
+                self._send(404, {"error": "LAUNCHER-GAME-NOT-FOUND-001"})
+                return
+            state = result["state"]
+            self._send(202 if state == "preparing" else 200 if state == "ready" else 409, result)
             return
         if self.path == "/journey/event":
             result = self._bridge.journey_event(payload)
@@ -348,12 +373,17 @@ class LauncherBridge:
         journey_diagnostic: Mapping[str, Any] | None = None,
         readiness: Callable[[str], Mapping[str, Any]] | None = None,
         prepare: Callable[[str], Mapping[str, Any]] | None = None,
+        readiness_observer: Callable[[str], Mapping[str, Any]] | None = None,
     ) -> None:
         self._readiness = readiness
+        self._readiness_observer = (
+            readiness_observer if readiness_observer is not None else readiness
+        )
         self._prepare = prepare
         self._preparing: dict[str, threading.Thread] = {}
         self._prepare_failures: dict[str, str] = {}
         self._sections = tuple(sections)
+        self._game_ids = frozenset(game for section in self._sections for game in section.items)
         self._titles = dict(titles or {})
         self._covers = dict(covers or {})
         self._metadata = {key: dict(value) for key, value in (metadata or {}).items()}
@@ -1176,6 +1206,103 @@ class LauncherBridge:
         with self._session_lock:
             return self._launch_locked(game_id, focus_id)
 
+    def readiness(self, game_id: str) -> dict[str, Any]:
+        """Observe the existing preparation, without starting or consuming it."""
+        if game_id not in self._game_ids:
+            raise KeyError(game_id)
+
+        def activity() -> dict[str, Any] | None:
+            running = self._preparing.get(game_id)
+            if running is not None and running.is_alive():
+                return {
+                    "gameId": game_id,
+                    "state": "preparing",
+                    "playable": False,
+                    "preparing": True,
+                    "canPrepare": False,
+                    "code": "LAUNCHER-PREPARING-001",
+                    "reason": "Preparando o jogo (extraindo o arquivo).",
+                }
+            failure = self._prepare_failures.get(game_id)
+            if failure is not None:
+                return {
+                    "gameId": game_id,
+                    "state": "failed",
+                    "playable": False,
+                    "preparing": False,
+                    "canPrepare": self._prepare is not None,
+                    "code": "LAUNCHER-PREPARE-FAILED-001",
+                    "reason": failure,
+                }
+            return None
+
+        with self._session_lock:
+            current = activity()
+        if current is not None:
+            return current
+        try:
+            verdict = self._readiness_observer(game_id) if self._readiness_observer else None
+        except Exception:
+            # A failed observation is not evidence that the game is ready.
+            verdict = None
+        with self._session_lock:
+            current = activity()
+        if current is not None:
+            return current
+        playable = verdict.get("playable") if isinstance(verdict, Mapping) else None
+        if not isinstance(verdict, Mapping) or not isinstance(playable, bool):
+            return {
+                "gameId": game_id,
+                "state": "unknown",
+                "playable": None,
+                "preparing": False,
+                "canPrepare": False,
+                "code": "LAUNCHER-READINESS-UNAVAILABLE-001",
+                "reason": (
+                    "Prontidão não verificada. Tente verificar novamente ou consulte a Central."
+                ),
+            }
+        reason = verdict.get("reason")
+        code = verdict.get("code")
+        public_code = (
+            code
+            if isinstance(code, str)
+            and 1 <= len(code) <= 96
+            and code.isascii()
+            and all(character.isalnum() or character in "-_" for character in code)
+            else "LAUNCHER-NOT-READY-001"
+        )
+        return {
+            "gameId": game_id,
+            "state": "ready" if playable else "blocked",
+            "playable": playable,
+            "preparing": False,
+            "canPrepare": not playable
+            and verdict.get("canPrepare") is True
+            and self._prepare is not None,
+            "code": "" if playable else public_code,
+            "reason": _public_reason(reason) if isinstance(reason, str) else "",
+        }
+
+    def prepare_game(self, game_id: str) -> dict[str, Any]:
+        """Use the existing preparation worker; this operation never launches."""
+        with self._session_lock:
+            if game_id not in self._game_ids:
+                raise KeyError(game_id)
+            running = self._preparing.get(game_id)
+            if running is not None and running.is_alive():
+                return self.readiness(game_id)
+            # An explicit retry observes current requirements again. A past
+            # failure cannot authorize another extraction after an external
+            # repair or after this operation became inapplicable.
+            self._prepare_failures.pop(game_id, None)
+            current = self.readiness(game_id)
+            if current["canPrepare"] is not True:
+                return current
+            with suppress(LaunchBlocked):
+                self._auto_prepare(game_id, {"canPrepare": True})
+            return self.readiness(game_id)
+
     def _auto_prepare(self, game_id: str, verdict: Mapping[str, Any]) -> None:
         """Inicia, em segundo plano, o que o jogo precisa para abrir.
 
@@ -1201,13 +1328,15 @@ class LauncherBridge:
             try:
                 result = prepare(game_id)
                 if result.get("prepared") is not True:
-                    self._prepare_failures[game_id] = _public_reason(
-                        str(result.get("reason") or "a preparação não foi concluída")
-                    )
+                    with self._session_lock:
+                        self._prepare_failures[game_id] = _public_reason(
+                            str(result.get("reason") or "a preparação não foi concluída")
+                        )
             except Exception as exc:  # qualquer falha vira motivo ao usuário
-                self._prepare_failures[game_id] = _public_reason(
-                    str(getattr(exc, "detail", "") or "a preparação falhou")
-                )
+                with self._session_lock:
+                    self._prepare_failures[game_id] = _public_reason(
+                        str(getattr(exc, "detail", "") or "a preparação falhou")
+                    )
 
         thread = threading.Thread(target=work, name=f"prepare-{game_id}", daemon=True)
         self._preparing[game_id] = thread

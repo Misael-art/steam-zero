@@ -1003,3 +1003,35 @@ def test_isolated_environment_contains_pytest_temp_files(tmp_path: Path) -> None
             f"{variable} aponta para fora do root temporário: {target}"
         )
         assert target.is_dir(), f"{variable} precisa existir antes do pytest iniciar"
+
+
+def test_inherited_pytest_temp_override_cannot_escape_isolation(tmp_path: Path) -> None:
+    root = tmp_path / "isolated"
+    outside = tmp_path / "external-agent-temp"
+    observed = root / "observed.json"
+    inherited = os.environ | {
+        "PYTEST_DEBUG_TEMPROOT": str(outside),
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "TEMP_OBSERVATION": str(observed),
+    }
+    child = isolated_environment(root, inherited)
+    probe = root / "test_temp_probe.py"
+    probe.write_text(
+        "import json, os\n"
+        "from pathlib import Path\n"
+        "def test_probe(tmp_path):\n"
+        "    Path(os.environ['TEMP_OBSERVATION']).write_text(json.dumps(str(tmp_path)))\n"
+    )
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "--noconftest", "-q", str(probe)],
+        cwd=root,
+        env=child,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert Path(json.loads(observed.read_text())).is_relative_to(root / "tmp")
+    assert not outside.exists()
+    assert inherited["PYTEST_DEBUG_TEMPROOT"] == str(outside)

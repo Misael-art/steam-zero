@@ -415,6 +415,13 @@ class LaunchRouter:
         data = query_product(self._executable(), "readiness", game_id, timeout=20)
         return data if data is not None and "playable" in data else {"playable": True}
 
+    def readiness_observation(self, game_id: str) -> Mapping[str, Any]:
+        """A bounded read for details; fail-open launch permission is not proof."""
+        if self._kinds.get(game_id, "emulation") != "emulation":
+            return {"playable": None}
+        data = query_product(self._executable(), "readiness", game_id, timeout=2)
+        return data if data is not None else {"playable": None}
+
     def prepare(self, game_id: str) -> Mapping[str, Any]:
         """Prepara o jogo (extrai archive) pelo produto; sem iniciar nada."""
         data = query_product(self._executable(), "prepare", game_id, timeout=3600)
@@ -898,6 +905,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         on_launch_bezel=launch_game_with_bezel,
         readiness=None if args.isolated_library else router.readiness,
         prepare=None if args.isolated_library else router.prepare,
+        readiness_observer=None if args.isolated_library else router.readiness_observation,
         accessibility=accessibility,
         return_context=return_context,
         catalog_summary=catalog_summary(payload, catalog, library),

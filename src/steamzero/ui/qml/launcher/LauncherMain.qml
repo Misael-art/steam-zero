@@ -820,6 +820,9 @@ Window {
                 Component.onCompleted: cinemaRefresh.restart()
                 accessibility: root.accessibility
                 resolveGamePage: function(gameId) { return root._resolveGamePage(gameId) }
+                readinessRequest: function(method, path, body, done) {
+                    root._request(method, path, body, done)
+                }
                 returnContext: root.model.returnContext || null
                 onExitRequested: Qt.quit()
                 onLaunchRequested: function(gameId, focusId) {

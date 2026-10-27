@@ -342,6 +342,9 @@ class _WriterWatcher:
 
 def isolated_environment(root: Path, environ: Mapping[str, str]) -> dict[str, str]:
     child_env = dict(environ)
+    # Pytest prefers this override to TMPDIR. Inheriting a desktop/agent value
+    # moves fixtures outside our lifecycle and can split custody across filesystems.
+    child_env.pop("PYTEST_DEBUG_TEMPROOT", None)
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     root.chmod(0o700)
     home_dir = root / _HOME_SUBDIR
