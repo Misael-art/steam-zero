@@ -1,0 +1,109 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_launcher_details_readiness_and_preparation_qml ______________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-esp3d989/tmp/pytest-of-misael/pytest-0/test_launcher_details_readines0')
+
+    @pytest.mark.visual
+    def test_launcher_details_readiness_and_preparation_qml(tmp_path: Path) -> None:
+        assert RUNNER is not None
+        ready = threading.Event()
+        release = threading.Event()
+        prepared, launched = [], []
+
+        def prepare(game):
+            prepared.append(game)
+            release.wait(1.2)
+            ready.set()
+            return {"prepared": True}
+
+        bridge = LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            titles={"game": "Fixture"},
+            context_path=tmp_path / "return.json",
+            readiness=lambda game: {
+                "playable": ready.is_set(),
+                "canPrepare": not ready.is_set(),
+                "reason": "Fixture: extração necessária" if not ready.is_set() else "",
+            },
+            prepare=prepare,
+            on_launch=lambda game, focus: launched.append(game),
+        )
+        env = os.environ.copy()
+        env.update(
+            QT_QPA_PLATFORM="offscreen",
+            QT_QUICK_BACKEND="software",
+            QT_FORCE_STDERR_LOGGING="1",
+            QT_LOGGING_RULES="",
+            QML_XHR_ALLOW_FILE_READ="1",
+        )
+        for name in ("CONFIG", "DATA", "STATE", "CACHE", "RUNTIME"):
+            path = tmp_path / name.lower()
+            path.mkdir(mode=0o700)
+            env[f"XDG_{name}_HOME" if name != "RUNTIME" else "XDG_RUNTIME_DIR"] = str(path)
+        try:
+            with bridge.serving() as base:
+                fixture = tmp_path / "bridge.json"
+                fixture.write_text(json.dumps({"api": base, "token": bridge.token}))
+                fixture.chmod(0o600)
+                harness = tmp_path / "check_launcher_readiness.qml"
+                source = (ROOT / "tests/qml/launcher/check_launcher_readiness.qml").read_text()
+                harness.write_text(
+                    source.replace(
+                        'import "../../../src/steamzero/ui/qml/launcher"',
+                        f'import "{(ROOT / "src/steamzero/ui/qml/launcher").as_uri()}"',
+                    )
+                )
+                completed = subprocess.run(
+                    [
+                        str(RUNNER),
+                        "-input",
+                        str(harness),
+                    ],
+                    cwd=ROOT,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=90,
+                    check=False,
+                )
+        finally:
+            release.set()
+        output = completed.stdout + completed.stderr
+>       assert completed.returncode == 0, output[-10000:]
+E       AssertionError: ********* Start testing of qmltestrunner *********
+E         Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), biglinux unknown
+E         PASS   : qmltestrunner::ZLauncherRootReadiness::initTestCase()
+E         PASS   : qmltestrunner::ZLauncherRootReadiness::test_root_details_uses_authenticated_bridge_and_prepares_without_launching()
+E         PASS   : qmltestrunner::ZLauncherRootReadiness::cleanupTestCase()
+E         PASS   : qmltestrunner::AReadinessObservation::initTestCase()
+E         FAIL!  : qmltestrunner::AReadinessObservation::test_duplicate_callback_is_ignored() Compared values are not the same
+E            Actual   (): blocked
+E            Expected (): ready
+E            Loc: [/tmp/steamzero-tests-esp3d989/tmp/pytest-of-misael/pytest-0/test_launcher_details_readines0/check_launcher_readiness.qml(143)]
+E         PASS   : qmltestrunner::AReadinessObservation::test_failed_observation(offline)
+E         PASS   : qmltestrunner::AReadinessObservation::test_failed_observation(http)
+E         PASS   : qmltestrunner::AReadinessObservation::test_failed_observation(malformed)
+E         PASS   : qmltestrunner::AReadinessObservation::test_failed_observation(null)
+E         PASS   : qmltestrunner::AReadinessObservation::test_failed_observation(wrong-game)
+E         PASS   : qmltestrunner::AReadinessObservation::test_failed_observation(unconfirmed-ready)
+E         PASS   : qmltestrunner::AReadinessObservation::test_lost_prepare_response_is_observed_without_repeating_post()
+E         PASS   : qmltestrunner::AReadinessObservation::test_old_game_and_closed_page_callbacks_are_ignored()
+E         FAIL!  : qmltestrunner::AReadinessObservation::test_status_and_keyboard_prepare_without_launch() Compared values are not the same
+E            Actual   (): 0
+E            Expected (): 1
+E            Loc: [/tmp/steamzero-tests-esp3d989/tmp/pytest-of-misael/pytest-0/test_launcher_details_readines0/check_launcher_readiness.qml(74)]
+E         PASS   : qmltestrunner::AReadinessObservation::cleanupTestCase()
+E         Totals: 13 passed, 2 failed, 0 skipped, 0 blacklisted, 2535ms
+E         ********* Finished testing of qmltestrunner *********
+E         file:///tmp/steamzero-tests-esp3d989/tmp/pytest-of-misael/pytest-0/test_launcher_details_readines0/check_launcher_readiness.qml:37:5: QML LauncherMain: Conflicting properties 'visible' and 'visibility'
+E
+E       assert 2 == 0
+E        +  where 2 = CompletedProcess(args=['/usr/lib/qt6/bin/qmltestrunner', '-input', '/tmp/steamzero-tests-esp3d989/tmp/pytest-of-misael...ls_readines0/check_launcher_readiness.qml:37:5: QML LauncherMain: Conflicting properties 'visible' and 'visibility'\n").returncode
+
+tests/integration/test_launcher_readiness_qml.py:87: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_launcher_readiness_qml.py::test_launcher_details_readiness_and_preparation_qml
+1 failed in 3.80s
+real-state before: exists=True files=12984 directories=2124 bytes=1437433483 max_mtime_ns=1792839271376207207 source=HOME-default
+real-state after:  exists=True files=12984 directories=2124 bytes=1437433483 max_mtime_ns=1792839271376207207 source=HOME-default

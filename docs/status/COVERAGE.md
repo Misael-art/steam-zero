@@ -17,15 +17,15 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 583 | 3 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TOOLS | 42 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 588 | 3 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TOOLS | 45 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
-| SZ-AURA-CINEMA-COMPLETION | 98 | 38 | 19 | hw |  |
+| SZ-AURA-CINEMA-COMPLETION | 98 | 39 | 20 | dev |  |
 | SZ-AURA-CONTRACTS | 38 | 3 | 3 | unit |  |
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 11 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 318 | 99 | 58 | hw |  |
+| SZ-AURA-LAUNCHER | 320 | 100 | 59 | dev |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -33,11 +33,11 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-PLATFORM-MEDIA-SCOPE | 3 | 2 | 2 | unit |  |
 | SZ-AURA-RETROFE-MEDIA-INGESTION | 9 | 4 | 2 | hw |  |
 | SZ-AURA-RICH-MEDIA-PROJECTION | 9 | 5 | 3 | hw |  |
-| SZ-AURA-SAVE-STATE-GALLERY | 22 | 16 | 10 | hw |  |
-| SZ-AURA-SEARCH-CONTRACT | 5 | 10 | 4 | dev |  |
-| SZ-AURA-SESSION-OSD | 48 | 24 | 9 | hw |  |
+| SZ-AURA-SAVE-STATE-GALLERY | 22 | 17 | 11 | dev |  |
+| SZ-AURA-SEARCH-CONTRACT | 5 | 11 | 5 | dev |  |
+| SZ-AURA-SESSION-OSD | 48 | 25 | 10 | dev |  |
 | SZ-AURA-UI | 16 | 14 | 6 | unit |  |
-| SZ-AURA-VISUAL-COMPLETION | 38 | 20 | 7 | hw |  |
+| SZ-AURA-VISUAL-COMPLETION | 38 | 21 | 8 | dev |  |
 | SZ-AURA-VISUAL-RICH-SURFACE | 11 | 12 | 10 | hw |  |
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
 | SZ-CAST-LAN | 6 | 3 | 3 | unit |  |
@@ -46,7 +46,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-EMULATION-ENHANCEMENTS | 24 | 13 | 10 | unit |  |
 | SZ-EMULATION-HIGH-END-RUNTIME-READINESS | 5 | 8 | 3 | unit |  |
 | SZ-EMULATION-KEYS-IMPORT-UNIFICATION | 1 | 1 | 0 | none |  |
-| SZ-EMULATION-LONG-OPERATIONS | 28 | 20 | 13 | hw |  |
+| SZ-EMULATION-LONG-OPERATIONS | 28 | 21 | 14 | dev |  |
 | SZ-EMULATION-M10 | 6 | 3 | 2 | vm |  |
 | SZ-EMULATION-PLATFORM-CONTEXT | 3 | 5 | 2 | unit |  |
 | SZ-EMULATION-PLATFORM-SCOPE | 2 | 9 | 5 | unit |  |
@@ -70,14 +70,14 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-SRM | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
-| SZ-GOVERNANCE-STATUS | 24 | 29 | 15 | dev |  |
+| SZ-GOVERNANCE-STATUS | 24 | 32 | 17 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
-| SZ-LAUNCH-READINESS-PREPARATION | 4 | 3 | 2 | dev |  |
+| SZ-LAUNCH-READINESS-PREPARATION | 20 | 5 | 4 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 33 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
 | SZ-LOTE-COESAO-UI | 157 | 22 | 15 | none |  |
-| SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 20 | 8 | dev |  |
+| SZ-MAIN-WORKTREE-RECONCILIATION | 15 | 21 | 9 | dev |  |
 | SZ-MEDIA-AUDIT-PLATFORM-SCOPE | 4 | 8 | 3 | hw |  |
 | SZ-MEDIA-PIPELINE-PLATFORM-SCOPE | 3 | 11 | 6 | hw |  |
 | SZ-MEDIA-PROVIDER-PLATFORM-FILTER | 10 | 6 | 3 | unit |  |
@@ -85,6 +85,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION | 15 | 13 | 13 | dev |  |
 | SZ-MULTIDISC-MATERIALIZATION-INGESTION | 4 | 8 | 4 | unit |  |
 | SZ-MULTIDISC-SESSION-DISC-IDENTITY | 9 | 4 | 3 | hw |  |
+| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 22 | 7 | 5 | dev |  |
 | SZ-ONLINE-P2P | 37 | 2 | 1 | none |  |
 | SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 205 | 4 | 0 | none |  |
 | SZ-PLATFORM-CORE-PER-SYSTEM | 78 | 8 | 4 | unit |  |
@@ -93,27 +94,27 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PLATFORM-PS5-CATALOG | 21 | 24 | 15 | unit |  |
 | SZ-PLATFORM-REQUIREMENT-SCOPE | 7 | 7 | 3 | unit |  |
 | SZ-PLATFORM-VITA-CATALOG | 5 | 11 | 5 | hw |  |
-| SZ-PRODUCT-RECOVERY-2026-10 | 23 | 7 | 4 | dev |  |
+| SZ-PRODUCT-RECOVERY-2026-10 | 24 | 8 | 5 | dev |  |
 | SZ-PROJECT-DESIGN-AUDIT | 12 | 25 | 6 | dev |  |
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 11 | 3 | unit |  |
 | SZ-RECOVERY-R0-R1-CENTRAL | 94 | 24 | 16 | dev |  |
-| SZ-RECOVERY-R2-GAME-DATA | 60 | 6 | 4 | unit |  |
+| SZ-RECOVERY-R2-GAME-DATA | 64 | 7 | 5 | unit |  |
 | SZ-RECOVERY-R3-LAUNCHER-JOURNEY | 13 | 4 | 4 | unit |  |
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 71 | 37 | 14 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 71 | 38 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
-| SZ-TEST-STATE-ISOLATION | 4 | 4 | 4 | dev |  |
+| SZ-TEST-STATE-ISOLATION | 4 | 6 | 5 | dev |  |
 | SZ-THEME-ENGINE | 186 | 87 | 64 | hw |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 18 | 9 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 20 | 11 | hw |  |
 | SZ-THEME-IMPORT-RETROFE | 15 | 27 | 14 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 20 | 11 | unit |  |
 | SZ-THEME-STUDIO | 172 | 82 | 59 | hw |  |
-| SZ-UI-DESKTOP-AUDIT | 837 | 204 | 116 | dev |  |
+| SZ-UI-DESKTOP-AUDIT | 838 | 204 | 116 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
-Arquivos em `src/`: **637**. Sob agregador apenas, sem item de capacidade: **267** (41%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.
+Arquivos em `src/`: **638**. Sob agregador apenas, sem item de capacidade: **267** (41%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.

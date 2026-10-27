@@ -15,7 +15,7 @@
     "tests/unit/test_test_state_isolation.py",
     "tests/unit/test_service_core.py"
   ],
-  "scopeDigest": "97b5657e9ab000718e53415e5e7dd0d01d7e1a45f12cc7f0c81cd1923bf43338",
+  "scopeDigest": "7be5a245043eb614b00a2a26c602b45069cc7279db535b7fb3e24c1bacd54691",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -48,10 +48,22 @@
       "reference": "tests/integration/test_host_installer.py",
       "command": ".venv/bin/python tools/run_tests_isolated.py tests/integration/test_host_installer.py tests/integration/test_release_convergence.py tests/integration/test_core_service.py -q",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: 130 testes de isolamento/recuperacao e 147 de filesystem aprovados; pytest filho real confirma que PYTEST_DEBUG_TEMPROOT herdado nao escapa do runner. test_service_core.py: 43 passed com flag offline herdada, fixture privada corrigida sem alterar o produto; state pessoal sem delta.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: core local, 6484 passed,48 skipped,396 deselected e1 falha exclusiva de consistencia do catalogo durante atualizacao documental;85.40% de cobertura. Resultado bruto exit1, nao aprovado; reteste do catalogo apos regeneracao registrado no fechamento. 1271 fontes/tools/testes com bytes congelados; gates estaticos finais aprovados.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Manter o runner canônico em todos os entrypoints e não limpar o state home histórico sem autorização do operador.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-21",
+  "updatedAt": "2026-10-26",
   "notes": "GAP-G26 fechado no software: além do isolamento HOME/XDG antes da coleta, a raiz temporária agora evita TMPDIR profundo da sessão Codex, que excedia o limite AF_UNIX em testes de serviço. O state home real observado durante os gates permaneceu byte-a-byte e mtime-a-mtime idêntico; os artefatos históricos do operador não foram removidos."
 }

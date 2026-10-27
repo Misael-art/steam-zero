@@ -1,8 +1,8 @@
 # Recuperação da proposta SteamZero
 
-> **Continuidade vigente em 2026-10-24:** desenvolvimento contínuo na branch existente, **sem pedir senha ou iniciar autenticação até nova direção do proprietário**. Instalada `2.0.0rc1-59ecc2d8f0f6`; [checkpoint R2 e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Retomada atual: PR/CI do ajuste de ano `7d89ab0f`, com integral local já aprovada (6849 passed/47 skipped, bytes conferidos), seguido do próximo trabalho independente do plano. Fonte nova continua separada da instalação/aceite.
+> **Continuidade vigente em 26/10/2026:** raiz única em `$HOME/Projects/SteamZero`, na branch existente `codex/product-recovery-2026-10-16`. Leia primeiro [RETOMADA-HOST-NOVO-2026-10-24.md](RETOMADA-HOST-NOVO-2026-10-24.md), incluindo a atualização de 26/10: recuperação do histórico e WIP, ambiente, testes e próxima ação. Permanecem **sem senha, nova autenticação ou instalação neste host**. [R3 em fonte](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md) e [recibos do handoff](../../09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md). A cópia privada externa ainda exige comprovação; código remoto não preserva biblioteca pessoal.
 
-> **2026-10-21 — host será reformatado.** Retomada a partir do GitHub: leia primeiro [`REINSTALACAO-HOST-2026-10-21.md`](REINSTALACAO-HOST-2026-10-21.md).
+> O plano de [reinstalação de 21/10](REINSTALACAO-HOST-2026-10-21.md) é referência histórica; o ponto de entrada atual é o handoff de 24/10 acima.
 
 Direção estabelecida pelo proprietário em 16 de outubro de 2026. O SteamZero deve oferecer experiências de jogo prontas para computadores, emulação e plataformas web, com configuração avançada acessível e uma experiência de sala/handheld completa.
 

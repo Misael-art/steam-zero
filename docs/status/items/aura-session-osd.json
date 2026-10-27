@@ -6,10 +6,10 @@
   "domain": "ui",
   "implementation": "partial",
   "integration": "integrated",
-  "verification": "hw",
+  "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "c7ade8ff63e746439534d43f54ed6cd757dd3c7647d9ef8e71c3d5d172aefd24",
+  "scopeDigest": "0b9dc1901bd04ff77ec03a4f012cb4484527fe9bebd15e41f275f35d133c21ae",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",
@@ -200,10 +200,16 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
       "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
     }
   ],
   "nextAction": "Exit confirmado a partir de pausa continua validado somente por processo descartável. Depois da release candidata autorizada, executar a jornada real e o retorno; preservação de saves, captura e input físico continuam pendentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-19",
-  "notes": "A10 da execução AURA. O contrato semântico continua impedindo que o tema invente pausa, volume ou saves. A release 2.0.0rc1-3acc2104dd5a adiciona prova física do OSD e da galeria de saves pelo Launcher instalado sobre jogo real; ações sem adapter permanecem visíveis e desabilitadas. Troca de disco segue dependente de um jogo multi-disc legítimo."
+  "updatedAt": "2026-10-26",
+  "notes": "A10 da execução AURA. O contrato semântico continua impedindo que o tema invente pausa, volume ou saves. A release 2.0.0rc1-3acc2104dd5a adiciona prova física do OSD e da galeria de saves pelo Launcher instalado sobre jogo real; ações sem adapter permanecem visíveis e desabilitadas. Troca de disco segue dependente de um jogo multi-disc legítimo. Recuperacao26/10: fonte compartilhada inclui WIP R3; evidencia instalada/fisica anterior permanece historica e nao certifica os bytes atuais. Verificacao corrente de fonte/fixtures, sem nova promocao de hardware."
 }

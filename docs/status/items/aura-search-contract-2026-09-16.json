@@ -16,7 +16,7 @@
     "tests/unit/test_catalog_search.py",
     "tests/integration/test_launcher_search_contract.py"
   ],
-  "scopeDigest": "121f57294dc4165fe6723fed5fcbd41481550f1b9d864c17063fe9482373f34d",
+  "scopeDigest": "9c1523a8a950548501d6fff61f9aa3e1b73f0c1d3689c9b789a11ab97cf89930",
   "dependsOn": [
     "SZ-AURA-METADATA"
   ],
@@ -90,12 +90,18 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
       "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
     }
   ],
   "nextAction": "Publicar a branch integrada e, após a release governada, provar busca por nome/filtro na janela real; conteúdo PS4 legítimo ainda é necessário para a prova de jogo.",
   "activeWorkstreams": [
     "WS-2026-09-AURA-SEARCH-CONTRACT"
   ],
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-26",
   "notes": "CatalogSearchQuery agora é consumido pelo LauncherBridge e pela rota /search usada pelo QML. Filtros de plataforma, sistema e papel de mídia são independentes; sem filtro não há default Switch. A prova física segue aberta por depender de instalação e interação real."
 }

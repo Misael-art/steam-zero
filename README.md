@@ -12,6 +12,12 @@ Consulte [IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) para detalhes e ev
 
 ## Comece por aqui
 
+Neste host, o único checkout de desenvolvimento fica em `$HOME/Projects/SteamZero`.
+Leia primeiro o [handoff de recuperação](docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md),
+incluindo a atualização de 26/10. O perfil de desenvolvimento em
+`.steamzero-dev/env.sh` isola dados e comandos do fonte; instalação em `/opt`,
+dados XDG pessoais e provas de hardware têm estados e aceites próprios.
+
 1. [IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) — estado por marco, testes, dívidas e limites verificados.
 2. [docs/WORKLOG.md](docs/WORKLOG.md) — histórico de implementação com evidências.
 3. [FOUNDATION-READINESS-REPORT.md](FOUNDATION-READINESS-REPORT.md) — relatório histórico da fundação documental.

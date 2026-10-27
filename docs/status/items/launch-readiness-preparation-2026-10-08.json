@@ -13,9 +13,19 @@
     "tests/unit/test_amiga_bios_launch_preflight.py",
     "tests/integration/test_cli_emulation.py",
     "tests/integration/test_launcher_app.py",
-    "src/steamzero/adapters/launcher_process.py"
+    "src/steamzero/adapters/launcher_process.py",
+    "src/steamzero/adapters/launcher_ui.py",
+    "src/steamzero/ui/qml/launcher/LauncherMain.qml",
+    "src/steamzero/ui/qml/launcher/LauncherShell.qml",
+    "src/steamzero/ui/qml/launcher/LauncherGamePage.qml",
+    "src/steamzero/ui/qml/launcher/LauncherReadiness.qml",
+    "tests/integration/test_launcher_readiness.py",
+    "tests/integration/test_launcher_readiness_qml.py",
+    "tests/qml/launcher/check_launcher_readiness.qml",
+    "src/steamzero/launcher/app.py",
+    "docs/09-operations/evidence/2026-10-24-r3-launch-readiness"
   ],
-  "scopeDigest": "a23a16d3d70f2b458b97e1daa8cd4877e6006d6c29305ec6d622831bf3ba617c",
+  "scopeDigest": "e2124c5c915406455e5c8eff7c59c6e824ba13aed950c6576d021f76fd3f9dba",
   "dependsOn": [],
   "knownGaps": [
     "GAP-LAUNCH-READINESS-INSTALLED-PROOF",
@@ -47,10 +57,24 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/05-focused-final.log",
+      "command": "Runner isolado final14passed: HTTPautenticado, semconsulta mutante, preparo/dedup/erro/retry semspawn; QMLcom raizLauncherMain real e ponteHTTP, Enter, callbacks antigos/duplicados e perda dePOST. Broad64passed em04. Fixtures/offscreen apenas; sem prova de extracao/runtime instalado.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Integrar por gates/CI no SHA exato, instalar candidata autorizada e provar no host: 409 legível no Launcher, extração real de Amiga/X68000, BIOS projetada e id do jogo válido após o rescan. Depois entregar o estado no cartão e o progresso da preparação.",
-  "activeWorkstreams": [],
-  "updatedAt": "2026-10-08",
-  "notes": "Os quatro primeiros critérios estão implementados e testados na branch; o quinto não está implementado. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos."
+  "nextAction": "Fonte R3 e WIP recuperados na raiz unica Projects/SteamZero, na branch de continuidade. Reproduzir GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN com fixture controlada; conferir PR e CI do SHA antes de integrar. Cobertura local e limites estao no checkpoint do handoff de26/10; sem promocao instalada/fisica nem nova instalacao nesta recuperacao.",
+  "activeWorkstreams": [
+    "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS"
+  ],
+  "updatedAt": "2026-10-26",
+  "notes": "Os quatro primeiros critérios estão implementados e testados na branch; o quinto não está implementado. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos. 24/10: assuncao serial prospectiva de WS-R3-LAUNCH-READINESS apos checkpoint local R2/year-alias, sem escritores concorrentes. Slice de codigo/testes apenas; sem promover eixo instalado/fisico. Handoffs JLS/R2 registrados antes de editar."
 }

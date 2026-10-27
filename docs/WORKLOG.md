@@ -14949,3 +14949,44 @@ Um executor no checkout/branch existentes. R2: leitor canônico sem mutação/mi
 R2 integral bruta6845 passed/3 failed/47 skipped por resíduo próprio da interrupção anterior; guard preservado e três retestes passed após remoção atribuída/saneada. R3 integral6848 passed/47 skipped exit0. Follow-up R2/year-alias7d89ab0f reproduz1999!=1985 e corrige precedência mantendo fallback; 65 focados e integral6849 passed/47 skipped exit0, 85,5115%, 1262 hashes congelados, estado real sem delta, 19 warnings preservados. Ruff/mypy/arquitetura/locks/status aprovados. Alias ainda não integrado/instalado. Sem nova branch/worktree, dependências ou perda de commits.
 
 Operador solicitou instalação imediata na única janela de senha disponível. Preservados7d89ab0f e docs462bb3f2; checkout temporariamente destacado no tip exato main59ecc2d8, limpo. Prepare/verify/install pelo controlador, CI push40083592868 oito jobs verdes e bundleprivado59ecc2d8: exit0, ok=true. Autenticação fornecida no diálogo do sistema. Instalada **2.0.0rc1-59ecc2d8f0f6** em10:19:03Z; CLI/daemon convergentes e idempotência pass, serviço/socket ativos, schema23 e integrity_check ok, zero operações pendentes. SmokeQML iniciou(5s), sem prova de gameplay/hardware/foco/controle/toque. Doctor degraded por9backups/9journals órfãos preservados, Deck não comprovado e boot sem permissão de inspeção; sem bloqueadores. Rollback3f87657c preservado, não executado; recuperação real de dados não promovida. Nenhuma senha registrada; bundle09797651 histórico não repetido. Branch restaurada. Fila única/README/item/workstream atualizados; próxima ação é PR/CI do alias e aceite funcional instalado. Não presumir outra janela de autenticação.
+
+## 2026-10-26 — Recuperação e centralização do SteamZero na coleção Projects
+
+Executor serial no checkout existente, agora `$HOME/Projects/SteamZero`;
+branch `codex/product-recovery-2026-10-16`, base main `ad742ca3` por fast-forward
+de árvore idêntica a `744d300b`. WIP preservado por rename e identidade/hash de
+3.641 entradas. Doze raízes históricas arquivadas com 85.810 entradas verificadas;
+19 refs antigas importadas e 63 commits dangling protegidos localmente. Bundle
+privado adicional preserva 855 referências existentes; não publica pesquisa.
+Backup privado de 19.613 arquivos verificado e retirado de build junto do ensaio
+de restauração. Recibos e dados ficam no destino privado oficial da coleção;
+nenhuma proteção externa privada foi confirmada.
+
+| Item | Commit funcional | Evidência de desenvolvimento |
+| --- | --- | --- |
+| Bootstrap/handoff e continuidade do Launcher R3 | `c38e74f53c1cd6bc63ae4acba377447a0932bc3c` | 29 focados bootstrap/export/readiness; 130 de isolamento/recuperação; 147 de filesystem/failure injection/10 mil arquivos; smoke nativo Btrfs |
+| Isolamento das fixtures de daemon | mesmo commit | teste de follow e 43 testes service_core com perfil offline herdado |
+
+Gates estáticos finais aprovados: lint, formato (727 arquivos), mypy (306 fontes),
+independence, boundaries, component-lock e capability-matrix. Núcleo local:
+6.484 passed, 1 failed, 48 skipped, 396 deselected em 595,15 s, cobertura 85,40%;
+a única falha foi o catálogo alterado durante a atualização documental. Resultado
+bruto exit 1 preservado. Regeneração oficial e reteste do catálogo: 13 passed em
+6,55 s; após normalização documental dos logs, o teste de consistência passou
+novamente e status-check ficou verde. Os 1.271 arquivos src/tools/tests ficaram
+congelados por hash durante a execução. Não repetir suíte pesada por documentação.
+State pessoal sem delta. Tentativas amplas interrompidas continuam não aprovadas.
+
+Ambiente herdado preservado e isolado in-place, com 47 dependências do lock e
+pip check verde; sem ownership fictício, instalação global ou novo checkout.
+Origem pública conferida, guardas de commit/push conectadas ao registro central,
+post-hooks existentes preservados. Regras, handoff e catálogo reconciliados;
+seis aceites físicos de fontes alteradas ficam históricos, sem promoção indevida.
+
+Sem instalação, release, merge, deploy, reboot ou mudança de boot nesta sessão.
+Release existente `2.0.0rc1-59ecc2d8f0f6` e suas 189 pastas instaladas preservadas;
+rollback não executado. CI visual canônico da candidata, prova instalada/física,
+adoção futura do ambiente em host vazio e backup privado externo permanecem
+pendentes independentes. PR em rascunho deve preservar esses limites; código
+recuperado pode continuar na raiz única. Próxima tarefa: reproduzir
+`GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN`, conforme o handoff existente.

@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "profile": "disposable real upstream downloads; no global installation",
+  "tools": {
+    "uv": {
+      "versionOutput": "uv 0.13.5 (x86_64-unknown-linux-gnu)",
+      "archiveSha256": "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f",
+      "reusedVerifiedBinary": true
+    },
+    "rtk": {
+      "versionOutput": "rtk 0.43.0",
+      "archiveSha256": "ff8a1e7766496e175291a85aeca1dc97c9ff6df33e51e5893d1fbc78fea2a609",
+      "reusedVerifiedBinary": true
+    },
+    "gh": {
+      "versionOutput": "gh version 2.103.2 (2026-10-23)\nhttps://github.com/cli/cli/releases/tag/v2.103.2",
+      "archiveSha256": "62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8",
+      "reusedVerifiedBinary": true
+    }
+  }
+}
