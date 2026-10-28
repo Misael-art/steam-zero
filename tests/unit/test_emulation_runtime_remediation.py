@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -141,15 +142,17 @@ def test_archive_without_materialization_is_refused_before_emulator(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     controller = _controller(monkeypatch, tmp_path)
-    archive = tmp_path / "roms" / "ps4" / "Game.rar"
+    archive = tmp_path / "roms" / "ps4" / "Game.zip"
     archive.parent.mkdir(parents=True)
-    archive.write_bytes(b"rar")
+    with zipfile.ZipFile(archive, "w") as output:
+        output.writestr("eboot.bin", b"controlled-game")
+    monkeypatch.setattr(controller, "library_roots", lambda: [str(tmp_path / "roms")])
     game = {
         "id": "ps4-archive",
         "name": "Jogo PS4",
         "path": str(archive),
         "platformId": "playstation-4",
-        "format": "rar",
+        "format": "zip",
         "contentKind": "base",
         "evidence": "archive-needs-extraction",
     }
@@ -162,7 +165,14 @@ def test_archive_without_materialization_is_refused_before_emulator(
     )
     monkeypatch.setattr(controller, "_require_launchable_emulator", lambda _id: None)
 
-    with pytest.raises(SteamZeroError, match="materializado") as error:
+    monkeypatch.setattr(
+        controller,
+        "_emulator_source",
+        lambda _id: pytest.fail("archive não preparado não pode consultar o runtime"),
+    )
+    with pytest.raises(
+        SteamZeroError, match="archive precisa de materialização gerenciada"
+    ) as error:
         controller._launch_preflight("ps4-archive")  # type: ignore[attr-defined]
 
     assert error.value.code == "E-CONTENT-INCOMPLETE"

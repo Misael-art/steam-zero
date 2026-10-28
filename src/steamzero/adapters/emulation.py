@@ -1673,13 +1673,12 @@ class EmulationController:
 
         archive_evidence = str(game.get("evidence") or "")
         if rom.name.casefold().endswith(_ARCHIVE_SUFFIXES) and archive_evidence != "archive-native":
-            raise SteamZeroError(
-                "E-CONTENT-INCOMPLETE",
-                detail=(
-                    "archive detectado, mas ainda não foi materializado para um formato "
-                    "consumível; use a ação assíncrona de preparação e tente novamente"
-                ),
-            )
+            request = self._archive_request_for(game_id)
+            if request is None:
+                raise SteamZeroError(
+                    "E-CONTENT-INCOMPLETE", detail="archive sem contrato de preparação"
+                )
+            rom = ArchiveMaterializer().launch_target(request)
         if archive_evidence.startswith("archive-multidisc-"):
             state = archive_evidence.removeprefix("archive-multidisc-")
             if state != "ready":
@@ -10071,6 +10070,11 @@ class EmulationController:
                     reconciled_archive = archive_evidence.startswith(
                         "archive-multidisc-"
                     ) and candidate_path.suffix.casefold() in {".zip", ".7z"}
+                    recoverable_archive = (
+                        archive_evidence == "archive-needs-extraction"
+                        and candidate_path.suffix.casefold() in {".zip", ".7z", ".rar"}
+                        and platform_scanner.container_policy_for(resolved_platform) == "extract"
+                    )
                     declared: str | None = resolved_platform
                     directory_native = (
                         fmt in platform_scanner.directory_formats_for(resolved_platform)
@@ -10094,7 +10098,7 @@ class EmulationController:
                         if metadata.identity is None or metadata.identity.value != title_id:
                             continue
                         declared, kind = resolved_platform, "base"
-                    elif reconciled_archive:
+                    elif reconciled_archive or recoverable_archive:
                         kind = "base"
                     else:
                         declared = ""
@@ -10103,7 +10107,7 @@ class EmulationController:
                         siblings = {item.name for item in candidate_path.parent.iterdir()}
                     except OSError:
                         siblings = {candidate_path.name}
-                    if not reconciled_archive and not directory_native:
+                    if not (reconciled_archive or recoverable_archive or directory_native):
                         declared, kind, _evidence = platform_scanner.classify(
                             candidate_path.name,
                             siblings,

@@ -19,7 +19,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 @pytest.mark.visual
-def test_launcher_details_readiness_and_preparation_qml(tmp_path: Path) -> None:
+@pytest.mark.parametrize("real_archive", [False, True])
+def test_launcher_details_readiness_and_preparation_qml(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, real_archive: bool
+) -> None:
     assert RUNNER is not None
     ready = threading.Event()
     release = threading.Event()
@@ -43,15 +46,31 @@ def test_launcher_details_readiness_and_preparation_qml(tmp_path: Path) -> None:
         ready.set()
         return {"prepared": True}
 
-    bridge = ObservedBridge(
-        sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
-        titles={"game": "Fixture"},
-        context_path=tmp_path / "return.json",
-        readiness=lambda game: {
+    game_id = "game"
+
+    def readiness(game):
+        return {
             "playable": ready.is_set(),
             "canPrepare": not ready.is_set(),
             "reason": "Fixture: extração necessária" if not ready.is_set() else "",
-        },
+        }
+
+    if real_archive:
+        from tests.integration.test_launcher_archive_preparation import archive_controller
+
+        controller, game_id = archive_controller(monkeypatch, tmp_path)
+        readiness = controller.game_readiness
+
+        def prepare(game):
+            prepared.append(game)
+            assert release.wait(10)
+            return controller.prepare_game(game)
+
+    bridge = ObservedBridge(
+        sections=build_sections([{"id": game_id, "title": "Fixture", "section": "library"}]),
+        titles={game_id: "Fixture"},
+        context_path=tmp_path / "return.json",
+        readiness=readiness,
         prepare=prepare,
         on_launch=lambda game, focus: launched.append(game),
     )
@@ -64,7 +83,7 @@ def test_launcher_details_readiness_and_preparation_qml(tmp_path: Path) -> None:
         QML_XHR_ALLOW_FILE_READ="1",
     )
     for name in ("CONFIG", "DATA", "STATE", "CACHE", "RUNTIME"):
-        path = tmp_path / name.lower()
+        path = tmp_path / ("qml-" + name.lower())
         path.mkdir(mode=0o700)
         env[f"XDG_{name}_HOME" if name != "RUNTIME" else "XDG_RUNTIME_DIR"] = str(path)
     try:
@@ -74,6 +93,7 @@ def test_launcher_details_readiness_and_preparation_qml(tmp_path: Path) -> None:
             fixture.chmod(0o600)
             harness = tmp_path / "check_launcher_readiness.qml"
             source = (ROOT / "tests/qml/launcher/check_launcher_readiness.qml").read_text()
+            source = source.replace('"game"', json.dumps(game_id))
             harness.write_text(
                 source.replace(
                     'import "../../../src/steamzero/ui/qml/launcher"',
@@ -99,4 +119,4 @@ def test_launcher_details_readiness_and_preparation_qml(tmp_path: Path) -> None:
     assert completed.returncode == 0, output[-10000:]
     assert "FAIL!" not in output
     assert "ZLauncherRootReadiness" in output
-    assert prepared == ["game"] and launched == []
+    assert prepared == [game_id] and launched == []
