@@ -23,6 +23,7 @@ from typing import Any, Literal
 
 from steamzero.core import fs, ids, paths, safezip, transaction
 from steamzero.core.errors import SteamZeroError
+from steamzero.domain.library import PlatformRomScanner
 from steamzero.domain.multidisc import (
     ArchiveAwareMultiDiscResolver,
     DiscRecord,
@@ -157,6 +158,7 @@ class ArchiveMaterializationInspection:
     destination: Path
     manifest_path: Path
     extractor: str
+    entries: tuple[Path, ...] = ()
 
 
 def _normalise(value: str) -> str:
@@ -411,6 +413,13 @@ class ArchiveMaterializer:
         )
         destination = self.destination(request)
         manifest_path = destination / ".steamzero-archive.json"
+        for parent in (destination, *destination.parents):
+            if parent == request.library_root.parent:
+                break
+            if parent.is_symlink():
+                return ArchiveMaterializationInspection(
+                    "unsafe", "symlink no destino derivado", destination, manifest_path, "none"
+                )
         media = request.manifest.get("media")
         container_policy = media.get("containerPolicy") if isinstance(media, Mapping) else None
         if container_policy != "extract":
@@ -490,13 +499,35 @@ class ArchiveMaterializer:
                     manifest_path,
                     extractor,
                 )
-            if marker.get("ownership") != "SteamZero-Archive-Managed: true":
+            if (
+                not isinstance(marker, dict)
+                or marker.get("ownership") != "SteamZero-Archive-Managed: true"
+            ):
                 return ArchiveMaterializationInspection(
                     "conflict",
                     "destino derivado não possui ownership SteamZero",
                     destination,
                     manifest_path,
                     extractor,
+                )
+            try:
+                current = self._verified_entries(request, marker)
+            except (OSError, ValueError, TypeError, SteamZeroError):
+                return ArchiveMaterializationInspection(
+                    "conflict",
+                    "projeção derivada inválida; verifique o manifesto e os arquivos",
+                    destination,
+                    manifest_path,
+                    extractor,
+                )
+            if current:
+                return ArchiveMaterializationInspection(
+                    "current",
+                    "archive materializado e verificado",
+                    destination,
+                    manifest_path,
+                    extractor,
+                    tuple(destination / name for name in marker["entries"]),
                 )
             state: Literal["needs-extraction", "current"] = "needs-extraction"
         else:
@@ -508,6 +539,81 @@ class ArchiveMaterializer:
             manifest_path,
             extractor,
         )
+
+    def _verified_entries(
+        self, request: ArchiveMaterializationRequest, marker: Mapping[str, Any]
+    ) -> bool:
+        destination = self.destination(request)
+        # Reject linked ancestors too: a regular leaf does not establish custody.
+        for parent in (destination, *destination.parents):
+            if parent == request.library_root.parent:
+                break
+            if parent.is_symlink():
+                raise ValueError("symlink no destino")
+        if any(
+            marker.get(key) != value
+            for key, value in (
+                ("platformId", request.platform_id),
+                ("systemId", request.system_id),
+                ("title", request.title),
+            )
+        ):
+            raise ValueError("identidade divergente")
+        entries = marker.get("entries")
+        hashes = marker.get("entryHashes")
+        # Legacy markers establish ownership, but cannot prove executable bytes.
+        if marker.get("schemaVersion") != 2 or not isinstance(hashes, dict):
+            return False
+        if not isinstance(entries, list) or not entries or len(entries) != len(set(entries)):
+            raise ValueError("entradas inválidas")
+        if set(entries) != set(hashes):
+            raise ValueError("hashes incompletos")
+        valid = True
+        for name in entries:
+            relative = fs.validate_relative_entry(name)
+            target = destination / relative
+            for part in (target, *target.parents):
+                if part == destination:
+                    break
+                if part.is_symlink():
+                    raise ValueError("symlink em entrada")
+            if not target.is_file() or fs.hash_file(target) != hashes[name]:
+                valid = False
+        return valid and marker.get("sourceHash") == fs.hash_file(request.source_path)
+
+    def launch_target(self, request: ArchiveMaterializationRequest) -> Path:
+        """Resolve one verified base entry with the existing platform classifier.
+
+        Multiple candidates require an explicit multidisc/selection contract;
+        never promote the first filename to the game's identity.
+        """
+        inspection = self.inspect(request)
+        if inspection.state != "current":
+            raise SteamZeroError("E-CONTENT-INCOMPLETE", detail=inspection.reason)
+        scanner = PlatformRomScanner.from_manifests(
+            [{"id": request.platform_id, **dict(request.manifest)}]
+        )
+        entries = inspection.entries
+        candidates: list[Path] = []
+        for path in entries:
+            platform, kind, _evidence = scanner.classify(
+                path.name,
+                {p.name for p in entries if p.parent == path.parent},
+                root_platform=request.platform_id,
+                path=path,
+            )
+            if (
+                platform == request.platform_id
+                and kind == "base"
+                and path.suffix.casefold() not in _ARCHIVE_SUFFIXES
+            ):
+                candidates.append(path)
+        if len(candidates) != 1:
+            raise SteamZeroError(
+                "E-CONTENT-INCOMPLETE",
+                detail="archive sem alvo único consumível; requer seleção ou contrato multidisco",
+            )
+        return candidates[0]
 
     def run(
         self,
@@ -551,15 +657,23 @@ class ArchiveMaterializer:
             copies: list[tuple[Path, Path]] = []
             for staged in staged_files:
                 relative = staged.relative_to(staging_root)
+                if relative.as_posix() == ".steamzero-archive.json":
+                    raise SteamZeroError(
+                        "E-CONTENT-UNSAFE-ARCHIVE", detail="nome reservado ao manifesto"
+                    )
                 copies.append((staged, inspection.destination / relative))
             manifest = {
-                "schemaVersion": 1,
+                "schemaVersion": 2,
                 "ownership": "SteamZero-Archive-Managed: true",
                 "platformId": request.platform_id,
                 "systemId": request.system_id,
                 "title": request.title,
                 "sourceHash": source_hash,
                 "entries": [str(staged.relative_to(staging_root)) for staged in staged_files],
+                "entryHashes": {
+                    str(staged.relative_to(staging_root)): fs.hash_file(staged)
+                    for staged in staged_files
+                },
             }
             content = json.dumps(manifest, sort_keys=True, ensure_ascii=False).encode("utf-8")
             managed = inspection.manifest_path.is_file()
