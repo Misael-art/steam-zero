@@ -7,8 +7,14 @@ Column {
     property string gameId: ""
     property string gameTitle: ""
     property bool active: false
+    property bool interactive: true
+    property bool compact: false
+    property int observationDelayMs: 0
+    property int requestTimeoutMs: 8000
+    property string requestMethod: "GET"
     property var requestFunction: null
     property var accessibility: ({})
+    property bool initialized: false
     property bool requestPending: false
     property int generation: 0
     property bool verifyPreparation: false
@@ -21,28 +27,43 @@ Column {
         : observation.state === "blocked" ? qsTr("O jogo precisa de preparação")
         : observation.state === "failed" ? qsTr("A preparação não foi concluída")
         : qsTr("Prontidão não verificada")
+    readonly property string badgeText: requestPending && !preparing
+        ? qsTr("Verificando…") : preparing ? qsTr("Preparando…")
+        : observation.state === "ready" ? qsTr("Requisitos verificados")
+        : observation.state === "blocked" ? (observation.canPrepare === true
+            ? qsTr("Preparação necessária") : qsTr("Requisitos pendentes"))
+        : observation.state === "failed" ? qsTr("Falha na preparação")
+        : qsTr("Prontidão não verificada")
     visible: active
     spacing: 8
 
     function reset() {
+        if (!initialized)
+            return
         ++generation
         requestPending = false
         verifyPreparation = false
         observation = {"state": "unknown", "canPrepare": false, "reason": ""}
-        if (active)
-            refresh()
+        deferredObservation.stop()
+        requestDeadline.stop()
+        if (active) {
+            if (observationDelayMs > 0)
+                deferredObservation.restart()
+            else
+                refresh()
+        }
     }
     onGameIdChanged: reset()
     onActiveChanged: reset()
     onRequestFunctionChanged: reset()
-    Component.onCompleted: reset()
+    Component.onCompleted: { initialized = true; reset() }
 
     function refresh() { return send("GET") }
     function activateAction() {
         return observation.canPrepare === true ? prepare() : refresh()
     }
     function prepare() {
-        if (observation.canPrepare !== true || preparing)
+        if (!interactive || observation.canPrepare !== true || preparing)
             return false
         return send("POST")
     }
@@ -51,12 +72,15 @@ Column {
             return false
         const requestedGame = gameId
         const requestId = ++generation
+        requestMethod = method
         requestPending = true
+        requestDeadline.restart()
         let completed = false
         function done(status, text) {
             if (completed || requestId !== generation || requestedGame !== gameId || !active)
                 return
             completed = true
+            requestDeadline.stop()
             requestPending = false
             try {
                 if (status !== 200 && status !== 202 && status !== 409)
@@ -90,6 +114,22 @@ Column {
     }
 
     Timer {
+        id: deferredObservation
+        interval: Math.max(1, readiness.observationDelayMs)
+        onTriggered: readiness.refresh()
+    }
+    Timer {
+        id: requestDeadline
+        interval: Math.max(1, readiness.requestTimeoutMs)
+        onTriggered: {
+            ++readiness.generation
+            readiness.requestPending = false
+            readiness.observation = {"state": "unknown", "canPrepare": false,
+                "reason": qsTr("A verificação demorou demais. Abra os detalhes para tentar novamente.")}
+            readiness.verifyPreparation = readiness.requestMethod === "POST"
+        }
+    }
+    Timer {
         interval: 750
         repeat: true
         running: readiness.active && !readiness.requestPending
@@ -103,6 +143,9 @@ Column {
         width: parent.width
         spacing: 8
         BusyIndicator {
+            palette.windowText: "#55d8ff"
+            palette.dark: "#55d8ff"
+            palette.highlight: "#55d8ff"
             width: 28
             height: 28
             visible: readiness.requestPending || readiness.preparing
@@ -111,11 +154,11 @@ Column {
         Text {
             objectName: "readinessStatus"
             width: parent.width - 36
-            text: readiness.statusText
+            text: readiness.compact ? readiness.badgeText : readiness.statusText
             textFormat: Text.PlainText
             wrapMode: Text.Wrap
             color: "#ffffff"
-            font.pixelSize: 16 * readiness.textScale
+            font.pixelSize: (readiness.compact ? 14 : 16) * readiness.textScale
             Accessible.name: text
         }
     }
@@ -127,12 +170,21 @@ Column {
         textFormat: Text.PlainText
         wrapMode: Text.Wrap
         color: readiness.accessibility.highContrast ? "#ffffff" : "#c6d0db"
-        font.pixelSize: 14 * readiness.textScale
+        font.pixelSize: (readiness.compact ? 12 : 14) * readiness.textScale
+        maximumLineCount: readiness.compact ? 2 : 100
+        elide: Text.ElideRight
         Accessible.name: text
+    }
+    ProgressBar {
+        objectName: "readinessProgress"
+        width: parent.width
+        visible: readiness.preparing && !readiness.accessibility.reducedMotion
+        indeterminate: true
+        Accessible.name: qsTr("Preparação em andamento; progresso sem porcentagem disponível")
     }
     Button {
         objectName: "readinessAction"
-        visible: readiness.observation.state !== "ready"
+        visible: readiness.interactive && readiness.observation.state !== "ready"
         enabled: !readiness.requestPending && !readiness.preparing
                  && typeof readiness.requestFunction === "function"
         width: Math.min(parent.width, implicitWidth)
