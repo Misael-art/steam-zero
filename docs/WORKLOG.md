@@ -14990,3 +14990,22 @@ adoção futura do ambiente em host vazio e backup privado externo permanecem
 pendentes independentes. PR em rascunho deve preservar esses limites; código
 recuperado pode continuar na raiz única. Próxima tarefa: reproduzir
 `GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN`, conforme o handoff existente.
+
+
+## 2026-10-28 — localização Port Steam / SteamZero
+
+Pedido de localizar e centralizar Port Steam: identidade confirmada pelos
+pyproject.toml dos commits históricos de Port_Steam (pacote steamzero), pelas
+referências locais de recuperação e pelo repositório público steam-zero.
+A raiz existente Projects/SteamZero já é a consolidação de 26/10; não foi
+necessário mover ou duplicar o checkout. README e handoff passam a explicitar os
+nomes históricos e as regras já aplicáveis. Inventário administrativo da coleção
+recebe os aliases e a conferência atual. Histórico do SD preservado; nenhum dado
+pessoal, biblioteca de jogos, ambiente ou release instalada foi alterado.
+Validação desta fatia documental: referências, diff e catálogo pelo helper oficial.
+Continuidade na branch existente e PR #268; sem alteração de código de produto ou
+nova alegação de teste físico. Backup privado fora do host continua sem confirmação.
+
+Resultado desta conferência: status-check OK, 13 testes de project_status
+aprovados em 9,99 s pelo runner isolado, state pessoal sem delta; git bundle
+verify do arquivo histórico do SD aprovado. Diff restrito à documentação.

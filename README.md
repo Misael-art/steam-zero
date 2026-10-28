@@ -13,6 +13,10 @@ Consulte [IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) para detalhes e ev
 ## Comece por aqui
 
 Neste host, o único checkout de desenvolvimento fica em `$HOME/Projects/SteamZero`.
+`Port_Steam`, `Port_Steam-claude` e “Port Steam” são nomes históricos deste mesmo
+projeto. Continue nesta raiz; os históricos antigos estão preservados como material
+de recuperação. As regras da coleção estão em [../AGENTS.md](../AGENTS.md), com
+os contratos específicos no [AGENTS.md local](AGENTS.md).
 Leia primeiro o [handoff de recuperação](docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md),
 incluindo a atualização de 26/10. O perfil de desenvolvimento em
 `.steamzero-dev/env.sh` isola dados e comandos do fonte; instalação em `/opt`,

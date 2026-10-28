@@ -85,7 +85,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION | 15 | 13 | 13 | dev |  |
 | SZ-MULTIDISC-MATERIALIZATION-INGESTION | 4 | 8 | 4 | unit |  |
 | SZ-MULTIDISC-SESSION-DISC-IDENTITY | 9 | 4 | 3 | hw |  |
-| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 22 | 7 | 5 | dev |  |
+| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 22 | 8 | 5 | dev |  |
 | SZ-ONLINE-P2P | 37 | 2 | 1 | none |  |
 | SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 205 | 4 | 0 | none |  |
 | SZ-PLATFORM-CORE-PER-SYSTEM | 78 | 8 | 4 | unit |  |
@@ -94,7 +94,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PLATFORM-PS5-CATALOG | 21 | 24 | 15 | unit |  |
 | SZ-PLATFORM-REQUIREMENT-SCOPE | 7 | 7 | 3 | unit |  |
 | SZ-PLATFORM-VITA-CATALOG | 5 | 11 | 5 | hw |  |
-| SZ-PRODUCT-RECOVERY-2026-10 | 24 | 8 | 5 | dev |  |
+| SZ-PRODUCT-RECOVERY-2026-10 | 24 | 9 | 5 | dev |  |
 | SZ-PROJECT-DESIGN-AUDIT | 12 | 25 | 6 | dev |  |
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 11 | 3 | unit |  |
 | SZ-RECOVERY-R0-R1-CENTRAL | 94 | 24 | 16 | dev |  |
@@ -103,7 +103,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 71 | 38 | 15 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 71 | 39 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 6 | 5 | dev |  |

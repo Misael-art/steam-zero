@@ -1,5 +1,23 @@
 # Retomada em host novo — 24/10/2026
 
+## Localização e identidade — 28/10/2026
+
+A procura pelo nome Port Steam confirmou o mesmo projeto SteamZero: os commits
+preservados de Port_Steam declaram `name = "steamzero"` no pyproject.toml.
+A raiz oficial continua `$HOME/Projects/SteamZero`, branch
+`codex/product-recovery-2026-10-16`, repositório `Misael-art/steam-zero`, PR #268.
+O nome informado “Steam 1.0 Steam” não estabelece uma versão ou outro repositório;
+use a identidade Port Steam/SteamZero confirmada pelo histórico.
+
+Port_Steam e Port_Steam-claude já foram reconciliados na recuperação de 26/10;
+não recriar essas pastas. As referências privadas `refs/recovery/20261026/port-steam/`
+e os arquivos privados de recuperação preservam as fontes históricas. O bundle
+antigo no SD corresponde ao main histórico `2d78366f`, já preservado nessas
+referências; não é uma segunda raiz de desenvolvimento. Regras de organização,
+espaço e fechamento com commit/push permanecem no AGENTS.md local e na coleção.
+Este esclarecimento documental não muda o estado de aceites físicos ou a próxima
+entrega de produto indicada abaixo.
+
 ## Atualização de continuidade — 26/10/2026
 
 O checkout existente foi transferido por rename, sem clone, para

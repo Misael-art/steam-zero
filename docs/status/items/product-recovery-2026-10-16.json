@@ -72,11 +72,17 @@
       "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
       "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+      "command": "28/10: revisao de identidade Port Steam/SteamZero, raiz unica e referencias de recuperacao; nenhuma fonte de produto alterada, nenhum novo aceite instalado/fisico. Digest atualizado apenas pela mudanca documental revisada.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-26",
-  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
-  "scopeDigest": "e2c1d830026674ac1aebaa3e705432572443f5a684df427c4ba5482ebbf8009a"
+  "updatedAt": "2026-10-28",
+  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
+  "scopeDigest": "2e7f3c381b9f3ccaeca3fad555fe320256a87b385d142100928dfa415e9dba28"
 }
