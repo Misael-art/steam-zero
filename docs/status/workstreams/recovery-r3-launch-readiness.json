@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-LAUNCH-READINESS-PREPARATION",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "744d300bf1672275ce15c08cf2fe44d31d067ab1",
+  "baseRef": "3f010cec33f56b65cace1f673a80b9c4f7d63914",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -18,15 +18,20 @@
     "tests/qml/launcher/check_launcher_readiness.qml",
     "tests/integration/test_launcher_app.py",
     "tests/qml/launcher/check_launcher_game_page.qml",
-    "docs/09-operations/evidence/2026-10-24-r3-launch-readiness"
+    "docs/09-operations/evidence/2026-10-24-r3-launch-readiness",
+    "src/steamzero/adapters/multidisc_materializer.py",
+    "tests/unit/test_multidisc_materializer.py",
+    "tests/integration/test_launcher_archive_preparation.py",
+    "tests/unit/test_emulation_runtime_remediation.py"
   ],
   "sharedPaths": [
     "src/steamzero/launcher/app.py",
     "docs/STATUS.md",
     "docs/ACTIVE-WORK.md",
     "docs/status/COVERAGE.md",
-    "docs/WORKLOG.md"
+    "docs/WORKLOG.md",
+    "src/steamzero/adapters/emulation.py"
   ],
-  "nextAction": "WIP preservado e recuperado em Projects/SteamZero; continuar na branch existente e reproduzir GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN. Conferir PR/CI do SHA em uso; provas instaladas/fisicas permanecem pendentes.",
-  "updatedAt": "2026-10-26"
+  "nextAction": "Fonte integrada serialmente em d41923f4/eb39b4b6, base3f010cec: gap de identidade/preparo corrigido; 53focadas verdes, integral6893/48/1 com fixture ajustada e retestada sem mudar produto. Publicar checkpoint no PR268 e conferir CI. Próximo lote seguro: cartão/progresso via portas existentes; sem instalação/auth, aceites físicos pendentes.",
+  "updatedAt": "2026-10-28"
 }

@@ -32,3 +32,86 @@ Retomada13:10UTC: integral anterior sem sessão/processo nem logs/cobertura temp
 normalização de espaços finais para o check de whitespace do Git. Resultados
 negativos e tracebacks foram mantidos; os bytes brutos e hashes originais foram
 preservados no recibo privado de recuperação. Isso não é nova execução.
+
+
+## Continuidade de 28/10 — archive preparado com identidade preservada
+
+Base `3f010cec`, branch de continuidade e PR #268 conferidos, remoto sem
+ divergência e oito jobs CI anteriores verdes (run 40753525934).
+Pedido atual autoriza código, testes, commit/push/PR; sem instalação ou autenticação.
+
+Baseline controlado: a varredura publicava um archive PS5, mas `_load_library_cache`
+o descartava ao reclassificar `archive-needs-extraction`. Além disso, o preflight
+recusava qualquer archive e `inspect` nunca retornava `current`. Não houve prova
+de troca de ID; a identidade canônica é a origem compactada.
+
+Correção: reidratar archives recuperáveis apenas sob a política `extract` declarada;
+resolver no preflight compartilhado um único alvo base pelo classificador existente.
+O manifesto gerenciado v2 guarda hash da origem e hashes de todas as entradas.
+Markers antigos precisam de nova preparação, sem promoção implícita. Bytes ausentes
+ou alterados podem ser preparados novamente; symlinks, ownership/identidade inválida
+e manifesto divergente bloqueiam. Seleção ambígua não escolhe primeiro arquivo e
+multidisco mantém seu contrato independente. Nenhuma nova fonte de catálogo ou executor.
+
+Evidência: `tests/integration/test_launcher_archive_preparation.py` usa scan real,
+ZIP sintético, transação e releitura do catálogo, mantendo ID e preferências em disco;
+regressões do materializador cobrem corrupção, origem alterada, legado, symlink,
+manifesto inválido, ausência e ambiguidade. A parametrização real em
+`test_launcher_readiness_qml.py` percorre LauncherMain → detalhes → Preparar via
+Enter → bridge autenticada → materializador → rescan → pronto, sem spawn.
+Fonte e Qt/offscreen apenas; não prova gameplay, release instalada ou hardware.
+Logs locais regeneráveis em `build/agent-runs/r3-archive/`; nenhum payload privado
+foi usado. Resultados integrais registrados no fechamento abaixo.
+
+
+### Fechamento em fonte — 28/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| Projeção verificada e alvo único | `d41923f48bd2c9a1bca32ab2dc33f5c517ac967e` | hashes, ownership, symlinks, legado, ausência, corrupção, recuperação e ambiguidade |
+| Identidade e continuidade do preparo | `eb39b4b6f2d0b6ec4c51ffd1361ed64b08ce56c5` | scan/preparo/rescan/reabertura e LauncherMain/HTTP/Qt offscreen |
+
+Integral com cobertura: **6.893 passed, 48 skipped, 1 failed**, 20 warnings,
+2075,98 s. Cobertura **85,573587%** (gate de 85% atendido). O resultado bruto
+não é uma integral verde. A única falha foi
+`test_archive_without_materialization_is_refused_before_emulator`: o teste
+substituía `_current_game` por um registro fora das bibliotecas permitidas e
+esperava o texto do veto incondicional antigo. O preflight agora resolve uma
+projeção validada; a fixture foi ajustada para ZIP real numa raiz controlada,
+com o mesmo código E-CONTENT-INCOMPLETE, motivo exato do archive não preparado
+e uma nova asserção que reprova qualquer consulta ao runtime. Nenhum teste foi
+removido, pulado ou afrouxado. Essa mudança de contrato está no commit eb39b4b6.
+
+Reteste final da área: **53 passed em 14,59 s**, incluindo o módulo inteiro de
+runtime remediation, materializador, BIOS/preflight, HTTP e QML do Launcher.
+Os seis arquivos de produto/testes anteriores conservaram seus SHA-256 durante
+a integral e o reteste; somente a fixture de remediation mudou após a integral.
+O código de produto não mudou após a execução ampla. A tentativa ampla anterior
+foi interrompida para trocar a releitura do manifesto por entradas já verificadas;
+ela não constitui aprovação. Logs brutos preservados em build/agent-runs/r3-archive.
+
+Ruff check/format, mypy (306 fontes), independence e boundaries passaram.
+Catálogo/digests/visões regenerados sem promover outros itens; validação específica
+de status acompanha o commit documental. A referência a py.typed de um agregador
+sem digest não exigiu criar artefato nem alterar o catálogo por conveniência.
+A comparação de cobertura com CI canônico fica para o SHA publicado: o baseline
+local de núcleo era 85,398001%, mas tem seleção diferente da integral com QML.
+Os 48 skips mantêm seus motivos originais; não contam como aprovação.
+
+Estado pessoal antes/depois sem delta nos runners. Nenhuma instalação, release,
+merge, deploy ou mudança de boot. Somente readlink de /opt/steamzero/current:
+`releases/2.0.0rc1-59ecc2d8f0f6`; runtime ativo e rollback não foram revalidados.
+Aceite instalado/físico e capturas da release ficam pendentes de autorização
+própria. CI novo permanece pendente até publicação, sem herdar o run anterior.
+Próximo lote seguro: prontidão/progresso no cartão, reutilizando as portas existentes.
+
+Reprodução: carregar .steamzero-dev/env.sh e executar pelo runner isolado
+`tests/integration/test_launcher_archive_preparation.py` e
+`tests/integration/test_launcher_readiness_qml.py -q`. Na interface, abrir os detalhes
+do archive e acionar Preparar; o preflight usa o alvo extraído verificado quando
+os demais requisitos de runtime estiverem satisfeitos.
+
+Validação documental: a primeira tentativa encontrou disputa de claim no teste
+de remediation (12passed/1failed); cessão serial reconciliada e visões regeneradas.
+Reteste final do módulo de status: **13 passed**, sem delta no estado pessoal;
+status-check aprovado. O fechamento preserva resultados brutos e separa o reteste.

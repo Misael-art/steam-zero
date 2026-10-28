@@ -15009,3 +15009,39 @@ nova alegação de teste físico. Backup privado fora do host continua sem confi
 Resultado desta conferência: status-check OK, 13 testes de project_status
 aprovados em 9,99 s pelo runner isolado, state pessoal sem delta; git bundle
 verify do arquivo histórico do SD aprovado. Diff restrito à documentação.
+
+
+## 2026-10-28 — R3: identidade e preparo verificado de archives
+
+Continuidade serial autorizada na raiz Projects/SteamZero, branch
+codex/product-recovery-2026-10-16, base3f010cec, PR268 existente. Fonte em
+d41923f48bd2c9a1bca32ab2dc33f5c517ac967e (manifesto v2/hash/seleção) e
+eb39b4b6f2d0b6ec4c51ffd1361ed64b08ce56c5 (loader/preflight/Launcher).
+O baseline descartava o archive ao reidratar o catálogo; não houve prova de troca
+de ID. Agora scan/preparo/rescan/reabertura mantêm origem e preferências, e o
+preflight resolve um único alvo verificado. Sem seleção arbitrária multidisco.
+
+Integral:6893passed/48skipped/1failed em2075,98s, cobertura85,573587%.
+A única falha foi a fixture de remediation fora da biblioteca permitida e com
+texto do veto antigo; ajustada a ZIP real/raiz controlada e reforçada com guarda
+contra consulta ao runtime. Reteste final:53passed em14,59s, produto inalterado
+após a integral. Resultado bruto preservado; não se declara integral local verde.
+Qt/offscreen com raiz LauncherMain e materializador real; sem gameplay instalado.
+Ruff check/format, mypy306, independence, boundaries e status-check aprovados;
+catálogo/digests/visões regenerados. Reteste documental acompanha este fechamento.
+Sem delta no estado pessoal observado pelos runners. Tentativa ampla anterior
+interrompida para eliminar releitura do manifesto, sem claim de aprovação.
+
+Nenhuma instalação, release, merge, deploy, boot ou autenticação privilegiada.
+Readlink somente: releases/2.0.0rc1-59ecc2d8f0f6; runtime e rollback não revalidados.
+Evidência: docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md.
+Publicar checkpoint coeso no PR268 e conferir SHA remoto/CI novo, sem herdar CI
+anterior. Próximo lote seguro: cartão/progresso por portas existentes; instalação,
+capturas e hardware seguem pendentes de autorização/aceite próprios.
+
+Complemento do fechamento: a validação documental inicial encontrou disputa do
+claim de remediation (12passed/1failed no módulo de status). A cessão serial foi
+reconciliada com a frente de origem, sem tocar código. Status-check final passou
+e o módulo de status foi repetido separadamente; resultado no log
+build/agent-runs/r3-archive/status-retest-final.log. Nenhuma suíte visual foi
+repetida após a alteração exclusiva de fixture/documentação.

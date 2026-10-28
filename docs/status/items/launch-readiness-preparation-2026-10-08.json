@@ -23,14 +23,16 @@
     "tests/integration/test_launcher_readiness_qml.py",
     "tests/qml/launcher/check_launcher_readiness.qml",
     "src/steamzero/launcher/app.py",
-    "docs/09-operations/evidence/2026-10-24-r3-launch-readiness"
+    "docs/09-operations/evidence/2026-10-24-r3-launch-readiness",
+    "src/steamzero/adapters/multidisc_materializer.py",
+    "tests/unit/test_multidisc_materializer.py",
+    "tests/integration/test_launcher_archive_preparation.py"
   ],
-  "scopeDigest": "e2124c5c915406455e5c8eff7c59c6e824ba13aed950c6576d021f76fd3f9dba",
+  "scopeDigest": "63b4d860b95ad505043588845ac87a777f6b11d064316251c812237ec33d1d80",
   "dependsOn": [],
   "knownGaps": [
     "GAP-LAUNCH-READINESS-INSTALLED-PROOF",
-    "GAP-LAUNCH-READINESS-CARD-STATE-AND-PROGRESS",
-    "GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN"
+    "GAP-LAUNCH-READINESS-CARD-STATE-AND-PROGRESS"
   ],
   "acceptanceCriteria": [
     "`steamzero emulation readiness --game-id` responde somente leitura com código e motivo do bloqueio, sem iniciar jogo.",
@@ -69,12 +71,18 @@
       "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
       "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_archive_preparation.py",
+      "command": "53 testes focados finais passaram em14,59s: scan/preparo/rescan/reabertura, ZIP real, transação, corrupção/recuperação, HTTP e LauncherMain/Qt offscreen. Integral bruta:6893passed/48skipped/1failed; fixture de remediation ajustada ao contrato novo e retestada, código de produto congelado; cobertura85,573587%. Detalhes e limites no CHECKPOINT.md.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Fonte R3 e WIP recuperados na raiz unica Projects/SteamZero, na branch de continuidade. Reproduzir GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN com fixture controlada; conferir PR e CI do SHA antes de integrar. Cobertura local e limites estao no checkpoint do handoff de26/10; sem promocao instalada/fisica nem nova instalacao nesta recuperacao.",
+  "nextAction": "Fonte R3 em d41923f4/eb39b4b6: preparo verificado mantém ID e preferências. Próximo lote seguro: prontidão/progresso no cartão usando as portas existentes. Conferir CI do SHA publicado; aceite instalado/físico permanece pendente, sem autenticação ou instalação nesta recuperação.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS"
   ],
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-28",
   "notes": "Os quatro primeiros critérios estão implementados e testados na branch; o quinto não está implementado. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos. 24/10: assuncao serial prospectiva de WS-R3-LAUNCH-READINESS apos checkpoint local R2/year-alias, sem escritores concorrentes. Slice de codigo/testes apenas; sem promover eixo instalado/fisico. Handoffs JLS/R2 registrados antes de editar."
 }

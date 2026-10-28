@@ -234,6 +234,19 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Atualização de 28/10/2026:** o gap abaixo foi reproduzido e corrigido em fonte
+na continuação do PR #268, commits `d41923f4` e `eb39b4b6`. O loader descartava o archive recuperável; não foi
+observada troca de ID. A projeção agora exige manifesto com hashes por entrada e
+resolve um alvo base único no preflight compartilhado. Scan, preparo, rescan,
+reabertura, erro e recuperação usam fixtures isoladas; LauncherMain também foi
+exercitado em Qt/offscreen com o materializador real. Resultados e limites em
+[CHECKPOINT R3](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).
+Próximo lote seguro: prontidão/progresso no cartão pelas portas existentes.
+Conferir o CI do novo SHA e validar a jornada na release quando
+houver autorização própria; cartão/progresso e primeira instalação continuam
+aceites distintos. O roteiro abaixo permanece como diagnóstico histórico.
+
+
 Feche primeiro o PR/checkpoint deste handoff conforme os recibos atuais. Depois
 retome R3 com reprodução de `GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN` em um archive
 temporário. A leitura do código sugere que o problema pode estar na projeção do
