@@ -130,7 +130,12 @@ def supervised_child(
 
 
 def query_product(
-    executable: str, subcommand: str, game_id: str, *, timeout: float
+    executable: str,
+    subcommand: str,
+    game_id: str,
+    *,
+    timeout: float,
+    session_id: str | None = None,
 ) -> Mapping[str, object] | None:
     """Roda ``steamzero emulation <subcommand> --game-id`` e devolve o ``data``.
 
@@ -139,9 +144,25 @@ def query_product(
     """
     import json
 
+    argv = [executable, "emulation", subcommand, "--game-id", game_id, "--json"]
+    if session_id is not None:
+        from steamzero.core import ids
+
+        if subcommand != "recover" or not ids.is_ulid(session_id):
+            return None
+        argv = [
+            executable,
+            "session",
+            "recover",
+            "--game-id",
+            game_id,
+            "--session-id",
+            session_id,
+            "--json",
+        ]
     try:
         done = subprocess.run(  # noqa: S603 - argv fixo; game_id é um único argumento
-            [executable, "emulation", subcommand, "--game-id", game_id, "--json"],
+            argv,
             capture_output=True,
             text=True,
             timeout=timeout,
