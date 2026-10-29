@@ -44,6 +44,7 @@ from steamzero.domain.scene_layout import LayoutBounds, LayoutRecipe
 from steamzero.domain.session_overlay import resolve_session_overlay
 from steamzero.launcher.cinema import resolve_cinema_covers
 from steamzero.launcher.journey_runtime import JourneyRuntime
+from steamzero.launcher.launch import forget_context, recovery_context
 from steamzero.launcher.navigation import HomeSection, resolve_home_focus
 
 #: Devolve a tentativa com recibo (ou ``None`` na rota Steam, sem recibo).
@@ -397,6 +398,7 @@ class LauncherBridge:
         catalog_records: Sequence[Mapping[str, Any]] | None = None,
         metadata: Mapping[str, Mapping[str, Any]] | None = None,
         session_observer: Callable[[str], dict[str, Any]] | None = None,
+        session_by_id: Callable[[str, str], dict[str, Any]] | None = None,
         session_overlay: SessionOverlayAdapter | None = None,
         journey_runtime: JourneyRuntime | None = None,
         journey_diagnostic: Mapping[str, Any] | None = None,
@@ -422,6 +424,7 @@ class LauncherBridge:
             if isinstance(record, Mapping) and record.get("id")
         }
         self._session_observer = session_observer
+        self._session_by_id = session_by_id
         self._session_overlay = session_overlay
         self._journey_runtime = journey_runtime
         self._journey_diagnostic = dict(journey_diagnostic or {})
@@ -448,6 +451,9 @@ class LauncherBridge:
         self._on_launch_bezel = on_launch_bezel
         self._accessibility = dict(accessibility or {})
         self._return_context = dict(return_context or {}) or None
+        self._recovery = recovery_context(self._return_context)
+        if self._recovery is not None:
+            self._pending_game = self._recovery["gameId"]
         self._catalog_summary = dict(catalog_summary or {})
         self.token = secrets.token_urlsafe(32)
         self._focus = resolve_home_focus(self._sections)
@@ -466,6 +472,7 @@ class LauncherBridge:
             # aqui faz a restauração existir no entry point real, e não apenas
             # no harness que injeta returnContext diretamente.
             "returnContext": self._return_context,
+            "launchRecovery": self._recovery,
             "catalogSummary": self._catalog_summary,
             "journey": self.journey_current(),
             "sections": [
@@ -1617,14 +1624,27 @@ class LauncherBridge:
     def _session_locked(
         self, game_id: str, *, retained_attempt: LaunchAttempt | None = None
     ) -> dict[str, Any]:
-        if self._session_observer is None or not any(
+        recovered = (
+            self._recovery if self._recovery and self._recovery["gameId"] == game_id else None
+        )
+        if recovered is not None:
+            result = (
+                self._session_by_id(game_id, recovered["sessionId"])
+                if self._session_by_id is not None
+                else {}
+            )
+            if result.get("sessionId") != recovered["sessionId"] or result.get("gameId") != game_id:
+                return {"gameId": game_id, "state": "awaiting", "sessionId": None}
+        elif self._session_observer is None or not any(
             game_id in section.items for section in self._sections
         ):
             return {"gameId": game_id, "state": "unknown", "sessionId": None}
-        result = self._session_observer(game_id)
+        else:
+            result = self._session_observer(game_id)
         attempt = retained_attempt if retained_attempt is not None else self._attempts.get(game_id)
         outcome = attempt.outcome() if attempt is not None else None
         if outcome is not None and outcome.get("state") == "notStarted":
+            forget_context(self._context_path, str(outcome["requestId"]))
             # Falha comprovadamente anterior ao spawn, confirmada pelo requestId
             # do pedido atual: nada foi criado, a tentativa é liberada e Jogar
             # volta a ser elegível. O erro viaja na projeção da tentativa.
@@ -1656,6 +1676,13 @@ class LauncherBridge:
             return awaiting
         if self._pending_game == game_id and result.get("state") in {"closed", "failed"}:
             self._pending_game = None
+            identity = (
+                recovered["requestId"]
+                if recovered is not None
+                else (attempt.request_id if attempt is not None else "")
+            )
+            forget_context(self._context_path, identity)
+            self._recovery = None
             # Terminalização canônica encerra a tentativa; retenção liberada.
             self._attempts.pop(game_id, None)
         if outcome is not None:

@@ -52,15 +52,21 @@ controller._build_exec_argv = lambda *_, **__: (
     sys.executable, '-c', f'import time; time.sleep(0.5); raise SystemExit({exit_code})',
 )
 if len(sys.argv) > 3:
+    hold_seconds = int(sys.argv[6]) if len(sys.argv)>6 else 10
     controller._build_exec_argv = lambda *_, **__: (
         sys.executable, '-c',
         'from pathlib import Path; import sys,time; '
-        'gate=Path(sys.argv[1]); deadline=time.monotonic()+10\n'
+        f'gate=Path(sys.argv[1]); deadline=time.monotonic()+{hold_seconds}\n'
         'while not gate.exists() and time.monotonic()<deadline: time.sleep(0.01)',
         sys.argv[3],
     )
 with patch.object(emulation, 'EmulationController', return_value=controller):
+    if len(sys.argv) > 7:
+        deadline=time.monotonic()+30
+        while not Path(sys.argv[7]).exists() and time.monotonic()<deadline:time.sleep(.01)
     options = [] if len(sys.argv) > 4 and sys.argv[4] == 'human' else ['--json']
+    if len(sys.argv) > 5:
+        options += ['--launch-request-id', sys.argv[5]]
     code = cli_main(['emulation', 'launch', '--game-id', 'lifetime-probe', *options])
 raise SystemExit(code)
 """
@@ -69,7 +75,7 @@ raise SystemExit(code)
 def _alive(pid: int) -> bool:
     try:
         fields = Path(f"/proc/{pid}/stat").read_text().rpartition(") ")[2].split()
-    except FileNotFoundError:
+    except (FileNotFoundError, ProcessLookupError):
         return False
     return fields[0] not in {"Z", "X"}
 
@@ -147,3 +153,40 @@ def test_cli_publishes_launch_reply_while_game_and_observer_are_alive(
             process.communicate(timeout=15)
     assert process.returncode == 0
     assert observe_game_session(database, "lifetime-probe")["state"] == "closed"
+
+
+def test_cli_keeps_preallocated_identity_through_canonical_lifecycle(tmp_path: Path) -> None:
+    database = tmp_path / "state.db"
+    release = tmp_path / "release-game"
+    identity = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+    environment = dict(os.environ)
+    environment.pop("PYTHONUNBUFFERED", None)
+    environment["PYTHONPATH"] = str(Path(steamzero.__file__).resolve().parent.parent)
+    with subprocess.Popen(
+        [sys.executable, "-c", _WORKER, str(database), "0", str(release), "json", identity],
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    ) as process:
+        try:
+            assert process.stdout is not None
+            with selectors.DefaultSelector() as ready:
+                ready.register(process.stdout, selectors.EVENT_READ)
+                assert ready.select(timeout=10)
+            reply = json.loads(process.stdout.readline())
+            assert reply["ok"] is True
+            assert reply["data"]["sessionId"] == identity
+            running = observe_game_session(database, "lifetime-probe", session_id=identity)
+            assert running["sessionId"] == identity
+            assert running["state"] == "running"
+            assert process.poll() is None
+        finally:
+            release.touch()
+            process.communicate(timeout=15)
+    assert process.returncode == 0
+    assert observe_game_session(database, "lifetime-probe", session_id=identity) == {
+        "gameId": "lifetime-probe",
+        "sessionId": identity,
+        "state": "closed",
+    }

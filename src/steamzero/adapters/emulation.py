@@ -1809,7 +1809,13 @@ class EmulationController:
             "core_path": core_path,
         }
 
-    def launch_game(self, game_id: str, *, bezel_resource: str = "aura-default") -> dict[str, Any]:
+    def launch_game(
+        self,
+        game_id: str,
+        *,
+        bezel_resource: str = "aura-default",
+        launch_request_id: str | None = None,
+    ) -> dict[str, Any]:
         # A fase de PREPARAÇÃO precede sessão e spawn: qualquer SteamZeroError
         # aqui é comprovadamente anterior ao spawn e vira LaunchNotStartedError,
         # para o CLI declarar notStarted e o Launcher liberar a tentativa.
@@ -1820,6 +1826,19 @@ class EmulationController:
         configured_bezel: Mapping[str, Any] | None = None
         bezel_catalog: list[dict[str, Any]] = []
         try:
+            if launch_request_id is not None:
+                if not ids.is_ulid(launch_request_id):
+                    raise SteamZeroError("E-API-SCHEMA", detail="launch-request-id inválido")
+                if self._process_waiter is None:
+                    raise SteamZeroError(
+                        "E-COMPONENT-DEGRADED", detail="lifecycle canônico ausente"
+                    )
+                with self._store_factory() as store:
+                    store.migrate()
+                    if store.get_game_session(launch_request_id) is not None:
+                        raise SteamZeroError(
+                            "E-TX-LOCKED", detail="identidade de sessão já utilizada"
+                        )
             self._prepare_launch(game_id)
             preflight = self._launch_preflight(game_id)
             game = preflight["game"]
@@ -1850,7 +1869,7 @@ class EmulationController:
                 )
             session_config = None
             if retroarch_supported:
-                session_artifact_id = ids.new_ulid()
+                session_artifact_id = launch_request_id or ids.new_ulid()
                 try:
                     configured_bezel = resolve_bezel_resource(bezel_resource)
                     bezel_catalog = list_bezel_resources()
@@ -1888,7 +1907,9 @@ class EmulationController:
                     game,
                     emulator_id,
                     platform_id,
-                    session_id=session_artifact_id if retroarch_artifacts_created else None,
+                    session_id=session_artifact_id
+                    if retroarch_artifacts_created
+                    else launch_request_id,
                 )
             except Exception:
                 if retroarch_artifacts_created and session_artifact_id is not None:

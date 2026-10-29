@@ -10,11 +10,14 @@ from typing import Any
 from steamzero.core.session_state import SESSION_OWNER, SESSION_STATES, normalize_session_state
 
 
-def observe_game_session(database: Path, game_id: str) -> dict[str, Any]:
+def observe_game_session(
+    database: Path, game_id: str, *, session_id: str | None = None
+) -> dict[str, Any]:
     """Never create/migrate a database or infer a running game from spawn alone.
 
     Running rows require matching Linux process start time to reject PID reuse.
     A missing process is unknown until the lifecycle owner records its result.
+    An explicit session_id never falls back to another row for the same game.
     """
     unknown = {"gameId": game_id, "state": "unknown", "sessionId": None}
     try:
@@ -22,11 +25,18 @@ def observe_game_session(database: Path, game_id: str) -> dict[str, Any]:
             database.absolute().as_uri() + "?mode=ro", uri=True, timeout=0.2
         )
         try:
-            row = connection.execute(
-                "SELECT id,state,pid,start_ticks FROM game_session "
-                "WHERE game_id=? AND owner=? ORDER BY updated_at DESC,id DESC LIMIT 1",
-                (game_id, SESSION_OWNER),
-            ).fetchone()
+            if session_id is None:
+                row = connection.execute(
+                    "SELECT id,state,pid,start_ticks FROM game_session "
+                    "WHERE game_id=? AND owner=? ORDER BY updated_at DESC,id DESC LIMIT 1",
+                    (game_id, SESSION_OWNER),
+                ).fetchone()
+            else:
+                row = connection.execute(
+                    "SELECT id,state,pid,start_ticks FROM game_session "
+                    "WHERE id=? AND game_id=? AND owner=? LIMIT 1",
+                    (session_id, game_id, SESSION_OWNER),
+                ).fetchone()
         finally:
             connection.close()
     except (sqlite3.Error, OSError, ValueError):

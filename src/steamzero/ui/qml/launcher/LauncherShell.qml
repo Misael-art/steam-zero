@@ -27,6 +27,20 @@ Item {
     property var readinessRequest: null
     // Contexto gravado antes do lançamento, lido na inicialização.
     property var returnContext: null
+    property var recoveryContext: null
+    signal sessionRestored()
+
+    Component.onCompleted: {
+        if (recoveryContext && recoveryContext.gameId && recoveryContext.sessionId) {
+            sessionGameId = recoveryContext.gameId
+            observedSessionId = recoveryContext.sessionId
+            expectedRequestId = recoveryContext.requestId
+            exitFocus = homeFocus
+            launchState = "launching"
+            markUnconfirmed()
+            sessionRestored()
+        }
+    }
 
     readonly property string screen: gamePage !== null ? "game" : "home"
     readonly property var launchStates: ["idle", "preparing", "launching",

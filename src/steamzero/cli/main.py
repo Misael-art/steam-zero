@@ -1335,13 +1335,20 @@ def _cmd_emulation_launch(args: list[str], correlation_id: str) -> tuple[dict[st
     if game_id is None:
         raise SteamZeroError("E-API-SCHEMA", detail="use --game-id <id>")
     bezel_resource = _flag_value(args, "--bezel-resource")
+    launch_request_id = _flag_value(args, "--launch-request-id")
+    if args.count("--launch-request-id") > 1 or (
+        "--launch-request-id" in args
+        and (launch_request_id is None or not ids.is_ulid(launch_request_id))
+    ):
+        raise SteamZeroError("E-API-SCHEMA", detail="launch-request-id inválido")
     controller = EmulationController()
     try:
-        data = (
-            controller.launch_game(game_id)
-            if bezel_resource is None
-            else controller.launch_game(game_id, bezel_resource=bezel_resource)
-        )
+        options = {}
+        if bezel_resource is not None:
+            options["bezel_resource"] = bezel_resource
+        if launch_request_id is not None:
+            options["launch_request_id"] = launch_request_id
+        data = controller.launch_game(game_id, **options)
     finally:
         close = getattr(controller, "close", None)
         if callable(close):

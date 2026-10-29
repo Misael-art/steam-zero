@@ -385,12 +385,13 @@ class LaunchRouter:
         argv: tuple[str, ...] = (executable, "emulation", "launch", "--game-id", game_id)
         if bezel_resource != "aura-default":
             argv = (*argv, "--bezel-resource", bezel_resource)
-        argv = (*argv, "--json")
+        argv = (*argv, "--json", "--launch-request-id", request_id)
         plan = LaunchPlan(
             game_id=game_id,
             argv=argv,
             focus_id=focus_id or f"{_DEFAULT_SECTION}:{game_id}",
             context_path=self._context_path,
+            launch_request_id=request_id,
         )
         collected: list[LaunchAttempt] = []
 
@@ -654,8 +655,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     from steamzero.adapters.launcher_ui import LauncherBridge, launch_launcher_ui
 
     context_path = args.context or _context_path()
-    # Um contexto pendente significa que a sessão anterior lançou algo. Consumir
-    # aqui evita que um retorno antigo posicione o foco de uma sessão nova.
+    # V1 restaura foco uma vez. V2 mantém a referência até a terminalização
+    # canônica; sua presença não comprova que o jogo iniciou.
     restored_context = consume_context(context_path)
     return_context = restored_context if isinstance(restored_context, Mapping) else None
 
@@ -717,6 +718,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.isolated_library:
         observe_session = None
+        session_by_id = None
         session_overlay = None
     else:
         from steamzero.adapters.launcher_session import observe_game_session
@@ -724,6 +726,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         def observe_session(game_id: str) -> dict[str, Any]:
             return observe_game_session(paths.state_db(), game_id)
+
+        def session_by_id(game_id: str, session_id: str) -> dict[str, Any]:
+            return observe_game_session(paths.state_db(), game_id, session_id=session_id)
 
         session_overlay = SessionOverlayAdapter(
             observe=observe_session,
@@ -899,6 +904,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         catalog_records=catalog_records,
         metadata=metadata,
         session_observer=observe_session,
+        session_by_id=session_by_id,
         session_overlay=session_overlay,
         context_path=context_path,
         on_launch=launch_game,

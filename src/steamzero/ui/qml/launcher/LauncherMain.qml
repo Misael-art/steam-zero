@@ -906,6 +906,15 @@ Window {
                     root._request(method, path, body, done)
                 }
                 returnContext: root.model.returnContext || null
+                recoveryContext: root.model.launchRecovery || null
+                onSessionRestored: {
+                    root.launchClientRequestId = ""
+                    root.launchRequestId = launcherShell.expectedRequestId
+                    if (root.model.journey && root.model.journey.active === true) {
+                        root.journeyLaunchActive = true
+                        root.journeyOverlayVisible = false
+                    }
+                }
                 onExitRequested: Qt.quit()
                 onLaunchRequested: function(gameId, focusId) {
                     const generation = ++root.launchGeneration
