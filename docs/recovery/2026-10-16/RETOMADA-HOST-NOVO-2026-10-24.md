@@ -234,6 +234,35 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Fechamento da recusa recuperável — 29/10/2026:** produto em
+`e30bd4f98468e2077b077e97fdb9809deaab6dc5`; fixture CI em
+`aed4856afd0c69922872d635b3ab1c33359dd038`. O owner que recusa uma tentativa
+pré-alocada antes do spawn persiste failed com prova tipada e código registrado,
+sem detalhe privado, tabela nova ou mudança do SQLite 23. A bridge reaberta
+recupera a recusa exata, mantém contexto entre GET perdido e outro reinício e
+consome somente seu contexto ao receber um novo pedido explícito validado.
+Falta de prova permanece não confirmada; não há POST automático ou adoção por jogo.
+
+Prova: 59 focados sem PYTHONPATH inicial, 26 casos novos; integral 6.971 passed,
+48 skipped, zero failed em 2.067,19 s; núcleo 6.567/48/404, cobertura 85,464311%
+>= 85,423695% do job Python 3.14 aprovado da base c9345cf1. Esse workflow
+anterior teve sete jobs verdes e falhou nos dois testes visuais cujo subprocesso
+dependia do perfil local. A reprodução sem PYTHONPATH e a fixture corrigida estão
+no CHECKPOINT R3. Ruff check/format731, mypy306, independence/boundaries/status
+passaram. Um núcleo interrompido por SIGTERM143 sem resumo ficou desconhecido;
+a repetição supervisionada e a integral concluíram com o mesmo fonte. Sem
+atribuir a causa do sinal ou promover runtime/hardware.
+
+Próximo baseline seguro: encerrar apenas o owner de uma fixture depois de
+confirmar running, preservar o jogo sintético e reabrir a observação antes/depois
+do seu término. Não inferir closed/notStarted pela ausência de PID, criar outro
+supervisor ou tocar o desktop/perfil do operador. Ler contratos/reconciliadores
+existentes. Primeiro comando, após carregar .steamzero-dev/env.sh:
+`env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_refusal_restart.py tests/integration/test_emulation_session_lifetime.py -q`.
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME, Steam sem recibo e instalação/prova física
+seguem independentes e abertos. Sem instalação/auth/release/merge/deploy/boot.
+Conferir CI do novo checkpoint publicado. Os blocos abaixo são procedência.
+
 **Fechamento da retomada entre processos — 29/10/2026:** implementação em
 `b9f190f7026bc0e064096f25adc6a3ac5e74558f`. Novos lançamentos de emulação
 publicam contexto v2 owned com ULID pré-alocado, passado à CLI e ao lifecycle

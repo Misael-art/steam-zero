@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "591257043d9ecda21055da8dbbc3a27c44784dda273cd6850613e35389fde452",
+  "scopeDigest": "0430e6216977e9bb52684fcdeb835155d03c6440894b08a6795630d8ad1dcaaa",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -94,7 +94,8 @@
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel",
     "tests/integration/test_launcher_request_timeout.py",
     "tests/integration/test_launcher_launch_ack.py",
-    "tests/integration/test_launcher_restart.py"
+    "tests/integration/test_launcher_restart.py",
+    "tests/integration/test_launcher_refusal_restart.py"
   ],
   "dependsOn": [
     "SZ-AURA-UI",
@@ -747,9 +748,15 @@
       "reference": "tests/integration/test_launcher_restart.py",
       "command": "Commit b9f190f7: contexto v2 owned referencia ULID pré-alocado na CLI/sessão canônica; v1 e schema SQLite23 preservados. 33 focados de retomada/lifetime, dois Qt/HTTP com dois reinícios e zero novos launches. Integral6945 passed/48 skipped/0 failed (2197,55s); núcleo6542/48/403 e cobertura85,466579% >= CI verde85,412847% (run40845684020, baseb55890b0). Ruff check/format730, mypy306, independence/boundaries/status verdes; 13 hashes intactos e estado pessoal monitorado preservado. Uma integral SIGTERM143 sem resumo ficou desconhecida; repetição supervisionada exit0, causa do sinal não atribuída. Fonte/fixtures/offscreen; sem instalação/hardware. Ver CHECKPOINT R3.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_refusal_restart.py",
+      "command": "Produto e30bd4f9 e fixture aed4856a: recusa pré-spawn canônica, prova tipada/código público, consulta exata e contexto restaurado preservado até novo launch explícito. 26 novos; 59 focados/22,86s sem PYTHONPATH inicial; integral 6971 passed/48 skipped/0 failed/2067,19s; núcleo 6567/48/404/630,51s. Cobertura core 85,464311% >= 85,423695% do job Python3.14 aprovado 123465044453 (workflow 40878965028 falhou no visual por import da fixture, reproduzido/corrigido). Ruff check/format731, mypy306, independence/boundaries/status verdes; 6 hashes intactos, estado pessoal monitorado preservado. 13 testes de status/5,65s. Núcleo SIGTERM143 sem resumo ficou desconhecido; repetição e integral exit0, causa do sinal não atribuída. Fonte/fixture/Qt offscreen; sem instalação/hardware. Ver CHECKPOINT R3.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Conferir CI do checkpoint contendo b9f190f7. Próximo baseline: recusa pré-spawn cujo resultado se perde ao encerrar o Launcher originador antes de criar linha canônica. Não fabricar notStarted/adotar outra sessão nem liberar retry pela ausência de registro. Rodar test_launcher_restart.py + test_emulation_session_lifetime.py pelo runner isolado após carregar .steamzero-dev/env.sh. V1, Steam sem recibo, owner perdido e prova instalada/física mantêm limites; GAP de lifetime aberto. Sem instalação/auth.",
+  "nextAction": "Conferir CI do checkpoint com e30bd4f9/aed4856a. Próximo baseline seguro: perda apenas do owner de fixture após running, jogo sintético preservado e observação antes/depois do fim. Não inferir closed/notStarted por PID ausente nem criar outro supervisor; ler contratos/reconciliadores existentes. Regressão: test_launcher_restart.py + test_launcher_refusal_restart.py + test_emulation_session_lifetime.py via runner isolado, env -u PYTHONPATH após carregar perfil. Sem prova persistida continua desconhecido; V1/Steam/instalação física e GAP de lifetime permanecem abertos. Sem instalação/auth.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",

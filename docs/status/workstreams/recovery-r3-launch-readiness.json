@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-AURA-LAUNCHER",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "b55890b029f892312b3e8a77693318b9213ba9be",
+  "baseRef": "c9345cf1af23c7e819479c50f87ba030ca5f577b",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -41,7 +41,9 @@
     "tests/qml/launcher/check_launcher_restart.qml",
     "tests/integration/test_emulation_session_lifetime.py",
     "tests/integration/test_launcher_launch.py",
-    "tests/integration/test_launcher_return_cycle.py"
+    "tests/integration/test_launcher_return_cycle.py",
+    "tests/integration/test_launcher_refusal_restart.py",
+    "tests/qml/launcher/check_launcher_refusal_restart.qml"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -49,6 +51,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Conferir CI do checkpoint contendo b9f190f7. Próximo baseline: recusa pré-spawn cujo resultado se perde ao encerrar o Launcher originador antes de criar linha canônica. Não fabricar notStarted/adotar outra sessão nem liberar retry pela ausência de registro. Rodar test_launcher_restart.py + test_emulation_session_lifetime.py pelo runner isolado após carregar .steamzero-dev/env.sh. V1, Steam sem recibo, owner perdido e prova instalada/física mantêm limites; GAP de lifetime aberto. Sem instalação/auth.",
+  "nextAction": "Conferir CI do checkpoint com e30bd4f9/aed4856a. Próximo baseline seguro: perda apenas do owner de fixture após running, jogo sintético preservado e observação antes/depois do fim. Não inferir closed/notStarted por PID ausente nem criar outro supervisor; ler contratos/reconciliadores existentes. Regressão: test_launcher_restart.py + test_launcher_refusal_restart.py + test_emulation_session_lifetime.py via runner isolado, env -u PYTHONPATH após carregar perfil. Sem prova persistida continua desconhecido; V1/Steam/instalação física e GAP de lifetime permanecem abertos. Sem instalação/auth.",
   "updatedAt": "2026-10-29"
 }

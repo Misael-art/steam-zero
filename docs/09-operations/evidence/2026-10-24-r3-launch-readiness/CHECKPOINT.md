@@ -513,3 +513,119 @@ de verdade existente. Começar pela regressão atual:
 `.venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_emulation_session_lifetime.py -q`,
 com o perfil .steamzero-dev/env.sh. Steam sem recibo e provas instaladas/físicas
 continuam independentes e pendentes. Publicar estes commits e conferir CI do SHA.
+
+### Recusa pré-spawn recuperável após perder a resposta — 29/10/2026
+
+Continuidade serial na mesma branch, base c9345cf1, autorizada para fonte,
+gates, commit/push/PR #268. Escopo reservado no workstream antes da edição.
+Sem instalação, autenticação, release, merge, deploy ou boot.
+
+Baseline com CLI/controlador/SQLite reais e stdout fechado: a recusa tipada
+E-CONTENT-UNSUPPORTED não fez spawn, mas desapareceu com a resposta. A linha
+canônica pré-alocada permaneceu ausente: um teste falhou em 1,14 s. Log local
+build/agent-runs/r3-refusal-restart/baseline.log. Ausência de linha continua
+sem significar notStarted; a correção persiste prova pelo owner que recusou.
+
+Somente pedido com ULID válido, lifecycle disponível e ID ainda livre registra
+uma recusa SteamZeroError da fase anterior ao spawn. Usa o create_game_session
+transacional existente, estado failed, timestamps terminais iguais, sem PID,
+exit code ou tempo de jogo observado. A metadata recebe source=emulation e
+launchAcknowledgment {schemaVersion:1,state:notStarted}; failure_code guarda
+somente o código registrado. Não persiste detail, stderr ou caminho privado.
+Não há tabela nova nem mudança do schema SQLite 23. Chamada legada sem ID,
+exceção genérica, identidade usada e falha de persistência não fabricam prova.
+Uma corrida de INSERT não substitui a sessão existente, e uma tentativa
+recusada não toma ownership de outro jogo ativo.
+
+O observador read-only projeta o acknowledgment somente na consulta exata por
+ID/jogo/owner, com estado terminal e campos coerentes, versão inteira reconhecida
+e código conhecido. Consulta pela última sessão mantém o contrato anterior.
+A bridge reaberta recompõe mensagem allowlisted pelo catálogo público de erros;
+não adota texto cru de metadata. A recusa restaurada conserva contexto e prova
+entre GET perdido, leituras repetidas e outro reinício. Somente um novo pedido
+explícito, depois das validações de foco, prontidão e sessão, consome o contexto
+próprio e cria ID novo. Contexto substituído/alheio/symlink é preservado e recusa
+o novo efeito. O contrato da bridge viva para recibos legados não foi ampliado.
+
+Prova fonte: 59 focados passaram em 22,86 s com PYTHONPATH removido do ambiente
+inicial; incluem os 26 novos casos de recusa, os 28 de retomada e cinco de
+lifetime. O percurso Qt/HTTP recria a bridge duas vezes depois que o originador
+encerra, perde a primeira resposta GET em cada execução e não faz outro launch.
+Enter dispensa o erro, abre detalhes e inicia uma única nova tentativa com ID
+diferente; CLI/owner e jogo sintético reais retornam ao mesmo cartão. Capturas
+01–03 inspecionadas: fonte Qt/offscreen fullscreen 800x800, sem dados pessoais.
+Regressão ampliada: 371 testes Launcher/CLI/controlador em 209,71 s antes da
+última guarda de ownership e da correção de ambiente; o gate completo cobre
+essa composição final. Estado pessoal monitorado inalterado nos testes concluídos.
+
+O CI anterior, run 40878965028/head c9345cf1, terminou com sete jobs verdes e
+dois casos reprovados no gate visual (389 passed/13 skipped): os subprocessos
+de test_launcher_restart.py não recebiam src no PYTHONPATH. Pytest configurava
+pythonpath apenas no seu processo; o perfil local escondia essa dependência.
+Retirar PYTHONPATH reproduziu a falha em 0,99 s; import direto confirmou
+ModuleNotFoundError. A fixture agora passa o caminho do checkout explicitamente
+ao filho e mostra stdout/stderr quando ele falha. A prova de 59 casos acima
+inclui os dois cenários antigos nesse ambiente. Sem instalar pacote, alterar
+o CI, alargar timeout, relaxar teste ou pular o caso. Logs base-ci-failed.log,
+ci-env-baseline.log e clean-env-focused.log no diretório local deste lote.
+
+Limites: se o owner morrer antes de persistir prova ou o armazenamento falhar,
+a retomada permanece não confirmada. A fase posterior à preparação não recebe
+garantia inventada. V1, Steam sem recibo, replay ilimitado, reboot e prova física
+continuam independentes. GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME segue aberto nesses
+limites. Gates integrais e cobertura serão acrescentados no fechamento.
+
+### Fechamento da recusa recuperável — 29/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| Fixture do gate visual sem dependência do perfil | `aed4856afd0c69922872d635b3ab1c33359dd038` | Reprodução sem PYTHONPATH; 59 focados verdes nesse ambiente, incluindo os dois cenários antigos |
+| SZ-AURA-LAUNCHER: recusa canônica, reabertura e retry explícito | `e30bd4f98468e2077b077e97fdb9809deaab6dc5` | 26 casos novos; Qt/HTTP entre processos, duas reaberturas, GET perdido, um launch por Enter e retorno |
+
+**Integral concluída: 6.971 passed, 48 skipped, zero failed**, 19 warnings,
+2.067,19 s no resumo pytest, runner exit 0. Cobertura integral: **85,585727%**.
+Núcleo: **6.567 passed, 48 skipped, 404 deselected**, 30 warnings,
+630,51 s, runner exit 0. Seleção equivalente not visual, sem PYTHONPATH herdado:
+**85,464311% >= 85,423695%** do job Python 3.14 aprovado 123465044453,
+run 40878965028/head c9345cf1. O workflow dessa base falhou no visual pelas
+fixtures descritas acima; não é apresentado como workflow verde.
+Denominadores atuais: 52.295 statements/17.712 branches; baseline: 52.260/17.696.
+Artefato de cobertura 12899867366, 664.880 bytes comprimidos, SHA-256
+3f6e8b8b94cdb4a205b546df84ae9b0fb80159c65e8d8c29f5dafd56dcfa562b.
+Recibo, logs e comparação em build/agent-runs/r3-refusal-restart.
+
+Ruff check/format (731 arquivos), mypy (306 fontes), independence, boundaries
+e status-check passaram. Seis hashes de fonte/testes permaneceram intactos nos
+gates concluídos e coincidem com os commits funcionais. Estado pessoal monitorado
+idêntico antes/depois, sem warning de escritor externo. Nenhum golden, skip,
+timeout, limiar de cobertura ou asserção foi relaxado. Os gates completos e os
+59 focados foram executados sem depender de PYTHONPATH do perfil de desenvolvimento.
+Validação documental: 13 testes do catálogo passaram em 5,65 s; views/digests
+regenerados e status-check aprovado, sem promoção dos eixos dos itens.
+
+A primeira execução do núcleo terminou com SIGTERM 143 aos 90%, sem resumo:
+**resultado desconhecido, não aprovado**. Nenhum pytest/runner deste checkout
+permaneceu ativo. Log core-interrupted.log e recibo próprios preservados; o
+remetente não foi identificado. O acompanhamento temporário, com saída periódica
+e siginfo, passou prova curta de encaminhamento do cancelamento e coleta do filho.
+A repetição do núcleo e a integral terminaram com saída 0 e signals vazio;
+somente essas passagens contam, sem afirmar a causa da interrupção. Fonte/testes
+não mudaram; estáticos não foram repetidos. O observador da integral mediu
+2.075,46 s monotônicos; o campo auxiliar seconds do runner, baseado no relógio
+de parede, foi 3.585,20 s. A divergência está preservada, sem atribuir causa ou
+usá-la como medição de desempenho. A duração de teste acima é a do pytest.
+
+Sem instalação, release, merge, deploy, boot ou autenticação privilegiada.
+Readlink somente: releases/2.0.0rc1-59ecc2d8f0f6; runtime e rollback não revalidados.
+Capturas 01–03 inspecionadas, fonte Qt/offscreen 800x800, sem prova física,
+Deck, GPU/FPS ou promoção de Central Desktop, Theme Engine, Theme Studio e Aura.
+
+Próximo baseline seguro: perda do owner de fixture depois da confirmação, com
+jogo sintético ainda vivo, e nova observação antes/depois do fim do jogo. Não
+inferir closed/notStarted por ausência de PID nem criar outro supervisor; ler os
+contratos e reconciliadores existentes. Primeiro comando de regressão, após
+carregar .steamzero-dev/env.sh:
+`env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_refusal_restart.py tests/integration/test_emulation_session_lifetime.py -q`.
+Preservar os limites de owner sem prova persistida, armazenamento indisponível,
+fase posterior à preparação, V1, Steam sem recibo, replay e instalação física.
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME permanece aberto. Conferir CI do novo head.

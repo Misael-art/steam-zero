@@ -15225,3 +15225,67 @@ o Launcher originador, sem linha canônica. Não fabricar notStarted nem liberar
 retry pela ausência de registro. Handoff contém comando focado pelo runner
 isolado. GAP de lifetime, Steam sem recibo, owner perdido, reboot e provas
 instaladas/físicas permanecem abertos. Central/Engine/Studio/Aura preservados.
+
+
+## 2026-10-29 — R3: recusa perdida recuperável e fixture CI independente do perfil
+
+Executor central, único checkout/branch codex/product-recovery-2026-10-16,
+base c9345cf1. Autorização vigente para fonte, gates, commit/push/PR #268;
+sem instalação/auth/release/merge/deploy/boot. Escopo reservado prospectivamente
+no workstream; nenhum escritor concorrente observado neste projeto.
+
+Baseline real: CLI sem leitor de stdout recusou pré-spawn, sem jogo, mas perdeu
+seu resultado e não deixou linha canônica; 1 failed em 1,14s. Produto em
+e30bd4f98468e2077b077e97fdb9809deaab6dc5: o owner registra failed por INSERT
+canônico com ID pré-alocado livre, metadata tipada e código registrado, sem
+texto privado ou tempo de jogo observado. Não há tabela nem schema novo (23).
+Consulta exata por ID/jogo/owner valida prova terminal coerente; bridge recompõe
+o erro pelo catálogo público. Contexto restaurado sobrevive a GET perdido e
+outro reinício. Só um novo launch explícito validado consome o registro próprio
+e usa ID novo; contexto alheio/substituído/symlink é preservado. Ausência de prova,
+exceção genérica ou falha de armazenamento continua sem confirmação. Outra sessão
+ativa e identidades já usadas são preservadas. Contratos legados não ampliados.
+
+Fixture CI em aed4856afd0c69922872d635b3ab1c33359dd038: o run anterior 40878965028
+teve sete jobs verdes e dois testes reprovados no visual (389 passed/13 skipped).
+O src configurado por pytest não chegava ao intérprete filho; o perfil local
+mascarava isso. Sem PYTHONPATH, a falha foi reproduzida em 0,99s e import direto
+confirmou ModuleNotFoundError. A fixture passa src explicitamente e mostra a saída
+capturada em erro. Sem mudar CI, timeout, pacote instalado, skip ou asserção.
+
+59 focados sem PYTHONPATH inicial passaram em 22,86s, incluindo 26 casos novos,
+dois cenários antigos de retomada e cinco de lifetime. Percurso Qt/HTTP com
+processos separados: originador encerra antes da recusa, duas bridges perdem seu
+primeiro GET, mostram a recusa e não fazem outro launch. Enter dispensa, abre
+detalhes e inicia uma única tentativa com ID novo; jogo sintético/CLI/owner reais
+retornam ao mesmo cartão. 371 regressões passaram em 209,71s antes da última guarda
+e correção de ambiente; gates completos cobrem a composição final congelada.
+
+Integral: 6971 passed, 48 skipped, zero failed, 19 warnings, 2067,19s pytest.
+Núcleo: 6567/48/404, 30 warnings, 630,51s. Cobertura core 85,464311% >= 85,423695%
+do job Python 3.14 aprovado 123465044453 da base; workflow global não foi verde.
+Cobertura integral 85,585727%. Ruff check/format731, mypy306, independence,
+boundaries/status verdes; 13 testes do catálogo passaram em 5,65s. Seis hashes
+intactos coincidem com os commits. Estado pessoal monitorado idêntico antes/depois
+dos gates concluídos; nenhum eixo de outros itens promovido. Goldens/limiar intactos.
+
+Um núcleo terminou com SIGTERM 143 aos 90%, sem resumo: desconhecido, não aprovado.
+Nenhum pytest deste checkout ficou ativo. Log/recibo preservados; remetente não
+identificado. Acompanhamento temporário com progresso/siginfo passou prova de
+encaminhamento de cancelamento e coleta do filho. Repetição do núcleo e integral
+terminaram 0, signals vazio, com mesmo fonte; não se afirma a causa anterior.
+Estáticos não repetidos. Tempos de parede/monotônico divergiram na integral;
+valores e limite registrados no CHECKPOINT, sem alegação de desempenho.
+
+Capturas 01–03 inspecionadas, fonte Qt/offscreen 800x800, sem prova instalada/física,
+Deck ou GPU/FPS. Readlink releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não
+revalidados. Nenhuma ação privilegiada; Central/Engine/Studio/Aura preservados.
+Evidência em build/agent-runs/r3-refusal-restart e CHECKPOINT R3 existente.
+
+Publicar fechamento com os dois commits e conferir SHA remoto/CI novo. Próximo
+baseline: perda apenas do owner de fixture após confirmar running, jogo sintético
+preservado e leitura antes/depois do fim. Não inferir closed/notStarted por PID
+ausente nem criar outro supervisor; ler reconciliadores/contratos existentes.
+Handoff contém comando isolado sem PYTHONPATH. GAP de lifetime, prova não persistida,
+fase posterior à preparação, V1, Steam sem recibo, replay e instalação física
+seguem abertos. Não iniciar autenticação ou instalação.
