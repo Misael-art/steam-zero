@@ -15338,3 +15338,43 @@ mensagem, contexto e zero launches automáticos antes de alterar o contrato.
 Handoff contém comando isolado. Prova sem identidades tipadas, outro boot/namespace,
 owner perdido antes de running persistido, V1, Steam sem recibo e instalação
 física seguem independentes; GAP de lifetime continua aberto. Sem iniciar auth.
+
+
+## 2026-10-29 — R3: erro órfão recuperável após GET terminal perdido e reinício
+
+Continuidade serial autorizada, mesmo checkout/branch/executor, base490b4722;
+CI40952684734 oito jobs verdes e coberturaCI85,477196%. Fonte/testes/commits/push/
+PR268 autorizados; sem instalação/auth/release/merge/deploy/boot. Claims R3 já
+abrangem os cinco paths; sem alteração de arquivos compartilhados neste lote.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: contexto/erro retidos e retry revalidado | 997c3cd9391ae88960c7ba5797413140fc5acbe8 | 84 focados,18 novos; GET perdido em duas bridges, terceira restaura erro/foco, um launch por Enter e retorno |
+
+Baseline1falha/1,04s: GET terminal apagava o contexto antes de entregar a resposta.
+Retém o contexto owned do erro E-SESSION-ORPHANED e o recibo confirmado exato
+até novo lançamento explícito validado, sem fabricar notStarted. O leitor
+bounded é read-only; contexto alheio/substituído/ilegível é preservado. Revalida
+canônico e contexto antes de consumir; arquivo ausente não é recriado por GET
+e mantém retry explicitamente validado compatível. Sem outra fonte de estado,
+writer, supervisor ou schema; sucesso closed e outros erros preservam o contrato.
+
+Integral7042 passed/48 skipped/0 failed/24 warnings em2297,92s. Núcleo6636/48/406,
+19 warnings/613,21s. Runners/observadores0, signals vazio. Core85,514477%>=
+CIverde85,477196% (490b4722/run40952684734/artifact12932966379); integral85,643825%
+separada. Ruff736/mypy307/independence/boundaries/status verdes. Cinco hashes
+coincidem com o commit; estado pessoal monitorado idêntico antes/depois.
+13 testes do catálogo/6,54s; views/digests regenerados, sem promover eixos/gaps,
+alterar goldens/skips/limiares ou repetir integral por microalterações.
+
+Cinco PNGs Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT R3 existente,
+sem prova instalada, Deck ou GPU/FPS. Logs/recibos em build/agent-runs/r3-terminal-restart.
+Host somente readlink releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados.
+Nenhuma ação privilegiada. Evidências de fonte e hardware permanecem distintas.
+
+Publicar o fechamento com o funcional em um checkpoint da continuidade/PR268 e
+conferir SHA remoto/CI terminal. Próximo baseline: sucesso closed com GET terminal
+perdido e reinício, sem encerrar prematuramente o owner de fixture, converter
+sucesso em erro ou estimar exit/tempo. Handoff contém comando isolado. V1, Steam
+sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem
+independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Não iniciar auth.

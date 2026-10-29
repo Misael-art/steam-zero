@@ -777,3 +777,109 @@ runner isolado sem PYTHONPATH inicial; estado pessoal monitorado inalterado.
 Views/digests regenerados; status-check verde. WORKLOG recebe somente esta
 sessão de fechamento, sem editar o histórico. SHA/run remotos devem ser
 conferidos no PR268 após o checkpoint de push autorizado.
+
+
+### GET terminal perdido após recuperação e novo reinício — 29/10/2026
+
+Continuidade serial autorizada no único checkout/branch, base
+490b4722e79a2059df4eb1f68aa48d6fad7d6c4f. CI40952684734 terminou com os oito jobs
+aprovados; cobertura CI Python3.14 85,477196% >=85,431457% da base anterior.
+Artefato12932966379,668.122 bytes, CRC e SHA-256
+51857be7c0d494856b817318ccbddb3455ef2c0b48ea8962af91c1d4cb14cef7 conferidos
+no fechamento anterior. A linha remota e o PR268 em rascunho foram conferidos.
+Candidata atual é fonte/fixtures; sem instalação, auth, release, merge, deploy
+ou boot. Os cinco caminhos já estão sob claim exclusivo R3; sem outro escritor
+neste escopo observado. WORKLOG permanece intocado até o fechamento.
+
+**Baseline:** 1 failed/2 deselected em1,04s. A primeira observação da linha
+failed/E-SESSION-ORPHANED consumia o contexto v2 owned antes de a resposta HTTP
+chegar. Perdendo o GET terminal e reiniciando a bridge, não havia referência
+para recuperar o erro/foco. O registro canônico continuava correto; o defeito
+estava no consumo antecipado do contexto de apresentação, não no reconciliador.
+Log baseline.log em build/agent-runs/r3-terminal-restart.
+
+**Correção:** a bridge retém o contexto e o recibo correlacionado do erro órfão
+até um novo lançamento explícito validado. Uma tentativa viva precisa de recibo
+confirmed e sessão exata antes de vincular o contexto owned lido sem mutações;
+reabertura usa a referência exata já existente. Não fabrica notStarted para
+jogo que executou. A nova leitura bounded do contexto não remove, repara nem
+recria arquivos; owner/schema/ID/jogo/foco permanecem validados. Não há outro
+catálogo, estado persistido, supervisor, writer de lifecycle ou schema novo.
+
+O retry revalida a sessão canônica e o contexto depois das validações de foco,
+prontidão e sessão ativa, antes de consumir somente o contexto próprio. Mantém
+a compatibilidade da recusa pré-spawn e do arquivo já ausente: GET não o recria;
+um novo pedido explícito pode publicar outro contexto após a prova terminal.
+Arquivo substituído, outro owner/ID/jogo/foco, symlink ou conteúdo ilegível é
+preservado sem novo efeito. A guarda de sessão anterior só é atualizada após
+revalidar o erro retido; assim a própria sessão antiga não esconde a prova do
+retry. A retenção termina com o pedido seguinte e libera o recibo antigo.
+
+**Focados:**84 passed em39,15s, sem PYTHONPATH inicial, incluindo18 casos novos
+(17 de contrato/guardas e um percurso visual adicional). Fluxo Qt/HTTP reutiliza
+CLI/owner/jogo sintéticos reais: owner termina, jogo é preservado, recuperação
+explícita confirma failed; todo GET terminal é perdido. Uma segunda bridge
+perde novamente o terminal, uma terceira recupera o mesmo erro e foco sem
+launch/recovery automáticos. Enter dispensa, abre detalhes e lança uma única
+sessão com outro ID, retornando ao cartão. As leituras preservam exit/tempo e
+o registro canônico; os testes com recibo vivo também cobrem retry noutro jogo.
+Estado pessoal monitorado idêntico antes/depois. Tipos dos dois módulos, lint
+e formato dos quatro Python alterados passaram durante a implementação.
+
+Captura final:1 passed/1 deselected em11,49s; cinco PNGs Qt/offscreen800x800,
+sem dados pessoais, no diretório terminal-restart desta evidência.
+
+![Erro canônico recuperado após GETs perdidos e reinícios; fonte offscreen](terminal-restart/03-canonical-failure-without-estimate.png)
+
+[01 GET perdido](terminal-restart/01-terminal-get-lost.png),
+[02 segundo GET perdido](terminal-restart/02-terminal-get-lost-again.png),
+[04 retry explícito](terminal-restart/04-explicit-retry-running.png),
+[05 retorno ao cartão](terminal-restart/05-canonical-return.png).
+
+Capturas não provam instalação, Deck, hardware ou GPU/FPS. Eixos preservados;
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME continua aberto para closed com resposta
+perdida, contextos/provas ausentes, V1, Steam sem recibo, outro boot/namespace e
+prova física. O aceite de sucesso closed continua independente da retenção
+específica do erro órfão. Gates integrais/cobertura no fechamento abaixo.
+
+
+### Fechamento do replay terminal órfão — 29/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: erro/contexto retidos, leitor owned read-only e retry validado | `997c3cd9391ae88960c7ba5797413140fc5acbe8` | 84 focados,18 novos; duas perdas de GET e reaberturas, terceiro processo restaura erro/foco, um launch por Enter e retorno |
+
+**Integral concluída:**7.042 passed/48 skipped/zero failed/24 warnings em
+2.297,92s pytest; runner0 e observador0, signals vazio (2.306,66s monotônicos).
+Núcleo:6.636 passed/48 skipped/406 deselected/19 warnings em613,21s; runner0.
+Core85,514477% >=CIverde85,477196% da base490b4722 (workflow40952684734,
+Python3.14 aprovado,artifact12932966379), delta+0,037281 ponto percentual.
+Integral85,643825% registrada separadamente. Comparação/recibos em
+build/agent-runs/r3-terminal-restart/coverage-comparison.json e logs no mesmo
+diretório. Ruff check/format736, mypy307, independence/boundaries/status verdes.
+Cinco hashes intactos coincidem com o commit funcional; nenhuma repetição de
+integral por microalterações, relaxamento de testes/goldens/skips ou limiar.
+
+Estado pessoal monitorado idêntico antes/depois dos gates:3 arquivos,
+5 diretórios,860.896 bytes, mesmo max_mtime_ns. Cinco PNGs inspecionados e
+persistidos, fonte Qt/offscreen800x800; sem prova física ou medição GPU/FPS.
+Contextos substituídos/ilegíveis são preservados; ausência não é reparada por
+GET e o retry explicitamente validado mantém a compatibilidade de publicação
+nova. O registro canônico e exit/tempo não são reescritos pela apresentação.
+
+Host somente readlink:releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não
+revalidados. Nenhuma instalação, auth, release, merge, deploy ou boot. Evidência
+de fonte não promove Central Desktop, Launcher, Engine, Studio ou Aura. Outros
+códigos de falha e sucesso closed conservam seu consumo anterior; esse aceite
+fica independente. GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME continua aberto.
+
+Próximo baseline seguro: término normal closed com GET terminal perdido e novo reinício, observando foco/contexto e zero lançamentos automáticos. Manter o owner de fixture até o término canônico; não converter sucesso em erro órfão nem fabricar exit/tempo. Reutilizar contexto, recibos e serviço existentes. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/integration/test_emulation_session_lifetime.py -q. V1, provas/contextos ausentes, Steam sem recibo, outro boot/namespace e prova instalada/física permanecem independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Publicar uma vez a continuidade/PR268 após o fechamento documental; conferir
+SHA remoto e resultado terminal do CI. O run novo será registrado no PR, junto
+da comparação entre artefatos Python3.14 aprovados, sem commit circular de SHA.
+
+Validação documental:13 testes do catálogo passaram em6,54s, runner isolado
+sem PYTHONPATH inicial, estado pessoal monitorado preservado. Views/digests
+regenerados, status-check aprovado; WORKLOG recebe somente este fechamento.
+SHA e run remotos devem ser consultados no PR268 após o checkpoint de push.

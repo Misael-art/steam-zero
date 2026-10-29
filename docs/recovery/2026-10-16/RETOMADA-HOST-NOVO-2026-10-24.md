@@ -234,6 +234,29 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Fechamento de GET terminal perdido e retomada do erro órfão — 29/10/2026:**
+`997c3cd9391ae88960c7ba5797413140fc5acbe8`. A bridge retém contexto v2 owned e recibo exato
+após failed/E-SESSION-ORPHANED, mesmo se o GET terminal se perder e houver novo
+reinício. Leitura do contexto não consome/repara arquivos. O retry revalida
+estado e identidade e só então consome o registro próprio; preserva contexto
+alheio/substituído/ilegível, não fabrica notStarted nem dispara launch automático.
+Mantém ausência de arquivo compatível com um novo pedido explicitamente validado.
+Sucesso closed e outros erros não ganham esse aceite por inferência.
+
+Prova:baseline1falha/1,04s;84 focados,18 novos. Qt/HTTP com duas perdas de GET,
+terceira bridge restaura erro/foco, um retry por Enter e retorno. Integral7.042
+passed/48 skipped/0 failed em2.297,92s; núcleo6.636/48/406 em613,21s. Core85,514477%
+>=CIverde85,477196% (base490b4722,run40952684734,Python3.14). Ruff736/mypy307,
+independence/boundaries/status verdes;5 hashes e estado pessoal preservados.
+Cinco PNGs de fixture Qt/offscreen persistidos no CHECKPOINT R3; sem prova instalada
+ou hardware. Nenhuma promoção dos cinco eixos; WORKLOG só recebe fechamento.
+
+Próximo baseline seguro: término normal closed com GET terminal perdido e novo reinício, observando foco/contexto e zero lançamentos automáticos. Manter o owner de fixture até o término canônico; não converter sucesso em erro órfão nem fabricar exit/tempo. Reutilizar contexto, recibos e serviço existentes. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/integration/test_emulation_session_lifetime.py -q. V1, provas/contextos ausentes, Steam sem recibo, outro boot/namespace e prova instalada/física permanecem independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Fechar documentação e publicar uma vez a continuidade/PR268; conferir remoto e
+CI novo em estado terminal. O resultado remoto será registrado no PR. Host só
+readlink59ecc2d8f0f6; runtime/rollback não revalidados. Blocos seguintes históricos.
+
 **Fechamento da recuperação após perda do owner — 29/10/2026:** produto
 `116815d118dc6f26dcf7d2f0960ba9761eaae8ae`; integração compartilhada por último
 `7c63f4f079af0106e3d3fcb74e298a170637832d`. Depois de running confirmado, perda do owner
