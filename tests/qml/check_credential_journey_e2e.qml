@@ -120,13 +120,17 @@ Item {
 
         function postMode(path) {
             const request = new XMLHttpRequest()
+            let acknowledged = false
             request.onreadystatechange = function() {
                 if (request.readyState !== XMLHttpRequest.DONE)
                     return
                 compare(request.status, 200, "a fixture não aceitou o modo: " + path)
+                acknowledged = true
             }
             request.open("POST", bridgeConfig.syncUrl + path, true)
             request.send("{}")
+            tryVerify(function() { return acknowledged }, 4000,
+                      "a fixture não confirmou o modo antes da próxima ação: " + path)
         }
 
         function test_01_published_action_opens_dialog_and_filters_providers() {
