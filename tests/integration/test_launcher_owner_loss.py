@@ -7,19 +7,261 @@ import json
 import os
 import selectors
 import signal
+import sqlite3
 import subprocess
 import sys
 import time
+from contextlib import closing
 from pathlib import Path
 
+import pytest
 from test_emulation_session_lifetime import _WORKER, _alive
 
 from steamzero.adapters.emulation import EmulationController
+from steamzero.adapters.launcher_receipt import LaunchAttempt, Receipt
 from steamzero.adapters.launcher_session import observe_game_session
+from steamzero.adapters.launcher_ui import LauncherBridge
+from steamzero.core.session_state import SESSION_OWNER
 from steamzero.core.state import StateStore
+from steamzero.launcher.app import LaunchRouter
+from steamzero.launcher.launch import CONTEXT_OWNER, consume_context
+from steamzero.launcher.navigation import HomeSection
 
 ROOT = Path(__file__).resolve().parents[2]
 REQUEST = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+
+
+def _failed_recovery(tmp_path):
+    database = tmp_path / "state.db"
+    context = tmp_path / "context.json"
+    context.write_text(
+        json.dumps(
+            {
+                "schemaVersion": 2,
+                "owner": CONTEXT_OWNER,
+                "launchRequestId": REQUEST,
+                "gameId": "lifetime-probe",
+                "focusId": "library:lifetime-probe",
+            }
+        )
+    )
+    with StateStore(database) as store:
+        store.migrate()
+        store.create_game_session(
+            {
+                "id": REQUEST,
+                "game_id": "lifetime-probe",
+                "owner": SESSION_OWNER,
+                "state": "failed",
+                "finished_at": "2026-10-29T00:00:00+00:00",
+                "failure_code": "E-SESSION-ORPHANED",
+                "metadata_json": '{"source":"emulation"}',
+            }
+        )
+    calls = []
+
+    def spawn(argv, *, request_id, game_id):
+        calls.append(request_id)
+        return LaunchAttempt(request_id=request_id, game_id=game_id)
+
+    router = LaunchRouter(
+        on_spawn=lambda _: 0,
+        context_path=context,
+        executable=lambda: "steamzero",
+        receipt_spawner=spawn,
+    )
+
+    def reopen():
+        return LauncherBridge(
+            sections=(
+                HomeSection(id="library", title="Library", items=("first", "lifetime-probe")),
+            ),
+            context_path=context,
+            return_context=consume_context(context),
+            on_launch=router.launch,
+            session_observer=lambda game: observe_game_session(database, game),
+            session_by_id=lambda game, identity: observe_game_session(
+                database, game, session_id=identity
+            ),
+        )
+
+    return database, context, calls, reopen
+
+
+def test_recovered_failure_survives_lost_get_and_restart_until_explicit_launch(tmp_path):
+    database, context, calls, reopen = _failed_recovery(tmp_path)
+    with StateStore(database) as store:
+        before = store.get_game_session(REQUEST)
+    first = reopen()
+    result = first.session("lifetime-probe")  # The terminal reply never reaches the UI.
+    assert result["state"] == "failed" and result["sessionId"] == REQUEST
+    assert result["failureCode"] == "E-SESSION-ORPHANED"
+    assert "launchAcknowledgment" not in result and "attempt" not in result
+    assert context.exists(), "a lost terminal GET consumed the only restart context"
+    second = reopen()
+    assert second.model()["launchRecovery"]["sessionId"] == REQUEST
+    for _ in range(3):
+        assert second.session("lifetime-probe") == result
+        assert context.exists() and calls == []
+    attempt = second.launch(
+        "lifetime-probe", "library:lifetime-probe", client_request_id="explicit-retry"
+    )
+    assert attempt is not None and attempt.request_id != REQUEST
+    assert calls == [attempt.request_id]
+    assert json.loads(context.read_text())["launchRequestId"] == attempt.request_id
+    assert (
+        second.launch(
+            "lifetime-probe", "library:lifetime-probe", client_request_id="explicit-retry"
+        )
+        is attempt
+    )
+    assert calls == [attempt.request_id]
+    with StateStore(database) as store:
+        assert store.get_game_session(REQUEST) == before
+
+
+@pytest.mark.parametrize("next_game", ["first", "lifetime-probe"])
+def test_live_confirmed_attempt_retains_failure_for_restart_and_explicit_retry(tmp_path, next_game):
+    database, context, calls, reopen = _failed_recovery(tmp_path)
+    context.unlink()  # This bridge starts before its own launch, without restoration.
+    bridge = reopen()
+    attempt = bridge.launch("lifetime-probe", "library:lifetime-probe", client_request_id="old")
+    assert attempt is not None
+    attempt._settle(Receipt(state="confirmed", session_id=attempt.request_id))
+    with StateStore(database) as store:
+        store.create_game_session(
+            {
+                "id": attempt.request_id,
+                "game_id": "lifetime-probe",
+                "owner": SESSION_OWNER,
+                "state": "failed",
+                "failure_code": "E-SESSION-ORPHANED",
+                "metadata_json": '{"source":"emulation"}',
+            }
+        )
+        before = store.get_game_session(attempt.request_id)
+    for _ in range(3):
+        result = bridge.session("lifetime-probe", client_request_id="old")
+        assert result["state"] == "failed" and result["sessionId"] == attempt.request_id
+        assert result["attempt"]["state"] == "confirmed"
+        assert "launchAcknowledgment" not in result
+        assert context.exists() and calls == [attempt.request_id]
+    assert bridge.model()["launchRecovery"]["requestId"] == attempt.request_id
+    restored = reopen()
+    assert restored.model()["launchRecovery"]["sessionId"] == attempt.request_id
+    assert restored.session("lifetime-probe")["failureCode"] == "E-SESSION-ORPHANED"
+    new = bridge.launch(next_game, f"library:{next_game}", client_request_id="new")
+    assert new is not None and new.request_id != attempt.request_id
+    assert calls == [attempt.request_id, new.request_id]
+    assert json.loads(context.read_text())["gameId"] == next_game
+    assert bridge.model()["launchRecovery"] is None
+    with StateStore(database) as store:
+        assert store.get_game_session(attempt.request_id) == before
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "foreign",
+        "other-request",
+        "other-game",
+        "other-focus",
+        "symlink",
+        "malformed",
+        "unicode",
+        "deep",
+    ],
+)
+def test_recovered_retry_preserves_replaced_or_unreadable_context(tmp_path, replacement):
+    database, context, calls, reopen = _failed_recovery(tmp_path)
+    bridge = reopen()
+    assert bridge.session("lifetime-probe")["state"] == "failed"
+    if replacement == "symlink":
+        context.unlink()
+        target = tmp_path / "foreign.json"
+        target.write_text("foreign")
+        context.symlink_to(target)
+    elif replacement in {"malformed", "unicode", "deep"}:
+        context.write_bytes(
+            {"malformed": b"{not-json", "unicode": b"\xff", "deep": b"[" * 1200 + b"]" * 1200}[
+                replacement
+            ]
+        )
+    else:
+        payload = json.loads(context.read_text())
+        field, value = {
+            "foreign": ("owner", "foreign"),
+            "other-request": ("launchRequestId", "01ARZ3NDEKTSV4RRFFQ69G5FAW"),
+            "other-game": ("gameId", "first"),
+            "other-focus": ("focusId", "library:first"),
+        }[replacement]
+        payload[field] = value
+        context.write_text(json.dumps(payload))
+    before = context.read_bytes() if context.exists() else None
+    with pytest.raises(ValueError, match="context changed"):
+        bridge.launch("lifetime-probe", "library:lifetime-probe", client_request_id="retry")
+    assert (context.read_bytes() if context.exists() else None) == before
+    assert calls == []
+    if replacement == "symlink":
+        assert context.is_symlink() and target.read_text() == "foreign"
+    with StateStore(database) as store:
+        assert store.get_game_session(REQUEST)["failure_code"] == "E-SESSION-ORPHANED"
+
+
+def test_invalid_focus_does_not_consume_failure_or_hide_its_next_observation(tmp_path):
+    _database, context, calls, reopen = _failed_recovery(tmp_path)
+    bridge = reopen()
+    result = bridge.session("lifetime-probe")
+    before = context.read_bytes()
+    with pytest.raises(ValueError, match="return focus"):
+        bridge.launch("lifetime-probe", "library:first", client_request_id="bad-focus")
+    assert context.read_bytes() == before and calls == []
+    assert bridge.session("lifetime-probe") == result
+
+
+def test_missing_context_is_not_recreated_by_get_and_allows_validated_terminal_retry(tmp_path):
+    _database, context, calls, reopen = _failed_recovery(tmp_path)
+    bridge = reopen()
+    result = bridge.session("lifetime-probe")
+    context.unlink()
+    assert bridge.session("lifetime-probe") == result
+    assert not context.exists() and calls == []
+    new = bridge.launch("lifetime-probe", "library:lifetime-probe", client_request_id="retry")
+    assert new is not None and new.request_id != REQUEST
+    assert calls == [new.request_id]
+    assert json.loads(context.read_text())["launchRequestId"] == new.request_id
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("failure_code", "unregistered"),
+        ("owner", "other"),
+        ("game_id", "first"),
+        ("state", "running"),
+    ],
+)
+def test_retry_revalidates_canonical_state_after_the_terminal_reply(tmp_path, field, value):
+    database, context, calls, reopen = _failed_recovery(tmp_path)
+    bridge = reopen()
+    assert bridge.session("lifetime-probe")["state"] == "failed"
+    queries = {
+        "failure_code": "UPDATE game_session SET failure_code=? WHERE id=?",
+        "owner": "UPDATE game_session SET owner=? WHERE id=?",
+        "game_id": "UPDATE game_session SET game_id=? WHERE id=?",
+        "state": "UPDATE game_session SET state=? WHERE id=?",
+    }
+    with closing(sqlite3.connect(database)) as external:
+        external.execute(queries[field], (value, REQUEST))
+        external.commit()
+    before = context.read_bytes()
+    with StateStore(database) as store:
+        row = store.get_game_session(REQUEST)
+    with pytest.raises(ValueError, match="proven retryable terminal"):
+        bridge.launch("lifetime-probe", "library:lifetime-probe", client_request_id="retry")
+    assert context.read_bytes() == before and calls == []
+    with StateStore(database) as store:
+        assert store.get_game_session(REQUEST) == row
 
 
 def test_owner_loss_preserves_game_and_exposes_recovery_after_its_exit(tmp_path):

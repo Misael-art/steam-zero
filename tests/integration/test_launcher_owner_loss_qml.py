@@ -31,8 +31,9 @@ from steamzero.adapters.launcher_receipt import spawn_receipt
 from steamzero.launcher.app import LaunchRouter
 from steamzero.launcher.launch import consume_context
 from steamzero.launcher.navigation import HomeSection
-database,context,stop,release,counters,worker,entry=map(Path,sys.argv[1:])
-launches=[];recoveries=[];dropped=[]
+database,context,stop,release,counters,worker,entry=map(Path,sys.argv[1:8])
+mode=sys.argv[8]
+launches=[];recoveries=[];dropped=[];terminal_dropped=[]
 def spawn(argv,*,request_id,game_id):
     launches.append(request_id);release.unlink(missing_ok=True)
     return spawn_receipt(
@@ -56,10 +57,15 @@ def get(handler):
     if handler.path=='/owner-control/finish' and handler._authorized():
         release.touch();original_send(handler,200,{})
     elif handler.path=='/owner-control/count' and handler._authorized():
-        original_send(handler,200,{'launches':len(launches),'recoveries':len(recoveries)})
+        original_send(handler,200,{'launches':len(launches),'recoveries':len(recoveries),
+            'terminalDrops':len(terminal_dropped)})
     else:original_get(handler)
 def send(handler,status,body):
-    if handler.path=='/session/recover' and not dropped:
+    if (mode in {'lost-terminal','restart-lost-terminal'}
+            and handler.path.startswith('/session?')
+            and body.get('state')=='failed' and body.get('failureCode')=='E-SESSION-ORPHANED'):
+        terminal_dropped.append(True);handler.close_connection=True;return
+    if handler.path=='/session/recover' and mode!='lost-terminal' and not dropped:
         dropped.append(True);handler.close_connection=True;return
     original_send(handler,status,body)
 launcher_ui._Handler.do_GET=get
@@ -68,12 +74,18 @@ with bridge.serving() as api:
     print(json.dumps({'api':api,'token':bridge.token}),flush=True)
     deadline=time.monotonic()+45
     while not stop.exists() and time.monotonic()<deadline:time.sleep(.02)
-counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,'dropped':len(dropped)}))
+counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
+    'dropped':len(dropped),'terminalDrops':len(terminal_dropped)}))
 """
 
 
 @pytest.mark.visual
-def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(tmp_path):
+@pytest.mark.parametrize(
+    "lose_terminal", [False, True], ids=["post-reply-loss", "terminal-get-restart"]
+)
+def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(
+    tmp_path, lose_terminal
+):
     runner = shutil.which("qmltestrunner6") or "/usr/lib/qt6/bin/qmltestrunner"
     assert Path(runner).is_file(), "QML-VISUAL-ENVIRONMENT-001: Qt6 obrigatório"
     state_home = tmp_path / "xdg-state"
@@ -140,7 +152,12 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(tmp
         while _alive(owner_pid) and time.monotonic() < deadline:
             time.sleep(0.02)
         assert not _alive(owner_pid) and _alive(game_pid)
-        for mode in ("observe", "recover"):
+        phases = (
+            ("observe", "lost-terminal", "restart-lost-terminal", "recover-reopened")
+            if lose_terminal
+            else ("observe", "recover")
+        )
+        for mode in phases:
             stop, counters = (tmp_path / f"{mode}-{name}" for name in ("stop", "counts.json"))
             with subprocess.Popen(
                 [
@@ -154,6 +171,7 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(tmp
                     str(counters),
                     str(worker),
                     str(entry),
+                    mode,
                 ],
                 env=env,
                 stdout=subprocess.PIPE,
@@ -165,9 +183,15 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(tmp
                     with selectors.DefaultSelector() as ready:
                         ready.register(server.stdout, selectors.EVENT_READ)
                         assert ready.select(timeout=8)
-                    config = {**json.loads(server.stdout.readline()), "mode": mode, "capture": ""}
+                    config = {
+                        **json.loads(server.stdout.readline()),
+                        "mode": mode,
+                        "identity": identity,
+                        "capture": "",
+                    }
                     if os.environ.get("STEAMZERO_CAPTURE_OWNER_LOSS") == "1":
-                        config["capture"] = str(ROOT / "build/agent-runs/r3-owner-loss")
+                        folder = "r3-terminal-restart" if lose_terminal else "r3-owner-loss"
+                        config["capture"] = str(ROOT / "build/agent-runs" / folder)
                     (tmp_path / "owner-loss-config.json").write_text(json.dumps(config))
                     result = subprocess.run(
                         [runner, "-input", str(harness)],
@@ -181,15 +205,17 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(tmp
                     stop.touch()
                     server.communicate(timeout=10)
             counts = json.loads(counters.read_text())
-            assert len(counts["launches"]) == (0 if mode == "observe" else 1)
-            assert len(counts["recoveries"]) == (0 if mode == "observe" else 1)
+            retried = mode in {"recover", "recover-reopened"}
+            assert len(counts["launches"]) == int(retried)
+            assert len(counts["recoveries"]) == int(mode in {"recover", "lost-terminal"})
             with StateStore(database) as store:
                 row = store.get_game_session(identity)
             if mode == "observe":
                 assert row == before, "GET/owner loss must not mutate the canonical row"
                 assert json.loads(context.read_text())["launchRequestId"] == identity
-            else:
-                assert counts["dropped"] == 1 and counts["recoveries"] == [identity]
+            elif retried:
+                assert counts["dropped"] == int(mode == "recover")
+                assert counts["recoveries"] == ([identity] if mode == "recover" else [])
                 assert counts["launches"][0] != identity and not context.exists()
                 assert row["state"] == "failed" and row["failure_code"] == "E-SESSION-ORPHANED"
                 assert row["exit_code"] is None
@@ -198,6 +224,14 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(tmp
                 with StateStore(database) as store:
                     latest = store.latest_game_session("lifetime-probe")
                 assert latest["state"] == "closed" and latest["id"] == counts["launches"][0]
+            else:
+                assert counts["terminalDrops"] > 0 and counts["dropped"] == 0
+                assert context.exists(), "lost terminal GET consumed the restart context"
+                assert json.loads(context.read_text())["launchRequestId"] == identity
+                assert row["state"] == "failed" and row["failure_code"] == "E-SESSION-ORPHANED"
+                assert row["exit_code"] is None
+                assert row["played_seconds"] == before["played_seconds"]
+                assert row["duration_source"] == before["duration_source"]
     finally:
         release.touch()
         for pid in (owner_pid, game_pid):

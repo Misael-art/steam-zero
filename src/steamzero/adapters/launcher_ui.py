@@ -44,7 +44,7 @@ from steamzero.domain.scene_layout import LayoutBounds, LayoutRecipe
 from steamzero.domain.session_overlay import resolve_session_overlay
 from steamzero.launcher.cinema import resolve_cinema_covers
 from steamzero.launcher.journey_runtime import JourneyRuntime
-from steamzero.launcher.launch import forget_context, recovery_context
+from steamzero.launcher.launch import forget_context, read_recovery_context, recovery_context
 from steamzero.launcher.navigation import HomeSection, resolve_home_focus
 
 #: Devolve a tentativa com recibo (ou ``None`` na rota Steam, sem recibo).
@@ -1450,6 +1450,7 @@ class LauncherBridge:
                     _public_reason(str(verdict.get("reason") or "")),
                     can_prepare=verdict.get("canPrepare") is True,
                 )
+        previous_session_id = None
         if self._session_observer is not None:
             previous = self._session_observer(game_id)
             if previous.get("state") in {
@@ -1461,7 +1462,7 @@ class LauncherBridge:
                 "closing",
             }:
                 raise ValueError("the game already has an active canonical session")
-            self._previous_sessions[game_id] = previous.get("sessionId")
+            previous_session_id = previous.get("sessionId")
         bezel_resource = "aura-default"
         if self._journey_runtime is not None:
             selection = self._journey_runtime.stage_bezel("bezel")
@@ -1469,13 +1470,26 @@ class LauncherBridge:
         if self._recovery is not None:
             recovered = self._recovery
             prior = self._session_locked(recovered["gameId"])
-            if prior.get("attempt", {}).get("state") != "notStarted":
-                raise ValueError("recovery has no proven pre-spawn refusal")
+            refusal = prior.get("attempt", {}).get("state") == "notStarted"
+            orphaned = (
+                prior.get("sessionId") == recovered["sessionId"]
+                and prior.get("state") == "failed"
+                and prior.get("failureCode") == "E-SESSION-ORPHANED"
+            )
+            if not refusal and not orphaned:
+                raise ValueError("recovery has no proven retryable terminal state")
+            if read_recovery_context(self._context_path) != recovered and (
+                self._context_path.exists() or self._context_path.is_symlink()
+            ):
+                raise ValueError("recovery context changed; refusing to replace it")
             if not forget_context(self._context_path, recovered["requestId"]) and (
                 self._context_path.exists() or self._context_path.is_symlink()
             ):
                 raise ValueError("recovery context changed; refusing to replace it")
+            self._attempts.pop(recovered["gameId"], None)
             self._recovery = None
+        if self._session_observer is not None:
+            self._previous_sessions[game_id] = previous_session_id
         attempt = (
             self._on_launch_bezel(game_id, focus_id, bezel_resource)
             if self._on_launch_bezel is not None
@@ -1780,6 +1794,21 @@ class LauncherBridge:
             if outcome is not None:
                 awaiting["attempt"] = outcome
             return awaiting
+        if result.get("state") == "failed" and result.get("failureCode") == "E-SESSION-ORPHANED":
+            if recovered is None and outcome is not None and attempt is not None:
+                pending = read_recovery_context(self._context_path)
+                if pending is not None and (
+                    pending["gameId"] == game_id
+                    and pending["sessionId"] == result.get("sessionId")
+                    and pending["requestId"] == attempt.request_id
+                ):
+                    self._recovery = pending
+            if recovered is not None or outcome is not None:
+                if self._pending_game == game_id:
+                    self._pending_game = None
+                # Delivery is unconfirmed. Preserve context/receipt until the
+                # next explicit, validated launch; this is NOT notStarted.
+                return {**result, "attempt": outcome} if outcome is not None else result
         if self._pending_game == game_id and result.get("state") in {"closed", "failed"}:
             self._pending_game = None
             identity = (

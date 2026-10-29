@@ -18,6 +18,23 @@ Item {
             }))
             tryVerify(function() { return saved }, 3000)
         }
+        function waitForLostTerminal(scene) {
+            let counts=null
+            let pending=false
+            tryVerify(function() {
+                if (counts && counts.terminalDrops > 0) return true
+                if (!pending) {
+                    pending=true
+                    scene._request("GET","/owner-control/count",null,function(status,text) {
+                        pending=false
+                        if(status===200) counts=JSON.parse(text)
+                    })
+                }
+                return false
+            },5000)
+            compare(counts.launches,0)
+            return counts
+        }
         function test_owner_loss_recovery_is_explicit() {
             const request=new XMLHttpRequest()
             request.open("GET", Qt.resolvedUrl("owner-loss-config.json"), false)
@@ -27,6 +44,15 @@ Item {
             scene.api=config.api; scene.token=config.token; scene._start()
             tryCompare(scene,"loadState","ready")
             const shell=scene._activeLauncherShell()
+            if (config.mode === "restart-lost-terminal") {
+                compare(shell.observedSessionId,config.identity)
+                const repeated=waitForLostTerminal(scene)
+                compare(repeated.recoveries,0)
+                verify(shell.launchState!=="failed")
+                compare(shell.homeFocus,"library:lifetime-probe")
+                capture(scene,config,"02-terminal-get-lost-again")
+                return
+            }
             if (config.mode === "observe") {
                 tryCompare(shell,"launchState","emulator-visible",5000)
                 compare(shell.sessionUncertain,false)
@@ -34,21 +60,33 @@ Item {
                 capture(scene,config,"01-game-survives-owner-loss")
                 scene._request("GET","/owner-control/finish",null,function(){})
             }
-            tryCompare(shell,"sessionUncertain",true,5000)
-            tryCompare(shell,"sessionRecoveryAvailable",true,3000)
-            compare(shell.launchFocused(),false)
+            if (config.mode !== "recover-reopened") {
+                tryCompare(shell,"sessionUncertain",true,5000)
+                tryCompare(shell,"sessionRecoveryAvailable",true,3000)
+                compare(shell.launchFocused(),false)
+            }
             let counts=null
             scene._request("GET","/owner-control/count",null,function(status,text){
                 if(status===200)counts=JSON.parse(text)
             })
             tryVerify(function(){return counts!==null},2000)
             compare(counts.launches,0); compare(counts.recoveries,0)
-            tryVerify(function(){return findChild(shell,"sessionRecoveryButton").activeFocus},2000)
-            capture(scene,config,"02-explicit-recovery-available")
-            if(config.mode === "observe") return
-            keyClick(Qt.Key_Return)
-            compare(shell.requestSessionRecovery(),false)
+            if (config.mode !== "recover-reopened") {
+                tryVerify(function(){return findChild(shell,"sessionRecoveryButton").activeFocus},2000)
+                capture(scene,config,"02-explicit-recovery-available")
+                if(config.mode === "observe") return
+                keyClick(Qt.Key_Return)
+                compare(shell.requestSessionRecovery(),false)
+                if(config.mode === "lost-terminal") {
+                    const lost=waitForLostTerminal(scene)
+                    compare(lost.recoveries,1)
+                    verify(shell.launchState!=="failed")
+                    capture(scene,config,"01-terminal-get-lost")
+                    return
+                }
+            }
             tryCompare(shell,"launchState","failed",6000)
+            compare(shell.observedSessionId,config.identity)
             verify(shell.launchError.indexOf("E-SESSION-ORPHANED")>=0)
             compare(shell.sessionUncertain,false)
             tryVerify(function(){return findChild(shell,"launchFailureRetry").activeFocus},2000)

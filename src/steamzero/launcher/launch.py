@@ -128,6 +128,14 @@ def forget_context(path: Path, request_id: str) -> bool:
     return True
 
 
+def read_recovery_context(path: Path) -> dict[str, str] | None:
+    """Observe an owned v2 context without consuming or repairing any file."""
+    try:
+        return recovery_context(json.loads(_context_text(path)))
+    except (OSError, ValueError, RecursionError):
+        return None
+
+
 @dataclass(frozen=True)
 class LaunchHandle:
     pid: int
