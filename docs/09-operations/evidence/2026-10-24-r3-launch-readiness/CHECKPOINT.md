@@ -115,3 +115,83 @@ Validação documental: a primeira tentativa encontrou disputa de claim no teste
 de remediation (12passed/1failed); cessão serial reconciliada e visões regeneradas.
 Reteste final do módulo de status: **13 passed**, sem delta no estado pessoal;
 status-check aprovado. O fechamento preserva resultados brutos e separa o reteste.
+
+
+## Continuidade — cartão e andamento observado, 28/10/2026
+
+Base52b9ebf8 e PR268 conferidos: oito jobs do run40780398054 terminaram verdes,
+incluindo QML canônico. Essa evidência fecha o CI anterior, não prova instalação.
+Baseline da fatia nova: LauncherHome não tinha observador nem estado/progresso
+no cartão; o teste raiz procurava selectedGameReadiness e falhou nas duas variantes.
+
+Um único LauncherReadiness segue o foco semântico, com debounce200ms, e publica
+badge do cartão nativo e faixa operacional da Home/Cinema. A faixa reserva área
+da cena para manter título e atalhos visíveis. Nenhum passeio pela biblioteca
+inicia preparo. Header/ausência de seleção/Home oculta não consultam a porta.
+Preparar continua explícito nos detalhes. Ao voltar durante extração, o mesmo
+GET autenticado observa preparando/erro/pronto e conserva seleção. A porta atual
+não publica totais: a barra é indeterminada, sem porcentagem estimada. ReducedMotion
+usa texto estático, sem animar a barra ou spinner. Consulta sem callback expira
+em8s, admite retry e invalida resposta atrasada; POST incerto mantém a observação
+sem repetir a mutação. Nenhum catálogo/executor/cache paralelo foi criado.
+
+Focadas finais:31passed, incluindo gesto/foco/timeout/retorno/busca, HTTP,
+ZIP real e transação. QML adiciona regressões de seleção rápida, resposta antiga,
+header/Home oculta, timeout/retry, Cinema e reducedMotion. Captura PNG de fixture
+real em Qt/offscreen inspecionada: build/agent-runs/r3-cards/02-preparing.png;
+é artefato local regenerável, não captura de release instalada nem prova GPU/FPS.
+Sem delta no estado pessoal nos runners. Logs em build/agent-runs/r3-cards/.
+Fonte de produto, CI visual canônico, instalação e hardware mantêm aceites separados.
+Resultados integrais são registrados no fechamento desta fatia.
+
+Regressão ampla antes do checkpoint: **128 passed em72,90s**, cobrindo todas as
+integrações test_launcher_*.py. Arquivos de produto/teste congelados por SHA-256
+antes da integral; nenhum gate físico promovido.
+
+
+### Fechamento do cartão em fonte — 28/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| Observação limitada e apresentação somente leitura | `d9d8f42ba05f09851cf81430a00866ba3d96b289` | timeout, resposta antiga, leitura sem preparar, andamento sem porcentagem |
+| Cartão selecionado e retorno Home/Cinema | `d93bae2e09e9cf1d6fad6b4494473365807ef57f` | 128 integrações do Launcher; ZIP/transação reais e Qt/offscreen |
+
+Integral oficial: **6.894 passed, 48 skipped, zero failed**, 19 warnings,
+2270,17s (37m50s), runner exit0. Cobertura da integral: **85,559251%**.
+Os cinco arquivos de produto/teste congelados conservaram SHA-256 durante a
+execução. Nenhum produto mudou após a integral. Os48skips mantêm seus motivos.
+
+A comparação exploratória com a integral anterior (que terminou com uma falha
+de fixture) mostrou delta de−0,014pp em caminhos Python não alterados. Reteste
+dirigido: **111 passed em15,52s**; a execução agregada ficou85,562118%.
+Foi acrescentado somente um teste após a integral: uma biblioteca é retirada
+depois do scan real, e o preflight deve recusar seu archive antes do runtime.
+Esse teste protege custódia, sem afrouxar o contrato nem mudar produção.
+
+A comparação de não regressão usa o **baseline verde de núcleo do CI**, mesma
+seleção `-m "not visual"`, mesmos52.128statements e17.626branches. Artefato
+coverage-python-3.14 do run40780398054, head52b9ebf8, artifact12856673513:
+663.174bytes comprimidos, somente dados baixados para build/agent-runs/r3-cards/
+baseline-ci-coverage, recibo/hash local em baseline-receipt.json. Baseline:
+**85,395819%**. Núcleo atual: **6.498 passed, 48 skipped, 397 deselected**,19warnings,
+680,68s, runner exit0; **85,435961% >= 85,395819%**. Não houve regressão nesse
+comparativo. Cobertura da integral e do núcleo são reportadas separadamente.
+Não se repetiu a bateria QML depois de acrescentar o teste de custódia.
+
+Ruff check/format (728arquivos), mypy306, independence, boundaries e status-check
+aprovados. A documentação final regenera apenas os digests afetados e as visões;
+validação específica do catálogo acompanha o commit documental. WORKLOG é append-only.
+
+Nenhuma instalação, release, merge, deploy, boot ou autenticação privilegiada.
+Readlink somente: releases/2.0.0rc1-59ecc2d8f0f6; runtime efetivo e rollback não
+revalidados. A captura funcional é de fonte com fixtures e Qt/offscreen, sem
+aceite instalado/físico, controle real, desempenho ou promoção da Theme Engine.
+
+Reprodução da captura: carregar .steamzero-dev/env.sh e executar
+`STEAMZERO_CAPTURE_READINESS=1 rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_readiness_qml.py -q`.
+Próximo lote seguro: conferir se o gap existente
+GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY ainda é reproduzível e fechar a
+jornada de reconexão se necessário, usando os serviços e workstreams existentes.
+Começar por tests/integration/test_launcher_request_timeout.py e
+ tests/integration/test_launcher_return_cycle.py. Instalação e provas físicas
+permanecem pendentes de autorização/aceite próprios; não iniciar autenticação.

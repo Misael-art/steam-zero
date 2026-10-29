@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-LAUNCH-READINESS-PREPARATION",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "3f010cec33f56b65cace1f673a80b9c4f7d63914",
+  "baseRef": "52b9ebf89f4ca5a45c4692d438560b942b791398",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -22,7 +22,8 @@
     "src/steamzero/adapters/multidisc_materializer.py",
     "tests/unit/test_multidisc_materializer.py",
     "tests/integration/test_launcher_archive_preparation.py",
-    "tests/unit/test_emulation_runtime_remediation.py"
+    "tests/unit/test_emulation_runtime_remediation.py",
+    "src/steamzero/ui/qml/launcher/LauncherHome.qml"
   ],
   "sharedPaths": [
     "src/steamzero/launcher/app.py",
@@ -32,6 +33,6 @@
     "docs/WORKLOG.md",
     "src/steamzero/adapters/emulation.py"
   ],
-  "nextAction": "Fonte integrada serialmente em d41923f4/eb39b4b6, base3f010cec: gap de identidade/preparo corrigido; 53focadas verdes, integral6893/48/1 com fixture ajustada e retestada sem mudar produto. Publicar checkpoint no PR268 e conferir CI. Próximo lote seguro: cartão/progresso via portas existentes; sem instalação/auth, aceites físicos pendentes.",
+  "nextAction": "Fonte fechada em d9d8f42b/d93bae2e:128integraçõesLauncher, integral6894/48/0 e núcleo6498/48, cobertura85,435961%>=CIverde85,395819%. Publicar checkpoint no PR268 e conferir SHA/CI novo. Sem instalação/auth; aceite físico pendente. Próximo lote seguro: reproduzir/reconciliar GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY nos itens existentes.",
   "updatedAt": "2026-10-28"
 }

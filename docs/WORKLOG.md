@@ -15045,3 +15045,41 @@ reconciliada com a frente de origem, sem tocar código. Status-check final passo
 e o módulo de status foi repetido separadamente; resultado no log
 build/agent-runs/r3-archive/status-retest-final.log. Nenhuma suíte visual foi
 repetida após a alteração exclusiva de fixture/documentação.
+
+
+## 2026-10-28 — R3: prontidão no cartão e andamento na Home/Cinema
+
+Continuidade serial na branch codex/product-recovery-2026-10-16, base 52b9ebf8,
+PR #268. CI anterior 40780398054: oito jobs verdes, incluindo visual canônico.
+Handoff prospectivo de LauncherHome.qml registrado com a frente de origem.
+
+Fonte: d9d8f42ba05f09851cf81430a00866ba3d96b289 (observação limitada e somente
+leitura) e d93bae2e09e9cf1d6fad6b4494473365807ef57f (cartão, Home/Cinema e testes).
+Um observador acompanha a seleção estável com debounce de 200 ms; navegação não
+prepara jogos. A preparação permanece explícita nos detalhes. Ao voltar à Home,
+o serviço informa preparando/erro/pronto, com barra indeterminada e reducedMotion
+estático. Timeout de 8 s invalida respostas antigas. A faixa preserva título e
+atalhos do Cinema. Biblioteca removida depois do scan é recusada antes do runtime.
+
+Validação: 128 integrações do Launcher aprovadas; integral 6.894 passed, 48 skipped,
+zero failed em 2270,17 s, cobertura 85,559251%, runner exit 0. Produto e os cinco
+arquivos congelados conservaram seus hashes durante a execução. Acrescentado apenas
+um teste de custódia após a integral: reteste dirigido 111 passed. A comparação
+exploratória com a integral anterior reprovada motivou uma conferência equivalente:
+núcleo 6.498 passed, 48 skipped, 397 deselected em 680,68 s, cobertura 85,435961%
+contra 85,395819% do baseline verde de Python 3.14 do CI, mesmos denominadores.
+Artefato de cobertura de 663.174 bytes baixado, com recibo/hash nos logs locais.
+Sem alteração de limiar, goldens, skips ou código de produto para acomodar o host.
+Ruff check/format, mypy 306, independence, boundaries, status-check e 13 testes do
+catálogo passaram. Digests e visões regenerados sem promover outros aceites.
+
+PNG funcional de fixture em Qt/offscreen inspecionado em
+build/agent-runs/r3-cards/02-preparing.png; logs no mesmo diretório. Sem delta no
+estado pessoal observado pelos runners. Nenhuma instalação, release, merge, deploy,
+boot ou autenticação privilegiada. Readlink: releases/2.0.0rc1-59ecc2d8f0f6;
+runtime efetivo e rollback não revalidados. Provas instaladas/físicas pendentes.
+
+Publicar checkpoint coeso no PR #268 e conferir SHA remoto e CI novo. Próxima
+investigação segura: baseline do gap de reconexão da bridge já registrado em
+SZ-AURA-LAUNCHER, sem inventar causa ou refazer algo já entregue. Começar pelos
+testes existentes de timeout e retorno. Detalhes e limites no CHECKPOINT de R3.

@@ -241,7 +241,7 @@ resolve um alvo base único no preflight compartilhado. Scan, preparo, rescan,
 reabertura, erro e recuperação usam fixtures isoladas; LauncherMain também foi
 exercitado em Qt/offscreen com o materializador real. Resultados e limites em
 [CHECKPOINT R3](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).
-Próximo lote seguro: prontidão/progresso no cartão pelas portas existentes.
+Prontidão/progresso do cartão entregues em fonte em `d9d8f42b`/`d93bae2e`: 128 integrações Launcher e integral6894/48/0 aprovadas. Núcleo6498/48 e cobertura85,435961%>=baselineCIverde85,395819%. Fonte/QMLoffscreen; sem instalação. Próximo lote seguro: baseline de GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY, se ainda aberto, com os testes de timeout/retorno existentes.
 Conferir o CI do novo SHA e validar a jornada na release quando
 houver autorização própria; cartão/progresso e primeira instalação continuam
 aceites distintos. O roteiro abaixo permanece como diagnóstico histórico.
