@@ -166,6 +166,14 @@ Item {
         return true
     }
 
+    function restoreSurfaceFocus() {
+        if (gamePage !== null)
+            page.forceActiveFocus()
+        else
+            home.forceActiveFocus()
+        return true
+    }
+
     function openGame(gameId) {
         if (launchState === "launching" || launchState === "emulator-visible")
             return false
