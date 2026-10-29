@@ -404,3 +404,112 @@ lote. Começar por src/steamzero/launcher/launch.py, launcher/app.py e
 adapters/launcher_session.py, usando o estado canônico existente. Não migrar
 schema, adotar sessão por nome/PID/gameId ou promover Steam sem recibo por
 inferência. Provas instaladas/físicas e autorização de host continuam pendentes.
+
+### Retomada entre processos — 29/10/2026
+
+Continuidade serial na mesma branch, base b55890b0; CI dessa base concluído
+com sucesso no run 40845684020. Escopo transferido explicitamente do workstream
+Journey para WS-2026-10-RECOVERY-R3-LAUNCH-READINESS antes da implementação.
+Autorização vigente cobre fonte, gates, commit/push/PR #268; sem instalação,
+autenticação, release, merge, deploy ou boot.
+
+Baseline real em processos separados: o Launcher originador encerrou, mantendo
+o CLI/owner canônico e o jogo sintético vivos. A bridge nova consumiu somente
+jogo/foco, e o QML ficou idle em vez de acompanhar a sessão: uma falha em 7,67 s,
+build/agent-runs/r3-bridge-restart/baseline.log. Não foi inferência por nome/PID.
+
+Migração explícita e aditiva do contexto: v1 mantém consumo único de foco;
+novos lançamentos de emulação publicam v2 com schemaVersion, owner e
+launchRequestId ULID pré-alocado antes do spawn. A CLI recebe
+--launch-request-id; o controlador valida a identidade e a reserva pela criação
+canônica já existente. IDs usados ou lifecycle indisponível são recusados antes
+de configurar/spawn. O schema SQLite permanece 23, sem migração de banco.
+O teste anterior de contexto gerado pelo Router passa a exigir persistência v2;
+os testes legados de consumo v1 permanecem. O prefixo --json do argv foi
+preservado para compatibilidade, após regressão detectada pelo teste existente.
+
+O contexto é referência, nunca prova de execução. A mesma observação read-only
+agora aceita ID exato, sempre filtrado por jogo e owner e com a guarda existente
+de PID/start_ticks. A bridge nova não consulta a última sessão como alternativa.
+O shell inicia não confirmado, bloqueia novo POST e acompanha somente essa
+identidade; ausência, erro de leitura ou divergência preservam a incerteza.
+Isso também cobre a morte do Launcher antes de o CLI criar a linha canônica.
+Uma linha posterior válida permite continuar a observação, sem relançar o jogo.
+O término canônico consome apenas o contexto v2 próprio e devolve o mesmo foco;
+jogo removido do catálogo não impede observar seu término exato.
+
+Publicação exclusiva usa core.fs.write_tmp/publish_link; corrida não sobrescreve
+contexto pendente. A publicação rastreada preserva symlink e arquivo alheio;
+a leitura preserva contextos estruturados versionados inválidos.
+Falha de execução conhecida pode remover somente o próprio contexto; exceção
+incerta o mantém. Nenhum segundo catálogo, supervisor ou gerenciador de sessão.
+
+Prova focada final: 33 testes em 14,66 s, incluindo cinco de lifetime/CLI e 28
+de retomada; dois exercitam Router, CLI, SQLite, bridge HTTP e LauncherMain em
+processos distintos, com dois reinícios da bridge e zero novos lançamentos.
+Cobrem sessão já confirmada e sessão ainda não criada, retorno, IDs divergentes,
+owner externo, PID reutilizado, leitura ausente, concorrência e dados preservados.
+Outros 50 casos de regressão focada passaram antes do último caso de lifetime;
+regressão ampliada teve 344 passed e uma falha de ordenação do argv, corrigida
+no produto e revalidada pelo teste original, sem relaxar sua asserção.
+Logs locais em build/agent-runs/r3-bridge-restart. Capturas 01–03 inspecionadas,
+fonte Qt/offscreen fullscreen 800x800, sem dado pessoal ou prova de hardware.
+
+Limites: v1 não ganha correlação retroativa; Steam sem recibo continua pendente.
+Se a linha exata nunca for criada, a retomada permanece não confirmada; não há
+retry/cancelamento automático nem fabricação de notStarted após perder o owner.
+A retenção do clientRequestId da bridge viva continua limitada ao último pedido,
+sem histórico persistente de replay. Não se alegam retomada após reboot, owner
+morto, instalação, hardware ou desempenho. GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME
+permanece aberto nos limites residuais. Gates integrais no fechamento abaixo.
+
+### Fechamento da retomada entre processos — 29/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: contexto v2, CLI e observação exata após reinício | `b9f190f7026bc0e064096f25adc6a3ac5e74558f` | 33 focados de retomada/lifetime; dois percursos Qt/HTTP entre processos, com dois reinícios e zero novos lançamentos |
+
+**Integral concluída: 6.945 passed, 48 skipped, zero failed**, 19 warnings,
+2.197,55 s, runner exit 0. Cobertura integral: **85,583796%**.
+Núcleo: **6.542 passed, 48 skipped, 403 deselected**, 23 warnings,
+587,02 s, runner exit 0. Comparação equivalente not visual:
+**85,466579% >= 85,412847%** do CI verde 40845684020, head b55890b0.
+Denominadores atuais: 52.260 statements/17.696 branches; baseline:
+52.164/17.644. Os acréscimos de código mudam os denominadores; a seleção é
+equivalente, sem regressão de cobertura. Artefato 12885815142,
+coverage-python-3.14, 663.726 bytes comprimidos, SHA-256
+5d06a4976f3fbe54bf1a5b7c93a83ae0e590edfc91a067862674d02de7a177e7.
+Recibos, cobertura e logs locais: build/agent-runs/r3-bridge-restart.
+
+Ruff check/format (730 arquivos), mypy (306 fontes), independence, boundaries
+e status-check verdes. Os 13 hashes de fonte/testes permaneceram iguais durante
+os gates e coincidem com o commit funcional. Nenhum golden, skip, limiar ou
+teste foi relaxado para passar. A migração v1/v2 está explicitada acima.
+Estado pessoal monitorado idêntico antes/depois dos gates concluídos, sem
+warning de escritor externo. Validação documental: 13 testes do catálogo
+passaram em 7,17 s; digests/views regenerados e status-check aprovado.
+
+A primeira integral deste lote terminou com SIGTERM 143 aos 27%, sem resumo
+de pytest: **resultado desconhecido, não aprovado**. Nenhum pytest deste projeto
+permaneceu ativo. Não houve atribuição do remetente nos registros consultados;
+não se afirma causa raiz. Log full-interrupted.log e recibo próprio preservados.
+O acompanhamento temporário passou a emitir progresso e registrar siginfo,
+repassando cancelamento ao grupo filho. Uma prova curta identificou o remetente,
+repassou SIGTERM e recolheu o filho. A repetição integral supervisionada terminou
+com saída 0 e signals vazio; isso não prova a causa da interrupção anterior.
+Somente essa passagem integral concluída conta. Núcleo e estáticos não foram
+repetidos; fonte/testes permaneceram intactos. Nenhuma guarda foi contornada.
+
+Sem instalação, release, merge, deploy, boot ou autenticação privilegiada.
+Readlink conferido: releases/2.0.0rc1-59ecc2d8f0f6; runtime e rollback não
+revalidados. Capturas 01–03 de fonte Qt/offscreen 800x800 inspecionadas; jogo
+sintético e CLI/owner reais em processos distintos, sem uso do acervo pessoal.
+Aceites de Central Desktop, Theme Engine, Theme Studio, Aura e hardware intactos.
+
+Próxima reprodução segura: recusa pré-spawn com resultado perdido depois que o
+Launcher originador encerra, antes de existir linha canônica. Não liberar retry
+por ausência de linha nem fabricar notStarted; avaliar recuperação pela fonte
+de verdade existente. Começar pela regressão atual:
+`.venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_emulation_session_lifetime.py -q`,
+com o perfil .steamzero-dev/env.sh. Steam sem recibo e provas instaladas/físicas
+continuam independentes e pendentes. Publicar estes commits e conferir CI do SHA.

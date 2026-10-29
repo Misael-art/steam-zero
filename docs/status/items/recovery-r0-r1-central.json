@@ -21,7 +21,7 @@
     "tests/integration/test_emulation_platform_scope.py",
     "tests/unit/test_launch_sony_nintendo.py"
   ],
-  "scopeDigest": "ec566b799efe96a3fb554c049da0a1717ca4cf39529165dd48b6b3eacc70cfa5",
+  "scopeDigest": "03c3a54749ae884302e29da5222bf86d72c735d957fdc7edf583f251f77c0b66",
   "dependsOn": [
     "SZ-EMULATION-PLATFORM-SCOPE",
     "SZ-EMULATION-PLATFORM-CONTEXT",

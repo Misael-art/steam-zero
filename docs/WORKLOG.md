@@ -15180,3 +15180,48 @@ O contexto atual persiste somente gameId/foco e é consumido na reabertura;
 clientRequestId não é persistido. Não adotar por nome/PID/gameId nem migrar schema
 por inferência. GAP-SESSION-ACK-LIFETIME, Steam sem recibo e provas físicas seguem
 abertos, sem iniciar autenticação/instalação. Handoff do host novo atualizado.
+
+
+## 2026-10-29 — R3: retomada da sessão exata após recriar o Launcher
+
+Executor central, único checkout e branch codex/product-recovery-2026-10-16,
+base b55890b0, CI 40845684020 concluído com oito jobs verdes. Autorização vigente
+para fonte, gates, commit/push/PR #268; sem instalação/auth/release/merge/boot.
+Handoff serial prospectivo de CLI/contexto/observador/testes registrado nos
+workstreams antes das edições, sem escritor concorrente observado no projeto.
+
+Funcional b9f190f7026bc0e064096f25adc6a3ac5e74558f: contexto v2 owned com ID
+pré-alocado antes do spawn, passado pela CLI à sessão canônica existente.
+Reabertura observa ID/jogo/owner exatos com guarda de PID/start_ticks; contexto
+não é prova de execução. Ausência/divergência preserva a trava. Término canônico
+consome somente o contexto próprio e restaura o foco. V1 conserva consumo único;
+CLI antiga permanece válida e SQLite permanece no schema 23. Migração do teste de contexto
+produzido pelo Router explicitada no commit; legado v1 e prefixo --json intactos.
+
+Baseline entre processos falhou com owner/jogo vivos; correção passou 33 focados
+(28 retomada + 5 lifetime/CLI), incluindo dois Qt/HTTP com dois reinícios e zero
+novos launches. CLI/owner e jogo sintético reais, estado temporário controlado.
+Integral: 6945 passed/48 skipped/0 failed, 19 warnings, 2197,55s, runner 0.
+Núcleo: 6542/48/403, 23 warnings, 587,02s; cobertura 85,466579% >= CI verde 85,412847%
+na seleção not visual. Cobertura integral 85,583796%. Ruff check/format 730,
+mypy 306, independence/boundaries/status verdes. Treze hashes intactos e iguais
+ao commit funcional. Treze testes de status passaram em 7,17 s. Estado pessoal
+monitorado idêntico antes/depois dos gates concluídos. Goldens/skips/limiar não
+relaxados. Demais itens de status só renovam digest, sem promover eixos.
+
+Uma integral terminou com SIGTERM 143 aos 27%, sem resumo, resultado desconhecido.
+Log/recibo preservados; remetente não determinado. Acompanhamento temporário
+com progresso/siginfo passou prova curta de encaminhamento de cancelamento e
+coleta do filho. Repetição integral em PTY terminou 0, signals vazio, mesmo fonte;
+isso não identifica a causa anterior. Núcleo/estáticos não repetidos.
+Evidências locais em build/agent-runs/r3-bridge-restart e síntese no CHECKPOINT
+R3 existente. Capturas 01–03 Qt/offscreen 800x800 inspecionadas; sem alegar hardware,
+Deck, desempenho ou instalação. Readlink: releases/2.0.0rc1-59ecc2d8f0f6;
+runtime/rollback não revalidados. Nenhuma ação privilegiada executada.
+
+Publicar fechamento documental junto do funcional, conferir SHA remoto e CI do
+novo head. Próximo baseline: recusa pré-spawn com resultado perdido após morrer
+o Launcher originador, sem linha canônica. Não fabricar notStarted nem liberar
+retry pela ausência de registro. Handoff contém comando focado pelo runner
+isolado. GAP de lifetime, Steam sem recibo, owner perdido, reboot e provas
+instaladas/físicas permanecem abertos. Central/Engine/Studio/Aura preservados.

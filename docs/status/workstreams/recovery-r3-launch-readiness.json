@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-AURA-LAUNCHER",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "36e01f701eba1185f1957e2b30105bd754da0284",
+  "baseRef": "b55890b029f892312b3e8a77693318b9213ba9be",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -30,16 +30,25 @@
     "tests/integration/test_launcher_receipt.py",
     "tests/integration/test_launcher_session_observation.py",
     "tests/integration/test_launcher_launch_ack.py",
-    "tests/qml/launcher/check_launcher_launch_ack.qml"
+    "tests/qml/launcher/check_launcher_launch_ack.qml",
+    "src/steamzero/cli/main.py",
+    "src/steamzero/launcher/launch.py",
+    "src/steamzero/adapters/launcher_session.py",
+    "tests/integration/test_cli_emulation.py",
+    "src/steamzero/launcher/app.py",
+    "src/steamzero/adapters/emulation.py",
+    "tests/integration/test_launcher_restart.py",
+    "tests/qml/launcher/check_launcher_restart.qml",
+    "tests/integration/test_emulation_session_lifetime.py",
+    "tests/integration/test_launcher_launch.py",
+    "tests/integration/test_launcher_return_cycle.py"
   ],
   "sharedPaths": [
-    "src/steamzero/launcher/app.py",
     "docs/STATUS.md",
     "docs/ACTIVE-WORK.md",
     "docs/status/COVERAGE.md",
-    "docs/WORKLOG.md",
-    "src/steamzero/adapters/emulation.py"
+    "docs/WORKLOG.md"
   ],
-  "nextAction": "ACK perdido com bridge viva entregue em 36e01f70:145 Launcher, integral6912/48/0, núcleo6511/48/401 e cobertura sem regressão. Conferir CI do SHA publicado. Próximo lote serial: baseline de recriação da bridge com sessão de fixture aceita; ler LaunchPlan.context_payload/consume_context e observador canônico antes de escolher persistência. Sem migração implícita, adoção por gameId ou nova instalação/auth. Aceites físicos de prontidão/bridge continuam abertos.",
+  "nextAction": "Conferir CI do checkpoint contendo b9f190f7. Próximo baseline: recusa pré-spawn cujo resultado se perde ao encerrar o Launcher originador antes de criar linha canônica. Não fabricar notStarted/adotar outra sessão nem liberar retry pela ausência de registro. Rodar test_launcher_restart.py + test_emulation_session_lifetime.py pelo runner isolado após carregar .steamzero-dev/env.sh. V1, Steam sem recibo, owner perdido e prova instalada/física mantêm limites; GAP de lifetime aberto. Sem instalação/auth.",
   "updatedAt": "2026-10-29"
 }

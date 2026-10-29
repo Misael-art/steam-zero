@@ -234,6 +234,33 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Fechamento da retomada entre processos — 29/10/2026:** implementação em
+`b9f190f7026bc0e064096f25adc6a3ac5e74558f`. Novos lançamentos de emulação
+publicam contexto v2 owned com ULID pré-alocado, passado à CLI e ao lifecycle
+existente. A bridge reaberta consulta somente a sessão exata por ID/jogo/owner,
+com guarda de PID/start_ticks, preserva o foco e não faz outro lançamento.
+Ausência/divergência continua não confirmada. V1 mantém consumo único; banco
+permanece no schema 23. O término canônico consome somente o contexto próprio.
+
+Prova fonte: 33 focados de retomada/lifetime, dois Qt/HTTP com processos distintos
+e dois reinícios. Integral: 6.945 passed/48 skipped/0 failed em 2.197,55 s;
+núcleo: 6.542/48/403 e cobertura 85,466579% >= CI verde 85,412847% da base
+b55890b0, run 40845684020. Ruff check/format (730), mypy (306), independence,
+boundaries e status-check passaram. Uma integral terminou com SIGTERM 143 sem
+resumo e permanece desconhecida; a repetição supervisionada concluiu com saída
+0 e mesmo fonte. Não se afirma a causa do sinal. Evidência no CHECKPOINT R3.
+
+Próximo baseline seguro: recusa pré-spawn com resposta perdida após encerrar o
+Launcher originador, sem linha canônica. Preservar a incerteza; não fabricar
+notStarted ou permitir retry pela mera ausência de registro. Reutilizar fontes
+existentes; não criar outro supervisor/banco. Primeiro comando, após carregar
+.steamzero-dev/env.sh:
+`.venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_emulation_session_lifetime.py -q`.
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME segue aberto nesses limites, para Steam
+sem recibo e provas instaladas/físicas. Sem instalação, autenticação, merge,
+release, deploy ou boot. Conferir CI do novo checkpoint publicado. Os blocos
+seguintes preservam a procedência dos lotes anteriores.
+
 **Atualização de 28/10/2026:** o gap abaixo foi reproduzido e corrigido em fonte
 na continuação do PR #268, commits `d41923f4` e `eb39b4b6`. O loader descartava o archive recuperável; não foi
 observada troca de ID. A projeção agora exige manifesto com hashes por entrada e

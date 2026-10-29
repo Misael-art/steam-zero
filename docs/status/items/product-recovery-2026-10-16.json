@@ -84,5 +84,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-28",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
-  "scopeDigest": "400488cf9159c8f3a0b06c6c4d57e47523091b3edd895b3ccc2402afd9c5828a"
+  "scopeDigest": "0aa93954b5a5a699692591aaff1c8c0210a2539168128a1b877447619d81764b"
 }

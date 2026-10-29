@@ -39,7 +39,7 @@
     "tests/integration/test_qml_handheld_offscreen.py",
     "tests/integration/test_qml_visual_capture.py"
   ],
-  "scopeDigest": "6bf3d593e6c327425a7088164cc9aa61aa37344c42ee5fa35d172d62edfd7dc7",
+  "scopeDigest": "5a92692c493651bf04a4b43bb603067d2cb6fb675ff5ba23a518b7957460127c",
   "dependsOn": [],
   "activeWorkstreams": [
     "WS-2026-09-LIBRARY-GOVERNED-MANAGEMENT"

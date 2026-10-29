@@ -14,7 +14,7 @@
     "tests/unit/test_emulation_runtime_remediation.py",
     "docs/09-operations/evidence/2026-09-20-emulation-runtime-remediation"
   ],
-  "scopeDigest": "b48ede0db7707d3e878720cceb2188fcddf4583e76ce41617f208c6a0b13c28e",
+  "scopeDigest": "706da4beae4ba7decdf2d33d2a1f9b45556f3766815aa887c31ef210eca2a416",
   "dependsOn": [
     "SZ-EMULATION-REAL-DUMP-VALIDATION",
     "SZ-COMPONENT-LIFECYCLE",

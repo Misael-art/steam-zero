@@ -51,7 +51,7 @@
     "WS-2026-09-AURA-LAUNCHER-EXIT"
   ],
   "nextAction": "O roteamento de Escape está integrado em main via #214. Preservar GAP-AURA-LAUNCHER-EXIT-PHYSICAL e validar foco/saída em release instalada; os paths de código/testes foram transferidos serialmente para WS-2026-10-JOURNEY-LAUNCHER-SESSION.",
-  "scopeDigest": "842e656cbb27287003286226f6abd909643fcb9d47660e6571cea9a6230a940c",
+  "scopeDigest": "ed270c35d0854fef3d77c8b99064d0c2d0a6946fe5ac4c81faab731ba16e79cd",
   "updatedAt": "2026-10-04",
   "notes": "Correção isolada: além do caminho semântico do shell, a Home captura Escape no foco efetivo e o encaminha ao pedido de saída; o teste de gesto usa keyClick real."
 }
