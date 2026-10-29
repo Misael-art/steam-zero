@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-AURA-LAUNCHER",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "c9345cf1af23c7e819479c50f87ba030ca5f577b",
+  "baseRef": "969933a16e0a59c4fc3043b053797ee621d7050f",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -43,7 +43,17 @@
     "tests/integration/test_launcher_launch.py",
     "tests/integration/test_launcher_return_cycle.py",
     "tests/integration/test_launcher_refusal_restart.py",
-    "tests/qml/launcher/check_launcher_refusal_restart.qml"
+    "tests/qml/launcher/check_launcher_refusal_restart.qml",
+    "src/steamzero/adapters/game_session_probe.py",
+    "src/steamzero/core/state.py",
+    "src/steamzero/service/methods.py",
+    "tests/integration/test_launcher_owner_loss.py",
+    "tests/integration/test_session_recovery_identity.py",
+    "tests/unit/test_game_session_recovery.py",
+    "tests/qml/launcher/check_launcher_owner_loss.qml",
+    "src/steamzero/adapters/launcher_process.py",
+    "tests/integration/test_launcher_owner_loss_qml.py",
+    "tests/qml/launcher/check_launcher_shell.qml"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -51,6 +61,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Conferir CI do checkpoint com e30bd4f9/aed4856a. Próximo baseline seguro: perda apenas do owner de fixture após running, jogo sintético preservado e observação antes/depois do fim. Não inferir closed/notStarted por PID ausente nem criar outro supervisor; ler contratos/reconciliadores existentes. Regressão: test_launcher_restart.py + test_launcher_refusal_restart.py + test_emulation_session_lifetime.py via runner isolado, env -u PYTHONPATH após carregar perfil. Sem prova persistida continua desconhecido; V1/Steam/instalação física e GAP de lifetime permanecem abertos. Sem instalação/auth.",
+  "nextAction": "Lote owner-loss fechado em fonte29/10: produto116815d1 +integração final7c63f4f0, 7024/48/0 integral, 6619/48/405 núcleo, core85,509905%>=CIverde85,431457%;17 hashes/estado pessoal preservados. Cessão serial de check_launcher_shell.qml da Jornada registrada depois da edição ao detectar claim antigo; sem escritor concorrente. Demais paths compartilhados state.py/launcher_process.py em commit final separado, com guards/testes. Publicar fechamento documental e único checkpoint de push/PR268; conferir remoto/CI. Próximo baseline seguro: recuperação canônica concluída, GET terminal perdido e outro reinício do Launcher. Observar mensagem/foco/contexto e zero lançamentos automáticos antes de alterar contrato; não inferir notStarted para jogo que já executou. Reutilizar contexto e serviço canônicos, sem outro supervisor/banco. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_restart.py -q. Registros sem prova tipada, outro boot/namespace, perda antes de running persistido, V1, Steam sem recibo e prova física continuam independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.",
   "updatedAt": "2026-10-29"
 }

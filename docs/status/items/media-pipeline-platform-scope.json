@@ -14,7 +14,7 @@
     "tests/integration/test_media_pipeline_platform_scope.py",
     "docs/09-operations/evidence/2026-09-22-media-pipeline-readonly"
   ],
-  "scopeDigest": "528b7baf7512258de1b30cb2d8c600797a6f4a47aa2e77bff7bcf3c3ae4ab454",
+  "scopeDigest": "8e56252f4da82b18ba1951022651449182634d227265a510cb5f2806eaa3c67e",
   "dependsOn": [
     "SZ-EMULATION-PLATFORM-SCOPE",
     "SZ-MEDIA-PROVIDER-PLATFORM-FILTER"

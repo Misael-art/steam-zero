@@ -15289,3 +15289,52 @@ ausente nem criar outro supervisor; ler reconciliadores/contratos existentes.
 Handoff contém comando isolado sem PYTHONPATH. GAP de lifetime, prova não persistida,
 fase posterior à preparação, V1, Steam sem recibo, replay e instalação física
 seguem abertos. Não iniciar autenticação ou instalação.
+
+
+## 2026-10-29 — R3: recuperação exata após perda do owner confirmado
+
+Executor central único, raiz/branch de continuidade preservadas; base969933a1,
+CI40906842436 com oito jobs verdes. Autorização vigente cobre fonte, testes,
+commits, push e PR268; não cobre instalação/auth/release/merge/deploy/boot.
+
+| Item | Commit | Evidência da composição |
+|---|---|---|
+| SZ-AURA-LAUNCHER: owner perdido, sondagem e recuperação explícita | 116815d118dc6f26dcf7d2f0960ba9761eaae8ae | 53 novos; jogo/descendente preservados, POST perdido, Enter novo e retorno |
+| Integração compartilhada por último: CAS/argv exato/harness sem índice de botão | 7c63f4f079af0106e3d3fcb74e298a170637832d | 116 handheld+novos; integral e 17 hashes abaixo |
+
+Baseline1falha: owner termina, jogo sobrevive, depois GET unknown e registro
+running bloqueiam nova tentativa. Metadata aditiva v1 registra owner e grupo
+no mesmo boot/namespace. O serviço/CLI existentes recuperam somente o par exato
+após prova positiva, com guarda transacional; GET não reconcilia lifecycle.
+Preserva checkpoints e exit desconhecido, marca failed/E-SESSION-ORPHANED;
+sem sinal em produção, estimativa, supervisor/tabela ou lançamento automático.
+
+Integral7024 passed/48 skipped/0 failed/31 warnings em2247,58s; núcleo6619/48/405,
+26 warnings/617,84s. Runners/observadores0, signals vazio. Core85,509905% >=
+CIverde85,431457% (969933a1,40906842436,artifact12912681501); integral85,637897%
+registrada separadamente. Ruff736/mypy307/independence/boundaries/status verdes.
+13 testes de catálogo/6,14s;17 hashes intactos e estado pessoal monitorado
+idêntico antes/depois. Nenhuma promoção de eixos/gaps nem alteração de limiares.
+
+Regressão ampliada inicial sem resumo:desconhecida. Primeira integral mostrou
+um F, interrompida pelo executor com SIGINT; reprodução isolada confirmou
+harness legado confundindo retry por posição após a nova ação. Busca por nome
+mantém todas as assertivas,116 focados e integral final aprovados. O runtime e
+os 16 hashes do núcleo não mudaram; só o 17º harness visual foi corrigido.
+Claim antigo do harness na Jornada foi cedido após status-check apontar conflito;
+reserva do destino precedeu edição, cessão da origem foi posterior e ficou
+registrada, sem concorrência observada. Nenhum outro claim/estado alterado.
+
+Cinco PNGs de fonte Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT
+R3 existente; não são prova física/instalada, Deck ou GPU/FPS. Host só readlink:
+releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados. Logs/hashes e
+recibos locais em build/agent-runs/r3-owner-loss. Nenhum processo temporário de
+teste deste lote permanece ativo; dados pessoais preservados.
+
+Publicar este fechamento com os dois commits funcionais no único checkpoint
+autorizado da continuidade/PR268 e conferir remoto/CI. Próximo baseline: GET
+terminal perdido após recuperação canônica e outro reinício; observar foco,
+mensagem, contexto e zero launches automáticos antes de alterar o contrato.
+Handoff contém comando isolado. Prova sem identidades tipadas, outro boot/namespace,
+owner perdido antes de running persistido, V1, Steam sem recibo e instalação
+física seguem independentes; GAP de lifetime continua aberto. Sem iniciar auth.

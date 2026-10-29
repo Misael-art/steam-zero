@@ -629,3 +629,151 @@ carregar .steamzero-dev/env.sh:
 Preservar os limites de owner sem prova persistida, armazenamento indisponível,
 fase posterior à preparação, V1, Steam sem recibo, replay e instalação física.
 GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME permanece aberto. Conferir CI do novo head.
+
+
+### Perda do owner após running: recuperação explícita — 29/10/2026
+
+Continuidade serial autorizada na branch codex/product-recovery-2026-10-16,
+base 969933a16e0a59c4fc3043b053797ee621d7050f, CI 40906842436 concluído
+com os oito jobs verdes. Mesmo checkout, executor e item SZ-AURA-LAUNCHER;
+sem instalação, autenticação, release, merge, deploy ou boot. A candidata é
+fonte/fixtures; nenhum aceite físico é herdado. state.py e launcher_process.py
+são integração compartilhada, reservada prospectivamente no workstream para
+commit funcional separado por último, sem escritor concorrente observado.
+
+**Baseline reproduzido:** depois de confirmar running, encerrar somente o owner
+positivamente identificado da fixture preservava o jogo destacado. Após o jogo
+terminar por seu próprio mecanismo, GET retornava unknown e a linha canônica
+permanecia running. O reconciliador só era chamado antes de outro lançamento,
+que o Launcher bloqueava pela sessão pendente. O teste novo falhou no fonte
+anterior (1 failed/1,66 s); log baseline.log em build/agent-runs/r3-owner-loss.
+Ausência de PID não foi promovida a closed ou notStarted.
+
+**Contrato final:** o controlador existente grava lifecycleOwner v1 (PID,
+start_ticks, bootId e namespace PID) antes do spawn e gameProcess v1
+(PID/start_ticks/grupo/sessão POSIX destacados) na transição canônica running.
+Metadata JSON é aditiva, SQLite continua no schema 23. A sondagem é read-only:
+exige desaparecimento/reutilização comprovados do jogo e do owner no mesmo
+boot/namespace e ausência de processo ou thread vivos no grupo/sessão original.
+Owner vivo mantém autoridade, mesmo após o jogo encerrar. Descendente com outro
+grupo na mesma sessão, líder zombie com thread viva, leitura negada/malformada,
+versão desconhecida ou prova antiga/incompleta impedem recuperação.
+
+session.recover reutiliza o serviço/CLI existentes, com --game-id e
+--session-id ULID opcionais somente para o percurso exato de emulação; a forma
+Steam sem session-id preserva o contrato. Não aceita PID enviado pelo cliente.
+O mesmo controlador reconcilia em transação com guarda da linha observada
+(owner/jogo/estado/PID/ticks/metadata). Concorrência retorna bloqueio sem escrita.
+Registro recuperado fica failed/E-SESSION-ORPHANED; não inventa exit_code nem
+played_seconds/duration_source, preservando checkpoints anteriores. Repetição
+é idempotente. O reaper existente reutiliza a mesma transição; não há outro
+catálogo, supervisor, loop de lifecycle, tabela, sinal ou adoção de processo.
+
+A bridge só aceita recuperação explícita da identidade confirmada/restaurada,
+com token e corpo fechado. GET não altera o lifecycle canônico. Verificar sessão aparece
+apenas quando a prova permite; pendência bloqueia duplicação. A resposta POST
+pode se perder: somente GET canônico conduz a interface ao erro recuperado.
+Voltar e tentar exige gesto novo; outro Enter nos detalhes lança exatamente uma
+nova sessão e retorna ao mesmo cartão. Replay da última recuperação aceita é
+limitado ao par exato durante esta execução e limpo no novo launch aceito.
+
+**Prova focada:** 53 passed em 10,52 s sem PYTHONPATH inicial, com CLI e owner/jogo
+sintéticos reais, RPC e HTTP, guards transacionais, namespace/boot/proc negado,
+descendente vivo e Qt/HTTP entre processos distintos. Nenhum processo do
+operador foi sinalizado. O percurso Qt perde a resposta da recuperação, mantém
+zero launches automáticos e faz um launch novo por Enter; checkpoint de tempo e
+exit desconhecido são preservados. Estado pessoal monitorado ficou inalterado.
+Cinco PNGs 800x800 Qt/offscreen inspecionados e persistidos nesta evidência:
+
+![Verificar sessão disponível após prova positiva; fonte Qt/offscreen](owner-loss/02-explicit-recovery-available.png)
+
+[01 jogo preservado](owner-loss/01-game-survives-owner-loss.png),
+[03 registro recuperado sem estimativa](owner-loss/03-canonical-failure-without-estimate.png),
+[04 retry explícito](owner-loss/04-explicit-retry-running.png) e
+[05 retorno canônico](owner-loss/05-canonical-return.png).
+São capturas de fixture/fonte, sem prova instalada, Deck, hardware, GPU/FPS ou
+promoção das outras superfícies. A descrição acessível também acompanha o estado
+incerto. A regressão ampliada inicial deixou log parcial aos 52%, sem resumo e
+sem runner ativo; resultado desconhecido, não aprovado, sem causa atribuída.
+Os gates integrais e a comparação de cobertura serão registrados no fechamento.
+
+Limites: registros anteriores sem as identidades tipadas, outro boot/namespace,
+owner morto antes de running persistido, armazenamento indisponível, processos
+que escapam do contrato de sessão destacada, V1, Steam sem recibo, replay entre
+execuções e prova instalada continuam independentes. GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME
+permanece aberto. Nenhuma estimativa de tempo ou encerramento por conveniência.
+
+
+Checkpoint de gates: Ruff check, format (736 arquivos), mypy (307 fontes),
+independence/boundaries e status-check verdes após regenerar os digests.
+Núcleo: 6.619 passed, 48 skipped, 405 deselected, 26 warnings em 617,84 s;
+runner/observador 0, signals vazio, 16 hashes intactos, estado pessoal monitorado
+inalterado. Cobertura 85,509905% >= 85,431457% do CI Python3.14 aprovado da base
+969933a1, workflow40906842436/artifact12912681501 (665.285 bytes, recibo/hash local
+reutilizado); delta +0,078448 ponto percentual. Comparação em
+build/agent-runs/r3-owner-loss/coverage-comparison.json.
+
+A primeira integral mostrou um F no harness check_launcher_shell.qml; o heartbeat
+repetia a mesma linha, não dois casos distintos. Foi interrompida pelo executor
+com Ctrl+C (siginfo SIGINT/terminal, filhos encerrados); não é gate aprovado.
+O log parcial foi preservado como full-interrupted-on-failure.log. A reprodução
+isolada confirmou 1 failed/62 deselected em 0,76 s: o harness buscava o botão
+Voltar e tentar por children[1], posição ocupada pela nova ação. Corrigiu-se a
+seleção pelo objectName, mantendo todas as assertivas de mensagem, opacidade,
+altura e comportamento. Contrato do produto e runtime não mudaram. A reserva
+do harness foi registrada antes de editar; é o 17º hash da composição final.
+116 testes (63 handheld/offscreen +53 deste lote) passaram em112,13 s depois da
+correção, sem mudar estado pessoal. A integral será repetida com fail-fast para
+preservar o resumo de qualquer reprovação; não se repete o núcleo/estáticos de
+fonte pois seus 16 hashes são os mesmos e só mudou esse harness visual excluído
+do núcleo. A mudança do teste elimina suposição de ordem, não uma exigência.
+
+Status-check bloqueou o reinício antes de qualquer pytest: claim antigo ativo
+do harness na Jornada. A reserva do destino precedeu a edição, mas faltou
+ceder a origem; reconciliação serial registrada em ambos os workstreams, sem
+alterar outros paths/estados ou alegar handoff prévio completo. Nenhum escritor
+concorrente observado. A integral ainda não havia sido reiniciada.
+
+
+### Fechamento da recuperação do owner — 29/10/2026
+
+| Item | Commit | Prova da composição final |
+|---|---|---|
+| SZ-AURA-LAUNCHER: sondagem, controlador/CLI/RPC, ação Qt e retorno | `116815d118dc6f26dcf7d2f0960ba9761eaae8ae` | 53 casos novos; jogo e descendente preservados, POST perdido, um retry por Enter, mesmo cartão |
+| Integração compartilhada: guarda transacional, argv exato e harness sem índice de botão | `7c63f4f079af0106e3d3fcb74e298a170637832d` | 116 focados/handheld, mantendo assertivas; hashes finais e gates abaixo |
+
+**Integral aprovada:** 7.024 passed, 48 skipped, zero failed, 31 warnings em
+2.247,58 s (pytest). Runner 0; observador 0, signals vazio, 2.256,38 s monotônicos.
+Núcleo: 6.619 passed/48 skipped/405 deselected/26 warnings em617,84 s, runner0.
+Cobertura comparável core85,509905% >= CIverde85,431457% da base969933a1,
+delta +0,078448 ponto percentual. Integral85,637897% é registrada separadamente.
+Ruff check/format736, mypy307, independence/boundaries e status-check passaram.
+Os 16 hashes do núcleo continuam intactos; o 17º é somente o harness visual
+corrigido, excluído daquele núcleo. Todos os 17 coincidem com a composição dos
+dois commits funcionais. Nenhum teste/golden/limiar foi enfraquecido ou removido.
+
+Estado pessoal monitorado antes/depois dos gates concluídos idêntico:3 arquivos,
+5 diretórios,860.896 bytes e mesmo max_mtime_ns. Regressão ampliada inicial sem
+resumo continua desconhecida. A integral interrompida pelo executor após o F do
+harness não conta como aprovação; sua reprodução/correção e a passagem final
+ficam distintas. Logs, hashes, cobertura e recibos em build/agent-runs/r3-owner-loss.
+O bloco estático inicial tinha status obsoleto após novas fontes; só a validação
+regenerada e verde conta. Sem alteração dos eixos de outros itens.
+
+Host: apenas readlink, releases/2.0.0rc1-59ecc2d8f0f6. Runtime e rollback não
+revalidados; nenhuma instalação, release, autenticação, merge, deploy ou boot.
+Prova instalada/física e reboot continuam pendências externas, fora deste lote.
+As cinco capturas são somente fonte Qt/offscreen. O gap de lifetime permanece
+aberto nos limites acima; não promove Central Desktop, Engine, Studio ou Aura.
+
+Próximo baseline seguro: recuperação canônica concluída, GET terminal perdido e outro reinício do Launcher. Observar mensagem/foco/contexto e zero lançamentos automáticos antes de alterar contrato; não inferir notStarted para jogo que já executou. Reutilizar contexto e serviço canônicos, sem outro supervisor/banco. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_restart.py -q. Registros sem prova tipada, outro boot/namespace, perda antes de running persistido, V1, Steam sem recibo e prova física continuam independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Publicar somente a continuidade no PR268 em um checkpoint e conferir remoto/CI.
+CI da base40906842436 está verde; o novo run será registrado no PR após o push,
+sem alegar aprovação remota antecipada nem gerar commit circular de SHA próprio.
+
+Validação documental de fechamento:13 testes do catálogo passaram em6,14s via
+runner isolado sem PYTHONPATH inicial; estado pessoal monitorado inalterado.
+Views/digests regenerados; status-check verde. WORKLOG recebe somente esta
+sessão de fechamento, sem editar o histórico. SHA/run remotos devem ser
+conferidos no PR268 após o checkpoint de push autorizado.

@@ -7,7 +7,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 
 | ID | Arquivos no escopo | Evidencias | Aprovadas | Verificacao | Observacao |
 |---|---|---|---|---|---|
-| SZ-AGG-ADAPTERS | 134 | 4 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-ADAPTERS | 135 | 4 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-ASSETS | 10 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-CORE | 45 | 2 | 1 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-DOMAIN | 125 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 595 | 3 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 600 | 3 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 45 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 39 | 20 | dev |  |
@@ -25,7 +25,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 11 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 327 | 105 | 64 | dev |  |
+| SZ-AURA-LAUNCHER | 335 | 106 | 65 | dev |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -73,7 +73,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-GOVERNANCE-STATUS | 24 | 32 | 17 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
-| SZ-LAUNCH-READINESS-PREPARATION | 25 | 7 | 6 | dev |  |
+| SZ-LAUNCH-READINESS-PREPARATION | 30 | 7 | 6 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 33 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
 | SZ-LOTE-COESAO-UI | 157 | 22 | 15 | none |  |
@@ -117,4 +117,4 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
-Arquivos em `src/`: **638**. Sob agregador apenas, sem item de capacidade: **267** (41%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.
+Arquivos em `src/`: **639**. Sob agregador apenas, sem item de capacidade: **267** (41%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.

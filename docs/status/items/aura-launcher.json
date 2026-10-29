@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "0430e6216977e9bb52684fcdeb835155d03c6440894b08a6795630d8ad1dcaaa",
+  "scopeDigest": "fdff2cdaddf72ee76e6709950ddbe7d5a2e65e7d6d673194c8f54afaff5cf61c",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -95,7 +95,14 @@
     "tests/integration/test_launcher_request_timeout.py",
     "tests/integration/test_launcher_launch_ack.py",
     "tests/integration/test_launcher_restart.py",
-    "tests/integration/test_launcher_refusal_restart.py"
+    "tests/integration/test_launcher_refusal_restart.py",
+    "src/steamzero/adapters/game_session_probe.py",
+    "src/steamzero/core/state.py",
+    "src/steamzero/service/methods.py",
+    "tests/integration/test_launcher_owner_loss.py",
+    "tests/integration/test_launcher_owner_loss_qml.py",
+    "tests/integration/test_session_recovery_identity.py",
+    "tests/unit/test_game_session_recovery.py"
   ],
   "dependsOn": [
     "SZ-AURA-UI",
@@ -754,9 +761,15 @@
       "reference": "tests/integration/test_launcher_refusal_restart.py",
       "command": "Produto e30bd4f9 e fixture aed4856a: recusa pré-spawn canônica, prova tipada/código público, consulta exata e contexto restaurado preservado até novo launch explícito. 26 novos; 59 focados/22,86s sem PYTHONPATH inicial; integral 6971 passed/48 skipped/0 failed/2067,19s; núcleo 6567/48/404/630,51s. Cobertura core 85,464311% >= 85,423695% do job Python3.14 aprovado 123465044453 (workflow 40878965028 falhou no visual por import da fixture, reproduzido/corrigido). Ruff check/format731, mypy306, independence/boundaries/status verdes; 6 hashes intactos, estado pessoal monitorado preservado. 13 testes de status/5,65s. Núcleo SIGTERM143 sem resumo ficou desconhecido; repetição e integral exit0, causa do sinal não atribuída. Fonte/fixture/Qt offscreen; sem instalação/hardware. Ver CHECKPOINT R3.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_owner_loss_qml.py",
+      "command": "Produto 116815d1 +integração 7c63f4f0: owner perdido após running, jogo/descendentes preservados; recuperação explícita exata pelo controlador/CLI/RPC com CAS e GET sem mutação de lifecycle. 53 novos/10,52s; 116 handheld+novos/112,13s após corrigir harness que identificava retry por índice, mantendo assertivas. Integral7024 passed/48 skipped/0 failed/31 warnings/2247,58s; núcleo6619/48/405/26 warnings/617,84s. Cobertura core85,509905%>=CIverde85,431457% (40906842436,969933a1), integral85,637897% sem comparação indevida. Ruff736/mypy307/independence/boundaries/status verdes; 17 hashes intactos e estado pessoal monitorado preservado. Integral anterior interrompida após F de harness; regressão ampliada sem resumo desconhecida, nenhuma aprovada. Cinco PNGs Qt/offscreen800x800 persistidos no CHECKPOINT R3; sem instalação/hardware ou promoção de eixos.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Conferir CI do checkpoint com e30bd4f9/aed4856a. Próximo baseline seguro: perda apenas do owner de fixture após running, jogo sintético preservado e observação antes/depois do fim. Não inferir closed/notStarted por PID ausente nem criar outro supervisor; ler contratos/reconciliadores existentes. Regressão: test_launcher_restart.py + test_launcher_refusal_restart.py + test_emulation_session_lifetime.py via runner isolado, env -u PYTHONPATH após carregar perfil. Sem prova persistida continua desconhecido; V1/Steam/instalação física e GAP de lifetime permanecem abertos. Sem instalação/auth.",
+  "nextAction": "Publicar checkpoint dos commits116815d1/7c63f4f0 na branch de continuidade/PR268 e conferir SHA remoto e CI terminal. Próximo baseline seguro: recuperação canônica concluída, GET terminal perdido e outro reinício do Launcher. Observar mensagem/foco/contexto e zero lançamentos automáticos antes de alterar contrato; não inferir notStarted para jogo que já executou. Reutilizar contexto e serviço canônicos, sem outro supervisor/banco. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_restart.py -q. Registros sem prova tipada, outro boot/namespace, perda antes de running persistido, V1, Steam sem recibo e prova física continuam independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",

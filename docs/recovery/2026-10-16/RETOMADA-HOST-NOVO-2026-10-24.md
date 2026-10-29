@@ -234,6 +234,32 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Fechamento da recuperação após perda do owner — 29/10/2026:** produto
+`116815d118dc6f26dcf7d2f0960ba9761eaae8ae`; integração compartilhada por último
+`7c63f4f079af0106e3d3fcb74e298a170637832d`. Depois de running confirmado, perda do owner
+preserva jogo/descendentes. A sondagem exige identidades tipadas do mesmo
+boot/namespace e grupo/sessão vazios; prova insuficiente permanece unknown.
+Verificar sessão é explícito e usa o controlador/CLI/RPC existentes, guardando
+identidade na transação. Marca failed/E-SESSION-ORPHANED sem inventar exit/tempo;
+GET não reconcilia lifecycle. POST perdido é recuperado pelo GET canônico;
+outro Enter cria uma única sessão nova e retorna ao mesmo cartão.
+
+Prova:53 novos,116 focados/handheld; integral7.024 passed/48 skipped/0 failed
+em2.247,58s, núcleo6.619/48/405 em617,84s. Core85,509905% >=85,431457% do
+CIverde40906842436/base969933a1. Ruff736/mypy307/independence/boundaries/status
+verdes,17 hashes/estado pessoal preservados. Um harness antigo indexava o retry
+por posição; reprodução1falha, busca por nome mantendo assertivas e integral
+final aprovadas. A passagem interrompida e a regressão parcial não são aprovação.
+Cinco PNGs de fixture Qt/offscreen persistidos no CHECKPOINT R3, sem prova física.
+Claim antigo do harness cedido à R3 após conflito de status, sem concorrência;
+sequência registrada nos workstreams. Nenhuma promoção dos cinco eixos.
+
+Próximo baseline seguro: recuperação canônica concluída, GET terminal perdido e outro reinício do Launcher. Observar mensagem/foco/contexto e zero lançamentos automáticos antes de alterar contrato; não inferir notStarted para jogo que já executou. Reutilizar contexto e serviço canônicos, sem outro supervisor/banco. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_restart.py -q. Registros sem prova tipada, outro boot/namespace, perda antes de running persistido, V1, Steam sem recibo e prova física continuam independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Publicar o fechamento documental na continuidade/PR268, conferir SHA remoto e
+CI novo em estado terminal. Host apenas readlink59ecc2d8f0f6; runtime/rollback
+não revalidados. Os blocos seguintes são procedência histórica.
+
 **Fechamento da recusa recuperável — 29/10/2026:** produto em
 `e30bd4f98468e2077b077e97fdb9809deaab6dc5`; fixture CI em
 `aed4856afd0c69922872d635b3ab1c33359dd038`. O owner que recusa uma tentativa
