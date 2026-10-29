@@ -178,6 +178,30 @@ def test_archive_without_materialization_is_refused_before_emulator(
     assert error.value.code == "E-CONTENT-INCOMPLETE"
 
 
+def test_archive_from_unregistered_library_is_refused_before_runtime(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    controller = _controller(monkeypatch, tmp_path)
+    root = tmp_path / "registered"
+    archive = root / "ps4" / "Game.zip"
+    archive.parent.mkdir(parents=True)
+    with zipfile.ZipFile(archive, "w") as output:
+        output.writestr("eboot.bin", b"controlled-game")
+    monkeypatch.setattr(controller, "library_roots", lambda: [str(root)])
+    controller._scan_library_now()
+    games, _ = controller._load_library_cache()
+    assert len(games) == 1
+    monkeypatch.setattr(controller, "library_roots", lambda: [])
+    monkeypatch.setattr(
+        controller,
+        "_emulator_source",
+        lambda _id: pytest.fail("origem fora da biblioteca não pode alcançar o runtime"),
+    )
+    with pytest.raises(SteamZeroError, match="fora das bibliotecas permitidas") as error:
+        controller._launch_preflight(games[0]["id"])
+    assert error.value.code == "E-CONTENT-UNSAFE-PATH"
+
+
 def test_pcsx2_runtime_flag_is_normalized_only_at_spawn_boundary() -> None:
     argv = ["flatpak", "run", "--user", "net.pcsx2.PCSX2", "--fullscreen", "game.iso"]
 

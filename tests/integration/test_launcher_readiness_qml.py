@@ -36,7 +36,7 @@ def test_launcher_details_readiness_and_preparation_qml(
                 observations.append(game_id)
                 # POST publishes the first observation. A subsequent GET
                 # proves the UI started observing before the fixture finishes.
-                if len(observations) >= 2:
+                if len(observations) >= 3:
                     release.set()
             return result
 
@@ -89,7 +89,15 @@ def test_launcher_details_readiness_and_preparation_qml(
     try:
         with bridge.serving() as base:
             fixture = tmp_path / "bridge.json"
-            fixture.write_text(json.dumps({"api": base, "token": bridge.token}))
+            fixture.write_text(
+                json.dumps(
+                    {
+                        "api": base,
+                        "token": bridge.token,
+                        "screenshot": str(tmp_path / "preparing.png"),
+                    }
+                )
+            )
             fixture.chmod(0o600)
             harness = tmp_path / "check_launcher_readiness.qml"
             source = (ROOT / "tests/qml/launcher/check_launcher_readiness.qml").read_text()
@@ -120,3 +128,11 @@ def test_launcher_details_readiness_and_preparation_qml(
     assert "FAIL!" not in output
     assert "ZLauncherRootReadiness" in output
     assert prepared == [game_id] and launched == []
+
+    assert (tmp_path / "preparing.png").is_file()
+    if os.environ.get("STEAMZERO_CAPTURE_READINESS") == "1" and real_archive:
+        import shutil
+
+        destination = ROOT / "build/agent-runs/r3-cards/02-preparing.png"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(tmp_path / "preparing.png", destination)

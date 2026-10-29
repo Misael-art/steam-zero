@@ -268,6 +268,7 @@ Item {
         focus: visible
         focusMap: shell.focusMap
         sections: shell.sections
+        readinessRequest: shell.readinessRequest
         catalogSummary: shell.catalogSummary
         cinemaScene: shell.cinemaScene
         currentFocus: shell.homeFocus

@@ -148,6 +148,104 @@ Item {
         }
     }
 
+    Component {
+        id: homeComponent
+        LauncherHome { width: 960; height: 640 }
+    }
+    TestCase {
+        name: "BSelectedCardReadiness"
+        when: windowShown
+        property var home: null
+        function init() {
+            status.active = false
+            harness.calls = []
+            harness.callbacks = []
+            home = homeComponent.createObject(harness, {
+                focusMap: {initial: "library:first", nodes: {
+                    "library:first": {action: null, right: "library:second"},
+                    "library:second": {action: null, left: "library:first"}}},
+                sections: [{id: "library", title: "Fixtures", items: [
+                    {id: "first", title: "First"}, {id: "second", title: "Second"}]}],
+                readinessRequest: function(method, path, body, done) {
+                    harness.calls.push({method: method, path: path})
+                    harness.callbacks.push(done)
+                }
+            })
+            verify(home !== null)
+        }
+        function cleanup() { home.destroy(); home = null }
+        function observer() { return harness.find(home, "selectedGameReadiness") }
+        function test_only_stable_selection_is_observed_and_old_answers_are_ignored() {
+            home.currentFocus = "library:second"
+            home.currentFocus = "library:first"
+            tryCompare(harness.calls, "length", 1, 2000)
+            compare(harness.calls[0].method, "GET")
+            verify(harness.calls[0].path.indexOf("first") >= 0)
+            home.currentFocus = "library:second"
+            tryCompare(harness.calls, "length", 2, 2000)
+            harness.callbacks[1](200, harness.reply("second", "ready"))
+            harness.callbacks[0](200, harness.reply("first", "blocked", true))
+            compare(observer().observation.state, "ready")
+            compare(observer().gameId, "second")
+            compare(observer().prepare(), false)
+            compare(harness.calls.length, 2)
+            home.visible = false
+            compare(observer().active, false)
+            home.visible = true
+            tryCompare(harness.calls, "length", 3, 2000)
+            compare(harness.calls[2].method, "GET")
+        }
+        function test_header_and_hidden_home_do_not_observe_or_accept_old_results() {
+            home.currentFocus = "header:home"
+            wait(300)
+            compare(harness.calls.length, 0)
+            compare(observer().active, false)
+            home.currentFocus = "library:first"
+            tryCompare(harness.calls, "length", 1, 2000)
+            home.visible = false
+            harness.callbacks[0](200, harness.reply("first", "ready"))
+            compare(observer().observation.state, "unknown")
+            home.visible = true
+            tryCompare(harness.calls, "length", 2, 2000)
+            harness.callbacks[1](200, harness.reply("first", "blocked", false))
+            compare(observer().badgeText, "Requisitos pendentes")
+            verify(harness.calls.every(function(call) { return call.method === "GET" }))
+        }
+        function test_timeout_has_no_late_overwrite_and_can_be_retried() {
+            observer().requestTimeoutMs = 40
+            tryCompare(harness.calls, "length", 1, 2000)
+            tryVerify(function() { return !observer().requestPending }, 2000)
+            compare(observer().observation.state, "unknown")
+            harness.callbacks[0](200, harness.reply("first", "ready"))
+            compare(observer().observation.state, "unknown")
+            verify(observer().refresh())
+            harness.callbacks[1](200, harness.reply("first", "blocked", true))
+            compare(observer().observation.state, "blocked")
+            compare(observer().badgeText, "Preparação necessária")
+        }
+        function test_progress_and_failure_stay_observable_after_cinema_switch() {
+            tryCompare(harness.calls, "length", 1, 2000)
+            harness.callbacks[0](200, harness.reply("first", "preparing"))
+            const badge = harness.find(home, "cardReadinessBadge")
+            verify(badge !== null && badge.visible)
+            compare(harness.find(badge, "cardReadinessText").text, "Preparando…")
+            const progress = harness.find(observer(), "readinessProgress")
+            verify(progress.visible && progress.indeterminate)
+            home.cinemaScene = {focusId: "library:first", items: [{id: "first", title: "First"}]}
+            compare(observer().preparing, true)
+            compare(harness.calls.length, 1)
+            home.accessibility = {reducedMotion: true, highContrast: true, visualScale: 1.5}
+            compare(progress.visible, false)
+            compare(observer().badgeText, "Preparando…")
+            const failure = JSON.stringify({gameId: "first", state: "failed", playable: false,
+                canPrepare: true, reason: "Fixture: extração recusada"})
+            home.readinessRequest = function(method, path, body, done) { done(200, failure) }
+            tryVerify(function() { return observer().observation.state === "failed" }, 2000)
+            verify(observer().badgeText.indexOf("Falha") >= 0)
+            compare(observer().observation.reason, "Fixture: extração recusada")
+        }
+    }
+
     TestCase {
         name: "ZLauncherRootReadiness"
         when: windowShown
@@ -173,6 +271,12 @@ Item {
             tryCompare(product, "loadState", "ready", 5000)
             const shell = product._activeLauncherShell()
             verify(shell !== null)
+            const home = harness.find(shell, "launcherHome")
+            verify(home !== null)
+            const selected = harness.find(home, "selectedGameReadiness")
+            verify(selected !== null)
+            tryCompare(selected, "gameId", "game", 5000)
+            tryVerify(function() { return selected.observation.state === "blocked" }, 5000)
             verify(shell.openGame("game"))
             const readiness = harness.find(shell, "gameReadiness")
             verify(readiness !== null)
@@ -181,6 +285,18 @@ Item {
             verify(button !== null && button.text.indexOf("Fixture") >= 0)
             mouseClick(button)
             tryCompare(readiness, "preparing", true, 3000)
+            verify(shell.back())
+            tryCompare(selected, "preparing", true, 3000)
+            const progress = harness.find(selected, "readinessProgress")
+            verify(progress !== null && progress.visible && progress.indeterminate)
+            let saved = false
+            verify(product.contentItem.grabToImage(function(result) {
+                saved = result.saveToFile(channel.screenshot)
+            }))
+            tryVerify(function() { return saved }, 3000)
+            compare(shell.launchState, "idle")
+            tryVerify(function() { return selected.observation.state === "ready" }, 5000)
+            verify(shell.openGame("game"))
             tryVerify(function() { return readiness.observation.state === "ready" }, 5000)
             compare(shell.launchState, "idle")
             compare(shell.gamePage.gameId, "game")
