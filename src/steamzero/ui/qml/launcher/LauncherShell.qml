@@ -44,11 +44,22 @@ Item {
     // Uma falha sem sessionId só é aceita se o requestId coincide: resposta
     // de tentativa antiga não pode encerrar um pedido novo.
     property string expectedRequestId: ""
+    property string expectedClientRequestId: ""
 
     function observeSession(observation) {
         if (!observation || observation.gameId !== shell.sessionGameId)
             return false
+        if (shell.expectedClientRequestId !== ""
+                && observation.clientRequestId !== shell.expectedClientRequestId)
+            return false
         const attempt = observation.attempt || null
+        if (shell.expectedClientRequestId !== "" && attempt) {
+            if (typeof attempt.requestId !== "string" || attempt.requestId === ""
+                    || (shell.expectedRequestId !== ""
+                        && attempt.requestId !== shell.expectedRequestId))
+                return false
+            shell.expectedRequestId = attempt.requestId
+        }
         if (attempt && attempt.state === "notStarted") {
             if (!shell.expectedRequestId
                     || attempt.requestId !== shell.expectedRequestId)
@@ -167,7 +178,9 @@ Item {
     }
 
     function restoreSurfaceFocus() {
-        if (gamePage !== null)
+        if (shell.launchState === "failed")
+            recoverButton.forceActiveFocus()
+        else if (gamePage !== null)
             page.forceActiveFocus()
         else
             home.forceActiveFocus()
@@ -226,6 +239,7 @@ Item {
         launchError = ""
         launchState = "recovered"
         launchStateRequested("recovered")
+        restoreSurfaceFocus()
         return true
     }
 
@@ -371,6 +385,9 @@ Item {
                 objectName: "launchFailureRetry"
                 anchors.horizontalCenter: parent.horizontalCenter
                 visible: shell.launchState === "failed"
+                onVisibleChanged: {
+                    if (visible) forceActiveFocus()
+                }
                 width: 220
                 height: 48
                 radius: 8

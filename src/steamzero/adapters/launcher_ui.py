@@ -20,6 +20,7 @@ import shutil
 import threading
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager, suppress
+from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, cast
@@ -60,6 +61,23 @@ _ALLOWED_QSG_RENDER_LOOPS = frozenset({"basic", "threaded"})
 #: texto cru pode conter caminhos locais, mas o rastro resolúvel precisa
 #: caber numa linha JSONL e continuar legível para o suporte.
 MAX_LAUNCH_DETAIL = 240
+
+
+def _valid_client_request_id(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and 1 <= len(value) <= 128
+        and value.isascii()
+        and all(character.isalnum() or character in "-_." for character in value)
+    )
+
+
+@dataclass(frozen=True)
+class _LaunchRequest:
+    client_id: str
+    game_id: str
+    focus_id: str
+    attempt: LaunchAttempt | None
 
 
 def _resolve_qt_quick_backend() -> str:
@@ -117,6 +135,10 @@ class _Handler(BaseHTTPRequestHandler):
             self._send(200, self._bridge.journey_current())
             return
         if self.path.startswith("/session?"):
+            client_id = self._query_param("clientRequestId")
+            if client_id is not None and not _valid_client_request_id(client_id):
+                self._send(400, {"error": "LAUNCHER-CLIENT-REQUEST-INVALID-001"})
+                return
             stage = self._query_param("stage")
             if stage is not None and stage not in SESSION_STAGES:
                 self._send(400, {"error": "JOURNEY-STAGE-REFERENCE-MISSING"})
@@ -127,6 +149,7 @@ class _Handler(BaseHTTPRequestHandler):
                     self._query_param("gameId") or "",
                     include_overlay=self._query_param("overlay") == "1",
                     journey_stage=stage,
+                    client_request_id=client_id,
                 ),
             )
             return
@@ -245,11 +268,17 @@ class _Handler(BaseHTTPRequestHandler):
             return
         game_id = str(payload.get("gameId", ""))
         focus_id = str(payload.get("focusId", ""))
+        client_id = payload.get("clientRequestId")
+        if "clientRequestId" in payload and not _valid_client_request_id(client_id):
+            self._send(400, {"error": "LAUNCHER-CLIENT-REQUEST-INVALID-001"})
+            return
         if not game_id:
             self._send(400, {"error": "gameId ausente"})
             return
         try:
-            attempt = self._bridge.launch(game_id, focus_id)
+            attempt = self._bridge.launch(
+                game_id, focus_id, client_request_id=cast(str | None, client_id)
+            )
         except LaunchBlocked as blocked:
             # Falha comprovadamente anterior ao spawn: o motivo já é escrito
             # para o usuário e dá a ação que resolve.
@@ -298,10 +327,10 @@ class _Handler(BaseHTTPRequestHandler):
         # O requestId publica a tentativa criada: é ele que o shell exige de
         # volta numa falha sem sessionId, para que resposta de tentativa antiga
         # nunca altere um pedido novo. Sem recibo (rota Steam), requestId nulo.
-        self._send(
-            200,
-            {"requestId": attempt.request_id if attempt is not None else None},
-        )
+        acknowledgment = {"requestId": attempt.request_id if attempt is not None else None}
+        if client_id is not None:
+            acknowledgment["clientRequestId"] = client_id
+        self._send(200, acknowledgment)
 
     def _query_param(self, name: str) -> str | None:
         return self._query_params().get(name)
@@ -399,6 +428,9 @@ class LauncherBridge:
         self._previous_sessions: dict[str, str | None] = {}
         self._pending_game: str | None = None
         self._attempts: dict[str, LaunchAttempt] = {}
+        # One retained request, bounded by the current bridge lifetime. A lost
+        # HTTP reply must not consume the only proof of a terminal receipt.
+        self._launch_request: _LaunchRequest | None = None
         self._session_lock = threading.RLock()
         self._journey_request_results: dict[str, tuple[str, dict[str, Any]]] = {}
         self._session_action_results: dict[str, tuple[str, dict[str, Any]]] = {}
@@ -422,6 +454,7 @@ class LauncherBridge:
 
     def model(self) -> dict[str, Any]:
         return {
+            "launchCorrelation": {"clientRequestId": True},
             "titleMode": self._title_mode,
             "accessibility": {
                 "highContrast": bool(self._accessibility.get("highContrast", False)),
@@ -1195,7 +1228,9 @@ class LauncherBridge:
         )
         return fallback, "aura-fallback", diagnostic
 
-    def launch(self, game_id: str, focus_id: str) -> LaunchAttempt | None:
+    def launch(
+        self, game_id: str, focus_id: str, *, client_request_id: str | None = None
+    ) -> LaunchAttempt | None:
         """Lança o jogo e devolve a tentativa com requestId correlacionado.
 
         ``None`` significa rota sem recibo (Steam): falha sem sessionId não é
@@ -1204,7 +1239,21 @@ class LauncherBridge:
         # Connections are concurrent; validation, spawn and reservation form
         # one critical section so two clients cannot both launch the game.
         with self._session_lock:
-            return self._launch_locked(game_id, focus_id)
+            if client_request_id is not None:
+                if not _valid_client_request_id(client_request_id):
+                    raise ValueError("invalid client request identity")
+                previous = self._launch_request
+                if previous is not None and previous.client_id == client_request_id:
+                    if (previous.game_id, previous.focus_id) != (game_id, focus_id):
+                        raise ValueError("client request identity already used for another launch")
+                    return previous.attempt
+            attempt = self._launch_locked(game_id, focus_id)
+            self._launch_request = (
+                _LaunchRequest(client_request_id, game_id, focus_id, attempt)
+                if client_request_id is not None
+                else None
+            )
+            return attempt
 
     def readiness(self, game_id: str) -> dict[str, Any]:
         """Observe the existing preparation, without starting or consuming it."""
@@ -1405,9 +1454,21 @@ class LauncherBridge:
         *,
         include_overlay: bool = False,
         journey_stage: str | None = None,
+        client_request_id: str | None = None,
     ) -> dict[str, Any]:
         with self._session_lock:
-            result = self._session_locked(game_id)
+            request = self._launch_request if client_request_id is not None else None
+            if client_request_id is not None and (
+                request is None
+                or request.client_id != client_request_id
+                or request.game_id != game_id
+            ):
+                return {"gameId": game_id, "state": "unknown", "sessionId": None}
+            result = self._session_locked(
+                game_id, retained_attempt=request.attempt if request is not None else None
+            )
+            if request is not None:
+                result = {**result, "clientRequestId": request.client_id}
             if include_overlay:
                 result["overlay"] = self._overlay_locked(
                     game_id, result, journey_stage=journey_stage
@@ -1553,13 +1614,15 @@ class LauncherBridge:
             result["journeyBezel"] = self._journey_runtime.stage_bezel("bezel")
         return result
 
-    def _session_locked(self, game_id: str) -> dict[str, Any]:
+    def _session_locked(
+        self, game_id: str, *, retained_attempt: LaunchAttempt | None = None
+    ) -> dict[str, Any]:
         if self._session_observer is None or not any(
             game_id in section.items for section in self._sections
         ):
             return {"gameId": game_id, "state": "unknown", "sessionId": None}
         result = self._session_observer(game_id)
-        attempt = self._attempts.get(game_id)
+        attempt = retained_attempt if retained_attempt is not None else self._attempts.get(game_id)
         outcome = attempt.outcome() if attempt is not None else None
         if outcome is not None and outcome.get("state") == "notStarted":
             # Falha comprovadamente anterior ao spawn, confirmada pelo requestId

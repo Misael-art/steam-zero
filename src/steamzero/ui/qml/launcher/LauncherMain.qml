@@ -131,6 +131,7 @@ Window {
     // requestId do POST atual: é ele que autoriza o shell a aceitar uma falha
     // sem sessionId — resposta de tentativa antiga não altera pedido novo.
     property string launchRequestId: ""
+    property string launchClientRequestId: ""
 
     // O overlay é uma superfície de leitura/ação sobre a sessão canônica. O
     // QML não decide capabilities nem executa o emulador: apenas pede o
@@ -225,7 +226,7 @@ Window {
                 && root.journeyOverlayVisible && journeyLoader.item)
             journeyLoader.item.forceActiveFocus()
         else if (shell)
-            shell.restoreHomeFocus()
+            shell.restoreSurfaceFocus()
     }
 
     function toggleSessionOverlay() {
@@ -352,15 +353,22 @@ Window {
         if (!shell || root.sessionPollPending || !shell.sessionGameId)
             return
         const generation = root.launchGeneration
+        const clientId = root.launchClientRequestId
         root.sessionPollPending = true
-        root._request("GET", "/session?gameId=" + encodeURIComponent(shell.sessionGameId),
+        root._request("GET", "/session?gameId=" + encodeURIComponent(shell.sessionGameId)
+                      + (clientId ? "&clientRequestId=" + encodeURIComponent(clientId) : ""),
                       null, function(status, text) {
             root.sessionPollPending = false
-            if (generation !== root.launchGeneration || status !== 200)
+            if (generation !== root.launchGeneration || status !== 200
+                    || clientId !== root.launchClientRequestId)
                 return
             try {
                 const observation = JSON.parse(text)
-                shell.observeSession(observation)
+                if (clientId && observation.clientRequestId !== clientId)
+                    return
+                const accepted = shell.observeSession(observation)
+                if (!accepted && (observation.state === "closed" || observation.state === "failed"))
+                    return
                 // D-12: o rodapé consome o snapshot de /model tirado antes do
                 // lançamento; sem isto, Pausar/Salvar/Sair nascem desabilitados
                 // e só o botão "Atualizar" os habilitaria. A transição de
@@ -900,18 +908,40 @@ Window {
                 returnContext: root.model.returnContext || null
                 onExitRequested: Qt.quit()
                 onLaunchRequested: function(gameId, focusId) {
-                    ++root.launchGeneration
+                    const generation = ++root.launchGeneration
+                    const correlated = root.model.launchCorrelation
+                        && root.model.launchCorrelation.clientRequestId === true
+                    const clientId = correlated ? "launch-" + Date.now().toString(36)
+                        + "-" + generation + "-" + Math.random().toString(36).slice(2, 12) : ""
+                    root.launchClientRequestId = clientId
+                    root.launchRequestId = ""
+                    launcherShell.expectedRequestId = ""
+                    launcherShell.expectedClientRequestId = clientId
+                    const request = {"gameId": gameId, "focusId": focusId}
+                    if (clientId) request.clientRequestId = clientId
+                    const channelAvailable = root.api !== "" && root.token !== ""
                     root._request("POST", "/launch",
-                                  {"gameId": gameId, "focusId": focusId},
+                                  request,
                                   function(status, text) {
+                                      if (generation !== root.launchGeneration
+                                              || clientId !== root.launchClientRequestId)
+                                          return
+                                      if (status === 0 && channelAvailable) {
+                                          launcherShell.markUnconfirmed()
+                                          root.pollSession()
+                                          return
+                                      }
                                       if (status === 200) {
                                           try {
                                               const payload = JSON.parse(text)
+                                              if (clientId && payload.clientRequestId !== clientId)
+                                                  throw new Error("launch acknowledgment mismatch")
                                               root.launchRequestId = payload
                                                   && payload.requestId
                                                   ? String(payload.requestId) : ""
                                           } catch (error) {
                                               root.launchRequestId = ""
+                                              launcherShell.markUnconfirmed()
                                           }
                                           launcherShell.expectedRequestId = root.launchRequestId
                                           root.pollSession()
