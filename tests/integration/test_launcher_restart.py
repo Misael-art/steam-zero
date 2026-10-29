@@ -103,7 +103,12 @@ def test_launcher_restarts_twice_while_original_lifecycle_owner_survives(
     worker.write_text(_WORKER)
     database, context, release = (tmp_path / n for n in ("state.db", "context.json", "release"))
     preflight = tmp_path / "publish-session"
-    env = {**os.environ, "QML_XHR_ALLOW_FILE_READ": "1", "QT_QPA_PLATFORM": "offscreen"}
+    env = {
+        **os.environ,
+        "PYTHONPATH": str(ROOT / "src"),
+        "QML_XHR_ALLOW_FILE_READ": "1",
+        "QT_QPA_PLATFORM": "offscreen",
+    }
     source = ROOT / "tests/qml/launcher/check_launcher_restart.qml"
     harness = tmp_path / source.name
     harness.write_text(
@@ -130,8 +135,8 @@ def test_launcher_restarts_twice_while_original_lifecycle_owner_survives(
             capture_output=True,
             text=True,
             timeout=12,
-            check=True,
         )
+        assert created.returncode == 0, created.stdout + created.stderr
         accepted = json.loads(created.stdout)
         observer_pid = accepted["observerPid"]
         if not pending:
