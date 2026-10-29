@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "kind": "workstream",
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
-  "item": "SZ-LAUNCH-READINESS-PREPARATION",
+  "item": "SZ-AURA-LAUNCHER",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "52b9ebf89f4ca5a45c4692d438560b942b791398",
+  "baseRef": "b4b7196d4b4f368d2074b92706a8389853f22ea9",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -23,7 +23,10 @@
     "tests/unit/test_multidisc_materializer.py",
     "tests/integration/test_launcher_archive_preparation.py",
     "tests/unit/test_emulation_runtime_remediation.py",
-    "src/steamzero/ui/qml/launcher/LauncherHome.qml"
+    "src/steamzero/ui/qml/launcher/LauncherHome.qml",
+    "tests/integration/test_launcher_request_timeout.py",
+    "tests/qml/launcher/check_launcher_request_timeout.qml",
+    "tests/qml/launcher/check_launcher_focus_bootstrap.qml"
   ],
   "sharedPaths": [
     "src/steamzero/launcher/app.py",
@@ -33,6 +36,6 @@
     "docs/WORKLOG.md",
     "src/steamzero/adapters/emulation.py"
   ],
-  "nextAction": "Fonte fechada em d9d8f42b/d93bae2e:128integraçõesLauncher, integral6894/48/0 e núcleo6498/48, cobertura85,435961%>=CIverde85,395819%. Publicar checkpoint no PR268 e conferir SHA/CI novo. Sem instalação/auth; aceite físico pendente. Próximo lote seguro: reproduzir/reconciliar GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY nos itens existentes.",
-  "updatedAt": "2026-10-28"
+  "nextAction": "Consulta da bridge entregue em b4b7196d, gates integrais verdes. Harness de credenciais corrigido isoladamente em 9e23c1f3 e liberado do claim após o commit; custódia permanece no item de auditoria UI. Conferir CI do SHA publicado. Próximo lote serial: reproduzir GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME com POST /launch perdido/retido e efeito controlado antes de mudar contratos; reutilizar recibo/observador existentes. Prontidão e bridge mantêm provas instaladas/físicas pendentes. Sem autenticação, instalação ou novo escritor concorrente.",
+  "updatedAt": "2026-10-29"
 }

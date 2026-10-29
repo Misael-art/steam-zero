@@ -30,7 +30,7 @@
     "src/steamzero/ui/qml/launcher/LauncherHome.qml",
     "tests/unit/test_emulation_runtime_remediation.py"
   ],
-  "scopeDigest": "f0a4529b27bb29ce163d6835e3e92d8db4feed41f86541fb12fd0fcdbc73a535",
+  "scopeDigest": "292ba040d00910bc10880eb900336faee1e63c947f40232b8341d4419efc968a",
   "dependsOn": [],
   "knownGaps": [
     "GAP-LAUNCH-READINESS-INSTALLED-PROOF"
@@ -86,10 +86,8 @@
       "result": "passed"
     }
   ],
-  "nextAction": "Cartão/prontidão/progresso em d9d8f42b/d93bae2e, gates e comparação de cobertura aprovados. Conferir CI do novo SHA após publicação. Resta GAP-LAUNCH-READINESS-INSTALLED-PROOF; sem instalação/auth. Próximo lote de fonte: baseline do gap existente de reconexão da bridge em SZ-AURA-LAUNCHER, sem inventar causa nem promover provas físicas.",
-  "activeWorkstreams": [
-    "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS"
-  ],
-  "updatedAt": "2026-10-28",
-  "notes": "Os cinco critérios estão implementados e testados em fonte na branch; a prova instalada permanece pendente. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos. 24/10: assuncao serial prospectiva de WS-R3-LAUNCH-READINESS apos checkpoint local R2/year-alias, sem escritores concorrentes. Slice de codigo/testes apenas; sem promover eixo instalado/fisico. Handoffs JLS/R2 registrados antes de editar. 28/10: quinto critério implementado em fonte para o cartão selecionado e faixa operacional da Home/Cinema. Um observador por seleção, debounce200ms, leitura sem preparação automática, andamento indeterminado real (sem porcentagem inventada), reducedMotion e timeout com descarte de resposta atrasada. Aceite instalado/físico separado."
+  "nextAction": "Cartão/prontidão/progresso em d9d8f42b/d93bae2e; CI40793431084 com oito jobs verdes. Resta GAP-LAUNCH-READINESS-INSTALLED-PROOF, sem instalação/auth. Recuperação de consulta da bridge entregue em b4b7196d no item SZ-AURA-LAUNCHER; próxima fonte é baseline do ACK/lifetime de lançamento, preservando aceites físicos independentes.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-29",
+  "notes": "Os cinco critérios estão implementados e testados em fonte na branch; a prova instalada permanece pendente. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos. 24/10: assuncao serial prospectiva de WS-R3-LAUNCH-READINESS apos checkpoint local R2/year-alias, sem escritores concorrentes. Slice de codigo/testes apenas; sem promover eixo instalado/fisico. Handoffs JLS/R2 registrados antes de editar. 28/10: quinto critério implementado em fonte para o cartão selecionado e faixa operacional da Home/Cinema. Um observador por seleção, debounce200ms, leitura sem preparação automática, andamento indeterminado real (sem porcentagem inventada), reducedMotion e timeout com descarte de resposta atrasada. Aceite instalado/físico separado. Frente serial existente passou a SZ-AURA-LAUNCHER para o lote de recuperação de consultas da bridge em28/10; fonte de prontidão não mudou e aceite instalado permanece pendente."
 }

@@ -195,3 +195,106 @@ jornada de reconexão se necessário, usando os serviços e workstreams existent
 Começar por tests/integration/test_launcher_request_timeout.py e
  tests/integration/test_launcher_return_cycle.py. Instalação e provas físicas
 permanecem pendentes de autorização/aceite próprios; não iniciar autenticação.
+
+
+## Recuperação de consulta da bridge — 28/10/2026
+
+Base2a3129b0. CI40793431084 terminou com oito jobs verdes, incluindo visual canônico.
+A definição histórica de GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY documenta
+watchdog já corrigido em fonte e recaptura instalada ainda pendente. Esse gap
+permanece aberto; esta fatia fecha defeitos de consulta/retry demonstrados em fonte.
+
+Baseline HTTP controlado com a fonte anterior: três regressões QML. O retry
+zerava model e destruía LauncherShell, seleção, página e trava de sessão; JSON null
+virava ready sem catálogo; resposta antiga podia substituir um retry mais recente.
+Log válido: build/agent-runs/r3-bridge/baseline-http.log. Tentativa inicial de fixture
+com método QML read-only não foi usada como prova do produto.
+
+Correção mínima: manter o último modelo válido, aplicar resposta validada por
+geração e identidade do canal, cancelar consulta de modelo substituída e XHR
+expirado pelo watchdog existente. O handle é o XMLHttpRequest já criado, sem
+catálogo, executor ou supervisor adicional. O estado UNSENT prova o cancelamento
+lógico conforme o [contrato Qt](https://doc.qt.io/qt-6/qml-qtqml-xmlhttprequest.html).
+Não se assume EOF TCP imediato nem cancelamento de operação já recebida pelo serviço.
+O texto de timeout de launch agora informa ausência de confirmação, em vez de
+alegar que o jogo não iniciou. Correlação/ACK perdido permanece no gap próprio.
+
+A recuperação apresenta erro legível com foco e alvo de48px, Enter para retry e
+Escape para voltar ao cache/sair quando não há catálogo. Foco retorna à superfície
+visível. HTTP real da fixture controla resposta antiga, erro503, JSON inválido e
+peer retido; 128 integrações Launcher passaram em80,95s. Capturas Qt/offscreen
+inspecionadas: build/agent-runs/r3-bridge/02-query-unavailable.png e
+03-query-recovered.png. Sessão ativa é estado controlado da fixture; não houve
+spawn nem prova de jogo físico. Fonte e testes são congelados antes dos gates.
+
+Os limites permanecem: sem instalação, release, merge, deploy, boot ou autenticação
+privilegiada. Não promover Central, Theme Engine, Studio, Aura, hardware ou desempenho.
+Gates integrais e comparação de cobertura serão registrados no fechamento.
+
+
+### Falha do gate e sincronismo da fixture
+
+A primeira integral terminou com **6.894 passed, 48 skipped e uma falha**, em
+2.247,76 s: `test_ui_credential_journey_e2e.py`. A localização exata corrigiu a
+suspeita inicial de falha na matriz de controles. O teste envia POST de mudança
+de modo à sua fixture e clica em Testar sem aguardar esse ACK; as duas conexões
+podiam ser processadas na ordem inversa. O produto não participa dessa corrida.
+O caso passou sozinho sem alteração. Um injetor local de 250 ms na resposta de
+modo reproduziu as mesmas três reprovações QML do gate (baseline de 13,11 s).
+
+O harness agora aguarda a resposta HTTP 200 antes da próxima ação. Todas as
+asserções de sucesso, rejeição, segredo preservado e revogação permanecem.
+Com o mesmo atraso controlado, a jornada passou em 6,60 s. Não há autenticação
+real, alteração de credenciais do operador, espera fixa na UI ou mudança de
+produto. O harness sem claim ativo foi reservado serialmente na frente existente;
+o item SZ-UI-DESKTOP-AUDIT registra a manutenção de sua prova.
+
+Logs: build/agent-runs/r3-bridge/full.log, credential-focused.log,
+credential-delayed-baseline.log e credential-delayed-fixed.log. O núcleo passou
+com 6.498 passed/48 skipped/397 deselected em 668,57 s; cobertura 85,435961%
+>= 85,395819% do CI verde 40793431084, mesmos denominadores. Estado pessoal
+monitorado permaneceu inalterado. Uma nova integral é justificada pela falha e
+pela correção do harness; seu resultado será acrescentado no fechamento.
+
+
+### Fechamento verificável — 29/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: recuperação de consulta | `b4b7196d4b4f368d2074b92706a8389853f22ea9` | 128 integrações Launcher em 80,95 s; baseline HTTP com três regressões na base; seis casos Qt de retry/erro/retorno/cancelamento, incluindo dados inválidos |
+| SZ-UI-DESKTOP-AUDIT: sincronismo da fixture | `9e23c1f3e8c3f3fc0be1495dd46b2b636da1c5d7` | atraso controlado de 250 ms reproduz a corrida antes da correção e passa após aguardar o ACK; asserções preservadas |
+
+**Segunda integral: 6.895 passed, 48 skipped, zero failed**, 26 warnings,
+2.350,47 s (runner exit 0). Log `build/agent-runs/r3-bridge/full-final.log` e
+recibo `full-final-result.json`. Cobertura integral: **85,567853%**, reportada
+separadamente do núcleo. A comparação equivalente de núcleo permaneceu em
+**85,435961% >= 85,395819%**, sem regressão. Os seis hashes congelados coincidem
+com o conteúdo commitado; o primeiro resultado reprovado foi preservado, sem
+alterar goldens, skips, limites de cobertura ou asserções para obter aprovação.
+
+Ruff check, Ruff format --check (728 arquivos), mypy (306 fontes), independence,
+boundaries e status-check aprovados. Recibos em static-final-results.json.
+O catálogo e as visões recebem somente a validação documental específica após
+estes registros; não se repete a integral por mudança de digest/documentação.
+O estado pessoal monitorado ficou idêntico antes/depois em ambas as integrais.
+
+Autorização vigente: commit/push/atualização do PR #268 na branch de continuidade,
+sem force push, merge, release, instalação, boot ou autenticação privilegiada.
+Em 29/10, somente readlink confirmou `releases/2.0.0rc1-59ecc2d8f0f6`;
+runtime efetivamente ativo e rollback não foram revalidados. Nenhuma ação
+privilegiada foi executada. As capturas locais são de fonte Qt/offscreen com
+HTTP e sessão sintéticos, sem spawn, controle físico ou medida de desempenho.
+
+A recaptura instalada de GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY e o aceite
+físico de prontidão permanecem abertos. Próxima investigação segura:
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME. O requestId chega ao QML no retorno do
+POST /launch; perder esse ACK ainda não permite correlacionar a tentativa de
+modo seguro. Não adotar recibo antigo por gameId/nome. Reproduzir primeiro com
+resposta do POST retida/perdida e efeito controlado, usando LauncherBridge,
+LaunchRouter, recibo e observador de sessão existentes. Não há novo catálogo ou
+supervisor neste lote.
+
+Próximo comando de baseline: carregar .steamzero-dev/env.sh e executar
+`rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_receipt.py tests/integration/test_launcher_session_observation.py -q`;
+depois acrescentar a reprodução do ACK perdido antes de escolher o contrato.
+Conferir CI do SHA publicado no PR antes de qualquer integração/release autorizada.

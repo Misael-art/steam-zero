@@ -241,10 +241,21 @@ resolve um alvo base único no preflight compartilhado. Scan, preparo, rescan,
 reabertura, erro e recuperação usam fixtures isoladas; LauncherMain também foi
 exercitado em Qt/offscreen com o materializador real. Resultados e limites em
 [CHECKPOINT R3](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).
-Prontidão/progresso do cartão entregues em fonte em `d9d8f42b`/`d93bae2e`: 128 integrações Launcher e integral6894/48/0 aprovadas. Núcleo6498/48 e cobertura85,435961%>=baselineCIverde85,395819%. Fonte/QMLoffscreen; sem instalação. Próximo lote seguro: baseline de GAP-AURA-LAUNCHER-BRIDGE-DISCONNECT-RECOVERY, se ainda aberto, com os testes de timeout/retorno existentes.
-Conferir o CI do novo SHA e validar a jornada na release quando
-houver autorização própria; cartão/progresso e primeira instalação continuam
-aceites distintos. O roteiro abaixo permanece como diagnóstico histórico.
+Prontidão/progresso do cartão foram entregues em fonte em `d9d8f42b`/`d93bae2e`.
+Em 29/10, recuperação de consulta da bridge entregue em `b4b7196d`:
+retry preserva shell, seleção, detalhes e trava de sessão; respostas antigas ou
+catálogo inválido não substituem o último modelo válido. A corrida de ACK da
+fixture de credenciais foi corrigida separadamente em `9e23c1f3`.
+Integral final: 6.895 passed/48 skipped/0 failed em 2.350,47 s; 128 integrações
+Launcher, gates estáticos e cobertura de núcleo sem regressão. O primeiro gate
+reprovado e a reprodução da corrida estão preservados no CHECKPOINT R3.
+CI anterior de `2a3129b0`: oito jobs verdes no run 40793431084. Conferir o CI do
+SHA publicado atual. Fonte Qt/offscreen, sem instalação ou aceite físico.
+Próximo lote seguro: reproduzir GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME, retendo
+ou perdendo a resposta de POST /launch antes de alterar sua correlação. Usar
+recibo/observador existentes; não inferir requestId por jogo. O gap físico da
+bridge continua aberto até recaptura na release autorizada. O roteiro abaixo
+permanece como diagnóstico histórico.
 
 
 Feche primeiro o PR/checkpoint deste handoff conforme os recibos atuais. Depois

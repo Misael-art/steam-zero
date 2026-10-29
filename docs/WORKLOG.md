@@ -15083,3 +15083,49 @@ Publicar checkpoint coeso no PR #268 e conferir SHA remoto e CI novo. Próxima
 investigação segura: baseline do gap de reconexão da bridge já registrado em
 SZ-AURA-LAUNCHER, sem inventar causa ou refazer algo já entregue. Começar pelos
 testes existentes de timeout e retorno. Detalhes e limites no CHECKPOINT de R3.
+
+
+## 2026-10-29 — R3: recuperação de consulta da bridge e gate determinístico
+
+Assunção serial autorizada no checkout único e na branch
+codex/product-recovery-2026-10-16, base 2a3129b0, PR #268. Sem novos clones,
+worktrees, branches, autenticação ou ações privilegiadas. CI da base:
+40793431084, oito jobs verdes, incluindo o visual canônico.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER | b4b7196d | 128 integrações Launcher; HTTP real retido/reordenado, Qt/offscreen, retry/erro/retorno e trava ativa preservada |
+| SZ-UI-DESKTOP-AUDIT, somente fixture | 9e23c1f3 | corrida de modo reproduzida com ACK atrasado 250 ms; espera causal pelo HTTP 200, sem enfraquecer asserções |
+
+O retry mantém o último catálogo válido e o mesmo shell, seleção, página e trava
+de sessão. Geração/canal descartam resposta antiga; catálogo nulo/inválido vira
+erro acionável. O watchdog existente agora cancela o XHR expirado; cancelamento
+local não prova cancelamento do efeito remoto. Enter tenta novamente e Escape
+retorna à superfície preservada. Timeout de launch informa início não confirmado.
+
+A primeira integral registrou 6.894 passed, 48 skipped e uma falha na jornada de
+credenciais. Post de configuração assíncrono competia com o próximo clique;
+o caso sem mudança passou isolado, e atraso controlado reproduziu a mesma falha.
+Correção restrita a quatro linhas do harness, com claim reservado/liberado na
+frente serial existente. Segunda integral: 6.895 passed, 48 skipped, zero failed,
+26 warnings, 2.350,47 s, runner exit 0. Núcleo: 6.498 passed, 48 skipped,
+397 deselected, 668,57 s. Cobertura equivalente: 85,435961% >= baseline verde
+85,395819%, mesmos denominadores. Integral: 85,567853%, comparação separada.
+Seis hashes de fonte/teste preservados; nenhum golden, skip ou limiar alterado.
+Ruff check/format (728), mypy (306), independence, boundaries e status-check
+verdes. Treze testes do catálogo passaram em 6,26 s. Visões/digests regenerados
+pelos helpers oficiais, com eixos de produto preservados.
+
+Logs/recibos/capturas em build/agent-runs/r3-bridge. As capturas 02/03 foram
+inspecionadas: fonte Qt/offscreen e sessão sintética, sem spawn ou hardware.
+Estado pessoal monitorado idêntico antes/depois em todos os runners. Nenhuma
+instalação, release, merge, deploy, boot ou autenticação privilegiada. Readlink
+em 29/10: releases/2.0.0rc1-59ecc2d8f0f6; runtime efetivamente ativo e rollback
+não revalidados. Provas instaladas/físicas da bridge e prontidão continuam abertas.
+
+Fechamento documental acompanha estes commits; publicar uma vez na branch
+indicada, conferir SHA remoto e CI do novo head. Próximo lote seguro:
+baseline de GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME, POST /launch retido/perdido
+com efeito controlado, preservando requestId/recibo e serviços existentes.
+Não inferir uma tentativa pelo nome/gameId. Comandos e limites no CHECKPOINT R3
+e no handoff do host novo; não iniciar autenticação ou instalação.

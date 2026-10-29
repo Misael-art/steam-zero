@@ -105,7 +105,7 @@
     "tools/ui_dialog_probe.qml",
     "tools/ui_scenario_fixtures.py"
   ],
-  "scopeDigest": "f38c8e191c7a8ed9d0947101a3c07e24adf37835ffca815128ba7440ae367466",
+  "scopeDigest": "8026520f21192654c4cb3a2f57bf0ae2fac670b3bb26de92627e219acfb02a10",
   "dependsOn": [],
   "knownGaps": [
     "GAP-UI-LIVE-LAUNCHER-ROUTING",
@@ -1376,6 +1376,12 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
       "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "28/10: integral 6894 passed/48 skipped e uma falha na jornada de credenciais; corrida de configuração da fixture reproduzida com 250ms de atraso. Harness aguarda ACK200 antes do próximo clique; caso atrasado passou em6,60s, sem enfraquecer asserções ou alterar produto/autenticação. Nova integral no fechamento. Fechamento29/10: commit 9e23c1f3, segunda integral 6895 passed/48 skipped/0 failed em2350,47s; nenhum eixo de produto ou prova física promovido.",
+      "result": "recorded"
     }
   ],
   "nextAction": "R06 implementado e commitado em 7299b745. A validação visual/operacional depende de candidata autorizada e captura oficial; nenhum eixo de auditoria visual foi promovido por QML offscreen.",
@@ -1390,6 +1396,6 @@
     "WS-2026-09-RC01-ESDE-IMPORT-GENERATION",
     "WS-2026-10-R06-HOME-COUNT-UNIVERSE"
   ],
-  "updatedAt": "2026-10-19",
+  "updatedAt": "2026-10-29",
   "notes": "Continuidade 2026-10-05: R06 recebeu baseline read-only da release instalada e patch na Home para nao misturar catalogo publicado com universo escaneado. A validacao foi offscreen em QML; a release instalada nao foi atualizada e a captura oficial segue bloqueada. 2026-10-10: scopeDigest renovado somente porque LauncherJourney.qml limita a barra de facetas a duas linhas dentro da janela. Nenhum achado desta auditoria foi promovido ou encerrado.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada.\n\n2026-10-21: scopeDigest renovado por mudança alheia (commit 4b1352a5, lote R0/R1: contexto/prontidão/contraste em Emulation.qml). Revalidação de escopo, não carimbo; nenhum eixo promovido."
 }
