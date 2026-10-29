@@ -8,6 +8,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
+from steamzero.adapters.game_session_probe import orphan_recovery
 from steamzero.core.errors import ERROR_CATALOG
 from steamzero.core.session_state import SESSION_OWNER, SESSION_STATES, normalize_session_state
 
@@ -31,7 +32,7 @@ def observe_game_session(
             if session_id is None:
                 row = connection.execute(
                     "SELECT id,state,pid,start_ticks,failure_code,metadata_json,"
-                    "finished_at,exit_code "
+                    "finished_at,exit_code,owner "
                     "FROM game_session "
                     "WHERE game_id=? AND owner=? ORDER BY updated_at DESC,id DESC LIMIT 1",
                     (game_id, SESSION_OWNER),
@@ -39,7 +40,7 @@ def observe_game_session(
             else:
                 row = connection.execute(
                     "SELECT id,state,pid,start_ticks,failure_code,metadata_json,"
-                    "finished_at,exit_code "
+                    "finished_at,exit_code,owner "
                     "FROM game_session "
                     "WHERE id=? AND game_id=? AND owner=? LIMIT 1",
                     (session_id, game_id, SESSION_OWNER),
@@ -50,13 +51,15 @@ def observe_game_session(
         return {**unknown, "diagnostic": "LAUNCHER-SESSION-UNAVAILABLE-001"}
     if row is None:
         return {**unknown, "diagnostic": "LAUNCHER-SESSION-NOT-OBSERVED-001"}
-    session_id, raw_state, pid, ticks, failure_code, metadata, finished_at, exit_code = row
+    session_id, raw_state, pid, ticks, failure_code, metadata, finished_at, exit_code, owner = row
     state = normalize_session_state(raw_state)
     result = {
         "gameId": game_id,
         "sessionId": session_id,
         "state": state if state in SESSION_STATES else "unknown",
     }
+    if state == "failed" and isinstance(failure_code, str) and failure_code in ERROR_CATALOG:
+        result["failureCode"] = failure_code
     if (
         exact
         and state == "failed"
@@ -91,5 +94,19 @@ def observe_game_session(
         except (OSError, ValueError, IndexError):
             matches = False
         if not matches:
-            return {**result, "state": "unknown", "diagnostic": "LAUNCHER-SESSION-IDENTITY-001"}
+            recovery = orphan_recovery(
+                {
+                    "state": state,
+                    "pid": pid,
+                    "start_ticks": ticks,
+                    "owner": owner,
+                    "metadata_json": metadata,
+                }
+            )
+            return {
+                **result,
+                "state": "unknown",
+                "diagnostic": "LAUNCHER-SESSION-IDENTITY-001",
+                "recovery": recovery,
+            }
     return result

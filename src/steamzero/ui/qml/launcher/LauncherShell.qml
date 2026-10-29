@@ -49,6 +49,10 @@ Item {
     property string launchError: ""
     property string observedSessionId: ""
     property string sessionGameId: ""
+    property bool sessionUncertain: false
+    property bool sessionRecoveryAvailable: false
+    property bool sessionRecoveryPending: false
+    signal sessionRecoveryRequested(string gameId, string sessionId)
     // A volta confirmada cobre a troca do jogo pela home sem deixar um frame
     // exposto. O lifecycle continua semântico; esta camada só anima a
     // superfície visual e respeita reducedMotion.
@@ -98,13 +102,31 @@ Item {
         if (shell.launchState !== "launching" && shell.launchState !== "emulator-visible")
             return false
         shell.observedSessionId = observation.sessionId
-        if (observation.state === "running")
+        if (observation.state === "unknown") {
+            shell.sessionUncertain = true
+            shell.sessionRecoveryAvailable = !!(observation.recovery && observation.recovery.available)
+            shell.launchError = qsTr("LAUNCHER-SESSION-UNCERTAIN-001\nO estado atual desta sessão não pôde ser confirmado. Um novo lançamento permanece bloqueado.")
+            if (shell.sessionRecoveryAvailable)
+                shell.launchError += "\n" + qsTr("O jogo anterior já não está ativo. Selecione Verificar sessão para liberar uma nova tentativa.")
+            else
+                shell.launchError += "\n" + qsTr("A observação continua. Sem evidência suficiente, consulte a sessão na central.")
+            return true
+        }
+        if (observation.state === "running") {
+            shell.sessionUncertain = false
+            shell.sessionRecoveryAvailable = false
             return shell.markEmulatorVisible()
+        }
         if (observation.state === "failed") {
-            shell.failLaunch(qsTr("LAUNCHER-SESSION-FAILED-001\nA sessão registrou falha. Verifique os requisitos do jogo na central antes de tentar novamente."))
+            shell.failLaunch(observation.failureCode === "E-SESSION-ORPHANED"
+                ? qsTr("E-SESSION-ORPHANED\nA sessão foi interrompida e o registro foi recuperado. O tempo de jogo não pôde ser confirmado. Volte para tentar novamente.")
+                : qsTr("LAUNCHER-SESSION-FAILED-001\nA sessão registrou falha. Verifique os requisitos do jogo na central antes de tentar novamente."))
             return true
         }
         if (observation.state === "closed") {
+            shell.sessionUncertain = false
+            shell.sessionRecoveryAvailable = false
+            shell.sessionRecoveryPending = false
             // Even a short game may close between two polls. A canonical
             // terminal record is evidence; window focus is not.
             if (shell.launchState === "launching")
@@ -159,10 +181,18 @@ Item {
     }
 
     function markUnconfirmed() {
-        if (shell.launchState !== "launching")
+        if (shell.launchState !== "launching" || shell.sessionUncertain)
             return false
         shell.launchError = qsTr("LAUNCHER-SESSION-UNCONFIRMED-001\nO início do jogo ainda não foi confirmado. A observação continua; um novo lançamento está bloqueado para evitar duplicação. Consulte a sessão na central.")
         shell.feedbackRequested("launch-unconfirmed")
+        return true
+    }
+
+    function requestSessionRecovery() {
+        if (!sessionUncertain || !sessionRecoveryAvailable || sessionRecoveryPending)
+            return false
+        sessionRecoveryPending = true
+        sessionRecoveryRequested(sessionGameId, observedSessionId)
         return true
     }
 
@@ -220,6 +250,9 @@ Item {
             return false
         launchError = ""
         observedSessionId = ""
+        sessionUncertain = false
+        sessionRecoveryAvailable = false
+        sessionRecoveryPending = false
         sessionGameId = gamePage.gameId
         launchState = "preparing"
         launchStateRequested("preparing")
@@ -258,6 +291,9 @@ Item {
     }
 
     function failLaunch(reason) {
+        sessionUncertain = false
+        sessionRecoveryAvailable = false
+        sessionRecoveryPending = false
         launchError = String(reason || "Não foi possível iniciar o jogo.")
         launchState = "failed"
         launchStateRequested("failed")
@@ -358,6 +394,7 @@ Item {
         z: 10
         visible: shell.launchState === "preparing"
             || shell.launchState === "launching" || shell.launchState === "failed"
+            || shell.sessionUncertain
         // QML interpreta oito dígitos como #AARRGGBB. O valor anterior punha
         // 0x07 no alfa e deixava a página vazar por trás do texto da falha.
         color: "#ee071019"
@@ -368,8 +405,9 @@ Item {
             }
         }
         Accessible.name: shell.launchState === "failed"
-            ? qsTr("Falha ao iniciar o jogo") : qsTr("Preparando o jogo")
-        Accessible.description: shell.launchState === "failed"
+            ? qsTr("Falha na sessão") : shell.sessionUncertain
+            ? qsTr("Sessão não confirmada") : qsTr("Preparando o jogo")
+        Accessible.description: shell.launchState === "failed" || shell.sessionUncertain
             ? shell.launchError : qsTr("Aguarde enquanto o jogo é iniciado")
 
         Column {
@@ -392,6 +430,34 @@ Item {
                 wrapMode: Text.Wrap
                 maximumLineCount: 8
                 elide: Text.ElideRight
+            }
+
+            Rectangle {
+                id: sessionRecoveryButton
+                objectName: "sessionRecoveryButton"
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: shell.sessionUncertain && shell.sessionRecoveryAvailable
+                enabled: !shell.sessionRecoveryPending
+                onVisibleChanged: { if (visible) forceActiveFocus() }
+                width: 220; height: 48; radius: 8
+                color: "#0b1622"
+                border.width: activeFocus ? 3 : 1
+                border.color: activeFocus ? "#55d8ff" : "#68839b"
+                focus: visible
+                Accessible.name: qsTr("Verificar sessão")
+                Accessible.role: Accessible.Button
+                Accessible.description: qsTr("Recuperar apenas o registro comprovadamente interrompido, sem encerrar processos")
+                Text {
+                    anchors.centerIn: parent
+                    text: shell.sessionRecoveryPending ? qsTr("Verificando…") : qsTr("Verificar sessão")
+                    color: "#ffffff"; font.pixelSize: 14
+                }
+                TapHandler { onTapped: shell.requestSessionRecovery() }
+                Keys.onPressed: function(event) {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                        shell.requestSessionRecovery(); event.accepted = true
+                    }
+                }
             }
 
             Rectangle {

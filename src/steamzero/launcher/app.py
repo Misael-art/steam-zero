@@ -435,6 +435,12 @@ class LaunchRouter:
             }
         )
 
+    def recover_session(self, game_id: str, session_id: str) -> Mapping[str, Any]:
+        data = query_product(
+            self._executable(), "recover", game_id, timeout=3, session_id=session_id
+        )
+        return data if data is not None else {"status": "blocked", "state": "unknown"}
+
     def _steam_argv(self, app_id: str) -> tuple[str, ...]:
         if not app_id.isdigit() or len(app_id) > 32:
             raise SteamZeroError("E-API-SCHEMA", detail="AppID Steam inválido")
@@ -905,6 +911,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         metadata=metadata,
         session_observer=observe_session,
         session_by_id=session_by_id,
+        recover_session=None if args.isolated_library else router.recover_session,
         session_overlay=session_overlay,
         context_path=context_path,
         on_launch=launch_game,

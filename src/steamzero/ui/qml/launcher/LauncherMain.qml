@@ -915,6 +915,18 @@ Window {
                         root.journeyOverlayVisible = false
                     }
                 }
+                onSessionRecoveryRequested: function(gameId, sessionId) {
+                    const generation = root.launchGeneration
+                    root._request("POST", "/session/recover", {gameId: gameId, sessionId: sessionId}, function(status, text) {
+                        if (generation !== root.launchGeneration || launcherShell.sessionGameId !== gameId
+                                || launcherShell.observedSessionId !== sessionId)
+                            return
+                        launcherShell.sessionRecoveryPending = false
+                        // Only canonical GET drives the terminal UI transition,
+                        // including when this mutation's HTTP reply was lost.
+                        root.pollSession()
+                    })
+                }
                 onExitRequested: Qt.quit()
                 onLaunchRequested: function(gameId, focusId) {
                     const generation = ++root.launchGeneration

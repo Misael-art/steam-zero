@@ -190,7 +190,13 @@ class _Handler(BaseHTTPRequestHandler):
         if not self._authorized():
             self._send(403, {"error": "token inválido"})
             return
-        if self.path not in {"/launch", "/prepare", "/session/action", "/journey/event"}:
+        if self.path not in {
+            "/launch",
+            "/prepare",
+            "/session/action",
+            "/session/recover",
+            "/journey/event",
+        }:
             self._send(404, {"error": "rota desconhecida"})
             return
         try:
@@ -225,6 +231,21 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path == "/journey/event":
             result = self._bridge.journey_event(payload)
             self._send(200, result)
+            return
+        if self.path == "/session/recover":
+            game_id = payload.get("gameId")
+            session_id = payload.get("sessionId")
+            if (
+                not isinstance(game_id, str)
+                or not game_id
+                or not isinstance(session_id, str)
+                or not ids.is_ulid(session_id)
+                or set(payload) != {"gameId", "sessionId"}
+            ):
+                self._send(400, {"error": "LAUNCHER-SESSION-RECOVERY-IDENTITY-001"})
+                return
+            result = self._bridge.recover_session(game_id, session_id)
+            self._send(200 if result["accepted"] else 409, result)
             return
         if self.path == "/session/action":
             game_id = payload.get("gameId")
@@ -399,6 +420,7 @@ class LauncherBridge:
         metadata: Mapping[str, Mapping[str, Any]] | None = None,
         session_observer: Callable[[str], dict[str, Any]] | None = None,
         session_by_id: Callable[[str, str], dict[str, Any]] | None = None,
+        recover_session: Callable[[str, str], Mapping[str, Any]] | None = None,
         session_overlay: SessionOverlayAdapter | None = None,
         journey_runtime: JourneyRuntime | None = None,
         journey_diagnostic: Mapping[str, Any] | None = None,
@@ -425,6 +447,7 @@ class LauncherBridge:
         }
         self._session_observer = session_observer
         self._session_by_id = session_by_id
+        self._recover_session = recover_session
         self._session_overlay = session_overlay
         self._journey_runtime = journey_runtime
         self._journey_diagnostic = dict(journey_diagnostic or {})
@@ -437,6 +460,7 @@ class LauncherBridge:
         self._session_lock = threading.RLock()
         self._journey_request_results: dict[str, tuple[str, dict[str, Any]]] = {}
         self._session_action_results: dict[str, tuple[str, dict[str, Any]]] = {}
+        self._last_recovery: tuple[str, str, dict[str, Any]] | None = None
         if title_mode not in TITLE_VARIANT_MODES:
             raise ValueError(f"modo de título desconhecido: {title_mode}")
         self._title_mode = title_mode
@@ -1463,6 +1487,7 @@ class LauncherBridge:
             self._attempts[game_id] = attempt
         if self._session_observer is not None:
             self._pending_game = game_id
+        self._last_recovery = None
         return attempt
 
     def session(
@@ -1630,6 +1655,61 @@ class LauncherBridge:
             result["journeyAppearance"] = self._journey_runtime.stage_appearance(selected_stage)
             result["journeyBezel"] = self._journey_runtime.stage_bezel("bezel")
         return result
+
+    def recover_session(self, game_id: str, session_id: str) -> dict[str, Any]:
+        """An explicit mutation; GET observation never reaps canonical state."""
+        with self._session_lock:
+            denied = {
+                "accepted": False,
+                "gameId": game_id,
+                "sessionId": session_id,
+                "state": "unknown",
+                "diagnostic": "LAUNCHER-SESSION-RECOVERY-UNPROVEN-001",
+            }
+            previous = self._last_recovery
+            if previous is not None and previous[:2] == (game_id, session_id):
+                return dict(previous[2])
+            if not ids.is_ulid(session_id) or self._recover_session is None:
+                return denied
+            attempt = self._attempts.get(game_id)
+            request = self._launch_request
+            if attempt is None and request is not None and request.game_id == game_id:
+                attempt = request.attempt
+            identity = (
+                self._recovery.get("sessionId")
+                if self._recovery and self._recovery["gameId"] == game_id
+                else None
+            )
+            if identity is None and attempt is not None and attempt.state == "confirmed":
+                identity = attempt.outcome().get("sessionId")
+            if identity != session_id:
+                return denied
+            current = self._session_locked(game_id, retained_attempt=attempt)
+            if current.get("sessionId") != session_id:
+                return denied
+            if current.get("state") in {"failed", "closed"}:
+                return {**current, "accepted": True}
+            if not current.get("recovery", {}).get("available"):
+                return denied
+            try:
+                result = self._recover_session(game_id, session_id)
+            except (SteamZeroError, OSError):
+                return denied
+            if result.get("gameId") != game_id or result.get("sessionId") != session_id:
+                return denied
+            accepted = result.get("status") in {"recovered", "clean"} and result.get("state") in {
+                "failed",
+                "closed",
+            }
+            public = {
+                key: result[key]
+                for key in ("gameId", "sessionId", "status", "state", "failureCode", "diagnostic")
+                if key in result
+            }
+            public["accepted"] = accepted
+            if accepted:
+                self._last_recovery = (game_id, session_id, dict(public))
+            return public
 
     def _session_locked(
         self, game_id: str, *, retained_attempt: LaunchAttempt | None = None

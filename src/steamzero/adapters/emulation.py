@@ -55,6 +55,7 @@ from steamzero.adapters.enhancements.installer import (
     validate_policy,
 )
 from steamzero.adapters.flatpak import FlatpakCLI, FlatpakExecutor
+from steamzero.adapters.game_session_probe import game_process, lifecycle_owner, orphan_recovery
 from steamzero.adapters.lifecycle import ComponentLifecycle
 from steamzero.adapters.managed_multidisc_projection import discover_managed_projection
 from steamzero.adapters.mods.build_id_scanner import BuildIdScanner
@@ -1937,11 +1938,16 @@ class EmulationController:
             if session_id is not None:
                 with self._store_factory() as store:
                     store.migrate()
+                    ticks = self._read_start_ticks(pid)
+                    current = store.get_game_session(session_id)
+                    metadata = json.loads(current["metadata_json"]) if current is not None else {}
+                    metadata["gameProcess"] = game_process(pid, ticks)
                     store.transition_game_session(
                         session_id,
                         "running",
                         pid=pid,
-                        start_ticks=self._read_start_ticks(pid),
+                        start_ticks=ticks,
+                        metadata_json=json.dumps(metadata),
                     )
                 if getattr(self, "_session_control_enabled", False):
                     try:
@@ -2213,6 +2219,7 @@ class EmulationController:
                 "platformId": platform_id,
                 "coverUrl": str(game.get("coverUrl") or game.get("bannerAsset") or "")[:4096],
                 "emulatorId": emulator_id,
+                "lifecycleOwner": lifecycle_owner(),
             },
             sort_keys=True,
             ensure_ascii=False,
@@ -2287,6 +2294,53 @@ class EmulationController:
             if title_id is not None:
                 self._session_save_checkpoint(game_id, title_id, emulator_id)
 
+    def recover_game_session(self, game_id: str, session_id: str) -> dict[str, Any]:
+        """Explicit exact reconciliation through the canonical lifecycle writer."""
+        if not ids.is_ulid(session_id) or not isinstance(game_id, str) or not game_id:
+            raise SteamZeroError("E-API-SCHEMA", detail="identidade de sessão inválida")
+        result: dict[str, Any] = {
+            "gameId": game_id,
+            "sessionId": session_id,
+            "status": "blocked",
+            "state": "unknown",
+        }
+        with self._store_factory() as store:
+            store.migrate()
+            row = store.get_game_session(session_id)
+            if row is None or row["owner"] != SESSION_OWNER or row["game_id"] != game_id:
+                return {**result, "diagnostic": "LAUNCHER-SESSION-RECOVERY-UNPROVEN-001"}
+            if row["state"] in {"closed", "failed"}:
+                return {**result, "status": "clean", "state": row["state"]}
+            evidence = orphan_recovery(row)
+            if not evidence["available"]:
+                return {**result, "diagnostic": evidence["diagnostic"]}
+            try:
+                self._reconcile_orphaned_game_session(store, row)
+            except SteamZeroError as exc:
+                if exc.code != "E-TX-STALE-PLAN":
+                    raise
+                return {**result, "diagnostic": exc.code}
+        return {
+            **result,
+            "status": "recovered",
+            "state": "failed",
+            "failureCode": "E-SESSION-ORPHANED",
+        }
+
+    @staticmethod
+    def _reconcile_orphaned_game_session(store: StateStore, row: Mapping[str, Any]) -> None:
+        store.transition_game_session(
+            str(row["id"]),
+            "failed",
+            expected={
+                key: row[key]
+                for key in ("owner", "game_id", "state", "pid", "start_ticks", "metadata_json")
+            },
+            pid=None,
+            finished_at=datetime.now(UTC).isoformat(),
+            failure_code="E-SESSION-ORPHANED",
+        )
+
     def _reap_dead_game_sessions(self) -> int:
         """Encerra sessões cujo processo já não existe.
 
@@ -2305,18 +2359,23 @@ class EmulationController:
         with suppress(Exception), self._store_factory() as store:
             store.migrate()
             for row in store.active_game_sessions(SESSION_OWNER):
+                try:
+                    raw_metadata = row.get("metadata_json")
+                    metadata = json.loads(raw_metadata) if isinstance(raw_metadata, str) else None
+                except (TypeError, ValueError, RecursionError):
+                    metadata = None
+                if isinstance(metadata, dict) and "lifecycleOwner" in metadata:
+                    if not orphan_recovery(row)["available"]:
+                        continue
+                    self._reconcile_orphaned_game_session(store, row)
+                    reaped += 1
+                    continue
                 pid = row.get("pid")
                 if isinstance(pid, int) and pid > 1 and _process_alive(pid):
                     recorded = row.get("start_ticks")
                     if recorded is None or self._read_start_ticks(pid) == recorded:
                         continue
-                store.transition_game_session(
-                    str(row["id"]),
-                    "failed",
-                    pid=None,
-                    finished_at=datetime.now(UTC).isoformat(),
-                    failure_code="E-SESSION-ORPHANED",
-                )
+                self._reconcile_orphaned_game_session(store, row)
                 reaped += 1
         return reaped
 
