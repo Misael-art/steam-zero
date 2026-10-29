@@ -298,3 +298,109 @@ Próximo comando de baseline: carregar .steamzero-dev/env.sh e executar
 `rtk proxy .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_receipt.py tests/integration/test_launcher_session_observation.py -q`;
 depois acrescentar a reprodução do ACK perdido antes de escolher o contrato.
 Conferir CI do SHA publicado no PR antes de qualquer integração/release autorizada.
+
+
+## ACK perdido de lançamento — 29/10/2026
+
+Base 4c829a8744118a1a0ccdfc86252fe67489f63976, CI 40831063419 com oito jobs
+verdes, incluindo visual canônico. Continuidade serial autorizada para fonte,
+commit/push/PR #268; sem autenticação, instalação, release, merge ou boot.
+
+Baseline HTTP/QML: três casos reprovados em 10,53 s. Após POST aceito com ACK
+perdido, a UI entrava em failed e liberava nova tentativa; uma recusa pré-spawn
+não podia ser correlacionada; pedido que nem chegara ao serviço era tratado
+como falha conclusiva. Log: build/agent-runs/r3-launch-ack/baseline-qml.log.
+O gate de foco existente distinguiu corretamente canal ausente antes do envio:
+esse caso continua sendo falha comprovadamente anterior a qualquer efeito.
+
+Contrato aditivo: /model anuncia launchCorrelation.clientRequestId; somente
+quando anunciado, QML envia um identificador por tentativa no POST /launch e
+consulta /session com o mesmo clientRequestId. O requestId de recibo do servidor
+continua distinto. A bridge associa as duas identidades sob o lock existente;
+retém apenas o último pedido aceito, até a próxima aceitação ou o fim da bridge.
+Repetição exata desse pedido retido devolve o mesmo recibo sem novo efeito;
+reuso com argumentos diferentes é recusado. IDs são ASCII allowlisted, 1–128
+caracteres, validados antes do efeito. Clientes/modelos antigos conservam as
+rotas legadas, sem inventar correlação por nome ou gameId.
+
+O recibo retido alimenta a mesma _session_locked, sem segundo observador,
+catálogo ou supervisor. Uma leitura perdida ou consumo por observação legada
+não apaga o único notStarted correlacionado. Confirmação exige o sessionId exato
+do recibo; tentativa pendente, delayed, unconfirmed ou sessão externa não viram
+running. GET com identidade divergente não consulta/adota a tentativa atual.
+Uma resposta de POST antiga é descartada pela geração/identidade da UI.
+
+Timeout após envio mantém launching e a trava, informa incerteza e continua
+somente leituras; não há repetição automática de POST. A leitura correlacionada
+pode confirmar running, confirmar notStarted ou conduzir ao retorno canônico.
+ACK que expira depois da confirmação não rebaixa a sessão para erro. Se o pedido
+não foi recebido, permanece não confirmado, com orientação para a Central.
+
+O percurso por teclado reproduziu também foco roubado para launcherHome escondida:
+closeSessionOverlay restaurava Home após a recusa mesmo com detalhes visíveis.
+A recuperação agora foca o botão da falha e depois a superfície visível. Enter
+real confirma a dispensa e a nova tentativa; o harness não força foco.
+Logs de reprodução e correção: keyboard-flow.log, focus-diagnostic.log,
+keyboard-final.log. Nenhum teste existente foi enfraquecido.
+
+Regressão final: 145 integrações Launcher passaram em 87,10 s, inclusive os
+17 novos casos (quatro Qt/HTTP e treze de contrato). Cobrem ACK perdido, primeira
+observação perdida, ACK expirado depois de running, pedido não recebido,
+notStarted/recuperação, IDs inválidos, sessão externa, identidade substituída e
+replay concorrente com efeito único. Recibos e sessão são controlados, sem spawn.
+Estado pessoal monitorado inalterado. Capturas 01–04 no diretório local do lote,
+fonte Qt/offscreen fullscreen 800x800, sem alegação de Deck/hardware/desempenho.
+
+Limites: a retenção não é persistida entre processos/reboots e não é histórico
+ilimitado de idempotência. Não prova confirmação de jogo Steam sem recibo.
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME permanece aberto para esses limites e a
+prova instalada/física; o lote fecha o ACK perdido com a bridge viva. Os demais
+aceites de prontidão, desconexão física e instalação permanecem independentes.
+Gates integrais e cobertura equivalente serão acrescentados no fechamento.
+
+
+### Fechamento do ACK perdido — 29/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: correlação, retenção e foco | `36e01f701eba1185f1957e2b30105bd754da0284` | 145 integrações Launcher; 17 casos novos, quatro Qt/HTTP com teclado real e treze de contrato |
+
+**Integral concluída: 6.912 passed, 48 skipped, zero failed**, 19 warnings,
+2.857,35 s, runner exit 0. Recibo full-result.json e log full.log em
+build/agent-runs/r3-launch-ack. Cobertura integral: **85,576152%**.
+Núcleo: **6.511 passed, 48 skipped, 401 deselected**, 19 warnings, 848,76 s,
+runner exit 0. Comparação equivalente de seleção not visual:
+**85,447227% >= 85,398687%** do CI verde 40831063419, head 4c829a87.
+O código Python novo muda os denominadores: atuais 52.164 statements/17.644
+branches; baseline 52.128/17.626. Não se alegam denominadores idênticos.
+Artefato 12879485133, coverage-python-3.14, 663.143 bytes comprimidos; origem,
+hash e totais preservados em baseline-receipt.json. Sem regressão de cobertura.
+
+Ruff check/format (729 arquivos), mypy (306 fontes), independence, boundaries e
+status-check verdes. Cinco hashes de fonte/teste permaneceram intactos durante
+os gates e coincidem com o commit funcional. Nenhum golden, skip, limite de
+cobertura ou teste existente foi alterado para acomodar o resultado.
+Estado pessoal monitorado idêntico antes/depois nos gates concluídos; nenhum
+warning de escritor externo. Validação documental específica acompanha o commit.
+
+A primeira tentativa de integral foi interrompida por SIGTERM, saída 143, sem
+resumo de pytest nem recibo terminal; **resultado desconhecido, não aprovado**.
+Não havia pytest ativo após a interrupção. Remetente do sinal não determinado.
+Log full-interrupted.log e full-interrupted-result.json preservados. Repetiu-se
+somente a integral, em sessão separada; núcleo/cobertura não foram repetidos.
+A passagem concluída acima é a prova integral válida, com o mesmo fonte.
+
+Sem instalação, release, merge, deploy, boot ou autenticação privilegiada.
+Readlink somente: releases/2.0.0rc1-59ecc2d8f0f6; runtime ativo e rollback não
+revalidados. Capturas 01–04 inspecionadas de fonte Qt/offscreen, sem spawn nos
+17 casos novos. O botão de recuperação tem foco visível e Enter executa o retry;
+o retorno preserva library:second. Nenhuma prova física ou de desempenho.
+
+Próxima reprodução segura: encerrar/recriar somente uma bridge de fixture com
+sessão controlada já aceita e verificar a continuidade entre processos. O
+LaunchPlan.context_payload existente guarda apenas gameId/focusId e
+consume_context remove esse contexto; não há clientRequestId persistido neste
+lote. Começar por src/steamzero/launcher/launch.py, launcher/app.py e
+adapters/launcher_session.py, usando o estado canônico existente. Não migrar
+schema, adotar sessão por nome/PID/gameId ou promover Steam sem recibo por
+inferência. Provas instaladas/físicas e autorização de host continuam pendentes.

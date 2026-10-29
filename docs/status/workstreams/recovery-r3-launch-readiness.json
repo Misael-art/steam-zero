@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-AURA-LAUNCHER",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "b4b7196d4b4f368d2074b92706a8389853f22ea9",
+  "baseRef": "36e01f701eba1185f1957e2b30105bd754da0284",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -26,7 +26,11 @@
     "src/steamzero/ui/qml/launcher/LauncherHome.qml",
     "tests/integration/test_launcher_request_timeout.py",
     "tests/qml/launcher/check_launcher_request_timeout.qml",
-    "tests/qml/launcher/check_launcher_focus_bootstrap.qml"
+    "tests/qml/launcher/check_launcher_focus_bootstrap.qml",
+    "tests/integration/test_launcher_receipt.py",
+    "tests/integration/test_launcher_session_observation.py",
+    "tests/integration/test_launcher_launch_ack.py",
+    "tests/qml/launcher/check_launcher_launch_ack.qml"
   ],
   "sharedPaths": [
     "src/steamzero/launcher/app.py",
@@ -36,6 +40,6 @@
     "docs/WORKLOG.md",
     "src/steamzero/adapters/emulation.py"
   ],
-  "nextAction": "Consulta da bridge entregue em b4b7196d, gates integrais verdes. Harness de credenciais corrigido isoladamente em 9e23c1f3 e liberado do claim após o commit; custódia permanece no item de auditoria UI. Conferir CI do SHA publicado. Próximo lote serial: reproduzir GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME com POST /launch perdido/retido e efeito controlado antes de mudar contratos; reutilizar recibo/observador existentes. Prontidão e bridge mantêm provas instaladas/físicas pendentes. Sem autenticação, instalação ou novo escritor concorrente.",
+  "nextAction": "ACK perdido com bridge viva entregue em 36e01f70:145 Launcher, integral6912/48/0, núcleo6511/48/401 e cobertura sem regressão. Conferir CI do SHA publicado. Próximo lote serial: baseline de recriação da bridge com sessão de fixture aceita; ler LaunchPlan.context_payload/consume_context e observador canônico antes de escolher persistência. Sem migração implícita, adoção por gameId ou nova instalação/auth. Aceites físicos de prontidão/bridge continuam abertos.",
   "updatedAt": "2026-10-29"
 }

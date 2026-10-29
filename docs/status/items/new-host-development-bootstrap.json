@@ -99,5 +99,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-28",
   "notes": "Bootstrap e ferramentas de handoff recuperados do WIP e testados por runner isolado; backup privado local verificado. Raiz e governanca alinhadas com Projects. Ambiente herdado preservado sem adocao ficticia; instalacao limpa do SO, ownership futuro, upload privado e produto instalado mantem aceites independentes. Ambiente herdado isolado in-place dos pacotes globais;13dependencias faltantes instaladas pelo lock com hashes, pip check aprovado, sem recriar ambiente nem inventar ownership. Corrigido PYTEST_DEBUG_TEMPROOT herdado no runner, com regressao de subprocesso real e130testes focados aprovados. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
-  "scopeDigest": "255adb72a2da90d442b83172c649228ad199dd6423b1a6418ee594994de75651"
+  "scopeDigest": "a66eef5fc98bb6bbcf189cd417563a3ee4588bf29e718e10d11d4bf0c05b63ad"
 }

@@ -15129,3 +15129,54 @@ baseline de GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME, POST /launch retido/perdido
 com efeito controlado, preservando requestId/recibo e serviços existentes.
 Não inferir uma tentativa pelo nome/gameId. Comandos e limites no CHECKPOINT R3
 e no handoff do host novo; não iniciar autenticação ou instalação.
+
+
+## 2026-10-29 — R3: ACK perdido com bridge viva e recuperação por teclado
+
+Lote serial no checkout único /home/misael/Projects/SteamZero, branch
+codex/product-recovery-2026-10-16, base 4c829a87 e PR #268. Continuidade de
+fonte/commit/push autorizada; sem instalação, auth, release, merge ou boot.
+CI da base: 40831063419, oito jobs verdes, incluindo visual canônico.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER | 36e01f70 | 145 integrações Launcher; 17 casos novos de HTTP/recibo/teclado, sem spawn nesses novos casos |
+
+Baseline: três falhas Qt com ACK perdido após aceitação, recusa notStarted e
+pedido que não chegou ao serviço. A UI liberava a tentativa sem prova de falha.
+O identificador criado antes do POST agora se vincula ao recibo na bridge;
+leituras correlacionadas recuperam running/notStarted sem novo POST automático.
+Um único pedido aceito fica retido nesta execução. Replay exato recupera o
+recibo sem efeito novo; IDs divergentes/invalidos e sessão externa não confirmam.
+As rotas legadas e os IDs persistentes foram preservados. O teste existente de
+canal ausente continua comprovando recusa antes de qualquer envio.
+
+Teclado real revelou foco na Home escondida após notStarted. A restauração
+agora segue a superfície visível e o botão de recuperação; Enter dispensa a
+falha, repete a tentativa e retorna ao mesmo cartão após fechamento canônico.
+Nenhum teste existente foi enfraquecido, golden/skip/limiar alterado ou ambiente
+recriado para produzir aprovação.
+
+Núcleo: 6.511 passed, 48 skipped, 401 deselected, 848,76 s, runner exit 0.
+Cobertura: 85,447227% >= baseline verde 85,398687%, mesma seleção not visual;
+os denominadores atuais incluem o código novo. Integral válida: 6.912 passed,
+48 skipped, zero failed, 19 warnings, 2.857,35 s, runner exit 0; cobertura
+85,576152%. A primeira integral foi interrompida por SIGTERM143 sem resumo:
+resultado desconhecido, log preservado e remetente não determinado. Repetiu-se
+somente a integral, separada do núcleo. Cinco hashes de fonte/teste preservados.
+Ruff check/format (729), mypy (306), independence, boundaries e status-check
+verdes; 13 testes do catálogo passaram. Digests/visões atualizados pelos helpers.
+Estado pessoal monitorado inalterado nos gates concluídos, sem escritor externo.
+
+Evidência em build/agent-runs/r3-launch-ack e no CHECKPOINT R3 existente.
+Capturas 01–04 de fonte Qt/offscreen fullscreen 800x800 inspecionadas; não são
+prova instalada, controle físico, Deck, desempenho ou jogo real. Readlink somente:
+releases/2.0.0rc1-59ecc2d8f0f6; runtime efetivo e rollback não revalidados.
+Nenhuma ação privilegiada executada. Aceites de Central/Engine/Studio preservados.
+
+Publicar o checkpoint documental com o código acima, conferir SHA remoto e CI
+novo. Próximo baseline seguro: reinício da bridge em fixture com sessão aceita.
+O contexto atual persiste somente gameId/foco e é consumido na reabertura;
+clientRequestId não é persistido. Não adotar por nome/PID/gameId nem migrar schema
+por inferência. GAP-SESSION-ACK-LIFETIME, Steam sem recibo e provas físicas seguem
+abertos, sem iniciar autenticação/instalação. Handoff do host novo atualizado.

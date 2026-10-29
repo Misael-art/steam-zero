@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "564374090b31b324b4edce0815edfac71099ee5f6f8652fd5a6c30404aa39e80",
+  "scopeDigest": "f1ec5bf484e250da7ef4b20bb6a9801e3facd2d97c631b3fe089260a2e2f683e",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -92,7 +92,8 @@
     "tests/unit/test_session_peripherals.py",
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel",
-    "tests/integration/test_launcher_request_timeout.py"
+    "tests/integration/test_launcher_request_timeout.py",
+    "tests/integration/test_launcher_launch_ack.py"
   ],
   "dependsOn": [
     "SZ-AURA-UI",
@@ -733,9 +734,15 @@
       "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
       "command": "Fechamento29/10, fonte b4b7196d, fixture 9e23c1f3: integral final 6895 passed/48 skipped/0 failed em2350,47s, runner0; núcleo6498/48/397 e cobertura85,435961%>=CIverde85,395819%. 128 Launcher, Ruff check/format728, mypy306, independence/boundaries e status verdes. Primeiro gate reprovou por corrida de ACK da fixture de credenciais, reproduzida e corrigida sem alterar produto. Estado pessoal monitorado inalterado; Qt/offscreen, sem instalação/hardware.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Lote29/10 ACK perdido: baseline Qt/HTTP com três falhas; 145 integrações Launcher verdes em87,10s, incluindo17 casos novos de correlação/retenção/replay/erro/recuperação. Enter real e retorno ao mesmo cartão; capturas fonte Qt/offscreen800x800, sem spawn. Estado pessoal inalterado. Bridge retém somente último pedido aceito nesta execução; sem repetição automática de POST. Gates integrais no fechamento. Fechamento 36e01f70: integral6912 passed/48 skipped/0 failed em2857,35s, runner0; núcleo6511/48/401 em848,76s, cobertura85,447227%>=CIverde85,398687%. Ruff729, mypy306, independência/fronteiras/status verdes. Uma integral interrompida porSIGTERM143 ficou desconhecida; somente a passagem com recibo0 é aprovação. Sem instalação/prova física.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Conferir CI do SHA publicado contendo b4b7196d. Próxima fonte: baseline de GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME com POST /launch retido/perdido e efeito controlado; usar requestId/recibo/observador existentes, sem adotar tentativa antiga por gameId. Gap físico de desconexão e provas instaladas permanecem abertos; sem autenticação/instalação.",
+  "nextAction": "Conferir CI do SHA publicado contendo 36e01f70. Próximo baseline de GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME: reinício da bridge de fixture com sessão controlada aceita; contexto atual persiste só gameId/foco. Não adotar sessão por nome/PID/gameId nem migrar schema sem contrato. Retenção de um pedido só vale nesta bridge; prova instalada/física e Steam sem recibo permanecem pendentes. Sem instalação/auth.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",
