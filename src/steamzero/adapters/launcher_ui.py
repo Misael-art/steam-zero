@@ -29,7 +29,7 @@ from steamzero.adapters.launcher_process import supervised_child
 from steamzero.adapters.launcher_receipt import LaunchAttempt
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
 from steamzero.core import ids, log, paths
-from steamzero.core.errors import SteamZeroError
+from steamzero.core.errors import ERROR_CATALOG, SteamZeroError
 from steamzero.core.title_variants import (
     TITLE_VARIANT_MODES,
     normalize_title_variants,
@@ -1442,6 +1442,16 @@ class LauncherBridge:
         if self._journey_runtime is not None:
             selection = self._journey_runtime.stage_bezel("bezel")
             bezel_resource = str(selection.get("resourceId") or "aura-default")
+        if self._recovery is not None:
+            recovered = self._recovery
+            prior = self._session_locked(recovered["gameId"])
+            if prior.get("attempt", {}).get("state") != "notStarted":
+                raise ValueError("recovery has no proven pre-spawn refusal")
+            if not forget_context(self._context_path, recovered["requestId"]) and (
+                self._context_path.exists() or self._context_path.is_symlink()
+            ):
+                raise ValueError("recovery context changed; refusing to replace it")
+            self._recovery = None
         attempt = (
             self._on_launch_bezel(game_id, focus_id, bezel_resource)
             if self._on_launch_bezel is not None
@@ -1643,8 +1653,24 @@ class LauncherBridge:
             result = self._session_observer(game_id)
         attempt = retained_attempt if retained_attempt is not None else self._attempts.get(game_id)
         outcome = attempt.outcome() if attempt is not None else None
+        if (
+            recovered is not None
+            and result.get("state") == "failed"
+            and result.get("launchAcknowledgment") == "notStarted"
+            and isinstance(result.get("failureCode"), str)
+            and result["failureCode"] in ERROR_CATALOG
+        ):
+            error = SteamZeroError(result["failureCode"]).to_error_object()
+            outcome = {
+                "requestId": recovered["requestId"],
+                "state": "notStarted",
+                "error": {key: error[key] for key in ("code", "what", "impact", "manualAction")},
+            }
         if outcome is not None and outcome.get("state") == "notStarted":
-            forget_context(self._context_path, str(outcome["requestId"]))
+            if recovered is None:
+                forget_context(self._context_path, str(outcome["requestId"]))
+            # A restored refusal survives lost GET replies and another restart.
+            # Only the next explicit, validated launch consumes its context.
             # Falha comprovadamente anterior ao spawn, confirmada pelo requestId
             # do pedido atual: nada foi criado, a tentativa é liberada e Jogar
             # volta a ser elegível. O erro viaja na projeção da tentativa.

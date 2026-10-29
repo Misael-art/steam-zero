@@ -1825,6 +1825,7 @@ class EmulationController:
         retroarch_artifacts_created = False
         configured_bezel: Mapping[str, Any] | None = None
         bezel_catalog: list[dict[str, Any]] = []
+        request_available = False
         try:
             if launch_request_id is not None:
                 if not ids.is_ulid(launch_request_id):
@@ -1839,6 +1840,7 @@ class EmulationController:
                         raise SteamZeroError(
                             "E-TX-LOCKED", detail="identidade de sessão já utilizada"
                         )
+                request_available = True
             self._prepare_launch(game_id)
             preflight = self._launch_preflight(game_id)
             game = preflight["game"]
@@ -1896,6 +1898,8 @@ class EmulationController:
         except SteamZeroError as exc:
             if session_artifact_id is not None:
                 cleanup_retroarch_session_artifacts(session_artifact_id)
+            if request_available and launch_request_id is not None:
+                self._record_launch_refusal(game_id, launch_request_id, exc.code)
             raise LaunchNotStartedError(exc) from exc
 
         session_id: str | None = None
@@ -2160,6 +2164,38 @@ class EmulationController:
 
     def launch_cloud(self, platform_id: str) -> dict[str, Any]:
         return self._cloud.launch(platform_id)
+
+    def _record_launch_refusal(self, game_id: str, request_id: str, code: str) -> None:
+        """Persist only a proven pre-spawn refusal; never replace another identity.
+
+        Error detail may contain private paths. Persist the registered code,
+        not raw exception text; readers rebuild the public catalog message.
+        Failure to store evidence preserves the original CLI refusal and leaves
+        recovery unknown. The atomic INSERT also rejects a concurrent ID reuse.
+        """
+        try:
+            with self._store_factory() as store:
+                store.migrate()
+                refused_at = datetime.now(UTC).isoformat()
+                store.create_game_session(
+                    {
+                        "id": request_id,
+                        "game_id": game_id,
+                        "owner": SESSION_OWNER,
+                        "state": "failed",
+                        "started_at": refused_at,
+                        "finished_at": refused_at,
+                        "failure_code": code,
+                        "metadata_json": json.dumps(
+                            {
+                                "source": "emulation",
+                                "launchAcknowledgment": {"schemaVersion": 1, "state": "notStarted"},
+                            }
+                        ),
+                    }
+                )
+        except Exception:
+            _log.warning("recusa pré-spawn %s não persistida para %s", code, request_id)
 
     def _create_tracked_game_session(
         self,
