@@ -1229,3 +1229,186 @@ monitorado preservado. Digests/views regenerados e status-check aprovado.
 A comparação integral mostra somente ganhos nos dois módulos-alvo: Linux
 +2 linhas/+2 ramos, receptor web+2 ramos; nenhum outro módulo perdeu cobertura.
 WORKLOG recebe apenas o fechamento desta sessão de seguimento.
+
+
+### Retorno com seção removida ou Home vazia — 30/10/2026
+
+Assunção serial na mesma branch/checkout/executor, base remota7bb07ea7.
+CI41007481488 dessa base terminou com8jobs aprovados na primeira tentativa,
+inclusive visual; core85,49540202112085% >=85,48646151659442% da baseac41c04c,
+arcos críticos de armazenamento/receptor presentes, artefato12956132502 validado.
+Este lote usa os dois paths já reservados na WS R3: test_launcher_owner_loss_qml.py
+ e check_launcher_owner_loss.qml. Domínio/session e demais claims continuam
+somente leitura. Fonte de produção idêntica à árvorec987db69ad965f9ef344e47500337b4709d0d9e9.
+
+O baseline de seção inteira removida e catálogo vazio passou2 casos/19,23s;
+a falha controlada na recarga também passou1/9,09s. Não foi reproduzido defeito
+de produto: a política existente resolve top:first ou empty:action. A entrega
+acrescenta3 regressões à jornada Qt/HTTP/CLI real existente (4→7 casos), sem
+alterar runtime, catálogo, schemas, executor, supervisor ou writers.
+
+Cada caso encerra naturalmente o jogo de fixture, perde o GET closed em duas
+bridges e reabre uma terceira. Se a seção library saiu inteira, Return abre
+os detalhes de first em top e outro Return inicia somente essa nova sessão;
+seu término retorna a top:first. Se o catálogo está vazio, setas sobem ao header
+e voltam à ação; Enter aciona library.add→_retry→GET /model, sem launch/recovery.
+A variante503 falha somente a recarga explícita: mostra erro e retry com foco,
+outro Enter obtém o modelo real e conserva navegação. Contadores HTTP observam
+1→2 GETs ou1→2(503)→3; não se infere recarga apenas por alteração visual.
+
+Os bytes do contexto são comparados entre fases sem lançamento. GameId,
+focusId e launchRequestId continuam originais, assim como a linha terminal
+com saída/tempo/failureCode. A sessão nova da seção sobrevivente tem outro ID,
+o jogo e o foco corretos. Na Home vazia continuam zero launches/recoveries e
+a referência exata após reload/erro/retry. Sem forceActiveFocus ou clique no
+harness para entregar foco artificialmente.
+
+Bateria focada:60 passed/84,19s, incluindo test_launcher_app, os7 percursos
+owner-loss e o bootstrap de teclado. Estado pessoal monitorado preservado
+(3arquivos/5diretórios/860.896bytes/max_mtime_ns1793069983507245137).
+A primeira coleta de capturas passou3/27,05s, mas a revisão encontrou um frame
+vazio após reload; não é evidência aceita. Coleta/log/imagens originais retidos
+em build/agent-runs/r3-empty-return/capture-before-render-wait*. A captura agora
+aguarda polish do Qt e fim do fade, sem sleep arbitrário ou timeout maior.
+Uma tentativa de esperar um frame novo em cena offscreen ociosa falhou3 casos
+na coleta (21,12s); log capture-next-frame-timeout.log preservado. A espera não
+exige um frame espontâneo de uma cena ociosa: polish e grabToImage sincronizam
+layout/captura, com fade semanticamente concluído. Coleta final e gates
+integrais serão registrados no fechamento abaixo.
+
+Limites: execução de fonte Qt6.11.2/offscreen800×800 com dados controlados,
+sem prova de acervo/emulador real, instalação, hardware, Deck ou desempenho GPU.
+Central Desktop, Launcher, Engine, Studio e Aura mantêm aceites independentes;
+eixos e gaps preservados, inclusive GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME.
+Sem instalação/auth/release/merge/deploy/boot. Host apenas readlink da candidata
+anterior59ecc2d8f0f6; runtime e rollback não revalidados.
+
+
+Refinamento da prova visual: polish/fim do fade sozinho não tornou a captura
+assíncrona posterior representativa. A coleta polish-only passou3/26,85s, mas
+um PNG permaneceu vazio;2 casos/18,00s comprovaram pixels da ação via grabImage
+enquanto o grabToImage posterior ainda gravava preto. Esses PNGs não são aceites.
+Coletas e logs preservados nos destinos capture-polish-only e
+capture-async-after-verified-frame, dentro do diretório ignorado do lote.
+O harness agora verifica tamanho/visibilidade e pixels não pretos da ação
+na imagem real da janela; a captura salva esse mesmo snapshot QtTest. Demais
+capturas usam o mesmo grabImage, com polish, sem mudar fonte do produto ou
+goldens. Não se afirma defeito de renderização física nem causa upstream.
+
+
+Coleta final:3 passed/4 deselected/27,03s, com o snapshot QtTest e guardas de
+pixels/fade. Dez PNGs800×800,240.369bytes, revisados individualmente; sem tokens,
+caminhos privados ou dados de acervo. Seus hashes e os dois hashes de testes
+ficam nos recibos locais images.json/tested-files.json. Os arquivos persistidos
+em empty-return/ são somente desta coleta final, sem imagens vazias aceitas.
+
+![Home vazia recuperada por teclado, fonte Qt/offscreen](empty-return/empty-offline/06-empty-reload-recovered.png)
+
+Erro controlado: [HTTP503 e retry focado](empty-return/empty-offline/05-empty-reload-error.png).
+Retorno sem seção: [cartão de outra seção](empty-return/section/04-closed-return-restored.png),
+[lançamento explícito](empty-return/section/05-explicit-next-running.png) e
+[retorno canônico seguinte](empty-return/section/06-next-canonical-return.png).
+Home vazia: [retorno](empty-return/empty/04-closed-return-restored.png) e
+[recarga navegável](empty-return/empty/05-empty-reload-navigable.png).
+
+
+### Seguimento de determinismo do parser anti-bitrot — 30/10/2026
+
+Primeira integral deste lote:7.076 passed/48 skipped/0 failed/24 warnings em
+2.449,83s; runner/observador0, signals vazio,2.459,75s monotônicos. Testes verdes
+não substituem a comparação adicional, que reprovou85,65601148428728% contra
+85,65885412965305% da base7bb07ea7 (delta−0,00284264536577pp). A única perda é
+bitrot.py336 e arco329→336; nenhum outro módulo mudou sua cobertura.
+Recibo local local-coverage-regression.json. Integral/log/relatório/manifests
+foram retidos como before-bitrot-* com hashes em before-bitrot-retention.json;
+não serão sobrescritos ou adotados como uma base menor.
+
+A causa é a cobertura depender de um fuzz com64 exemplos de bytes aleatórios:
+para chegar ao guarda estrutural é preciso JSON válido que não seja um objeto
+com as chaves obrigatórias. Bytes malformados exercitam outra recusa, no parser.
+Foi reservado prospectivamente tests/integration/test_bitrot.py na mesma WS R3,
+sem claim ativo concorrente, com evidência em SZ-AGG-TESTS; fonte bitrot.py
+somente leitura. Dois casos públicos determinísticos (lista e objeto vazio)
+exigem E-STATE-INTEGRITY com razão estrutural e preservação byte a byte do arquivo.
+O fuzz64 continua intacto, sem seed fixada, limiar menor, exclusão ou teste removido.
+
+O módulo passou8 testes/1,66s, cobertura90,833333%, limiar85% mantido. Linha336 e
+arco329→336 executados. Os dois testes Qt e suas dez imagens continuam com os
+mesmos hashes; toda produção permanece idêntica à base7bb07ea7. O checkpoint
+integral será repetido por esta alteração concreta de teste e pelo gate de
+não regressão reprovado; não se trata de repetir a mesma execução por sorte.
+Manter o alvo de comparação85,65885412965305% e o coreCI85,49540202112085%.
+
+Cinco repetições sequenciais do módulo passaram (8×5=40 aprovações), todas
+com90,833333% e o mesmo guarda336/arco329→336 executado. Recibos bitrot-repeat-*
+e bitrot-repeated-results.json; runner isolado e estado pessoal preservado.
+
+
+### Seguimento dos leitores padrão do probe — 30/10/2026
+
+Segunda integral:7.078 passed/48 skipped/0 failed/24 warnings/2.440,09s;
+observador0/signals vazio/2.449,97s. Bitrot336/arco329→336 foi restaurado. A
+comparação continuou reprovada85,65601148428728%<85,65885412965305%, mas a única
+perda agora é resource_probe.py57/arco56→57; nenhum outro módulo perdeu cobertura.
+Segundo resultado e três hashes anteriores preservados em before-resource-*,
+com metadados/hashes em before-resource-retention.json. Não se baixa a base.
+
+Os testes de ResourceProbe injetavam leitores, sem cobrir os guardas dos leitores
+padrão contra arquivos reais inválidos. O consumidor com defaults consulta /proc;
+a cobertura incidental anterior é compatível com caminhos/processos variáveis,
+mas não há prova do PID/evento específico que a produziu. Não se atribui uma
+causa física inventada. tests/unit/test_resource_probe.py foi reservado antes da
+edição, sem claim ativo concorrente; fonte resource_probe.py somente leitura.
+
+Dez casos novos usam snapshot público em proc_root temporário com os leitores
+padrão: environ regular (atribuição ui), ausente, diretório, symlink, maior que
+1MiB (unknown); stat ausente (proc-incomplete); PermissionError/OSError na abertura
+de stat/environ. Erro de open é injetado somente no arquivo sintético, com escopo
+restaurado. Preservam arquivos/bytes/symlink e não expõem path ou marcador nos
+snapshots. Não consultam /proc real para produzir a prova.
+
+O primeiro grupo de5 casos passou27 testes, mas sua cobertura de módulo84,91%
+reprovou o limiar85%; log resource-focused.log mantido. O grupo completo cobre
+os dois leitores e seus erros:40 testes/2,10s (32 probe+8 bitrot),87,59% probe,
+90,83% bitrot e88,79% combinada, limiar85% intacto. Guardas44→45 e56→57 e os
+tratamentos47–50/59–62 estão cobertos, assim como bitrot336/329→336. Não se
+substitui integral por essa cobertura focada nem se muda limiar/exclusões.
+Os12 casos determinísticos novos de ambos os módulos passaram5 vezes (60
+aprovações), com runner isolado e estado pessoal monitorado preservado.
+
+O checkpoint final usa4 hashes (os3 anteriores intactos mais probe). A terceira
+integral é motivada por este ajuste concreto dos leitores e pela comparação
+reprovada, sem rerun aleatório da mesma fonte. Produção continua idêntica à
+árvorec987db69ad965f9ef344e47500337b4709d0d9e9 da base7bb07ea7; Qt e10PNGs intactos.
+
+
+### Fechamento integrado local — seção/Home vazia e leitores determinísticos
+
+| Item | Commit | Evidência |
+|---|---|---|
+| SZ-AURA-LAUNCHER: seção removida, Home vazia,503/retry e captura do snapshot QtTest | `ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47` |60 focados/81,77s;3 capturas/27,03s;10PNGs revisados |
+| SZ-AGG-TESTS: estrutura JSON e leitores padrão read-only | `b399ab21ddf73d0bd129053b6bd029ff634ccb25` |40 focados/2,10s;12 casos novos5x/60 aprovações; guardas explícitos |
+
+Composição ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47/b399ab21ddf73d0bd129053b6bd029ff634ccb25: 7088 passed, 48 skipped, 19 warnings in 2598.81s (0:43:18); runner/observador0, signals vazio,2611,85s monotônicos. Cobertura integral85.66169677501884% >=85.65885412965305%, delta+0.0028426453657885986pp. Quatro hashes conferidos; source tree c987db69ad965f9ef344e47500337b4709d0d9e9 idêntico à base7bb07ea7. Guardas bitrot336/329→336 e leitores44→45,56→57,47–50/59–62 presentes; storage/http anteriores mantidos. Nenhum módulo perdeu linhas/ramos; somente resource_probe61/62 ganharam. Ruff736/mypy307/independence/boundaries/status aprovados. Fonte/fixture Qt6.11.2/offscreen800×800,60 focados/81,77s e3 capturas/27,03s;10PNGs240.369bytes revisados. Qualidade:40 focados/2,10s e12 novos casos5x/60 aprovações; fuzz64 intacto e dados pessoais monitorados preservados. Sem novo aceite instalado/físico ou promoção de eixos/gaps.
+
+A primeira integral7076/48/0 e a segunda7078/48/0 não contaram como aprovação
+da não regressão: ambas85,65601148428728%<85,65885412965305%, com perdas
+respectivamente em bitrot336 e resource_probe57. Diagnósticos, entradas que
+faltavam e resultados corrigidos acima permanecem preservados. Não houve
+redução de base, limiar, fuzz ou exclusão; cada nova integral acompanhou uma
+alteração concreta do teste. A terceira integral validou os4 hashes finais.
+As19warnings finais não são apresentadas como correção dos avisos anteriores.
+
+A produção não mudou neste lote. Não houve instalação/auth/release/merge/
+deploy/boot. Apontador do host apenas observado em59ecc2d8f0f6; runtime e
+rollback não revalidados. Prova de emulador/acervo real, hardware, Deck e
+desempenho continua independente; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.
+
+Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Concluir validação documental, WORKLOG append-only e commit documental
+isolado; um push do checkpoint completo na branch de continuidade. Conferir
+SHA remoto, novo CI terminal e coreCI>=85,49540202112085% da base7bb07ea7,
+com todos os guardas no artefato. Resultado remoto será registrado no PR268,
+sem commit circular; históricos de SIGTERM/Saves e causas não confirmadas
+continuam preservados.

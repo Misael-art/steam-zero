@@ -17,7 +17,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SCHEMAS | 56 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 600 | 5 | 1 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 600 | 10 | 4 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 45 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 3 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 39 | 20 | dev |  |
@@ -25,7 +25,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 11 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 10 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 335 | 110 | 68 | dev |  |
+| SZ-AURA-LAUNCHER | 335 | 112 | 70 | dev |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -73,7 +73,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-GOVERNANCE-STATUS | 24 | 32 | 17 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
-| SZ-LAUNCH-READINESS-PREPARATION | 47 | 7 | 6 | dev |  |
+| SZ-LAUNCH-READINESS-PREPARATION | 57 | 7 | 6 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 33 | 14 | hw |  |
 | SZ-LIBRARY-CONVERSION-CONTRACT | 4 | 2 | 2 | unit |  |
 | SZ-LOTE-COESAO-UI | 157 | 22 | 15 | none |  |
@@ -100,7 +100,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RECOVERY-R0-R1-CENTRAL | 94 | 24 | 16 | dev |  |
 | SZ-RECOVERY-R2-GAME-DATA | 64 | 7 | 5 | unit |  |
 | SZ-RECOVERY-R3-LAUNCHER-JOURNEY | 13 | 4 | 4 | unit |  |
-| SZ-RESOURCE-QML-PROBE | 7 | 2 | 1 | dev |  |
+| SZ-RESOURCE-QML-PROBE | 7 | 3 | 2 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
 | SZ-ROADMAP-CONTINUATION | 71 | 39 | 15 | dev |  |

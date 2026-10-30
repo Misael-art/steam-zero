@@ -15532,3 +15532,40 @@ no PR268, sem commit circular. Não usar a base menor como atalho. Próximo
 baseline R3 segue Qt com seção de origem removida inteira ou Home vazia após
 GET perdido, foco utilizável e recarga existente por Enter, zero efeitos
 automáticos. Handoff contém comando RTK isolado; GAP lifetime permanece aberto.
+
+
+### 2026-10-30 — R3: seção/Home vazia e leitores determinísticos
+
+- Continuidade serial no checkout/branch oficiais, base remota7bb07ea7 e
+  CI41007481488 aprovados; sem nova frente, clone, worktree ou autenticação.
+- Launcher `ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47`: três regressões Qt/HTTP/CLI de seção removida,
+  Home vazia e reload503/retry. Baselines passaram sem alterar runtime;60
+  focados/81,77s, captura final3/27,03s, dez PNGs800×800/240.369bytes revisados.
+  Snapshot QtTest substitui captura assíncrona não representativa; tentativas
+  inválidas e timeout3/21,12s preservados, sem atribuir defeito físico/upstream.
+- Qualidade `b399ab21ddf73d0bd129053b6bd029ff634ccb25`: JSON estrutural inválido determinístico
+  (fuzz64 intacto) e10 casos públicos de leitores padrão em proc_root sintético,
+  inclusive abertura negada/erro.40 focados/2,10s,12 casos5x/60 aprovações.
+  Preservação de bytes/árvore, classificação conservadora e sem path/marcador
+  no snapshot. Primeiros27 testes passaram, mas84,91% de módulo reprovou85%;
+  grupo completo87,59%probe/90,83%bitrot/88,79% combinada, limiar inalterado.
+- Integrais7076 e7078 passaram, mas não contaram como não regressão aprovada:
+  ambas85,65601148428728%<85,65885412965305%, primeiro bitrot336 e depois
+  resource_probe57. Históricos before-bitrot-* e before-resource-* preservados
+  com hashes. Reservas prospectivas sem claim concorrente, fontes read-only.
+- Final7088 passed/48 skipped/19 warnings/2598,81s; runner/observador0,
+  signals vazio/2611,85s. Integral85,66169677501884%>=85,65885412965305%,
+  delta+0,0028426453657885986pp. Nenhuma perda de linha/ramo por módulo;
+  somente resource_probe61/62 ganhou. Guardas antigos e novos cobertos.
+- Ruff736/mypy307/independência/fronteiras/status verdes; quatro hashes e
+  dados pessoais monitorados preservados. Produção inteira idêntica à árvore
+  c987db69ad965f9ef344e47500337b4709d0d9e9 da base7bb07ea7. Eixos/gaps
+  preservados; fonte/offscreen não promove instalação/hardware.
+- Sem instalação/auth/release/merge/deploy/boot. Readlink59ecc2d8f0f6 apenas;
+  runtime/rollback não revalidados. Fechar docs/status/handoff e push único;
+  registrar novo SHA/CI/core>=85,49540202112085% com guardas no PR268,
+  sem commit circular ou rerun de mesma fonte como loteria.
+
+Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Validação documental final:13 testes/18,74s, status-check aprovado, visões/digests oficiais atualizados e estado pessoal monitorado preservado.

@@ -483,3 +483,32 @@ Logs duráveis em build/agent-runs; WORKLOG append-only no fechamento. Backup
 privado só é externo após upload e leitura de volta comprovados. Não promova
 instalação ou gameplay a partir de fixtures. Prossiga no trabalho seguro elegível.
 ```
+
+
+### Continuidade R3 — seção/Home vazia e guardas de leitura,30/10/2026
+
+Fonte/testes `ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47` e `b399ab21ddf73d0bd129053b6bd029ff634ccb25`, mesma branch/checkout/executor.
+Baselines de seção removida, Home vazia e recarga503 já passaram com o
+runtime de7bb07ea7; não se inventou defeito de produto. Três regressões Qt
+adicionadas à jornada real existente, com contexto/linha terminal preservados,
+recarga por teclado e um único novo launch somente por gesto quando há jogo.
+Captura passa a salvar o snapshot QtTest validado; dez PNGs800×800 revisados.
+
+Duas execuções integrais de teste passaram em comportamento, mas reprovaram
+a comparação de cobertura:7076 e7078, ambos85,65601148428728%<85,65885412965305%,
+por bitrot336 e depois resource_probe57. Exemplos JSON determinísticos e
+snapshots públicos em proc_root temporário cobrem os guardas sem consultar
+/proc real para essa prova. Fuzz64 e limiar85% preservados, fontes read-only.
+
+Final:7088 passed, 48 skipped, 19 warnings in 2598.81s (0:43:18);85,66169677501884%>=85,65885412965305%, sem perdas por
+módulo; runner/observador0, signals vazio. Ruff736/mypy307/fronteiras/
+independência/status verdes,4 hashes e dados pessoais monitorados preservados.
+Toda a produção continua na árvorec987db69ad965f9ef344e47500337b4709d0d9e9.
+Sem instalação/auth/release/merge/deploy/boot ou promoção de eixos/gaps;
+readlink59ecc2d8f0f6, runtime/rollback não revalidados. Fechar o checkpoint
+documental e push/PR268; CI novo comparará a mesma base core85,49540202112085%
+com guardas explícitos. Resultado terminal fica no PR, evitando SHA circular.
+
+Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+[Evidência, falhas preservadas e capturas](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).

@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "05af45f7d78e42226caba73ec82f703f9f80645fc08885bdc134df3ba25d4500",
+  "scopeDigest": "8bc223732125bbfd608a319b287e18b6f7221e3848b40612fd7b0fb3f1494fbb",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -791,9 +791,21 @@
       "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
       "command": "Seguimento de gate 0749d8e80ad8c97e422e81883181f735ca1fdd2b, sem alterar produção ou sete hashes do produto: fixtures de disco e HTTP estabilizam ramos cuja execução variou no CI40997943230 (8 jobs aprovados, comparação adicional reprovada por-0,001009pp).76 focados/37,34s +9casos5x/45 aprovações. Integral do seguimento7.073 passed/48 skipped/0 failed/19 warnings/2.762,51s; runner/observador0, signals vazio,2.774,28s monotônicos. Cobertura integral85,658854% >=85,650326% da integral anterior, delta+0,008528pp. Arcos críticos presentes no relatório completo;9 hashes e estado pessoal preservados. Ruff736/mypy307/independence/boundaries/status verdes, sem mudar threshold/goldens/skips/prazos/fluxo de instalação. Nova comparação coreCI↔coreCI após push é necessária; eixos/gaps e provas físicas independentes.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_owner_loss_qml.py",
+      "command": "Base7bb07ea7, novo lote serial: baselines2/19,23s e5031/9,09s passaram sem alterar runtime.3 casos novos Qt/HTTP/CLI (4→7): seção removida, Home vazia e reload503/retry;60 focados/84,19s. Contexto byte a byte e linha terminal preservados; sessões novas somente por gesto, GETs de modelo contados, foco real sem clique/forceActiveFocus no harness. Captura final e checkpoint integral em andamento, sem promoção de eixos/gaps/instalação. Evidência no CHECKPOINT existente. Coleta final3/27,03s,10 PNGs240.369bytes revisados; captura salva o snapshot QtTest com pixels observados. Tentativas de coleta não representativas e timeout preservadas no CHECKPOINT, sem atribuir falha ao produto ou aceitar PNG vazio.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Composição ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47/b399ab21ddf73d0bd129053b6bd029ff634ccb25: 7088 passed, 48 skipped, 19 warnings in 2598.81s (0:43:18); runner/observador0, signals vazio,2611,85s monotônicos. Cobertura integral85.66169677501884% >=85.65885412965305%, delta+0.0028426453657885986pp. Quatro hashes conferidos; source tree c987db69ad965f9ef344e47500337b4709d0d9e9 idêntico à base7bb07ea7. Guardas bitrot336/329→336 e leitores44→45,56→57,47–50/59–62 presentes; storage/http anteriores mantidos. Nenhum módulo perdeu linhas/ramos; somente resource_probe61/62 ganharam. Ruff736/mypy307/independence/boundaries/status aprovados. Fonte/fixture Qt6.11.2/offscreen800×800,60 focados/81,77s e3 capturas/27,03s;10PNGs240.369bytes revisados. Qualidade:40 focados/2,10s e12 novos casos5x/60 aprovações; fuzz64 intacto e dados pessoais monitorados preservados. Sem novo aceite instalado/físico ou promoção de eixos/gaps.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Seguimento local 0749d8e80ad8c97e422e81883181f735ca1fdd2b concluído em testes; publicar fechamento e conferir SHA remoto, CI terminal e coreCI >=base aprovada ac41c04c/85,486462%, exigindo os arcos críticos. Código de produção idêntico ao commit f6738ec4; sem instalação/auth. Próximo baseline seguro: seção de origem inteira removida ou catálogo vazio antes da reabertura após closed com GET perdido. A projeção HTTP já cobre esses destinos; falta percorrer o Qt com resposta ausente e comprovar foco utilizável. Na Home vazia, Enter deve acionar a recarga existente library.add/library.retry pelo _retry, mantendo zero launches/recoveries automáticos e a referência canônica exata. Registrar comportamento antes de presumir defeito; reutilizar mapa/domínio e canais existentes, sem novo catálogo ou writer. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_focus_bootstrap.py -q. Manter claims e integração compartilhada por último; não editar domínio reservado sem handoff prospectivo. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.",
+  "nextAction": "Checkpoint de fonte ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47/b399ab21ddf73d0bd129053b6bd029ff634ccb25 validado localmente, produção idêntica a7bb07ea7. Publicar documentação/PR268 e conferir CI/core contra a mesma base, sem instalação/auth. Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",
