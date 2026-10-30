@@ -300,6 +300,18 @@ e uma receita declarativa; variações de cor, contorno, máscara, composição 
 são produzidas pela engine e apenas cacheadas. Não aceite múltiplos assets
 pré-editados como substituto de uma capacidade prometida pela engine.
 
+O esclarecimento expresso do proprietário de **30/10/2026** está na
+[seção 22 de THEME-ENGINE-AND-STUDIO.md](docs/01-product/THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026),
+de leitura obrigatória antes de alterar Studio, assets, importação ou execução
+de temas. Temas nativos primeiro; compatibilidade RetroFE/ES-DE deve reproduzir
+seus recursos pelo mesmo motor SteamZero. Biblioteca canônica compartilha masters
+sem cópia por tema; wheel monocromática/colorida e demais variações usam receitas
+não destrutivas. Autoria genérica pela interface, resposta do motor por recurso
+e fidelidade/fluidez comprovadas fazem parte do aceite. Não reduzir esse objetivo
+a importação parcial, troca de arquivos pré-editados ou execução do frontend
+original. Preview e Launcher consomem a mesma revisão de tema/Jornada, com
+contextos e perdas explícitos. Requisitos não são capabilities já entregues.
+
 Liberdade criativa não amplia a fronteira de confiança. Tema de terceiros não
 executa QML, JavaScript, Python, shell, binário, biblioteca ou shader arbitrário;
 usa somente scene graph, bindings, componentes e effect nodes allowlisted. Toda

@@ -19,6 +19,14 @@ Direção estabelecida pelo proprietário em 16 de outubro de 2026. O SteamZero 
 
 ## Precedência e preservação
 
+**Consolidação de 30/10/2026:** o proprietário esclareceu a plataforma criativa
+nativa e o objetivo integral de compatibilidade RetroFE/ES-DE. A
+[seção 22 de Theme Engine e Studio](../../01-product/THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026)
+é leitura normativa para autoria, biblioteca canônica, receitas de asset único,
+importação/Play, resposta do motor e equivalência preview/Launcher. A direção e
+o plano apontam para esse contrato; ele não substitui o catálogo de status nem
+certifica capacidades ainda parciais.
+
 A orientação do proprietário nesta sessão corrige a nomenclatura anterior. `AGENTS.md` remete a esta direção antes dos documentos antigos. Em conflito de significado ou prioridade, prevalece [DIRECAO.md](DIRECAO.md); contratos técnicos existentes, segurança, preservação de dados e governança de release continuam aplicáveis.
 
 Os arquivos `AURA-SURFACES.md`, `THEME-ENGINE-AND-STUDIO.md`, o framework de julho e roadmaps anteriores permanecem como referências técnicas e históricas. Suas definições incompatíveis estão explicitamente superadas na direção. A migração integral da redação é uma tarefa enumerada no plano, respeitando os workstreams que ainda reivindicam esses arquivos.

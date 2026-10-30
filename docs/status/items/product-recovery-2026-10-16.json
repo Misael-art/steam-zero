@@ -78,11 +78,17 @@
       "reference": "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
       "command": "28/10: revisao de identidade Port Steam/SteamZero, raiz unica e referencias de recuperacao; nenhuma fonte de produto alterada, nenhum novo aceite instalado/fisico. Digest atualizado apenas pela mudanca documental revisada.",
       "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: esclarecimento expresso do proprietário consolidado na seção22: nativo primeiro, biblioteca/master canônico compartilhado, receitas não destrutivas e wheel de fonte única; paridade RetroFE/ES-DE pelo mesmo motor, autoria visual, consulta de capacidades e preview/Launcher equivalentes. Contrato/relatório documental, não teste de runtime ou certificação física.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-28",
-  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
-  "scopeDigest": "50b48d1eb98886b8e70c94dd65abb787f1cba5e807fe5b7e8e7eb3a2f2a78ca5"
+  "updatedAt": "2026-10-30",
+  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.\n\n2026-10-30, consolidação expressa: seção22 de THEME-ENGINE-AND-STUDIO é a referência normativa de produto, autoria, biblioteca canônica e compatibilidade integral. Aceites ampliados não habilitam recursos nem promovem eixos. Dados e acervo pessoal não foram migrados.",
+  "scopeDigest": "bb1a820de40f23c4cdbd8c8cccd87be69b659e0ddb714cea528aea0662d31400"
 }

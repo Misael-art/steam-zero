@@ -60,10 +60,16 @@
       "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-frontend-parity.json",
       "command": "2026-10-30: auditoria somente leitura de fontes locais pinadas + contraprovas próprias de compilação e SceneEsdeView Qt/offscreen; 1 teste diagnóstico aprovado/0,45s observa perdas, não aprova paridade. Sem execução nativa, hardware ou medição de desempenho.",
       "result": "partial"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: esclarecimento expresso do proprietário consolidado na seção22: nativo primeiro, biblioteca/master canônico compartilhado, receitas não destrutivas e wheel de fonte única; paridade RetroFE/ES-DE pelo mesmo motor, autoria visual, consulta de capacidades e preview/Launcher equivalentes. Contrato/relatório documental, não teste de runtime ou certificação física.",
+      "result": "recorded"
     }
   ],
   "nextAction": "AppImage local pinado contém Linear/Modern/Slate; perfil themes vazio. Corrigir/mapear perdas de propriedades e cues de som pelo runtime comum, estender matriz além das56 combinações amostradas (snes/pt_BR/primeira fonte/cor), disponibilizar autoria visual e comparar aparência/etapas/navegação/áudio/launch-return no motor SteamZero. Não confundir executável disponível, includes resolvidos ou importação com tema operacional. Aceite2026-10-30 na evidência; sem executar/instalar AppImage.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
-  "notes": "O suporte de importação está implementado no domínio e a jornada de inspect/apply existe no shell, mas a certificação operacional externa não existe no host atual: ES-DE e SRM não estão instalados. A auditoria real encontrou quatro temas de usuário inválidos por ausência de compatibility no schema SteamZero. A ausência deve continuar visível; não promover importação de contrato/offscreen a tema ativo ou lançamento real.\n\n2026-10-30: referência local agora auditada por leitura do AppImage, hash pinado, sem executá-lo.849 XMLs e56 combinações variante×proporção de3 temas; includes resolvidos na amostra, propriedades degradadas e falta de execução de áudio. Complete conserva escopo do importador/jornada inspect-apply existente; não afirma fidelidade integral ou instalação. Nova lacuna integral registrada."
+  "notes": "O suporte de importação está implementado no domínio e a jornada de inspect/apply existe no shell, mas a certificação operacional externa não existe no host atual: ES-DE e SRM não estão instalados. A auditoria real encontrou quatro temas de usuário inválidos por ausência de compatibility no schema SteamZero. A ausência deve continuar visível; não promover importação de contrato/offscreen a tema ativo ou lançamento real.\n\n2026-10-30: referência local agora auditada por leitura do AppImage, hash pinado, sem executá-lo.849 XMLs e56 combinações variante×proporção de3 temas; includes resolvidos na amostra, propriedades degradadas e falta de execução de áudio. Complete conserva escopo do importador/jornada inspect-apply existente; não afirma fidelidade integral ou instalação. Nova lacuna integral registrada.\n\n2026-10-30, consolidação expressa: seção22 de THEME-ENGINE-AND-STUDIO é a referência normativa de produto, autoria, biblioteca canônica e compatibilidade integral. Aceites ampliados não habilitam recursos nem promovem eixos. Dados e acervo pessoal não foram migrados."
 }

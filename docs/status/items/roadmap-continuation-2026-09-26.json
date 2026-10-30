@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "cb4cbab08a2560b59d6b6d015b0b363a9ccc143e7e18ca1ceefe576099777d7c",
+  "scopeDigest": "ef09b9632e2caf11cf5e9c49e8b1d58d3998983bdc6be50ddb93e21471c91633",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],
@@ -289,6 +289,12 @@
       "kind": "diagnostic",
       "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-frontend-parity.json",
       "command": "2026-10-30: renovação mecânica do escopo compartilhado pela ampliação da pasta de evidência do Studio com auditoria de paridade. Nenhum código, aceite, capability ou eixo deste item alterado; provas anteriores não foram reexecutadas nem promovidas.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: renovação mecânica do digest compartilhado por consolidação normativa da seção22 e vínculos em AGENTS/direção/plano/superfícies. Nenhuma fonte/runtime, aceite ou eixo deste item alterado; evidências anteriores não reexecutadas nem promovidas.",
       "result": "recorded"
     }
   ],

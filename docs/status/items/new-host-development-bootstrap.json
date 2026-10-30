@@ -93,11 +93,17 @@
       "reference": "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
       "command": "28/10: revisao de identidade Port Steam/SteamZero, raiz unica e referencias de recuperacao; nenhuma fonte de produto alterada, nenhum novo aceite instalado/fisico. Digest atualizado apenas pela mudanca documental revisada.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: renovação mecânica do digest compartilhado por consolidação normativa da seção22 e vínculos em AGENTS/direção/plano/superfícies. Nenhuma fonte/runtime, aceite ou eixo deste item alterado; evidências anteriores não reexecutadas nem promovidas.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Continuar na raiz unica Projects/SteamZero, pelo perfil .steamzero-dev/env.sh e branch codex/product-recovery-2026-10-16. Recuperacao do codigo e ambiente encerrada; manter backup privado externo, ownership futuro/host vazio e aceite instalado/fisico separados. Proxima implementacao: GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN; antes de integrar, conferir PR e gate visual canonico do SHA em uso.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-30",
   "notes": "Bootstrap e ferramentas de handoff recuperados do WIP e testados por runner isolado; backup privado local verificado. Raiz e governanca alinhadas com Projects. Ambiente herdado preservado sem adocao ficticia; instalacao limpa do SO, ownership futuro, upload privado e produto instalado mantem aceites independentes. Ambiente herdado isolado in-place dos pacotes globais;13dependencias faltantes instaladas pelo lock com hashes, pip check aprovado, sem recriar ambiente nem inventar ownership. Corrigido PYTEST_DEBUG_TEMPROOT herdado no runner, com regressao de subprocesso real e130testes focados aprovados. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
-  "scopeDigest": "9e0eb19400e1d498260a399066b5bfc7743a2b5c1a96364cdb1cb28fba2d89bb"
+  "scopeDigest": "6f9f235273ebf6ad86244018fe895a2ebf414a75f7f3f0deb032dc9f4188ea8c"
 }

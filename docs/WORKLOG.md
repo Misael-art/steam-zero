@@ -15700,3 +15700,55 @@ Validação documental Studio:13 testes/7,34s e status-check aprovados, dados pe
   nativa de RetroFE/ES-DE. Link instalado observado aponta2.0.0rc1-59ecc2d8f0f6;
   execução/rollback não revalidados. Fidelidade, áudio e desempenho físicos
   continuam exigindo comparação autorizada na release/hardware.
+
+
+### 2026-10-30 — definição normativa completa de Studio, assets e motor de temas
+
+- Pedido expresso do proprietário esclareceu a intenção: automação, organização
+  e configurações na Central; experiência audiovisual e sessão no Launcher;
+  temas nativos primeiro, autoria visual robusta e reprodução integral dos
+  recursos RetroFE/ES-DE pelo próprio motor SteamZero. Base local a6c74b28.
+- Relatório completo consolidado na seção 22 de THEME-ENGINE-AND-STUDIO.md,
+  em 14 partes: autoridade, responsabilidades, meta nativa/compatibilidade,
+  biblioteca canônica, wheel de master único, autoria, importação/Play, consulta
+  ao motor, cobertura funcional, preview/Launcher, diagnóstico, aceites, plano
+  e continuidade. Nenhum relatório/catálogo paralelo criado.
+- Biblioteca distingue master preservado, associação/papel, arte distinta,
+  receita, referência e cache derivado. Uma fonte compartilhada sem cópia por
+  tema; qualidade/procedência/retentiva/portabilidade e economia medida. Acervo
+  pessoal RetroFE é fonte candidata futura; não foi migrado nem publicado.
+- Roteiro obrigatório de wheel lateral monocromática e centro colorido/stroke
+  usa um master, receitas e movimento configurados pela UI; conta pixels,
+  input rápido, callbacks, round-trip, dependências e consumo no Launcher.
+  Receita ainda não certificada ponta a ponta; não criada promessa fictícia.
+- Mesmo documento significa a mesma revisão lógica de tema/Jornada e seus
+  recursos no preview e Launcher; não impõe arquivo monolítico. Importação
+  converte para contratos/IR nativos, não executa helpers/código de terceiros.
+  Falta de recurso mantém o objetivo integral aberto, sem rebaixá-lo a paleta.
+- Diagnóstico datado e fundamentos existentes separados dos requisitos;
+  quadros de cobertura e aceites detalham geometria, efeitos, eventos, áudio,
+  vídeo, dados, etapas, launch/return, recuperação e criação amigável. Metas de
+  desempenho não são medições; FPS apresentado exige instrumento de compositor.
+- DIRECAO/README/PLANO e AURA-SURFACES vinculados; AGENTS exige leitura da
+  seção 22 antes de trabalhar no tema. Definições antigas de Aura/superfícies
+  explicitamente superadas sem apagar histórico/IDs. Contratos/aceites nos
+  itens existentes atualizados por handoff documental serial; claims funcionais
+  preservados. Duas lacunas novas registradas em Engine/Studio: biblioteca
+  canônica consumida ponta a ponta e wheel de master único. Eixos e gaps antigos
+  mantidos. Itens compartilhados restantes receberam só renovação de digest.
+- Validação: 51 links/âncoras locais verificados sem erro; 13 testes de
+  project_status aprovados em 6,94 s pelo runner isolado; status-check e diff
+  sem erros. Estado pessoal monitorado antes/depois idêntico. Visões/digests
+  regenerados antes deste append; ajuste final de texto sobre instrumento de
+  FPS recebeu revisão de diff e nova validação de status, sem repetir suíte.
+- Nenhuma mudança em src/tests/tools; oito hashes congelados preservados.
+  Não houve build, instalação, execução nativa das referências, entrada física,
+  autenticação nova, release, merge, deploy ou boot. Link de release previamente
+  observado 2.0.0rc1-59ecc2d8f0f6; execução e rollback não revalidados.
+- Remoto conferido fba166f8f454a0b928b1b82504613b26180987e2, main ad742ca3;
+  PR 268 existente. Checkpoint anterior de fonte continua sem integral válida
+  após SIGTERM do pai rtk (143/2464,19 s/último41%). Próximo comando de diagnóstico
+  e retomada permanece no handoff existente; não repetir por sorte ou reduzir
+  guarda/baseline. Push da composição aguarda gate funcional, sem novo CI
+  alegado. Este fechamento é documental/local, não backup GitHub nem runtime
+  certificado; prova instalada/hardware permanece independente.
