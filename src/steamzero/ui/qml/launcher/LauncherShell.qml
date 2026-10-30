@@ -27,6 +27,7 @@ Item {
     property var readinessRequest: null
     // Contexto gravado antes do lançamento, lido na inicialização.
     property var returnContext: null
+    property string returnFocus: ""
     property var recoveryContext: null
     signal sessionRestored()
 
@@ -198,6 +199,8 @@ Item {
 
     function _restoredFocus() {
         const fallback = focusMap && focusMap.initial ? focusMap.initial : ""
+        if (focusMap && focusMap.nodes && focusMap.nodes[returnFocus] !== undefined)
+            return returnFocus
         if (!returnContext || !focusMap || !focusMap.nodes)
             return fallback
         const saved = returnContext.focusId

@@ -906,6 +906,7 @@ Window {
                     root._request(method, path, body, done)
                 }
                 returnContext: root.model.returnContext || null
+                returnFocus: root.model.returnFocus || ""
                 recoveryContext: root.model.launchRecovery || null
                 onSessionRestored: {
                     root.launchClientRequestId = ""
