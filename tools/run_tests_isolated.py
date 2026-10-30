@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import signal
 import stat
 import subprocess
 import sys
@@ -28,6 +29,7 @@ import tempfile
 import threading
 import time
 from collections.abc import Mapping, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -475,6 +477,39 @@ def _report_state_change(
 
 
 _INTERRUPT_EXIT = 130
+_TERMINATION_EXIT = 143
+
+
+class _TerminationRequested(BaseException):
+    """Unwind cancellation through child reaping and the state guard."""
+
+
+def _terminate_requested(signum: int, frame: object) -> None:
+    raise _TerminationRequested
+
+
+def _run_pytest_child(
+    argv: Sequence[str], *, env: Mapping[str, str], check: bool
+) -> subprocess.CompletedProcess[bytes]:
+    # A separate, owned group lets cancellation reach pytest and its ordinary
+    # descendants without signalling the agent, desktop or operator processes.
+    with subprocess.Popen(argv, env=env, start_new_session=True) as child:
+        try:
+            code = child.wait()
+        except BaseException:
+            with suppress(ProcessLookupError):
+                os.killpg(child.pid, signal.SIGTERM)
+            try:
+                child.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                with suppress(ProcessLookupError):
+                    os.killpg(child.pid, signal.SIGKILL)
+                child.wait()
+            raise
+    completed: subprocess.CompletedProcess[bytes] = subprocess.CompletedProcess(argv, code)
+    if check:
+        completed.check_returncode()
+    return completed
 
 
 def run_pytest(args: Sequence[str], *, environ: Mapping[str, str] | None = None) -> int:
@@ -484,6 +519,7 @@ def run_pytest(args: Sequence[str], *, environ: Mapping[str, str] | None = None)
     print(f"real-state before: {before.summary()} source={source}")
 
     interrupted = False
+    terminated = False
     pytest_returncode = 0
     attributed_to_suite = False
     window_start = _boottime_now()
@@ -496,12 +532,14 @@ def run_pytest(args: Sequence[str], *, environ: Mapping[str, str] | None = None)
         child_env = isolated_environment(isolated_root, original_env)
         with _WriterWatcher(real_state_home, window_start_boottime=window_start) as watcher:
             try:
-                completed = subprocess.run(
+                completed = _run_pytest_child(
                     [sys.executable, "-m", "pytest", *args],
                     env=child_env,
                     check=False,
                 )
                 pytest_returncode = completed.returncode
+            except _TerminationRequested:
+                terminated = True
             except KeyboardInterrupt:
                 interrupted = True
             finally:
@@ -524,13 +562,19 @@ def run_pytest(args: Sequence[str], *, environ: Mapping[str, str] | None = None)
 
     if attributed_to_suite:
         return _STATE_CHANGE_EXIT
+    if terminated:
+        return _TERMINATION_EXIT
     if interrupted:
         return _INTERRUPT_EXIT
     return pytest_returncode
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    return run_pytest(sys.argv[1:] if argv is None else argv)
+    previous = signal.signal(signal.SIGTERM, _terminate_requested)
+    try:
+        return run_pytest(sys.argv[1:] if argv is None else argv)
+    finally:
+        signal.signal(signal.SIGTERM, previous)
 
 
 if __name__ == "__main__":

@@ -7,8 +7,11 @@ from __future__ import annotations
 import json
 import os
 import shlex
+import signal
 import subprocess
 import sys
+import time
+from contextlib import suppress
 from pathlib import Path
 
 import pytest
@@ -178,7 +181,7 @@ def test_runner_rejects_any_change_to_original_state(
         (journal / "unexpected.jsonl").write_text("mutation", encoding="utf-8")
         return subprocess.CompletedProcess(argv, 0)
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", mutate_real_state)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", mutate_real_state)
 
     assert (
         run_tests_isolated.run_pytest([], environ={"XDG_STATE_HOME": str(real_base)})
@@ -196,7 +199,7 @@ def test_runner_preserves_pytest_exit_when_original_state_is_unchanged(
         assert Path(env["XDG_STATE_HOME"]) != real_base
         return subprocess.CompletedProcess(argv, 7)
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", finish_without_writes)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", finish_without_writes)
 
     result = run_tests_isolated.run_pytest([], environ={"XDG_STATE_HOME": str(real_base)})
     assert result == 7
@@ -520,7 +523,7 @@ def test_interrupt_returns_130_on_intact_state(
     def raise_keyboard_interrupt(argv, *, env, check):
         raise KeyboardInterrupt()
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", raise_keyboard_interrupt)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", raise_keyboard_interrupt)
     snap_calls = _capture_snapshots_called(monkeypatch)
 
     result = run_tests_isolated.run_pytest([], environ={"XDG_STATE_HOME": str(real_base)})
@@ -544,7 +547,7 @@ def test_interrupt_returns_86_on_mutated_state(
         (journal / "unexpected.jsonl").write_text("mutation", encoding="utf-8")
         raise KeyboardInterrupt()
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", raise_keyboard_interrupt)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", raise_keyboard_interrupt)
     snap_calls = _capture_snapshots_called(monkeypatch)
 
     result = run_tests_isolated.run_pytest([], environ={"XDG_STATE_HOME": str(real_base)})
@@ -565,7 +568,7 @@ def test_normal_returns_86_on_mutation(tmp_path: Path, monkeypatch: pytest.Monke
         (journal / "unexpected.jsonl").write_text("mutation", encoding="utf-8")
         return subprocess.CompletedProcess(argv, 0)
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", mutate_passing)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", mutate_passing)
     snap_calls = _capture_snapshots_called(monkeypatch)
 
     result = run_tests_isolated.run_pytest([], environ={"XDG_STATE_HOME": str(real_base)})
@@ -581,7 +584,7 @@ def test_normal_returns_pytest_returncode_on_intact_state(
     def finish_with_code_3(argv, *, env, check):
         return subprocess.CompletedProcess(argv, 3)
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", finish_with_code_3)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", finish_with_code_3)
 
     result = run_tests_isolated.run_pytest([], environ={"XDG_STATE_HOME": str(real_base)})
     assert result == 3
@@ -597,7 +600,7 @@ def test_snapshot_called_in_finally_even_on_error(
     def raise_bogus(argv, *, env, check):
         raise RuntimeError("unexpected failure in subprocess")
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", raise_bogus)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", raise_bogus)
     snap_calls = _capture_snapshots_called(monkeypatch)
 
     with pytest.raises(RuntimeError, match="unexpected failure in subprocess"):
@@ -621,7 +624,7 @@ def test_unexpected_exception_with_mutation_reports_and_repropagates(
         (journal / "unexpected.jsonl").write_text("mutation", encoding="utf-8")
         raise RuntimeError("unexpected failure after mutation")
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", raise_bogus_after_mutation)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", raise_bogus_after_mutation)
     snap_calls = _capture_snapshots_called(monkeypatch)
 
     with pytest.raises(RuntimeError, match="unexpected failure after mutation"):
@@ -681,7 +684,7 @@ def _run_with_mutation_and_writers(
         (journal / "unexpected.jsonl").write_text("mutation", encoding="utf-8")
         return subprocess.CompletedProcess(argv, returncode)
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", mutate)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", mutate)
     monkeypatch.setattr(
         run_tests_isolated,
         "scan_foreign_writers",
@@ -766,8 +769,8 @@ def test_intact_state_never_reports_writers(
     real_base = tmp_path / "real-state"
 
     monkeypatch.setattr(
-        run_tests_isolated.subprocess,
-        "run",
+        run_tests_isolated,
+        "_run_pytest_child",
         lambda argv, *, env, check: subprocess.CompletedProcess(argv, 0),
     )
     monkeypatch.setattr(
@@ -806,7 +809,7 @@ def test_writer_appearing_only_at_window_close_is_still_observed(
             return {}
         return {4242: _fake_writer(4242, predates=True)}
 
-    monkeypatch.setattr(run_tests_isolated.subprocess, "run", mutate)
+    monkeypatch.setattr(run_tests_isolated, "_run_pytest_child", mutate)
     monkeypatch.setattr(
         run_tests_isolated, "scan_foreign_writers", scan_visible_only_after_first_call
     )
@@ -1035,3 +1038,79 @@ def test_inherited_pytest_temp_override_cannot_escape_isolation(tmp_path: Path) 
     assert Path(json.loads(observed.read_text())).is_relative_to(root / "tmp")
     assert not outside.exists()
     assert inherited["PYTEST_DEBUG_TEMPROOT"] == str(outside)
+
+
+@pytest.mark.parametrize("mutate_state", [False, True])
+@pytest.mark.parametrize("requested_signal", [signal.SIGTERM, signal.SIGINT])
+def test_runner_cancellation_reaps_pytest_and_cleans_isolation(
+    tmp_path: Path, requested_signal: int, mutate_state: bool
+) -> None:
+    project = Path(__file__).resolve().parents[2]
+    ready = tmp_path / "ready.json"
+    probe = tmp_path / "test_cancellation_probe.py"
+    probe.write_text(
+        "import json, os, time\n"
+        "from pathlib import Path\n"
+        "def test_wait():\n"
+        + (
+            f"    target = Path({str(tmp_path / 'real-state' / 'steamzero')!r})\n"
+            "    target.mkdir(parents=True, exist_ok=True)\n"
+            "    (target / 'unexpected').write_text('controlled mutation')\n"
+            if mutate_state
+            else ""
+        )
+        + f"    Path({str(ready)!r}).write_text(json.dumps(dict(pid=os.getpid(), "
+        "root=os.environ['STEAMZERO_TEST_XDG_ROOT'])))\n"
+        "    time.sleep(30)\n"
+    )
+    environment = dict(os.environ)
+    environment["XDG_STATE_HOME"] = str(tmp_path / "real-state")
+    child = subprocess.Popen(
+        [sys.executable, str(project / "tools/run_tests_isolated.py"), str(probe), "-q"],
+        cwd=project,
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        start_new_session=True,
+    )
+    try:
+        deadline = time.monotonic() + 15
+        while not ready.exists() and child.poll() is None and time.monotonic() < deadline:
+            time.sleep(0.02)
+        assert ready.exists(), "pytest did not reach the controlled wait"
+        attestation = json.loads(ready.read_text())
+        child.send_signal(requested_signal)
+        output, _ = child.communicate(timeout=10)
+        assert child.returncode == (86 if mutate_state else 128 + requested_signal), output
+        if mutate_state:
+            assert "E-TEST-REAL-STATE-MUTATED" in output, output
+        assert "real-state after:" in output, output
+        with pytest.raises(ProcessLookupError):
+            os.kill(attestation["pid"], 0)
+        assert not Path(attestation["root"]).exists(), output
+    finally:
+        if child.poll() is None:
+            os.killpg(child.pid, signal.SIGTERM)
+            child.communicate(timeout=10)
+        # The baseline runner can die before reaping pytest. Only our own
+        # isolated process group is eligible for this cleanup.
+        with suppress(ProcessLookupError):
+            os.killpg(child.pid, signal.SIGTERM)
+
+
+def test_cast_engine_tests_restore_the_callers_signal_handlers() -> None:
+    project = Path(__file__).resolve().parents[2]
+    code = (
+        "import signal, pytest; "
+        "before = {sig: signal.getsignal(sig) for sig in (signal.SIGINT, signal.SIGTERM)}; "
+        "result = pytest.main(['tests/integration/test_cast_engine_ipc.py::TestCastEngineUnit', "
+        "'-q']); "
+        "assert result == 0; "
+        "assert all(signal.getsignal(sig) == handler for sig, handler in before.items()), "
+        "'cast fixture leaked process signal handlers'"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", code], cwd=project, capture_output=True, text=True, timeout=30
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
