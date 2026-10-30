@@ -883,3 +883,112 @@ Validação documental:13 testes do catálogo passaram em6,54s, runner isolado
 sem PYTHONPATH inicial, estado pessoal monitorado preservado. Views/digests
 regenerados, status-check aprovado; WORKLOG recebe somente este fechamento.
 SHA e run remotos devem ser consultados no PR268 após o checkpoint de push.
+
+
+### Sucesso closed com GET perdido e reinício — 29/10/2026
+
+Continuidade serial autorizada na raiz/branch únicas, base
+24b3dcb9e5917ae6d51cc4b5087d5295ac81c116. CI40966373727 terminou aprovado:
+sete jobs na primeira tentativa e o visual após uma única reexecução sem
+alterar fonte/teste/workflow/timeout. A primeira falha no clique Saves da Jornada
+não foi reproduzida; causa não confirmada, logs/25 diagnósticos e resultado
+registrados no PR268, sem alegar correção. Cobertura CI3.14 da base85,478942%,
+artifact12939315169/668.448 bytes/SHA-256
+368cf1e307779584ae0a39301cb7985625a7bf2cf80b16bed1ebf316831d2858.
+
+Candidata atual é fonte/fixtures do sucesso closed, sem instalação/auth/release/
+merge/deploy/boot. Sete paths já exclusivos R3, sem escritor concorrente observado.
+WORKLOG só no fechamento. Nenhum outro catálogo, supervisor, writer ou schema.
+
+**Baseline:**1 failed/19 deselected em1,50s. A primeira consulta closed apagava o
+contexto v2 owned antes de entregar a resposta. Perdendo o GET e reiniciando,
+a referência/foco desapareciam. O registro canônico estava fechado; não se
+inferiu término por PID. Log baseline.log em build/agent-runs/r3-closed-restart.
+
+**Contrato corrigido:** closed canônico e erro órfão confirmado retêm contexto/
+recibo correlacionados até a próxima ação de lançamento validada. Referência
+v2 exata ou recibo confirmed são exigidos; leituras não adotam a última sessão
+arbitrária. O novo pedido revalida canônico/foco/prontidão/contexto antes de
+consumir somente o arquivo próprio. Mantém v1 one-shot, notStarted apenas com
+prova pré-spawn e os outros erros independentes. Não transforma sucesso em
+E-SESSION-ORPHANED, não cria exit_code/tempo e não recria contexto ausente.
+
+A migração de contrato é deliberada: as assertivas antigas de apagar v2 no GET
+foram substituídas pela permanência da identidade owned correta em restart,
+refusal-restart e owner-loss. Gestos, contadores, idempotência, correlação,
+estados e preservação de dados seguem exigidos. O foco passa por novos processos,
+não só por payload em memória. O docstring do leitor legado/v2 foi alinhado.
+Uma primeira regressão teve7 falhas/73 aprovações: seis assertivas de consumo
+antigo e um checkpoint de fixture colocado num INSERT que não publica playtime.
+A fixture usa agora transições canônicas running→closed para esse checkpoint;
+nenhum produtor real foi alterado para passar o teste.
+
+**Focados:**122 passed em71,37s, incluindo17 casos novos (16 de contrato e um
+percurso visual adicional). Guardas de owner/ID/jogo/foco, contexto substituído/
+symlink/ilegível/ausente, mudança canônica e recibo vivo preservam ausência de
+efeitos indevidos. Retry no mesmo jogo e noutro jogo requer pedido novo e é
+idempotente. Leituras mantêm a linha canônica e seus checkpoints de exit/tempo.
+
+Qt/HTTP/CLI/controlador reais com jogo de fixture destacado: owner é mantido até
+o término normal, sem sinal nesse percurso. Duas bridges perdem os GETs closed;
+a terceira restaura o mesmo cartão sem falha ou ação automática. Enter abre
+detalhes e outro Enter inicia uma única nova sessão; novo término normal volta
+ao cartão e mantém referência ao novo ID. O registro anterior closed fica
+byte-equivalente nos campos retornados, incluindo exit_code/played_seconds/
+duration_source. Não é prova de um emulador ou acervo pessoal.
+
+Captura final:1 passed/2 deselected em11,04s. Seis PNGs Qt/offscreen800x800
+inspecionados e persistidos nesta evidência, sem dados pessoais:
+
+![Retorno closed restaurado após duas respostas perdidas; fonte offscreen](closed-restart/04-closed-return-restored.png)
+
+[01 jogo/owner ativos](closed-restart/01-original-game-running.png),
+[02 GET closed perdido](closed-restart/02-closed-get-lost.png),
+[03 segundo GET perdido](closed-restart/03-second-closed-get-lost.png),
+[05 próximo lançamento explícito](closed-restart/05-explicit-next-running.png),
+[06 retorno da sessão nova](closed-restart/06-next-canonical-return.png).
+
+Estado pessoal monitorado preservado nos focados. Não promove instalação,
+hardware, Deck, GPU/FPS ou eixos das outras superfícies. Outros erros, v1,
+Steam sem recibo, prova/contexto ausente e outro boot/namespace seguem
+independentes. GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME permanece aberto.
+Gates integrais e cobertura serão registrados no fechamento.
+
+
+### Fechamento do retorno closed após GET perdido — 29/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: referência closed retida e novo launch explícito revalidado | `a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1` | Baseline1falha;122 focados,17 novos; owner termina naturalmente, duas perdas de GET, terceira bridge restaura cartão, uma nova sessão por gestos e retorno |
+
+Integral7.059 passed/48 skipped/0 failed/19 warnings/2.490,81s; núcleo6.652 passed/48 skipped/407 deselected/19 warnings/746,04s. Runner e observador0, signals vazio. Core85,519153% >=CIverde85,478942% (base24b3dcb9/run40966373727/artifact12939315169) e >=core local85,514477%; integral85,647076% separada.
+Observador integral2.502,24s monotônicos; sete hashes intactos coincidem com o
+commit funcional. Ruff check/format736, mypy307, independence/boundaries/status
+verdes. Não houve repetição de integral por microalterações nem alteração de
+goldens/skips/limiares. O alinhamento de linhas do core anterior/atual não
+mostrou perda de cobertura em linhas inalteradas antes cobertas nos dois módulos.
+Comparação, manifestos e logs em build/agent-runs/r3-closed-restart.
+
+O contrato v2 muda deliberadamente: GET closed não consome a referência owned;
+o próximo launch explícito revalida e consome somente seu contexto. Assertivas
+antigas de limpeza migradas mantendo gestos, contadores, correlação, estado e
+idempotência; v1 one-shot continua independente. Preserva linha canônica,
+exit/playtime e contexto alheio/substituído/ilegível. Sem outro catálogo,
+supervisor, writer ou schema.
+
+Estado pessoal monitorado idêntico:3 arquivos,5 diretórios,860.896 bytes e mesmo
+max_mtime_ns antes/depois. Seis PNGs800x800 inspecionados, fonte Qt/offscreen;
+não provam instalação/hardware/Deck ou GPU/FPS. Cinco eixos e gaps preservados.
+Host somente readlink:releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não
+revalidados. Nenhuma instalação, auth, release, merge, deploy ou boot.
+
+Próximo baseline seguro: catálogo alterado/jogo removido antes da reabertura após closed com GET perdido. Observar prova canônica exata, retorno a foco válido e zero launches automáticos; preferir vizinho da mesma seção conforme o contrato existente. Registrar primeiro o comportamento, sem presumir novo defeito, adotar a sessão latest ou criar outro catálogo. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/unit/test_launcher_session.py -q. Reservar prospectivamente qualquer path adicional antes de editar. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Fechar documentação e publicar uma vez a continuidade/PR268; conferir SHA remoto
+e novo CI terminal. Resultado remoto/artefato CI3.14 serão registrados no PR,
+sem commit circular de SHA. A falha anterior de Saves permanece registrada com
+causa não confirmada, sem alegar correção; recorrência exige diagnóstico.
+
+Validação documental:13 testes do catálogo passaram em10,06s, runner isolado0,
+estado pessoal monitorado preservado. Views/digests regenerados e status-check
+aprovado; WORKLOG recebe apenas o fechamento desta sessão.

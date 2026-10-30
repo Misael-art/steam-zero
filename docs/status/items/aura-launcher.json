@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "a01fd9ed1bb6a8b78fffce3192fe431f15ab8a32708caee5e25e5b8f66c4df9c",
+  "scopeDigest": "4340cb13d7b9b4b55019db7a0b4426e58acedad4a7e41d82ee1a3fd95f17f9ef",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -773,9 +773,15 @@
       "reference": "tests/integration/test_launcher_owner_loss_qml.py",
       "command": "Produto 997c3cd9391ae88960c7ba5797413140fc5acbe8: erro órfão canônico/contexto owned retidos após GET terminal perdido e reinícios, sem notStarted ou efeito automático. Baseline1falha/1,04s;84 focados/39,15s,18 casos novos; captura Qt1/1deselected/11,49s. Integral7042 passed/48 skipped/0 failed/24 warnings/2297,92s; núcleo6636/48/406/19 warnings/613,21s. Core85,514477%>=CIverde85,477196% (40952684734/head490b4722/artifact12932966379), integral85,643825% separada. Ruff736/mypy307/independence/boundaries/status verdes;5 hashes intactos e estado pessoal monitorado preservado. Cinco PNGs Qt/offscreen800x800 no CHECKPOINT R3; sem instalação/hardware, promoção de eixos ou relaxar testes/limiares.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_owner_loss_qml.py",
+      "command": "Produto a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1: closed canônico/contexto v2 retidos após GET perdido e reinícios até novo launch validado. Baseline1falha/1,50s;122 focados/71,37s,17 novos. Qt/HTTP com owner preservado até término natural, duas perdas de GET, terceira restaura cartão, um launch por gestos e retorno. Integral7.059 passed/48 skipped/0 failed/19 warnings/2.490,81s; núcleo6.652 passed/48 skipped/407 deselected/19 warnings/746,04s. Runner e observador0, signals vazio. Core85,519153% >=CIverde85,478942% (base24b3dcb9/run40966373727/artifact12939315169) e >=core local85,514477%; integral85,647076% separada. Ruff736/mypy307/independence/boundaries/status verdes;7 hashes intactos e estado pessoal preservado. Migração explícita de assertivas de consumo v2;v1 mantido. Seis PNGs fonte Qt/offscreen800x800 no CHECKPOINT; sem promoção de eixos/instalação/hardware. CI da base aprovado após única reexecução visual; falha Saves anterior com causa não confirmada no PR268.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Publicar checkpoint funcional997c3cd9 e fechamento documental na continuidade/PR268; conferir SHA remoto e CI terminal. Próximo baseline seguro: término normal closed com GET terminal perdido e novo reinício, observando foco/contexto e zero lançamentos automáticos. Manter o owner de fixture até o término canônico; não converter sucesso em erro órfão nem fabricar exit/tempo. Reutilizar contexto, recibos e serviço existentes. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/integration/test_emulation_session_lifetime.py -q. V1, provas/contextos ausentes, Steam sem recibo, outro boot/namespace e prova instalada/física permanecem independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.",
+  "nextAction": "Produto a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1; fechar documentação e publicar checkpoint único/PR268, conferir SHA remoto e CI terminal/cobertura CI↔CI. Próximo baseline seguro: catálogo alterado/jogo removido antes da reabertura após closed com GET perdido. Observar prova canônica exata, retorno a foco válido e zero launches automáticos; preferir vizinho da mesma seção conforme o contrato existente. Registrar primeiro o comportamento, sem presumir novo defeito, adotar a sessão latest ou criar outro catálogo. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/unit/test_launcher_session.py -q. Reservar prospectivamente qualquer path adicional antes de editar. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",

@@ -234,6 +234,28 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Fechamento de sucesso closed após GET perdido e reinício — 29/10/2026:**
+`a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1`. O GET terminal conserva a referência v2 owned/recibo
+confirmado até o próximo launch explícito validado. Duas bridges perdem as
+respostas; a terceira restaura o mesmo cartão sem erro ou launch automático.
+O owner de fixture permanece até o término natural. Não converte sucesso em
+ORPHANED nem fabrica saída/tempo; registro canônico e contextos alheios intactos.
+Migração explícita das assertivas de consumo v2; v1 one-shot independente.
+
+Baseline1falha/1,50s;122 focados,17 novos. Integral7.059 passed/48 skipped/0 failed/19 warnings/2.490,81s; núcleo6.652 passed/48 skipped/407 deselected/19 warnings/746,04s. Runner e observador0, signals vazio. Core85,519153% >=CIverde85,478942% (base24b3dcb9/run40966373727/artifact12939315169) e >=core local85,514477%; integral85,647076% separada.
+Ruff736/mypy307/independence/boundaries/status verdes, sete hashes e estado
+pessoal preservados. Seis PNGs fonte Qt/offscreen no CHECKPOINT R3; sem prova
+instalada/hardware ou promoção de eixos. Host só readlink59ecc2d8f0f6;
+runtime/rollback não revalidados. Fonte/testes/commits/push/PR268 autorizados;
+sem instalação/auth/release/merge/deploy/boot.
+
+Próximo baseline seguro: catálogo alterado/jogo removido antes da reabertura após closed com GET perdido. Observar prova canônica exata, retorno a foco válido e zero launches automáticos; preferir vizinho da mesma seção conforme o contrato existente. Registrar primeiro o comportamento, sem presumir novo defeito, adotar a sessão latest ou criar outro catálogo. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/unit/test_launcher_session.py -q. Reservar prospectivamente qualquer path adicional antes de editar. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Publicar um checkpoint e conferir SHA remoto/CI terminal no PR268. A base24b3dcb9
+teve CI40966373727 aprovado após única reexecução visual; primeira falha Saves
+não reproduzida e causa não confirmada. Não tratar como corrigida, nem repetir
+cegamente se recorrer. Blocos seguintes são históricos.
+
 **Fechamento de GET terminal perdido e retomada do erro órfão — 29/10/2026:**
 `997c3cd9391ae88960c7ba5797413140fc5acbe8`. A bridge retém contexto v2 owned e recibo exato
 após failed/E-SESSION-ORPHANED, mesmo se o GET terminal se perder e houver novo

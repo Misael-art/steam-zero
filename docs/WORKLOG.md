@@ -15378,3 +15378,47 @@ perdido e reinício, sem encerrar prematuramente o owner de fixture, converter
 sucesso em erro ou estimar exit/tempo. Handoff contém comando isolado. V1, Steam
 sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem
 independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Não iniciar auth.
+
+
+## 2026-10-29 — R3: retorno closed após respostas perdidas e reinício
+
+Continuidade serial autorizada, checkout/branch/executor únicos; base24b3dcb9,
+CI40966373727 aprovado após única reexecução visual. Primeira falha Saves não
+reproduzida, causa não confirmada, preservada no PR268. Fonte/testes/commits/
+push/PR autorizados; sem instalação/auth/release/merge/deploy/boot. Sete paths
+já exclusivos R3, sem alteração compartilhada de código ou escritor concorrente.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: retorno closed persistido até próximo launch validado | a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1 | Baseline1falha/1,50s;122 focados,17 novos; duas perdas de GET, terceira bridge restaura cartão, um launch explícito e novo retorno |
+
+Causa: GET closed consumia contexto antes da entrega HTTP. Conserva contexto v2
+owned/recibo confirmado exatos, revalidando canônico/foco/contexto antes da
+próxima ação; não adota latest, não cria outro estado/supervisor/schema. Migração
+explícita das assertivas de consumo v2, mantendo gestos, estados, identidade,
+idempotência e contadores; v1 one-shot e outros erros permanecem independentes.
+Fixture usa transições canônicas para checkpoint de tempo, sem alterar produtor
+real para acomodar INSERT. Owner permanece até término normal, sem sinais nesse
+percurso; não converte sucesso em ORPHANED ou estima saída/tempo.
+
+Integral7.059 passed/48 skipped/0 failed/19 warnings/2.490,81s; núcleo6.652/48/407,
+19 warnings/746,04s. Runners/observadores0, signals vazio. Core85,519153% >=CIverde
+85,478942% (base24b3dcb9/run40966373727/artifact12939315169) e >=core local
+85,514477%; integral85,647076% separada. Ruff736/mypy307/independence/boundaries/
+status verdes; sete hashes intactos. Estado pessoal monitorado idêntico antes/
+depois:3 arquivos,5 diretórios,860.896 bytes e mesmo max_mtime_ns.13 testes do
+catálogo/10,06s; views/digests regenerados. Sem repetir integral por microedição
+ou alterar goldens/skips/limiares. Cinco eixos e gaps preservados.
+
+Seis PNGs Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT R3 existente,
+sem prova instalada/hardware/Deck ou GPU/FPS. Host apenas readlink:
+releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados. Logs/recibos
+em build/agent-runs/r3-closed-restart. Nenhuma ação privilegiada.
+
+Fechamento funcional/documental em commits separados, um checkpoint autorizado
+de push/PR268 e conferência de SHA remoto/CI terminal. Resultado remoto no PR,
+sem commit circular. Próximo baseline: catálogo alterado/jogo removido antes da
+reabertura após closed com GET perdido, prova exata e foco válido sem launch
+automático; observar primeiro, sem presumir defeito. Handoff contém comando
+isolado. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e
+prova física independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.

@@ -91,5 +91,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-19",
   "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.",
-  "scopeDigest": "c01d0d457103168d8c2f01cb3610b03bd9a6465ec31e0236f2903f4d1baa9eab"
+  "scopeDigest": "aa57991490ac164463af72453572e717ecc33282a779c9d937fb8c2dd66fddd8"
 }

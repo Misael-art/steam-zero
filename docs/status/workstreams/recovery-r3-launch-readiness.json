@@ -4,7 +4,7 @@
   "id": "WS-2026-10-RECOVERY-R3-LAUNCH-READINESS",
   "item": "SZ-AURA-LAUNCHER",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "490b4722e79a2059df4eb1f68aa48d6fad7d6c4f",
+  "baseRef": "24b3dcb9e5917ae6d51cc4b5087d5295ac81c116",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -61,6 +61,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Lote terminal-restart fechado em fonte29/10 no commit997c3cd9:84 focados/18 novos, integral7042/48/0, núcleo6636/48/406; core85,514477%>=CIverde85,477196% da base490b4722. Cinco hashes e estado pessoal preservados; cinco paths exclusivos R3, sem escritor concorrente observado. Fonte/commits/push/PR268 autorizados; fechar documentação e um checkpoint de push, conferir remoto/CI. Próximo baseline seguro: término normal closed com GET terminal perdido e novo reinício, observando foco/contexto e zero lançamentos automáticos. Manter o owner de fixture até o término canônico; não converter sucesso em erro órfão nem fabricar exit/tempo. Reutilizar contexto, recibos e serviço existentes. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/integration/test_emulation_session_lifetime.py -q. V1, provas/contextos ausentes, Steam sem recibo, outro boot/namespace e prova instalada/física permanecem independentes; GAP lifetime aberto. Sem instalação/auth/release/merge/deploy/boot.",
+  "nextAction": "Continuidade serial autorizada29/10 no checkout/branch/executor únicos. Produto a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1; sete paths exclusivos R3, sem escritor concorrente observado, incluindo migração explícita de v2 nos testes restart/refusal/owner-loss.122 focados,17 novos; Integral7.059 passed/48 skipped/0 failed/19 warnings/2.490,81s; núcleo6.652 passed/48 skipped/407 deselected/19 warnings/746,04s. Runner e observador0, signals vazio. Core85,519153% >=CIverde85,478942% (base24b3dcb9/run40966373727/artifact12939315169) e >=core local85,514477%; integral85,647076% separada. Gates estáticos verdes; sem promoção de eixos/gaps. Fonte/testes/commits/push/PR268 autorizados; sem instalação/auth/release/merge/deploy/boot. Fechar documentação/WORKLOG append-only e checkpoint único; conferir remoto/CI. Próximo baseline seguro: catálogo alterado/jogo removido antes da reabertura após closed com GET perdido. Observar prova canônica exata, retorno a foco válido e zero launches automáticos; preferir vizinho da mesma seção conforme o contrato existente. Registrar primeiro o comportamento, sem presumir novo defeito, adotar a sessão latest ou criar outro catálogo. Após carregar .steamzero-dev/env.sh: env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_restart.py tests/integration/test_launcher_return_cycle.py tests/unit/test_launcher_session.py -q. Reservar prospectivamente qualquer path adicional antes de editar. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.",
   "updatedAt": "2026-10-29"
 }
