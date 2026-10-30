@@ -97,7 +97,31 @@ Item {
             })
             tryVerify(function(){return counts!==null},2000)
             compare(counts.launches,0); compare(counts.recoveries,0)
-            if (normalReturn && config.emptyCatalog) {
+            if (!normalReturn && config.mode !== "recover-reopened") {
+                tryVerify(function(){return findChild(shell,"sessionRecoveryButton").activeFocus},2000)
+                capture(scene,config,"02-explicit-recovery-available")
+                if(config.mode === "observe") return
+                keyClick(Qt.Key_Return)
+                compare(shell.requestSessionRecovery(),false)
+                if(config.mode === "lost-terminal") {
+                    const lost=waitForLostTerminal(scene)
+                    compare(lost.recoveries,1)
+                    verify(shell.launchState!=="failed")
+                    capture(scene,config,"01-terminal-get-lost")
+                    return
+                }
+            }
+            if (!normalReturn) {
+                tryCompare(shell,"launchState","failed",6000)
+                compare(shell.observedSessionId,config.identity)
+                verify(shell.launchError.indexOf("E-SESSION-ORPHANED")>=0)
+                compare(shell.sessionUncertain,false)
+                tryVerify(function(){return findChild(shell,"launchFailureRetry").activeFocus},2000)
+                capture(scene,config,"03-canonical-failure-without-estimate")
+                keyClick(Qt.Key_Return)
+                compare(shell.launchState,"recovered")
+            }
+            if (config.emptyCatalog) {
                 const home=findChild(shell,"launcherHome")
                 verify(home.activeFocus)
                 compare(home.empty,true)
@@ -136,7 +160,8 @@ Item {
                 })
                 tryVerify(function(){return reloaded!==null},2000)
                 compare(reloaded.models,config.reloadError ? 3 : 2)
-                compare(reloaded.launches,0); compare(reloaded.recoveries,0)
+                compare(reloaded.launches,0)
+                compare(reloaded.recoveries,config.mode === "recover" ? 1 : 0)
                 verify(home.activeFocus)
                 keyClick(Qt.Key_Up)
                 compare(shell.homeFocus,"header:home")
@@ -155,30 +180,6 @@ Item {
                 capture(scene,config,config.reloadError
                     ? "06-empty-reload-recovered" : "05-empty-reload-navigable",rendered)
                 return
-            }
-            if (!normalReturn && config.mode !== "recover-reopened") {
-                tryVerify(function(){return findChild(shell,"sessionRecoveryButton").activeFocus},2000)
-                capture(scene,config,"02-explicit-recovery-available")
-                if(config.mode === "observe") return
-                keyClick(Qt.Key_Return)
-                compare(shell.requestSessionRecovery(),false)
-                if(config.mode === "lost-terminal") {
-                    const lost=waitForLostTerminal(scene)
-                    compare(lost.recoveries,1)
-                    verify(shell.launchState!=="failed")
-                    capture(scene,config,"01-terminal-get-lost")
-                    return
-                }
-            }
-            if (!normalReturn) {
-                tryCompare(shell,"launchState","failed",6000)
-                compare(shell.observedSessionId,config.identity)
-                verify(shell.launchError.indexOf("E-SESSION-ORPHANED")>=0)
-                compare(shell.sessionUncertain,false)
-                tryVerify(function(){return findChild(shell,"launchFailureRetry").activeFocus},2000)
-                capture(scene,config,"03-canonical-failure-without-estimate")
-                keyClick(Qt.Key_Return)
-                compare(shell.launchState,"recovered")
             }
             keyClick(Qt.Key_Return)
             tryVerify(function(){return shell.gamePage!==null},3000)

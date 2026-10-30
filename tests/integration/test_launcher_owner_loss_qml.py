@@ -32,10 +32,12 @@ from steamzero.adapters.launcher_receipt import spawn_receipt
 from steamzero.launcher.app import LaunchRouter
 from steamzero.launcher.launch import consume_context
 from steamzero.launcher.navigation import HomeSection
+from steamzero.core.state import StateStore
 database,context,stop,release,counters,worker,entry=map(Path,sys.argv[1:8])
 mode=sys.argv[8]
 catalog=sys.argv[9] if len(sys.argv)>9 else 'unchanged'
-launches=[];recoveries=[];dropped=[];terminal_dropped=[];models=[]
+launches=[];recoveries=[];recovery_rows=[];exact_reads=[];latest_reads=[]
+dropped=[];terminal_dropped=[];models=[]
 def spawn(argv,*,request_id,game_id):
     launches.append(request_id);release.unlink(missing_ok=True)
     launch_worker=worker
@@ -49,7 +51,15 @@ router=LaunchRouter(on_spawn=lambda _:0,context_path=context,
     executable=lambda:str(entry),receipt_spawner=spawn)
 def recover(game,identity):
     recoveries.append(identity)
-    return router.recover_session(game,identity)
+    result=router.recover_session(game,identity)
+    with StateStore(database) as store:recovery_rows.append(store.get_game_session(identity))
+    return result
+def observe_exact(game,identity):
+    exact_reads.append((game,identity))
+    return observe_game_session(database,game,session_id=identity)
+def observe_latest(game):
+    latest_reads.append(game)
+    return observe_game_session(database,game)
 sections=(HomeSection(id='library',title='Library',items=('first','lifetime-probe')),)
 if catalog!='unchanged':
     items=('lifetime-probe','survivor') if mode=='closed-finish-lost' else ('survivor',)
@@ -65,14 +75,14 @@ bridge=launcher_ui.LauncherBridge(
     context_path=context,
     on_launch=router.launch,return_context=consume_context(context),recover_session=recover,
     readiness=lambda _: {'playable':True,'canPrepare':False},
-    session_observer=lambda game:observe_game_session(database,game),
-    session_by_id=lambda game,identity:observe_game_session(database,game,session_id=identity))
+    session_observer=observe_latest,session_by_id=observe_exact)
 original_get=launcher_ui._Handler.do_GET
 original_send=launcher_ui._Handler._send
 def get(handler):
     if handler.path=='/model' and handler._authorized():
         models.append(True)
-        if catalog=='empty-offline' and mode=='closed-reopened' and len(models)==2:
+        if (catalog=='empty-offline' and mode in {'closed-reopened','recover-reopened'}
+                and len(models)==2):
             original_send(handler,503,{'code':'FIXTURE-MODEL-UNAVAILABLE'});return
     if handler.path=='/owner-control/finish' and handler._authorized():
         release.touch();original_send(handler,200,{})
@@ -98,7 +108,8 @@ with bridge.serving() as api:
     deadline=time.monotonic()+45
     while not stop.exists() and time.monotonic()<deadline:time.sleep(.02)
 counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
-    'dropped':len(dropped),'terminalDrops':len(terminal_dropped),'models':len(models)}))
+    'dropped':len(dropped),'terminalDrops':len(terminal_dropped),'models':len(models),
+    'recoveryRows':recovery_rows,'exactReads':exact_reads,'latestReads':latest_reads}))
 """
 
 
@@ -113,6 +124,12 @@ counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
         (True, True, "section"),
         (True, True, "empty"),
         (True, True, "empty-offline"),
+        (True, False, "removed"),
+        (True, False, "section"),
+        (True, False, "empty"),
+        (True, False, "empty-offline"),
+        (False, False, "removed"),
+        (False, False, "empty"),
     ],
     ids=[
         "post-reply-loss",
@@ -122,6 +139,12 @@ counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
         "section-closed-restart",
         "empty-closed-restart",
         "empty-offline-closed-restart",
+        "removed-orphan-restart",
+        "section-orphan-restart",
+        "empty-orphan-restart",
+        "empty-offline-orphan-restart",
+        "removed-orphan-post-reply-loss",
+        "empty-orphan-post-reply-loss",
     ],
 )
 def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
@@ -258,7 +281,9 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     }
                     if os.environ.get("STEAMZERO_CAPTURE_OWNER_LOSS") == "1":
                         folder = (
-                            "r3-empty-return"
+                            "r3-orphan-catalog"
+                            if not normal_close and catalog != "unchanged"
+                            else "r3-empty-return"
                             if (catalog == "section" or catalog.startswith("empty"))
                             else "r3-removed-return"
                             if catalog == "removed"
@@ -269,8 +294,14 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                             else "r3-owner-loss"
                         )
                         config["capture"] = str(ROOT / "build/agent-runs" / folder)
-                        if catalog == "section" or catalog.startswith("empty"):
+                        if (
+                            catalog == "section"
+                            or catalog.startswith("empty")
+                            or (not normal_close and catalog == "removed")
+                        ):
                             config["capture"] += f"/{catalog}"
+                        if not normal_close and catalog != "unchanged":
+                            config["capture"] += "/terminal-get" if lose_terminal else "/post-reply"
                         Path(config["capture"]).mkdir(parents=True, exist_ok=True)
                     (tmp_path / "owner-loss-config.json").write_text(json.dumps(config))
                     result = subprocess.run(
@@ -285,14 +316,18 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     stop.touch()
                     server.communicate(timeout=10)
             counts = json.loads(counters.read_text())
-            retried = mode in {
-                "recover",
-                "recover-reopened",
-                "closed-reopened",
-            } and not catalog.startswith("empty")
+            reopened = mode in {"recover", "recover-reopened", "closed-reopened"}
+            retried = reopened and not catalog.startswith("empty")
             assert len(counts["launches"]) == int(retried)
-            assert len(counts["recoveries"]) == int(mode in {"recover", "lost-terminal"})
+            assert counts["recoveries"] == (
+                [identity] if mode in {"recover", "lost-terminal"} else []
+            )
+            assert counts["exactReads"]
+            assert all(pair == ["lifetime-probe", identity] for pair in counts["exactReads"])
             if not retried:
+                assert counts["latestReads"] == [], (
+                    "retained identity used the latest-session route"
+                )
                 assert context.read_bytes() == context_before
             with StateStore(database) as store:
                 row = store.get_game_session(identity)
@@ -304,6 +339,8 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                 else "lifetime-probe"
             )
             assert retained["gameId"] == next_game
+            if retried:
+                assert counts["latestReads"] and set(counts["latestReads"]) == {next_game}
             assert retained["focusId"] == (
                 "top:first" if catalog == "section" and retried else f"library:{next_game}"
             )
@@ -337,26 +374,34 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
             elif mode == "observe":
                 assert row == before, "GET/owner loss must not mutate the canonical row"
                 assert json.loads(context.read_text())["launchRequestId"] == identity
-            elif retried:
-                assert counts["dropped"] == int(mode == "recover")
-                assert counts["recoveries"] == ([identity] if mode == "recover" else [])
-                assert counts["launches"][0] != identity
-                assert json.loads(context.read_text())["launchRequestId"] == counts["launches"][0]
-                assert row["state"] == "failed" and row["failure_code"] == "E-SESSION-ORPHANED"
-                assert row["exit_code"] is None
-                assert row["played_seconds"] == before["played_seconds"]
-                assert row["duration_source"] == before["duration_source"]
-                with StateStore(database) as store:
-                    latest = store.latest_game_session("lifetime-probe")
-                assert latest["state"] == "closed" and latest["id"] == counts["launches"][0]
             else:
-                assert counts["terminalDrops"] > 0 and counts["dropped"] == 0
-                assert context.exists(), "lost terminal GET consumed the restart context"
-                assert json.loads(context.read_text())["launchRequestId"] == identity
                 assert row["state"] == "failed" and row["failure_code"] == "E-SESSION-ORPHANED"
                 assert row["exit_code"] is None
                 assert row["played_seconds"] == before["played_seconds"]
                 assert row["duration_source"] == before["duration_source"]
+                if counts["recoveries"]:
+                    assert counts["recoveryRows"] == [row], "GET/retry mutated the recovered row"
+                if terminal_row is None:
+                    terminal_row = row
+                else:
+                    assert row == terminal_row, "terminal replay changed canonical failure/playtime"
+                if retried:
+                    assert counts["dropped"] == int(mode == "recover")
+                    assert counts["launches"][0] != identity
+                    assert retained["launchRequestId"] == counts["launches"][0]
+                    with StateStore(database) as store:
+                        latest = store.latest_game_session(next_game)
+                    assert latest["game_id"] == next_game
+                    assert latest["state"] == "closed" and latest["id"] == counts["launches"][0]
+                else:
+                    assert counts["dropped"] == int(mode == "recover")
+                    assert retained["launchRequestId"] == identity
+                    if reopened:
+                        assert catalog.startswith("empty")
+                        assert counts["models"] == (3 if catalog == "empty-offline" else 2)
+                    else:
+                        assert counts["terminalDrops"] > 0
+                        assert context.exists(), "lost terminal GET consumed the restart context"
     finally:
         release.touch()
         for pid in (owner_pid, game_pid):
