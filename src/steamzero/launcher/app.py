@@ -661,8 +661,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     from steamzero.adapters.launcher_ui import LauncherBridge, launch_launcher_ui
 
     context_path = args.context or _context_path()
-    # V1 restaura foco uma vez. V2 mantém a referência até a terminalização
-    # canônica; sua presença não comprova que o jogo iniciou.
+    # V1 restaura foco uma vez. V2 mantém a referência até novo lançamento
+    # explícito validado; sua presença não comprova que o jogo iniciou.
     restored_context = consume_context(context_path)
     return_context = restored_context if isinstance(restored_context, Mapping) else None
 

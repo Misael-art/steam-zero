@@ -46,6 +46,7 @@ from steamzero.launcher.cinema import resolve_cinema_covers
 from steamzero.launcher.journey_runtime import JourneyRuntime
 from steamzero.launcher.launch import forget_context, read_recovery_context, recovery_context
 from steamzero.launcher.navigation import HomeSection, resolve_home_focus
+from steamzero.launcher.session import restore_context
 
 #: Devolve a tentativa com recibo (ou ``None`` na rota Steam, sem recibo).
 LaunchCallback = Callable[[str, str], LaunchAttempt | None]
@@ -489,6 +490,11 @@ class LauncherBridge:
         self._focus = resolve_home_focus(self._sections)
 
     def model(self) -> dict[str, Any]:
+        return_focus, return_diagnostics = (
+            restore_context(self._return_context, self._focus)
+            if self._return_context is not None
+            else (self._focus.initial, ())
+        )
         return {
             "launchCorrelation": {"clientRequestId": True},
             "titleMode": self._title_mode,
@@ -498,10 +504,11 @@ class LauncherBridge:
                 "reducedMotion": bool(self._accessibility.get("reducedMotion", False)),
             },
             "focusMap": self._focus.to_qml_object(),
-            # O processo consome o contexto antes de iniciar o QML. Publicá-lo
-            # aqui faz a restauração existir no entry point real, e não apenas
-            # no harness que injeta returnContext diretamente.
+            # Keep persisted identity separate from its current visual target.
+            # A removed card may resolve to a neighbour without rewriting v2.
             "returnContext": self._return_context,
+            "returnFocus": return_focus,
+            "returnDiagnostics": [entry.to_dict() for entry in return_diagnostics],
             "launchRecovery": self._recovery,
             "catalogSummary": self._catalog_summary,
             "journey": self.journey_current(),

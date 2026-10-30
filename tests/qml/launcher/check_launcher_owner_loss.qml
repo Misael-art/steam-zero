@@ -54,7 +54,7 @@ Item {
                 compare(lostClose.recoveries,0)
                 verify(shell.launchState!=="failed" && shell.launchState!=="recovered")
                 compare(shell.observedSessionId,config.identity)
-                compare(shell.homeFocus,"library:lifetime-probe")
+                compare(shell.homeFocus,config.returnFocus)
                 compare(shell.launchFocused(),false)
                 capture(scene,config,config.mode === "closed-finish-lost"
                     ? "02-closed-get-lost" : "03-second-closed-get-lost")
@@ -64,7 +64,7 @@ Item {
             if (normalReturn) {
                 tryCompare(shell,"launchState","recovered",5000)
                 compare(shell.gamePage,null)
-                compare(shell.homeFocus,"library:lifetime-probe")
+                compare(shell.homeFocus,config.returnFocus)
                 compare(shell.sessionUncertain,false)
                 compare(findChild(shell,"launchFailureOverlay").visible,false)
                 tryVerify(function(){return !findChild(shell,"returnFadeLayer").visible},2000)
@@ -75,7 +75,7 @@ Item {
                 const repeated=waitForLostTerminal(scene)
                 compare(repeated.recoveries,0)
                 verify(shell.launchState!=="failed")
-                compare(shell.homeFocus,"library:lifetime-probe")
+                compare(shell.homeFocus,config.returnFocus)
                 capture(scene,config,"02-terminal-get-lost-again")
                 return
             }
@@ -123,6 +123,7 @@ Item {
             }
             keyClick(Qt.Key_Return)
             tryVerify(function(){return shell.gamePage!==null},3000)
+            compare(shell.gamePage.gameId,config.nextGame)
             const play=findChild(shell,"gameAction")
             tryVerify(function(){return play!==null && play.modelData.enabled===true},3000)
             keyClick(Qt.Key_Return)
@@ -132,7 +133,7 @@ Item {
             scene._request("GET","/owner-control/finish",null,function(){})
             tryCompare(shell,"launchState","recovered",5000)
             compare(shell.gamePage,null)
-            compare(shell.homeFocus,"library:lifetime-probe")
+            compare(shell.homeFocus,config.nextFocus)
             tryVerify(function(){return !findChild(shell,"returnFadeLayer").visible},2000)
             capture(scene,config,normalReturn ? "06-next-canonical-return" : "05-canonical-return")
         }

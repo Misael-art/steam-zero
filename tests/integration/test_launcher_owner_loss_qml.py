@@ -34,20 +34,31 @@ from steamzero.launcher.launch import consume_context
 from steamzero.launcher.navigation import HomeSection
 database,context,stop,release,counters,worker,entry=map(Path,sys.argv[1:8])
 mode=sys.argv[8]
+removed=len(sys.argv)>9 and sys.argv[9]=='removed'
 launches=[];recoveries=[];dropped=[];terminal_dropped=[]
 def spawn(argv,*,request_id,game_id):
     launches.append(request_id);release.unlink(missing_ok=True)
+    launch_worker=worker
+    if game_id!='lifetime-probe':
+        launch_worker=worker.with_name('next-lifecycle.py')
+        launch_worker.write_text(worker.read_text().replace("'lifetime-probe'",repr(game_id)))
     return spawn_receipt(
-        (sys.executable,str(worker),str(database),'0',str(release),'json',request_id,'60'),
+        (sys.executable,str(launch_worker),str(database),'0',str(release),'json',request_id,'60'),
         request_id=request_id,game_id=game_id)
 router=LaunchRouter(on_spawn=lambda _:0,context_path=context,
     executable=lambda:str(entry),receipt_spawner=spawn)
 def recover(game,identity):
     recoveries.append(identity)
     return router.recover_session(game,identity)
+sections=(HomeSection(id='library',title='Library',items=('first','lifetime-probe')),)
+if removed:
+    items=('lifetime-probe','survivor') if mode=='closed-finish-lost' else ('survivor',)
+    sections=(HomeSection(id='top',title='Top',items=('first',)),
+        HomeSection(id='library',title='Library',items=items))
 bridge=launcher_ui.LauncherBridge(
-    sections=(HomeSection(id='library',title='Library',items=('first','lifetime-probe')),),
-    titles={'first':'First','lifetime-probe':'Synthetic game'},context_path=context,
+    sections=sections,
+    titles={'first':'First','lifetime-probe':'Synthetic game','survivor':'Surviving game'},
+    context_path=context,
     on_launch=router.launch,return_context=consume_context(context),recover_session=recover,
     readiness=lambda _: {'playable':True,'canPrepare':False},
     session_observer=lambda game:observe_game_session(database,game),
@@ -85,12 +96,12 @@ counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
 
 @pytest.mark.visual
 @pytest.mark.parametrize(
-    "lose_terminal,normal_close",
-    [(False, False), (True, False), (True, True)],
-    ids=["post-reply-loss", "terminal-get-restart", "closed-get-restart"],
+    "lose_terminal,normal_close,catalog_removed",
+    [(False, False, False), (True, False, False), (True, True, False), (True, True, True)],
+    ids=["post-reply-loss", "terminal-get-restart", "closed-get-restart", "removed-closed-restart"],
 )
 def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
-    tmp_path, lose_terminal, normal_close
+    tmp_path, lose_terminal, normal_close, catalog_removed
 ):
     runner = shutil.which("qmltestrunner6") or "/usr/lib/qt6/bin/qmltestrunner"
     assert Path(runner).is_file(), "QML-VISUAL-ENVIRONMENT-001: Qt6 obrigatório"
@@ -183,6 +194,7 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     str(worker),
                     str(entry),
                     mode,
+                    "removed" if catalog_removed else "unchanged",
                 ],
                 env=env,
                 stdout=subprocess.PIPE,
@@ -198,11 +210,22 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                         **json.loads(server.stdout.readline()),
                         "mode": mode,
                         "identity": identity,
+                        "returnFocus": (
+                            "library:survivor"
+                            if catalog_removed and mode != "closed-finish-lost"
+                            else "library:lifetime-probe"
+                        ),
+                        "nextGame": "survivor" if catalog_removed else "lifetime-probe",
+                        "nextFocus": "library:survivor"
+                        if catalog_removed
+                        else "library:lifetime-probe",
                         "capture": "",
                     }
                     if os.environ.get("STEAMZERO_CAPTURE_OWNER_LOSS") == "1":
                         folder = (
-                            "r3-closed-restart"
+                            "r3-removed-return"
+                            if catalog_removed
+                            else "r3-closed-restart"
                             if normal_close
                             else "r3-terminal-restart"
                             if lose_terminal
@@ -229,8 +252,9 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                 row = store.get_game_session(identity)
             retained = json.loads(context.read_text())
             assert retained["owner"] == CONTEXT_OWNER and retained["schemaVersion"] == 2
-            assert retained["gameId"] == "lifetime-probe"
-            assert retained["focusId"] == "library:lifetime-probe"
+            next_game = "survivor" if catalog_removed and retried else "lifetime-probe"
+            assert retained["gameId"] == next_game
+            assert retained["focusId"] == f"library:{next_game}"
             if normal_close:
                 assert row["state"] == "closed" and row["exit_code"] == 0
                 assert row["failure_code"] is None and counts["recoveries"] == []
@@ -246,7 +270,8 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     latest_id = counts["launches"][0]
                     assert latest_id != identity
                     with StateStore(database) as store:
-                        latest = store.latest_game_session("lifetime-probe")
+                        latest = store.latest_game_session(next_game)
+                    assert latest["game_id"] == next_game
                     assert latest["id"] == latest_id and latest["state"] == "closed"
                     assert latest["exit_code"] == 0 and latest["failure_code"] is None
                 else:
