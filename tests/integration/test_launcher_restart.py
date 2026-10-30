@@ -142,7 +142,13 @@ def test_launcher_restarts_twice_while_original_lifecycle_owner_survives(
         if not pending:
             assert accepted["state"] == "confirmed"
             assert accepted["requestId"] == accepted["sessionId"]
-        assert json.loads(context.read_text())["launchRequestId"] == accepted["requestId"]
+        assert json.loads(context.read_text()) == {
+            "schemaVersion": 2,
+            "owner": CONTEXT_OWNER,
+            "launchRequestId": accepted["requestId"],
+            "gameId": "lifetime-probe",
+            "focusId": "library:lifetime-probe",
+        }
         for mode in ("active", "return"):
             stop, counters = (tmp_path / f"{mode}-{n}" for n in ("stop", "counts.json"))
             with subprocess.Popen(
@@ -193,7 +199,8 @@ def test_launcher_restarts_twice_while_original_lifecycle_owner_survives(
             assert json.loads(counters.read_text())["launchCalls"] == 0
             if mode == "active":
                 assert context.exists(), "a primeira retomada não pode consumir a sessão ativa"
-        assert not context.exists(), "terminalização deve consumir somente o contexto próprio"
+        # A terminal GET may be lost. Owned v2 stays until a validated next launch.
+        assert json.loads(context.read_text())["launchRequestId"] == accepted["requestId"]
     finally:
         release.touch()
         if observer_pid is not None:
@@ -448,4 +455,5 @@ def test_removed_game_does_not_prevent_exact_terminal_observation(tmp_path):
         },
     )
     assert bridge.session("second")["state"] == "closed"
-    assert not path.exists()
+    assert json.loads(path.read_text()) == _context()
+    assert bridge.model()["launchRecovery"]["sessionId"] == REQUEST

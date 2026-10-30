@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Qt, canonical CLI and detached game after the original owner disappears."""
+"""Qt, canonical lifecycle and terminal replay across bridge processes."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from test_launcher_restart import _CREATOR
 
 from steamzero.adapters.game_session_probe import process_identity
 from steamzero.core.state import StateStore
+from steamzero.launcher.launch import CONTEXT_OWNER
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -61,6 +62,9 @@ def get(handler):
             'terminalDrops':len(terminal_dropped)})
     else:original_get(handler)
 def send(handler,status,body):
+    if (mode in {'closed-finish-lost','closed-restart-lost'}
+            and handler.path.startswith('/session?') and body.get('state')=='closed'):
+        terminal_dropped.append(True);handler.close_connection=True;return
     if (mode in {'lost-terminal','restart-lost-terminal'}
             and handler.path.startswith('/session?')
             and body.get('state')=='failed' and body.get('failureCode')=='E-SESSION-ORPHANED'):
@@ -81,10 +85,12 @@ counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
 
 @pytest.mark.visual
 @pytest.mark.parametrize(
-    "lose_terminal", [False, True], ids=["post-reply-loss", "terminal-get-restart"]
+    "lose_terminal,normal_close",
+    [(False, False), (True, False), (True, True)],
+    ids=["post-reply-loss", "terminal-get-restart", "closed-get-restart"],
 )
-def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(
-    tmp_path, lose_terminal
+def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
+    tmp_path, lose_terminal, normal_close
 ):
     runner = shutil.which("qmltestrunner6") or "/usr/lib/qt6/bin/qmltestrunner"
     assert Path(runner).is_file(), "QML-VISUAL-ENVIRONMENT-001: Qt6 obrigatório"
@@ -147,16 +153,21 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(
             owner["pid"] == owner_pid
             and process_identity(owner_pid, owner["startTicks"]) == "alive"
         )
-        os.kill(owner_pid, signal.SIGTERM)
-        deadline = time.monotonic() + 5
-        while _alive(owner_pid) and time.monotonic() < deadline:
-            time.sleep(0.02)
-        assert not _alive(owner_pid) and _alive(game_pid)
-        phases = (
-            ("observe", "lost-terminal", "restart-lost-terminal", "recover-reopened")
-            if lose_terminal
-            else ("observe", "recover")
-        )
+        if normal_close:
+            assert _alive(owner_pid) and _alive(game_pid)
+            phases = ("closed-finish-lost", "closed-restart-lost", "closed-reopened")
+        else:
+            os.kill(owner_pid, signal.SIGTERM)
+            deadline = time.monotonic() + 5
+            while _alive(owner_pid) and time.monotonic() < deadline:
+                time.sleep(0.02)
+            assert not _alive(owner_pid) and _alive(game_pid)
+            phases = (
+                ("observe", "lost-terminal", "restart-lost-terminal", "recover-reopened")
+                if lose_terminal
+                else ("observe", "recover")
+            )
+        terminal_row = None
         for mode in phases:
             stop, counters = (tmp_path / f"{mode}-{name}" for name in ("stop", "counts.json"))
             with subprocess.Popen(
@@ -190,7 +201,13 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(
                         "capture": "",
                     }
                     if os.environ.get("STEAMZERO_CAPTURE_OWNER_LOSS") == "1":
-                        folder = "r3-terminal-restart" if lose_terminal else "r3-owner-loss"
+                        folder = (
+                            "r3-closed-restart"
+                            if normal_close
+                            else "r3-terminal-restart"
+                            if lose_terminal
+                            else "r3-owner-loss"
+                        )
                         config["capture"] = str(ROOT / "build/agent-runs" / folder)
                     (tmp_path / "owner-loss-config.json").write_text(json.dumps(config))
                     result = subprocess.run(
@@ -205,18 +222,45 @@ def test_qml_preserves_live_game_then_recovers_orphan_explicitly_and_retries(
                     stop.touch()
                     server.communicate(timeout=10)
             counts = json.loads(counters.read_text())
-            retried = mode in {"recover", "recover-reopened"}
+            retried = mode in {"recover", "recover-reopened", "closed-reopened"}
             assert len(counts["launches"]) == int(retried)
             assert len(counts["recoveries"]) == int(mode in {"recover", "lost-terminal"})
             with StateStore(database) as store:
                 row = store.get_game_session(identity)
-            if mode == "observe":
+            retained = json.loads(context.read_text())
+            assert retained["owner"] == CONTEXT_OWNER and retained["schemaVersion"] == 2
+            assert retained["gameId"] == "lifetime-probe"
+            assert retained["focusId"] == "library:lifetime-probe"
+            if normal_close:
+                assert row["state"] == "closed" and row["exit_code"] == 0
+                assert row["failure_code"] is None and counts["recoveries"] == []
+                if terminal_row is None:
+                    terminal_row = row
+                    deadline = time.monotonic() + 5
+                    while _alive(owner_pid) and time.monotonic() < deadline:
+                        time.sleep(0.02)
+                    assert not _alive(owner_pid) and not _alive(game_pid)
+                else:
+                    assert row == terminal_row, "terminal observation changed lifecycle/playtime"
+                if retried:
+                    latest_id = counts["launches"][0]
+                    assert latest_id != identity
+                    with StateStore(database) as store:
+                        latest = store.latest_game_session("lifetime-probe")
+                    assert latest["id"] == latest_id and latest["state"] == "closed"
+                    assert latest["exit_code"] == 0 and latest["failure_code"] is None
+                else:
+                    assert counts["terminalDrops"] > 0
+                    latest_id = identity
+                assert json.loads(context.read_text())["launchRequestId"] == latest_id
+            elif mode == "observe":
                 assert row == before, "GET/owner loss must not mutate the canonical row"
                 assert json.loads(context.read_text())["launchRequestId"] == identity
             elif retried:
                 assert counts["dropped"] == int(mode == "recover")
                 assert counts["recoveries"] == ([identity] if mode == "recover" else [])
-                assert counts["launches"][0] != identity and not context.exists()
+                assert counts["launches"][0] != identity
+                assert json.loads(context.read_text())["launchRequestId"] == counts["launches"][0]
                 assert row["state"] == "failed" and row["failure_code"] == "E-SESSION-ORPHANED"
                 assert row["exit_code"] is None
                 assert row["played_seconds"] == before["played_seconds"]

@@ -191,7 +191,7 @@ def launch_detached(plan: LaunchPlan, *, spawn: Spawn) -> LaunchHandle:
 
 
 def consume_context(path: Path | str, *, with_diagnostics: bool = False) -> Any:
-    """Consume legacy focus once; retain owned v2 until canonical termination.
+    """Consume legacy focus once; retain owned v2 for validated explicit reuse.
 
     Contexto ausente é normal: significa que ninguém lançou nada. Contexto
     ilegível é anomalia e vira diagnóstico — adivinhar um retorno plausível

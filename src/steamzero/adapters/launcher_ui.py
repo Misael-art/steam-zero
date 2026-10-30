@@ -73,6 +73,12 @@ def _valid_client_request_id(value: object) -> bool:
     )
 
 
+def _retained_terminal(result: Mapping[str, Any]) -> bool:
+    return result.get("state") == "closed" or (
+        result.get("state") == "failed" and result.get("failureCode") == "E-SESSION-ORPHANED"
+    )
+
+
 @dataclass(frozen=True)
 class _LaunchRequest:
     client_id: str
@@ -1471,12 +1477,10 @@ class LauncherBridge:
             recovered = self._recovery
             prior = self._session_locked(recovered["gameId"])
             refusal = prior.get("attempt", {}).get("state") == "notStarted"
-            orphaned = (
-                prior.get("sessionId") == recovered["sessionId"]
-                and prior.get("state") == "failed"
-                and prior.get("failureCode") == "E-SESSION-ORPHANED"
+            terminal = prior.get("sessionId") == recovered["sessionId"] and _retained_terminal(
+                prior
             )
-            if not refusal and not orphaned:
+            if not refusal and not terminal:
                 raise ValueError("recovery has no proven retryable terminal state")
             if read_recovery_context(self._context_path) != recovered and (
                 self._context_path.exists() or self._context_path.is_symlink()
@@ -1794,7 +1798,7 @@ class LauncherBridge:
             if outcome is not None:
                 awaiting["attempt"] = outcome
             return awaiting
-        if result.get("state") == "failed" and result.get("failureCode") == "E-SESSION-ORPHANED":
+        if _retained_terminal(result):
             if recovered is None and outcome is not None and attempt is not None:
                 pending = read_recovery_context(self._context_path)
                 if pending is not None and (

@@ -483,7 +483,13 @@ def test_qml_restores_lost_refusal_twice_then_retries_and_returns(tmp_path):
                 assert json.loads(context.read_text())["launchRequestId"] == identity
             else:
                 assert counter["requests"][0] != identity
-                assert not context.exists()
+                assert json.loads(context.read_text()) == {
+                    "schemaVersion": 2,
+                    "owner": CONTEXT_OWNER,
+                    "launchRequestId": counter["requests"][0],
+                    "gameId": "lifetime-probe",
+                    "focusId": "library:lifetime-probe",
+                }
         with StateStore(database) as store:
             refused = store.get_game_session(identity)
             retried = store.latest_game_session("lifetime-probe")

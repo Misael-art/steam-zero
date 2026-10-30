@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[2]
 REQUEST = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
 
 
-def _failed_recovery(tmp_path):
+def _terminal_recovery(tmp_path, *, state="failed"):
     database = tmp_path / "state.db"
     context = tmp_path / "context.json"
     context.write_text(
@@ -52,12 +52,21 @@ def _failed_recovery(tmp_path):
                 "id": REQUEST,
                 "game_id": "lifetime-probe",
                 "owner": SESSION_OWNER,
-                "state": "failed",
+                "state": "launching" if state == "closed" else state,
+                "started_at": "2026-10-28T23:59:53+00:00",
                 "finished_at": "2026-10-29T00:00:00+00:00",
-                "failure_code": "E-SESSION-ORPHANED",
+                "failure_code": "E-SESSION-ORPHANED" if state == "failed" else None,
+                "exit_code": None if state == "failed" else 0,
                 "metadata_json": '{"source":"emulation"}',
             }
         )
+        if state == "closed":
+            store.transition_game_session(
+                REQUEST, "running", played_seconds=7, duration_source="observed-monotonic"
+            )
+            store.transition_game_session(
+                REQUEST, "closed", exit_code=0, finished_at="2026-10-29T00:00:00+00:00"
+            )
     calls = []
 
     def spawn(argv, *, request_id, game_id):
@@ -88,8 +97,38 @@ def _failed_recovery(tmp_path):
     return database, context, calls, reopen
 
 
+def test_closed_context_survives_lost_get_and_restarts_until_explicit_launch(tmp_path):
+    database, context, calls, reopen = _terminal_recovery(tmp_path, state="closed")
+    with StateStore(database) as store:
+        before = store.get_game_session(REQUEST)
+    assert before["exit_code"] == 0 and before["played_seconds"] == 7
+    assert before["duration_source"] == "observed-monotonic"
+    for _ in range(3):
+        bridge = reopen()
+        assert bridge.model()["launchRecovery"]["sessionId"] == REQUEST
+        result = bridge.session("lifetime-probe")  # Every terminal reply is lost.
+        assert result["state"] == "closed" and result["sessionId"] == REQUEST
+        assert "failureCode" not in result and "launchAcknowledgment" not in result
+        assert context.exists(), "lost closed reply erased the return context"
+        assert calls == []
+        with StateStore(database) as store:
+            assert store.get_game_session(REQUEST) == before
+    attempt = bridge.launch(
+        "lifetime-probe", "library:lifetime-probe", client_request_id="explicit-next"
+    )
+    assert attempt is not None and attempt.request_id != REQUEST
+    assert calls == [attempt.request_id]
+    assert json.loads(context.read_text())["launchRequestId"] == attempt.request_id
+    assert (
+        bridge.launch("lifetime-probe", "library:lifetime-probe", client_request_id="explicit-next")
+        is attempt
+    )
+    with StateStore(database) as store:
+        assert store.get_game_session(REQUEST) == before
+
+
 def test_recovered_failure_survives_lost_get_and_restart_until_explicit_launch(tmp_path):
-    database, context, calls, reopen = _failed_recovery(tmp_path)
+    database, context, calls, reopen = _terminal_recovery(tmp_path)
     with StateStore(database) as store:
         before = store.get_game_session(REQUEST)
     first = reopen()
@@ -121,8 +160,11 @@ def test_recovered_failure_survives_lost_get_and_restart_until_explicit_launch(t
 
 
 @pytest.mark.parametrize("next_game", ["first", "lifetime-probe"])
-def test_live_confirmed_attempt_retains_failure_for_restart_and_explicit_retry(tmp_path, next_game):
-    database, context, calls, reopen = _failed_recovery(tmp_path)
+@pytest.mark.parametrize("terminal", ["failed", "closed"])
+def test_live_confirmed_attempt_retains_terminal_for_restart_and_explicit_retry(
+    tmp_path, next_game, terminal
+):
+    database, context, calls, reopen = _terminal_recovery(tmp_path, state=terminal)
     context.unlink()  # This bridge starts before its own launch, without restoration.
     bridge = reopen()
     attempt = bridge.launch("lifetime-probe", "library:lifetime-probe", client_request_id="old")
@@ -134,22 +176,35 @@ def test_live_confirmed_attempt_retains_failure_for_restart_and_explicit_retry(t
                 "id": attempt.request_id,
                 "game_id": "lifetime-probe",
                 "owner": SESSION_OWNER,
-                "state": "failed",
-                "failure_code": "E-SESSION-ORPHANED",
+                "state": "launching" if terminal == "closed" else terminal,
+                "failure_code": "E-SESSION-ORPHANED" if terminal == "failed" else None,
                 "metadata_json": '{"source":"emulation"}',
             }
         )
+        if terminal == "closed":
+            store.transition_game_session(
+                attempt.request_id,
+                "running",
+                played_seconds=9,
+                duration_source="observed-monotonic",
+            )
+            store.transition_game_session(attempt.request_id, "closed", exit_code=0)
         before = store.get_game_session(attempt.request_id)
     for _ in range(3):
         result = bridge.session("lifetime-probe", client_request_id="old")
-        assert result["state"] == "failed" and result["sessionId"] == attempt.request_id
+        assert result["state"] == terminal and result["sessionId"] == attempt.request_id
         assert result["attempt"]["state"] == "confirmed"
         assert "launchAcknowledgment" not in result
         assert context.exists() and calls == [attempt.request_id]
     assert bridge.model()["launchRecovery"]["requestId"] == attempt.request_id
     restored = reopen()
     assert restored.model()["launchRecovery"]["sessionId"] == attempt.request_id
-    assert restored.session("lifetime-probe")["failureCode"] == "E-SESSION-ORPHANED"
+    observed = restored.session("lifetime-probe")
+    assert observed["state"] == terminal
+    if terminal == "failed":
+        assert observed["failureCode"] == "E-SESSION-ORPHANED"
+    else:
+        assert "failureCode" not in observed
     new = bridge.launch(next_game, f"library:{next_game}", client_request_id="new")
     assert new is not None and new.request_id != attempt.request_id
     assert calls == [attempt.request_id, new.request_id]
@@ -172,10 +227,11 @@ def test_live_confirmed_attempt_retains_failure_for_restart_and_explicit_retry(t
         "deep",
     ],
 )
-def test_recovered_retry_preserves_replaced_or_unreadable_context(tmp_path, replacement):
-    database, context, calls, reopen = _failed_recovery(tmp_path)
+@pytest.mark.parametrize("terminal", ["failed", "closed"])
+def test_terminal_retry_preserves_replaced_or_unreadable_context(tmp_path, replacement, terminal):
+    database, context, calls, reopen = _terminal_recovery(tmp_path, state=terminal)
     bridge = reopen()
-    assert bridge.session("lifetime-probe")["state"] == "failed"
+    assert bridge.session("lifetime-probe")["state"] == terminal
     if replacement == "symlink":
         context.unlink()
         target = tmp_path / "foreign.json"
@@ -205,11 +261,14 @@ def test_recovered_retry_preserves_replaced_or_unreadable_context(tmp_path, repl
     if replacement == "symlink":
         assert context.is_symlink() and target.read_text() == "foreign"
     with StateStore(database) as store:
-        assert store.get_game_session(REQUEST)["failure_code"] == "E-SESSION-ORPHANED"
+        row = store.get_game_session(REQUEST)
+        assert row["state"] == terminal
+        assert row["failure_code"] == ("E-SESSION-ORPHANED" if terminal == "failed" else None)
 
 
-def test_invalid_focus_does_not_consume_failure_or_hide_its_next_observation(tmp_path):
-    _database, context, calls, reopen = _failed_recovery(tmp_path)
+@pytest.mark.parametrize("terminal", ["failed", "closed"])
+def test_invalid_focus_does_not_consume_terminal_or_hide_its_next_observation(tmp_path, terminal):
+    _database, context, calls, reopen = _terminal_recovery(tmp_path, state=terminal)
     bridge = reopen()
     result = bridge.session("lifetime-probe")
     before = context.read_bytes()
@@ -219,8 +278,11 @@ def test_invalid_focus_does_not_consume_failure_or_hide_its_next_observation(tmp
     assert bridge.session("lifetime-probe") == result
 
 
-def test_missing_context_is_not_recreated_by_get_and_allows_validated_terminal_retry(tmp_path):
-    _database, context, calls, reopen = _failed_recovery(tmp_path)
+@pytest.mark.parametrize("terminal", ["failed", "closed"])
+def test_missing_context_is_not_recreated_by_get_and_allows_validated_terminal_retry(
+    tmp_path, terminal
+):
+    _database, context, calls, reopen = _terminal_recovery(tmp_path, state=terminal)
     bridge = reopen()
     result = bridge.session("lifetime-probe")
     context.unlink()
@@ -233,18 +295,23 @@ def test_missing_context_is_not_recreated_by_get_and_allows_validated_terminal_r
 
 
 @pytest.mark.parametrize(
-    "field,value",
+    "terminal,field,value",
     [
-        ("failure_code", "unregistered"),
-        ("owner", "other"),
-        ("game_id", "first"),
-        ("state", "running"),
+        ("failed", "failure_code", "unregistered"),
+        ("failed", "owner", "other"),
+        ("failed", "game_id", "first"),
+        ("failed", "state", "running"),
+        ("closed", "owner", "other"),
+        ("closed", "game_id", "first"),
+        ("closed", "state", "running"),
     ],
 )
-def test_retry_revalidates_canonical_state_after_the_terminal_reply(tmp_path, field, value):
-    database, context, calls, reopen = _failed_recovery(tmp_path)
+def test_retry_revalidates_canonical_state_after_the_terminal_reply(
+    tmp_path, terminal, field, value
+):
+    database, context, calls, reopen = _terminal_recovery(tmp_path, state=terminal)
     bridge = reopen()
-    assert bridge.session("lifetime-probe")["state"] == "failed"
+    assert bridge.session("lifetime-probe")["state"] == terminal
     queries = {
         "failure_code": "UPDATE game_session SET failure_code=? WHERE id=?",
         "owner": "UPDATE game_session SET owner=? WHERE id=?",

@@ -44,6 +44,32 @@ Item {
             scene.api=config.api; scene.token=config.token; scene._start()
             tryCompare(scene,"loadState","ready")
             const shell=scene._activeLauncherShell()
+            if (config.mode === "closed-finish-lost" || config.mode === "closed-restart-lost") {
+                if (config.mode === "closed-finish-lost") {
+                    tryCompare(shell,"launchState","emulator-visible",5000)
+                    capture(scene,config,"01-original-game-running")
+                    scene._request("GET","/owner-control/finish",null,function(){})
+                }
+                const lostClose=waitForLostTerminal(scene)
+                compare(lostClose.recoveries,0)
+                verify(shell.launchState!=="failed" && shell.launchState!=="recovered")
+                compare(shell.observedSessionId,config.identity)
+                compare(shell.homeFocus,"library:lifetime-probe")
+                compare(shell.launchFocused(),false)
+                capture(scene,config,config.mode === "closed-finish-lost"
+                    ? "02-closed-get-lost" : "03-second-closed-get-lost")
+                return
+            }
+            const normalReturn = config.mode === "closed-reopened"
+            if (normalReturn) {
+                tryCompare(shell,"launchState","recovered",5000)
+                compare(shell.gamePage,null)
+                compare(shell.homeFocus,"library:lifetime-probe")
+                compare(shell.sessionUncertain,false)
+                compare(findChild(shell,"launchFailureOverlay").visible,false)
+                tryVerify(function(){return !findChild(shell,"returnFadeLayer").visible},2000)
+                capture(scene,config,"04-closed-return-restored")
+            }
             if (config.mode === "restart-lost-terminal") {
                 compare(shell.observedSessionId,config.identity)
                 const repeated=waitForLostTerminal(scene)
@@ -60,7 +86,7 @@ Item {
                 capture(scene,config,"01-game-survives-owner-loss")
                 scene._request("GET","/owner-control/finish",null,function(){})
             }
-            if (config.mode !== "recover-reopened") {
+            if (!normalReturn && config.mode !== "recover-reopened") {
                 tryCompare(shell,"sessionUncertain",true,5000)
                 tryCompare(shell,"sessionRecoveryAvailable",true,3000)
                 compare(shell.launchFocused(),false)
@@ -71,7 +97,7 @@ Item {
             })
             tryVerify(function(){return counts!==null},2000)
             compare(counts.launches,0); compare(counts.recoveries,0)
-            if (config.mode !== "recover-reopened") {
+            if (!normalReturn && config.mode !== "recover-reopened") {
                 tryVerify(function(){return findChild(shell,"sessionRecoveryButton").activeFocus},2000)
                 capture(scene,config,"02-explicit-recovery-available")
                 if(config.mode === "observe") return
@@ -85,14 +111,16 @@ Item {
                     return
                 }
             }
-            tryCompare(shell,"launchState","failed",6000)
-            compare(shell.observedSessionId,config.identity)
-            verify(shell.launchError.indexOf("E-SESSION-ORPHANED")>=0)
-            compare(shell.sessionUncertain,false)
-            tryVerify(function(){return findChild(shell,"launchFailureRetry").activeFocus},2000)
-            capture(scene,config,"03-canonical-failure-without-estimate")
-            keyClick(Qt.Key_Return)
-            compare(shell.launchState,"recovered")
+            if (!normalReturn) {
+                tryCompare(shell,"launchState","failed",6000)
+                compare(shell.observedSessionId,config.identity)
+                verify(shell.launchError.indexOf("E-SESSION-ORPHANED")>=0)
+                compare(shell.sessionUncertain,false)
+                tryVerify(function(){return findChild(shell,"launchFailureRetry").activeFocus},2000)
+                capture(scene,config,"03-canonical-failure-without-estimate")
+                keyClick(Qt.Key_Return)
+                compare(shell.launchState,"recovered")
+            }
             keyClick(Qt.Key_Return)
             tryVerify(function(){return shell.gamePage!==null},3000)
             const play=findChild(shell,"gameAction")
@@ -100,13 +128,13 @@ Item {
             keyClick(Qt.Key_Return)
             tryCompare(shell,"launchState","emulator-visible",6000)
             compare(shell.launchFocused(),false)
-            capture(scene,config,"04-explicit-retry-running")
+            capture(scene,config,normalReturn ? "05-explicit-next-running" : "04-explicit-retry-running")
             scene._request("GET","/owner-control/finish",null,function(){})
             tryCompare(shell,"launchState","recovered",5000)
             compare(shell.gamePage,null)
             compare(shell.homeFocus,"library:lifetime-probe")
             tryVerify(function(){return !findChild(shell,"returnFadeLayer").visible},2000)
-            capture(scene,config,"05-canonical-return")
+            capture(scene,config,normalReturn ? "06-next-canonical-return" : "05-canonical-return")
         }
         function test_transient_uncertainty_still_accepts_canonical_close() {
             const shell=createTemporaryObject(shellComponent,harness,{
