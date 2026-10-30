@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from steamzero.adapters.linux_runtime import (
     LinuxDevicePort,
     LinuxSessionEnvironment,
@@ -100,6 +102,45 @@ def test_linux_ports_observe_deck_and_uuid_volume(tmp_path: Path) -> None:
     assert volumes[0].role == "microsd"
     assert volumes[0].mountpoint == str(mountpoint)
     assert volumes[0].capacity and volumes[0].free
+
+
+@pytest.mark.parametrize(
+    "partition,disk,removable,role",
+    [
+        ("sda2", "sda", "1", "usb"),
+        ("sdb3", "sdb", "0", "internal"),
+        ("nvme0n1p2", "nvme0n1", "1", "usb"),
+        ("mmcblk0p1", "mmcblk0", "0", "microsd"),
+    ],
+)
+def test_volume_role_reads_whole_disk_evidence_for_partition(
+    tmp_path: Path, partition: str, disk: str, removable: str, role: str
+) -> None:
+    sys_root, proc_root, dev_root = (tmp_path / name for name in ("sys", "proc", "dev"))
+    mountpoint = tmp_path / "volume"
+    mountpoint.mkdir()
+    device = dev_root / partition
+    _write(device, "")
+    _write(sys_root / "class/block" / disk / "removable", removable)
+    # Opposite partition evidence catches a lookup of the partition, not its disk.
+    _write(sys_root / "class/block" / partition / "removable", "0" if removable == "1" else "1")
+    by_uuid = dev_root / "disk/by-uuid"
+    by_uuid.mkdir(parents=True)
+    (by_uuid / "ABCD-1234").symlink_to(Path("../..") / partition)
+    _write(
+        proc_root / "self/mountinfo",
+        f"42 31 8:2 / {mountpoint} rw,relatime - ext4 {device} rw\n",
+    )
+
+    volumes = LinuxStoragePort(
+        sys_root=sys_root, proc_root=proc_root, dev_root=dev_root
+    ).list_volumes()
+
+    assert len(volumes) == 1
+    assert volumes[0].uuid == "ABCD-1234"
+    assert volumes[0].role == role
+    assert volumes[0].mountpoint == str(mountpoint)
+    assert (sys_root / "class/block" / disk / "removable").read_text() == removable
 
 
 def test_session_environment_is_read_only_and_degrades_missing_sources(tmp_path: Path) -> None:
