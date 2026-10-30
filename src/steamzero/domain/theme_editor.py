@@ -1320,9 +1320,9 @@ class ThemeEditorManager:
         if session.theme_dir and session.theme_dir.is_dir():
             assets_src = session.theme_dir / "assets"
             if assets_src.is_dir():
-                for entry in assets_src.iterdir():
-                    if entry.is_file():
-                        pending_assets.append((entry.name, entry.read_bytes()))
+                for entry in fs.iter_files(assets_src):
+                    relative = entry.relative_to(assets_src).as_posix()
+                    pending_assets.append((relative, entry.read_bytes()))
         # Assets enviados nesta sessão vencem os homônimos já existentes.
         uploaded = {name: data for name, data in session.pending_assets.values()}
         pending_assets = [item for item in pending_assets if item[0] not in uploaded]

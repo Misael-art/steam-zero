@@ -1029,6 +1029,60 @@ Item {
             panel._closeEditor()
         }
 
+        function test_06_assets_em_subpastas_sobrevivem_salvar_e_reabrir() {
+            harness.runtimeVisible = false
+            harness.width = 1100
+            harness.height = 900
+            panel.compactLayout = false
+            panel.visualScale = 1.0
+            panel.journeyMode = false
+
+            click("themeEditButton_" + cfg.nestedThemeId)
+            tryVerify(function() {
+                return panel.editorManifest.id === cfg.nestedThemeId
+                    && panel.assetRecipePreviewReady
+            }, 5000, "a arte aninhada não abriu antes da edição")
+            compare(panel.editorManifest.assets.logo, "assets/logos/platform/source.svg")
+            compare(panel.editorDirty, false)
+            const rendered = find(panel, "assetRecipePreview")
+            verify(rendered !== null)
+            reveal(rendered)
+            if (cfg.captureDir)
+                grabImage(panel).save(cfg.captureDir + "/10-studio-nested-baseline.png")
+
+            typeInto("themeMetadata_name", "Artes em subpastas editadas")
+            tryCompare(panel, "editorDirty", true)
+            tryVerify(function() {
+                return panel.editorManifest.name === "Artes em subpastas editadas"
+            }, 3000, "a edição de nome não chegou ao documento")
+            click("themeEditorUndo")
+            tryVerify(function() {
+                return panel.editorManifest.name === "Artes em subpastas"
+            }, 3000)
+            click("themeEditorRedo")
+            tryVerify(function() {
+                return panel.editorManifest.name === "Artes em subpastas editadas"
+            }, 3000)
+            click("themeEditorSave")
+            tryCompare(panel, "editorDirty", false, 5000)
+            click("themeEditorClose")
+            compare(panel.editorSessionId, "")
+            click("themeEditButton_" + cfg.nestedThemeId)
+            tryVerify(function() {
+                return panel.editorManifest.id === cfg.nestedThemeId
+                    && panel.assetRecipePreviewReady
+            }, 5000, "Salvar removeu a arte aninhada; preview indisponível ao reabrir")
+            compare(panel.editorManifest.name, "Artes em subpastas editadas")
+            compare(panel.editorManifest.assets.logo, "assets/logos/platform/source.svg")
+            compare(panel.editorManifest.assets.background, "assets/backgrounds/platform/fundo.png")
+            compare(panel.editorDirty, false)
+            reveal(find(panel, "assetRecipePreview"))
+            if (cfg.captureDir)
+                grabImage(panel).save(cfg.captureDir + "/11-studio-nested-saved.png")
+            console.log("NESTED_ASSETS_PREVIEW=" + cfg.nestedThemeId)
+            click("themeEditorClose")
+        }
+
         function cleanupTestCase() {
             console.log("TARGET_DIMENSIONS=" + JSON.stringify(targetMeasurements))
         }
