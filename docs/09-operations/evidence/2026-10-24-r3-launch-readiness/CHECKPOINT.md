@@ -1119,3 +1119,113 @@ confirmada; não apresentado como corrigido por aprovações posteriores.
 Validação documental:13 testes do catálogo passaram em13,56s, runner isolado0
 e estado pessoal monitorado preservado. Digests/views regenerados, status-check
 aprovado. WORKLOG recebe somente o fechamento desta sessão.
+
+
+### Seguimento do gate de cobertura CI — 30/10/2026
+
+Checkpointf31395963e9efdf2331bb74ddb82b138d2fb8308 publicado e SHA conferido.
+CI40997943230 aprovou os três jobs Python e smokes; a comparação adicional
+coreCI↔coreCI falhou:85,48545276234063% <85,48646151659442% da baseac41c04c,
+delta-0,0010087542537888794pp. Artefato12951429445,668.541 bytes, tamanho/CRC/
+SHA-2569b4639a9c3843532b21cd60785ee0ccbdd90922980a450c4e1e952b2d7525595 verificados.
+Não tratar arredondamento85,49% como ausência de queda, nem repetir CI para
+obter um acaso favorável. Diagnóstico em ci-coverage-regression.json local.
+
+Launcher_ui.py ganhou cobertura e nenhuma linha inalterada coberta se perdeu;
+launcher/session.py também ganhou pelo consumo público. A perda foi em arquivos
+não alterados: linux_runtime.py405/arco403→405 (fallback SATA) e screencast_web.py
+arcos86→88/110→saída (provider None). Teste de armazenamento usa somenteMMC; os
+testes sem-provider restauram o global após headers, antes de o handler acabar.
+Receber HTTP200 não sincroniza a execução posterior dos guardas.
+
+Escopo prospectivo reservado na WS R3, sem claim ativo concorrente encontrado:
+tests/unit/test_linux_runtime.py e tests/unit/test_screencast_web.py. Fontes
+respectivas somente leitura; sete hashes funcionais anteriores preservados.
+Registrar prova no SZ-AGG-TESTS sem promover eixos/capacidade instalada. Fixture
+SATA/NVMe/MMC explícita e HTTP com fim observado, mantendo estado do provider
+até conclusão; sem enfraquecer asserções, timeout maior ou limiar menor.
+
+Seguimento focado:76 passed/36,88s,4 novos casos públicos de volume SATA/NVMe/
+MMC com evidência conflitante na partição para exigir leitura do disco-base.
+HTTP real mantém provider no estado pretendido até fim observado do handler;
+SSE entrega um keep-alive antes de desconexão controlada por relógio da fixture,
+sem sleep arbitrário e sem mexer no relógio global do processo. Confirma limpeza
+de writers, headers e resposta JSON; preserva asserts anteriores e prazos5s.
+
+Cobertura focada dos dois módulos91,567852%, limiar85% mantido. Arcos403→405,
+86→87/88,110→111/saída e96→97/saída executados; heartbeat91/92 observado. O
+primeiro reforço teve2 falhas/74 aprovações ao exigir EOF de SSE keep-alive;
+a asserção inadequada foi substituída pela limpeza de recurso observável,
+conservando os asserts originais. Logs/JSON próprios preservados, sem alterar
+produção para passar. A comparação global CI continua pendente até novo head.
+
+CI40997943230 encerrou com oito jobs aprovados, inclusive visual; isso não
+substitui o gate adicional de cobertura reprovado. Não houve reexecução desse
+run. Seguimento unitário exige novo checkpoint revisado e não promove aceites
+de UI/hardware. Sete hashes originais mais dois testes congelados em manifesto
+próprio; a integral anterior e seus recibos permanecem preservados.
+
+Os nove cenários afetados passaram em cinco repetições sequenciais (45 aprovações),
+com o runner isolado, sem sleeps aleatórios ou nova rodada remota. Estado pessoal
+monitorado preservado; logs/recibos coverage-guards-repeated.*. Produção segue
+idêntica ao checkpointf3139596; o próximo gate integral usa manifesto de nove
+arquivos e logs guards-full.*, preservando a integral anterior.
+
+Fixture final injeta desconexão na escrita HTTP depois de um keep-alive real;
+o relógio da fixture apenas virtualiza a espera. A validação final foi
+76 passed/37,34s, cobertura focada91,567852% e os mesmos arcos completos.
+Cinco novas repetições sequenciais dos9 casos também passaram (45 aprovações)
+com essa fixture final, logs coverage-guards-io-repeated.*. Nenhum timeout ou
+limiar foi aumentado/reduzido. A fonte de produção não mudou.
+
+Ruff/mypy/independência/fronteiras passaram no checkpoint; um scopeDigest de
+evidência documental ficou obsoleto após a nota de repetição e é regenerado
+pelo helper oficial antes da validação de status final. Não se altera o
+verificador nem se ignora sua falha; o log anterior está preservado.
+
+
+### Fechamento local do determinismo de cobertura — 30/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AGG-TESTS: fixtures de partições e finalização HTTP com provider estável | `0749d8e80ad8c97e422e81883181f735ca1fdd2b` | 76 focados/37,34s;9 cenários5x/45 aprovações;4 casos novos de volume, guardas e heartbeat observados |
+
+Integral do seguimento7.073 passed/48 skipped/0 failed/19 warnings/2.762,51s; runner/observador0, signals vazio,2.774,28s monotônicos. Cobertura integral85,658854% >=85,650326% da integral anterior, delta+0,008528pp.
+Arcos403→405,86→87/88,110→111/saída e96→97/saída executados também na integral;
+heartbeat91/92 presentes. Nove hashes conferidos, incluindo os sete originais.
+Produção inteira idêntica ao checkpointf3139596: árvore Git src
+c987db69ad965f9ef344e47500337b4709d0d9e9, sem novo código de runtime ou imagens de UI.
+Ruff736/mypy307/independence/boundaries/status verdes; scopeDigest documental
+obsoleto foi regenerado oficialmente, sem alterar o verificador. Source/deps,
+workflow, limiar85%, goldens, skips e prazos não foram alterados. Corpo/status,
+limpeza de writers e processamento antes da restauração são exigidos.
+
+Cobertura focada91,567852% é somente dos dois módulos, não substitui comparação
+global. CI40997943230 terminou com oito jobs aprovados, mas o gate adicional de
+core85,485453%<85,486462% permanece registrado como reprovado no headf3139596.
+Artefato/ZIP/JSON originais preservados em ci-original-head-*; o run não foi
+reexecutado. O novo head precisará superar a mesma base aprovadaac41c04c e
+mostrar os arcos críticos no artefato Python3.14. Não adotar a base menor nem
+usar arredondamento ou tentativas aleatórias como aprovação.
+
+Estado pessoal monitorado idêntico:3 arquivos,5 diretórios,860.896 bytes e mesmo
+max_mtime_ns. Sem novo aceite físico ou promoção dos cinco eixos; a evidência
+Qt/offscreen do produto anterior permanece vinculada aos mesmos bytes de
+runtime. Host apenas readlink59ecc2d8f0f6, runtime/rollback não revalidados.
+Sem instalação/auth/release/merge/deploy/boot. Claims dos dois testes foram
+reservados prospectivamente, sem proprietário ativo concorrente; não se editou
+produção fora do R3. Código e testes anteriores continuam congelados.
+
+Próximo baseline seguro: seção de origem inteira removida ou catálogo vazio antes da reabertura após closed com GET perdido. A projeção HTTP já cobre esses destinos; falta percorrer o Qt com resposta ausente e comprovar foco utilizável. Na Home vazia, Enter deve acionar a recarga existente library.add/library.retry pelo _retry, mantendo zero launches/recoveries automáticos e a referência canônica exata. Registrar comportamento antes de presumir defeito; reutilizar mapa/domínio e canais existentes, sem novo catálogo ou writer. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_focus_bootstrap.py -q. Manter claims e integração compartilhada por último; não editar domínio reservado sem handoff prospectivo. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Fechar documentação/WORKLOG e publicar um checkpoint do seguimento, motivado
+pela validação de cobertura reprovada. Conferir SHA remoto, novo CI terminal,
+metadados/hash/CRC do artefato e não regressão contra a base aprovada. Resultado
+remoto será registrado no PR268, sem commit circular. Interrupção SIGTERM e
+falha histórica de Saves continuam preservadas com causas não confirmadas.
+
+Validação documental do seguimento:13 testes/9,71s, runner0, estado pessoal
+monitorado preservado. Digests/views regenerados e status-check aprovado.
+A comparação integral mostra somente ganhos nos dois módulos-alvo: Linux
++2 linhas/+2 ramos, receptor web+2 ramos; nenhum outro módulo perdeu cobertura.
+WORKLOG recebe apenas o fechamento desta sessão de seguimento.

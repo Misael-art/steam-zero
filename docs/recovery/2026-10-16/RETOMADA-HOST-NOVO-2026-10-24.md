@@ -234,6 +234,30 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Seguimento de cobertura do retorno — 30/10/2026:** teste
+`0749d8e80ad8c97e422e81883181f735ca1fdd2b`. A fonte de produção continua idêntica ao checkpointf3139596,
+árvore src c987db69ad965f9ef344e47500337b4709d0d9e9; produto Launcher integrado em `f6738ec4`.
+CI40997943230 teve oito jobs aprovados, mas o comparador adicional coreCI caiu
+85,485453%<85,486462% da baseac41c04c. Artefato original preservado; não reexecutar
+para tentar obter um número favorável nem usar a base menor.
+
+Testes agora usam volumes SATA/NVMe/MMC sintéticos e mantêm provider até fim
+observado do handler HTTP. Um heartbeat real antecede desconexão na escrita;
+relógio da fixture só virtualiza a espera, sem alterar produção ou prazos5s.
+76 focados/37,34s;9casos5x/45 aprovações;4 casos novos. Integral do seguimento7.073 passed/48 skipped/0 failed/19 warnings/2.762,51s; runner/observador0, signals vazio,2.774,28s monotônicos. Cobertura integral85,658854% >=85,650326% da integral anterior, delta+0,008528pp.
+Arcos críticos presentes,9 hashes, estado pessoal preservado, Ruff736/mypy307/
+independence/boundaries/status verdes. Sem promoção de eixos ou aceite físico.
+
+Fechar documentação e publicar checkpoint do seguimento/PR268; conferir remoto,
+novo CI terminal e artefato coreCI contra a mesma base aprovada, com arcos críticos.
+O resultado remoto será registrado no PR, sem commit circular. Sem instalação/
+auth/release/merge/deploy/boot; host somente readlink59ecc2d8f0f6, runtime/rollback
+não revalidados. Causas do SIGTERM anterior e episódio Saves seguem abertas.
+
+Próximo baseline seguro: seção de origem inteira removida ou catálogo vazio antes da reabertura após closed com GET perdido. A projeção HTTP já cobre esses destinos; falta percorrer o Qt com resposta ausente e comprovar foco utilizável. Na Home vazia, Enter deve acionar a recarga existente library.add/library.retry pelo _retry, mantendo zero launches/recoveries automáticos e a referência canônica exata. Registrar comportamento antes de presumir defeito; reutilizar mapa/domínio e canais existentes, sem novo catálogo ou writer. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_focus_bootstrap.py -q. Manter claims e integração compartilhada por último; não editar domínio reservado sem handoff prospectivo. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Blocos seguintes são históricos.
+
 **Fechamento do retorno com jogo removido — 30/10/2026:** produto
 `edcfc20256d574e068406c8ac8a15d729327e559` e integração compartilhada final
 `f6738ec498ab0ccfbf6c5bccc6b4220695d8a5b2`. O modelo reutiliza restore_context para publicar

@@ -30,7 +30,7 @@
     "src/steamzero/ui/qml/launcher/LauncherHome.qml",
     "tests/unit/test_emulation_runtime_remediation.py"
   ],
-  "scopeDigest": "0680e940608c3e831f7636546aab30d81ce9850ce11508c42873d8dfa7076dc5",
+  "scopeDigest": "48dc865fe84665e2f22c23bc0886e328d16e39ac1f4fcf7dfb7402224dddc8d0",
   "dependsOn": [],
   "knownGaps": [
     "GAP-LAUNCH-READINESS-INSTALLED-PROOF"

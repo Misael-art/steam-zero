@@ -15478,3 +15478,57 @@ automáticos. Projeção HTTP já coberta, percurso Qt pendente; não presumir d
 Handoff contém comando RTK isolado. V1, Steam sem recibo, provas/contextos
 ausentes, outro boot/namespace e hardware seguem independentes; GAP lifetime
 aberto. Episódio histórico de Saves mantém causa não confirmada.
+
+
+## 2026-10-30 — R3: seguimento determinístico do gate de cobertura
+
+Continuidade serial, mesmo checkout/branch/executor. O headf3139596 teve oito
+jobs aprovados no CI40997943230; a comparação adicional core85,485453% <85,486462%
+da baseaprovadaac41c04c reprovou por-0,001009pp. Raw/ZIP/CRC/hash originais
+preservados; nenhum rerun desse CI, arredondamento usado como aprovação ou
+baseline reduzida. Variação isolada em Linux405 (fixture sóMMC dependia do host
+para SATA) e receptor web86/110 (provider restaurado após headers antes do fim).
+
+Dois testes unitários sem claim ativo concorrente foram reservados antes de
+editar na WS R3, com evidência no SZ-AGG-TESTS. Nenhuma fonte de produção fora
+do R3 foi editada. Fonte/testes/commits/push/PR268 autorizados; sem instalação/
+auth/release/merge/deploy/boot. Estados/eixos/gaps preservados.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AGG-TESTS: volumes sintéticos e HTTP com estado mantido até fim observado | 0749d8e80ad8c97e422e81883181f735ca1fdd2b | 76 focados/37,34s;9casos5x/45 aprovações;4 casos novos; integral7.073/48/0 |
+
+LinuxStoragePort observa SATA/NVMe/MMC com marca conflitante na partição para
+exigir evidência do disco-base, sem consultar o host. HTTP entrega um keep-alive
+real; falha de escrita controlada encerra SSE e verifica limpeza de writers.
+Relógio só virtualiza espera no módulo da fixture. Provider permanece no estado
+pretendido até o handler concluir, incluindo resposta JSON e ausência/presença.
+Mantém asserts anteriores, nomes, prazos5s e limiar85%; não cria novas regras
+de runtime. A primeira tentativa de reforço exigiu EOF em SSE keep-alive e teve
+2falhas/74pass; essa exigência inadequada foi corrigida para limpeza observável,
+com logs preservados. Não se alterou produção para passar o teste.
+
+Integral7.073 passed/48 skipped/0 failed/19 warnings/2.762,51s; runner/observador0,
+signals vazio,2.774,28s monotônicos. Integral85,658854%>=85,650326% da anterior,
+delta+0,008528pp, mesma seleção. Ganhos somente nos módulos-alvo: Linux+2 linhas/
++2ramos e receptor+2ramos, nenhum outro módulo perde cobertura. Arcos críticos
+e heartbeat observados. Cobertura focada91,567852% é dos dois módulos, não
+comparada ao core global. Ruff736/mypy307/independence/boundaries/status verdes.
+Digest documental obsoleto após nota foi regenerado oficialmente, sem contornar
+a falha.13 testes do catálogo/9,71s, views/digests atualizados.
+
+Nove hashes íntegros e produção idêntica ao checkpointf3139596, árvore src
+c987db69ad965f9ef344e47500337b4709d0d9e9. Sete hashes funcionais do Launcher não mudaram;
+as seis capturas Qt/offscreen existentes permanecem provas dos mesmos bytes.
+Sem novo aceite de instalação, hardware, Deck, GPU/FPS ou outras superfícies.
+Estado pessoal monitorado idêntico:3 arquivos,5 diretórios,860.896 bytes e mesmo
+max_mtime_ns. Host só readlink59ecc2d8f0f6; runtime/rollback não revalidados.
+Interrupção SIGTERM anterior e episódio Saves mantêm causas não confirmadas.
+
+Publicar um checkpoint do seguimento motivado pelo comparador reprovado, após
+fechamento documental. Conferir SHA remoto e novo CI terminal/artefato3.14
+contra a mesma baseaprovada85,486462% e exigir arcos críticos. Resultado remoto
+no PR268, sem commit circular. Não usar a base menor como atalho. Próximo
+baseline R3 segue Qt com seção de origem removida inteira ou Home vazia após
+GET perdido, foco utilizável e recarga existente por Enter, zero efeitos
+automáticos. Handoff contém comando RTK isolado; GAP lifetime permanece aberto.
