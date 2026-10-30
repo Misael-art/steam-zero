@@ -40,7 +40,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-VISUAL-COMPLETION | 38 | 21 | 8 | dev |  |
 | SZ-AURA-VISUAL-RICH-SURFACE | 11 | 12 | 10 | hw |  |
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
-| SZ-CAST-LAN | 6 | 3 | 3 | unit |  |
+| SZ-CAST-LAN | 6 | 4 | 3 | unit |  |
 | SZ-COMPONENT-LIFECYCLE | 30 | 24 | 20 | hw |  |
 | SZ-CONTROLS-INPUT-PROFILES | 16 | 8 | 4 | hw |  |
 | SZ-EMULATION-ENHANCEMENTS | 24 | 13 | 10 | unit |  |
@@ -85,7 +85,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION | 15 | 13 | 13 | dev |  |
 | SZ-MULTIDISC-MATERIALIZATION-INGESTION | 4 | 8 | 4 | unit |  |
 | SZ-MULTIDISC-SESSION-DISC-IDENTITY | 9 | 4 | 3 | hw |  |
-| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 22 | 9 | 5 | dev |  |
+| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 22 | 10 | 5 | dev |  |
 | SZ-ONLINE-P2P | 37 | 2 | 1 | none |  |
 | SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 205 | 4 | 0 | none |  |
 | SZ-PLATFORM-CORE-PER-SYSTEM | 78 | 8 | 4 | unit |  |
@@ -94,7 +94,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-PLATFORM-PS5-CATALOG | 21 | 24 | 15 | unit |  |
 | SZ-PLATFORM-REQUIREMENT-SCOPE | 7 | 7 | 3 | unit |  |
 | SZ-PLATFORM-VITA-CATALOG | 5 | 11 | 5 | hw |  |
-| SZ-PRODUCT-RECOVERY-2026-10 | 24 | 10 | 5 | dev |  |
+| SZ-PRODUCT-RECOVERY-2026-10 | 24 | 11 | 5 | dev |  |
 | SZ-PROJECT-DESIGN-AUDIT | 12 | 25 | 6 | dev |  |
 | SZ-PS3-OFFICIAL-FIRMWARE-DOWNLOAD | 8 | 11 | 3 | unit |  |
 | SZ-RECOVERY-R0-R1-CENTRAL | 94 | 24 | 16 | dev |  |
@@ -103,16 +103,16 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RESOURCE-QML-PROBE | 7 | 3 | 2 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 74 | 41 | 15 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 75 | 41 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
-| SZ-TEST-STATE-ISOLATION | 4 | 6 | 5 | dev |  |
-| SZ-THEME-ENGINE | 189 | 89 | 64 | hw |  |
+| SZ-TEST-STATE-ISOLATION | 4 | 9 | 8 | dev |  |
+| SZ-THEME-ENGINE | 190 | 90 | 64 | hw |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 18 | 9 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 20 | 11 | hw |  |
 | SZ-THEME-IMPORT-RETROFE | 15 | 27 | 14 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 20 | 11 | unit |  |
-| SZ-THEME-STUDIO | 175 | 86 | 60 | hw |  |
+| SZ-THEME-STUDIO | 176 | 89 | 63 | hw |  |
 | SZ-UI-DESKTOP-AUDIT | 838 | 205 | 116 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |

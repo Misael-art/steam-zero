@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "a77e42f5bc9e9b08e03ab14cb333975477360f2a807bb2552a0d644055d4a52a",
+  "scopeDigest": "c7997b91ca1eca43d21f0569513aebef234e0b30fcd29a5bd9e15d626866e977",
   "scopePaths": [
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun",
     "docs/09-operations/evidence/2026-09-07-theme-studio-contrast",
@@ -619,9 +619,27 @@
       "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
       "command": "2026-10-30: esclarecimento expresso do proprietário consolidado na seção22: nativo primeiro, biblioteca/master canônico compartilhado, receitas não destrutivas e wheel de fonte única; paridade RetroFE/ES-DE pelo mesmo motor, autoria visual, consulta de capacidades e preview/Launcher equivalentes. Contrato/relatório documental, não teste de runtime ou certificação física.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/README.md",
+      "command": "2026-10-30: baseline cancelamento2failed/11,60s; 54focados/4,21s no runner isolado (SIGINT/SIGTERM, state guard86, reaping/limpeza e bootstrap); integral de fechamento pendente, sem promoção física.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/README.md",
+      "command": "2026-10-30:104focados runner/bootstrap/Cast em8,00s; regressão de handlers falha antes e passa após correção da fixture.20Qt/RHI/default em3,59s com display virtual privado; erros semDISPLAY reproduzidos. Integral inicial deliberadamente interrompida após E/F, saída143/snapshot final inalterado; não aprovada. Próxima integral condicionada a estáticos e prova focal do ambiente.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
+      "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Aplicar seção22 do contrato consolidado: autoria visual nativa genérica, biblioteca canônica sem cópia por tema e wheel de master único; traduzir/executar integralmente os recursos RetroFE/ES-DE pelo motor comum, com resposta por recurso e comparação física. Relatório documental concluído; antes de novo lote funcional diagnosticar SIGTERM do pai rtk na integral pendente (143/2464,19s/41%), conferir RAM>=3GiB/disco>=8GiB, retomar mesmas fontes/guardas/baselines e só então checkpoint de push/PR268/CI. Sem auth/instalação/release/merge/deploy/boot.",
+  "nextAction": "Checkpoint técnico e7bb579c aprovado: 7.117 testes passaram, 48 skips; cobertura 85,70961552128492% >= 85,66169677501884%, oito hashes e guardas críticos preservados, sem sinais ou delta no perfil. Publicar/conferir o fechamento documental no PR #268 com SHA remoto e novo CI; depois registrar claims prospectivos e implementar a wheel da seção 22.5: autoria nativa genérica, master canônico preservado e compartilhado, receitas/movimento, round-trip e mesmo Launcher. Wheel ainda não entregue; Studio/Engine parciais. Origem externa histórica do SIGTERM desconhecida. Sem auth, instalação, release, merge, deploy ou boot.",
   "activeWorkstreams": [
     "WS-2026-10-STUDIO-DRAFT-HISTORY"
   ],

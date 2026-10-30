@@ -84,5 +84,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
   "notes": "Item AGREGADOR: existe para que nenhum arquivo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto da arvore. Promover um recorte a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.",
-  "scopeDigest": "8710399af3ab2e307cc86fb94ad9bc5c7bed0eb3d5e5163fd744f9f4baa54ac0"
+  "scopeDigest": "f358ef2e1deaeef830e2d2c4e441fc291d366ab204cc26b73516b72ab60ca20e"
 }

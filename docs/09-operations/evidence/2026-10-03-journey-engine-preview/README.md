@@ -571,3 +571,102 @@ base anterior. Nada instalado/publicado, sem autenticação nova, merge, boot ou
 deploy. O link local de release aponta para 2.0.0rc1-59ecc2d8f0f6; execução e
 rollback não foram revalidados. Sem ação física requerida para esta auditoria;
 a certificação final depende de teste autorizado da release no hardware.
+
+
+### 2026-10-30 — cancelamento do runner antes da wheel de fonte única
+
+Continuidade serial em `216ac710`, árvore inicialmente limpa, remoto `fba166f8`,
+PR #268 aberto. A suíte antiga não recebe aprovação retrospectiva: o observador
+encerrou 143 às 13:27:34, mas `full.log` foi alterado até 13:31:14 e registra
+7112 passed/48 skipped/2682,07 s; falta recibo do runner e snapshot final.
+Esses artefatos antigos foram preservados, sem regravar seus logs/cobertura.
+
+O [código RTK v0.43.0](https://github.com/rtk-ai/rtk/blob/v0.43.0/src/main.rs#L2242)
+repassa SIGTERM ao filho quando recebe SIGINT/SIGTERM. O sender registrado no
+log antigo confirma o salto RTK→observador, mas não identifica quem sinalizou
+o RTK. Não há prova de timeout ou OOM; essa causa externa permanece desconhecida.
+
+Regressão com runner e pytest reais: baseline **2 failed/11,60 s**; SIGTERM
+matava o runner e deixava pytest vivo, enquanto SIGINT retornava antes de
+aguardar o filho. O runner agora inicia pytest em grupo próprio e, ao
+interromper, encerra/aguarda o filho antes de verificar o state home e remover
+a árvore temporária. SIGTERM retorna 143; SIGINT retorna 130. Uma mutação
+controlada continua reprovando com 86, inclusive no cancelamento. Só o grupo
+criado pela invocação é sinalizado; nenhuma guarda/cobertura foi reduzida.
+
+**54 testes focados aprovados/4,21 s**, incluindo quatro casos reais de
+sinal×mutação e os testes existentes do bootstrap. Os stubs dos testes antigos
+foram movidos para a nova função que supervisiona o filho, mantendo todas as
+assertivas de estado/atribuição/erros. Logs em
+`build/agent-runs/studio-runner-cancellation/`. Integral e gates estáticos do
+checkpoint ainda pendentes. Sem prova instalada/hardware, instalação,
+autenticação, release, merge, deploy, boot ou migração de mídia pessoal.
+
+
+#### Diagnóstico da primeira integral desta tarefa e ambiente corrigido
+
+A execução serial desta tarefa encontrou E/F nos testes Qt. Foi interrompida
+deliberadamente pelo supervisor próprio para diagnóstico (saída143/1525,33 s,
+fontes e testes congelados, snapshot final do perfil inalterado). Este resultado
+não é aprovação integral e não sobrescreve a tentativa histórica. O SIGINT
+inicial direto ao pytest não o encerrou: os testes Cast deixavam handlers
+instalados no processo. A regressão própria executou os24 casos da classe: eles
+passaram, mas a comparação dos handlers falhou. A fixture agora os restaura
+por teste, e o caso de sinal instala seu próprio handler sem depender da ordem.
+
+**104 focados/8,00 s aprovados**: isolamento, bootstrap e Cast. O cancelamento do
+runner preserva as guardas e aguarda/encerra pytest; o fallback de10 s alcançou
+o filho que havia herdado o handler Cast. A causa do sinal externo histórico
+ao RTK permanece não identificada; o vazamento explica a sobrevivência de pytest
+nesse mecanismo, não quem sinalizou o RTK.
+
+Duas reproduções focadas sem DISPLAY falharam: RHI não cria contexto OpenGL;
+mesmo o probe `qml6 --version` aborta sem display. **As mesmas20 fixtures de
+assetRecipes e tema default passaram/3,59 s** com `xvfb-run -a`, tela privada
+1920×1080×24 e TCP desativado, usando o Xvfb já instalado. Nenhum skip, golden,
+limiar, timeout ou dependência foi alterado. Essa prova é Qt/offscreen/RHI, não
+compositor do operador, input físico, áudio físico ou desempenho de GPU.
+
+Logs preservados em `build/agent-runs/studio-runner-cancellation/`: `full.log`,
+`full-result.json`, `diagnostic-interrupt.json`, `diagnostic-stop.json`,
+`qt-diagnostic.log`, `qt-software-diagnostic.log`, `qt-private-display.log`,
+`signal-leak-baseline.log` e `focused-signal-isolation.log`. Nova integral só
+depois dos checks estáticos e da prova focal dos harnesses afetados, em display
+virtual privado, mesmos baselines de cobertura/guardas e uma operação pesada.
+
+
+**Prova focal do ambiente antes da retomada:** 65 passed/569,12 s nos harnesses
+handheld, autoria real e primeiro caso da matriz de controles (que executa os
+cenários declarados), com Xvfb privado e state home do perfil inalterado. Log
+`qt-interface-focused.log`. Os gates estáticos integrais também passaram:
+Ruff check/format (736 arquivos), mypy (307 arquivos), independência, fronteiras e status. Próxima
+execução: integral serial `full-private-display`, fail-fast em erro (sem skips
+novos; aprovação só após todos os testes), mesmas fontes/guardas/cobertura,
+preflight de 3 GiB/8 GiB, nice10. Logs separados da tentativa interrompida.
+Baseline remoto consultado: oito checks aprovados no run 41027298894/PR #268
+para a cabeça já publicada; isso não valida as mudanças locais desta tarefa.
+
+
+#### Checkpoint técnico aprovado — e7bb579c
+
+Commit funcional `e7bb579cda1e549a5f287b06bb3b9731dea72f25`. A integral final em display privado passou:
+**7117 passed,48 skipped,19 warnings/2326,94 s**, runner e supervisor 0;
+2339,29 s monotônicos, sem sinais e sem alteração dos arquivos testados. O state
+home do perfil ficou idêntico. A cobertura com branches ficou
+**85,70961552128492% ≥85,66169677501884%**, delta+0,047918746266077505 pp.
+Todos os arcos/linhas críticos antigos e novos, os oito hashes anteriores e
+a atribuição inicial de LauncherBridge.model foram conferidos.
+
+[Recibo verificável do checkpoint](studio-runner-cancellation.json) contém
+contagens, hashes, contexto, guardas, comparação e limites. Os logs brutos e a
+comparação por módulo permanecem no destino oficial local, sem regravar logs
+antigos. Ruff check/format (736 arquivos), mypy (307 arquivos), independência, fronteiras e status
+passaram; a documentação final recebe somente nova validação de status/diff.
+A correção não reduz cobertura, limiares, timeouts de testes ou assertivas antigas.
+
+O gate funcional anteriormente pendente fica resolvido neste checkout. Isso não
+encerra o Studio, a engine, o Launcher ou a compatibilidade. A origem do sinal
+externo histórico ao RTK continua desconhecida. Próximo slice obrigatório:
+wheel de fonte única da seção 22.5; ainda não implementada. Sem instalação,
+autenticação nova, release, merge, deploy, boot ou prova física. Push/novo CI
+seguem o fechamento documental governado do PR #268.

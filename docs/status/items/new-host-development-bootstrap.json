@@ -99,11 +99,17 @@
       "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
       "command": "2026-10-30: renovação mecânica do digest compartilhado por consolidação normativa da seção22 e vínculos em AGENTS/direção/plano/superfícies. Nenhuma fonte/runtime, aceite ou eixo deste item alterado; evidências anteriores não reexecutadas nem promovidas.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
+      "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Continuar na raiz unica Projects/SteamZero, pelo perfil .steamzero-dev/env.sh e branch codex/product-recovery-2026-10-16. Recuperacao do codigo e ambiente encerrada; manter backup privado externo, ownership futuro/host vazio e aceite instalado/fisico separados. Proxima implementacao: GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN; antes de integrar, conferir PR e gate visual canonico do SHA em uso.",
+  "nextAction": "Checkpoint técnico e7bb579c aprovado: 7.117 testes passaram, 48 skips; cobertura 85,70961552128492% >= 85,66169677501884%, oito hashes e guardas críticos preservados, sem sinais ou delta no perfil. Publicar/conferir o fechamento documental no PR #268 com SHA remoto e novo CI; depois registrar claims prospectivos e implementar a wheel da seção 22.5: autoria nativa genérica, master canônico preservado e compartilhado, receitas/movimento, round-trip e mesmo Launcher. Wheel ainda não entregue; Studio/Engine parciais. Origem externa histórica do SIGTERM desconhecida. Sem auth, instalação, release, merge, deploy ou boot. Ownership futuro da .venv e backup privado externo mantêm pendências independentes.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
   "notes": "Bootstrap e ferramentas de handoff recuperados do WIP e testados por runner isolado; backup privado local verificado. Raiz e governanca alinhadas com Projects. Ambiente herdado preservado sem adocao ficticia; instalacao limpa do SO, ownership futuro, upload privado e produto instalado mantem aceites independentes. Ambiente herdado isolado in-place dos pacotes globais;13dependencias faltantes instaladas pelo lock com hashes, pip check aprovado, sem recriar ambiente nem inventar ownership. Corrigido PYTEST_DEBUG_TEMPROOT herdado no runner, com regressao de subprocesso real e130testes focados aprovados. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
-  "scopeDigest": "6f9f235273ebf6ad86244018fe895a2ebf414a75f7f3f0deb032dc9f4188ea8c"
+  "scopeDigest": "e7788f78371ede4ee61ff0ab23e14c6c81c98c72a8830f412d8e198bc9795812"
 }

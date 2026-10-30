@@ -1054,3 +1054,16 @@ invalida o relatório documental nem permite alegar fechamento daquele lote.
 O checkpoint de publicação da branch permanece condicionado aos gates já
 registrados. O diagnóstico datado fica preservado no relatório de evidência,
 e os próximos lotes devem atualizar o catálogo quando entregarem capacidades.
+
+
+Atualização técnica posterior, 30/10/2026: o checkpoint funcional pendente acima
+recebeu uma integral válida na fonte `e7bb579cda1e549a5f287b06bb3b9731dea72f25`: 7.117
+testes aprovados, 48 skips, saída 0, cobertura 85,70961552128492% contra o
+baseline 85,66169677501884%, sem sinais ou alteração do perfil observado.
+Todos os guardas críticos e os oito hashes anteriores foram preservados. O
+[recibo e os limites](../09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json)
+registram a correção de cancelamento, a fixture de sinais e o display virtual
+privado. A causa externa do sinal histórico ao RTK permanece desconhecida.
+Isso fecha o gate técnico do checkout; não entrega a wheel nem promove Studio,
+Engine, Launcher, Aura, compatibilidade, instalação ou hardware. Os requisitos
+desta seção permanecem integrais; o próximo slice obrigatório é o roteiro 22.5.

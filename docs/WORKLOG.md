@@ -15752,3 +15752,32 @@ Validação documental Studio:13 testes/7,34s e status-check aprovados, dados pe
   guarda/baseline. Push da composição aguarda gate funcional, sem novo CI
   alegado. Este fechamento é documental/local, não backup GitHub nem runtime
   certificado; prova instalada/hardware permanece independente.
+
+
+## 2026-10-30 — cancelamento do runner e fechamento do gate antes da wheel
+
+Continuidade serial na raiz oficial, branch codex/product-recovery-2026-10-16,
+base216ac710; commit funcionale7bb579cda1e549a5f287b06bb3b9731dea72f25. Baseline de cancelamento2failed/11,60s;
+regressão Cast falha após24casos aprovados por handlers vazados. Runner passa
+a encerrar/aguardar seu filho, executar a guarda e limpar isolamento; fixture
+restaura sinais por teste. Todas as assertivas antigas de estado/atribuição
+foram mantidas. Origem externa do SIGTERM histórico ao RTK não foi identificada.
+
+Primeira integral desta tarefa apresentou erros Qt por ausência de DISPLAY; foi
+interrompida deliberadamente143/1525,33s, com logs preservados e estado final
+inalterado. Reproduções focadas localizaram RHI/contexto e probe de versão. Com
+Xvfb privado já instalado,20Qt/RHI/default passaram/3,59s e65interface/autoria/
+controles passaram/569,12s;104infra/bootstrap/Cast passaram/8,00s. Integral final:
+7117passed,48skipped,19warnings/2326,94s; supervisor0,2339,29s, sem sinais,
+fontes/testes congelados e perfil inalterado. Cobertura85,70961552128492% contra
+85,66169677501884%, delta+0,047918746266077505pp; oito hashes e todos os guardas
+críticos preservados. Ruffcheck/format736,mypy307,independência/fronteiras/status
+aprovados. Recibo: docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json. Logs: build/agent-runs/studio-runner-cancellation.
+
+Gate técnico pendente resolvido no checkout; nenhuma maturidade de Studio,
+Engine, Launcher, Aura ou Cast físico foi promovida. Nenhuma instalação, nova
+autenticação, release, merge, deploy ou boot. Documentação/status/digests recebem
+fechamento separado; push/CI novos seguem checkpoint governado do PR268.
+Próximo slice elegível obrigatório: wheel22.5 nativa e genérica, master canônico
+compartilhado, receitas/movimento, persistência e mesmo Launcher. Ainda não
+implementada. Sem delegação, outro checkout/branch ou migração do acervo pessoal.

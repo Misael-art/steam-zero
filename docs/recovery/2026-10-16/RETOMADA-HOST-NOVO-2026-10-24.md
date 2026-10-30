@@ -234,6 +234,34 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Prioridade vigente — plataforma de temas, 30/10/2026:** checkpoint técnico
+`e7bb579cda1e549a5f287b06bb3b9731dea72f25` aprovado antes da wheel exigida na seção 22.5.
+Integral: 7117 passed/48 skipped/19 warnings/2326,94 s; supervisor 0, sinais vazios,
+fontes/testes e perfil inalterados. Cobertura 85,70961552128492% contra
+85,66169677501884%, oito hashes e guardas críticos preservados. Runner agora
+encerra/aguarda pytest e conclui a guarda de estado no cancelamento; fixture
+Cast restaura sinais e não depende da ordem. Ausência de DISPLAY desta tarefa
+foi reproduzida; Xvfb privado já instalado validou as mesmas 20 fixtures Qt e
+65 casos de interface. A origem do sinal externo histórico ao RTK segue desconhecida.
+
+[Evidência e recibo](../../09-operations/evidence/2026-10-03-journey-engine-preview/README.md#checkpoint-técnico-aprovado--e7bb579c).
+Fechar documentação, push nominal/PR #268/SHA remoto e registrar novo CI, sem
+repetir integral entre microedições documentais. Depois, assumir prospectivamente
+os claims necessários e implementar a wheel nativa genérica, biblioteca canônica
+com masters preservados, receitas e movimento, round-trip e mesmo consumo no
+Launcher. Não criar controles exclusivos do demo, outro catálogo/executor ou
+importar acervo pessoal em massa. Essa wheel ainda não foi entregue.
+
+Continuar pelo perfil e runner oficiais. Nesta tarefa sem DISPLAY, a invocação
+validada usa `rtk proxy xvfb-run -a -s '-screen 0 1920x1080x24 -nolisten tcp'` envolvendo
+`.venv/bin/python tools/run_tests_isolated.py`, sem alterar o desktop ocupado.
+Preservar a `.venv` e as guardas de 3 GiB/8 GiB; uma operação pesada por vez. Sem auth,
+instalação privilegiada, release, merge, deploy ou boot. Os aceites de sessão/R3,
+prova instalada e hardware abaixo conservam suas pendências independentes.
+
+### Histórico de próximas ações anteriores a este checkpoint
+
+
 **Seguimento de cobertura do retorno — 30/10/2026:** teste
 `0749d8e80ad8c97e422e81883181f735ca1fdd2b`. A fonte de produção continua idêntica ao checkpointf3139596,
 árvore src c987db69ad965f9ef344e47500337b4709d0d9e9; produto Launcher integrado em `f6738ec4`.

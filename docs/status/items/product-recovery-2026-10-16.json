@@ -84,11 +84,17 @@
       "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
       "command": "2026-10-30: esclarecimento expresso do proprietário consolidado na seção22: nativo primeiro, biblioteca/master canônico compartilhado, receitas não destrutivas e wheel de fonte única; paridade RetroFE/ES-DE pelo mesmo motor, autoria visual, consulta de capacidades e preview/Launcher equivalentes. Contrato/relatório documental, não teste de runtime ou certificação física.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
+      "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
+  "nextAction": "Checkpoint técnico e7bb579c aprovado: 7.117 testes passaram, 48 skips; cobertura 85,70961552128492% >= 85,66169677501884%, oito hashes e guardas críticos preservados, sem sinais ou delta no perfil. Publicar/conferir o fechamento documental no PR #268 com SHA remoto e novo CI; depois registrar claims prospectivos e implementar a wheel da seção 22.5: autoria nativa genérica, master canônico preservado e compartilhado, receitas/movimento, round-trip e mesmo Launcher. Wheel ainda não entregue; Studio/Engine parciais. Origem externa histórica do SIGTERM desconhecida. Sem auth, instalação, release, merge, deploy ou boot.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
   "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.\n\n2026-10-30, consolidação expressa: seção22 de THEME-ENGINE-AND-STUDIO é a referência normativa de produto, autoria, biblioteca canônica e compatibilidade integral. Aceites ampliados não habilitam recursos nem promovem eixos. Dados e acervo pessoal não foram migrados.",
-  "scopeDigest": "bb1a820de40f23c4cdbd8c8cccd87be69b659e0ddb714cea528aea0662d31400"
+  "scopeDigest": "d7b65c554f50b155954856d7ef507c235638de475d120cfd4d25501addbbc0c5"
 }
