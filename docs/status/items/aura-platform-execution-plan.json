@@ -85,11 +85,17 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
       "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-frontend-parity.json",
+      "command": "2026-10-30: renovação mecânica do escopo compartilhado pela ampliação da pasta de evidência do Studio com auditoria de paridade. Nenhum código, aceite, capability ou eixo deste item alterado; provas anteriores não foram reexecutadas nem promovidas.",
+      "result": "recorded"
     }
   ],
   "nextAction": "A0 fechado (contratos game-record-v1/enhancement-entry-v1, ADR 0028, fixtures e matriz em SZ-AURA-CONTRACTS); abrir as frentes A1 (metadados canônicos) e A2 (pipeline de imagem) com workstreams próprios; nenhum agente edita o shell compartilhado sem workstream registrado.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-19",
+  "updatedAt": "2026-10-30",
   "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.",
-  "scopeDigest": "ec2fde216960969c108fe38034fcaeb8e1a809595a73ebc1e2b7d8935b9080e6"
+  "scopeDigest": "66d88e4eee22b91a96f6713d85e18d877a1e22ba4da13998012e71e877324b7f"
 }

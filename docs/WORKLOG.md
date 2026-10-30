@@ -15654,3 +15654,49 @@ Validação documental do checkpoint intermediário:13 testes/8,00s e status-che
   README de2026-10-03-journey-engine-preview; não alegar lote integral fechado.
 
 Validação documental Studio:13 testes/7,34s e status-check aprovados, dados pessoais monitorados preservados. Revisão de diff e8hashes/2PNGs conferidos; integral/push/CI novo ainda pendentes por recursos.
+
+
+### 2026-10-30 — Studio: aceite integral Aeon Nox/ES-DE baseado em fontes locais
+
+- Pedido expresso do proprietário: validar reprodução integral e autoria fluida
+  no Studio/motor SteamZero. Base6d2216ad375b85dad3d3958c14a21ec33a1fb380;
+  checkout/branch de continuidade únicos, sem agentes ou worktrees adicionais.
+- Auditoria somente leitura de385 XMLs Aeon Nox e849 XMLs dos três temas
+  Linear/Modern/Slate embutidos no AppImage local pinado. Matriz56 combinações
+  variante×proporção, somente snes/pt_BR e primeira fonte/cor. Includes resolvidos
+  nessa amostra não certificam todos os sistemas/idiomas/esquemas ou paridade.
+- Evidência própria confirma falso indicador coverage1.0: cor/evento/easing
+  podem desaparecer sem diagnóstico. Layout Aeon principal620 animações gera332
+  registros IR; descoberta da pasta inteira recusa limite64. Assets
+  compartilhados externos são recusados; não foi enfraquecido o confinamento.
+- Prova Qt/offscreen/software no SceneEsdeView real:1 teste Python/0,45s,
+  dois cenários diagnósticos. Vermelho solicitado vira#e8eef6; alpha0 vira
+  Loader.opacity1; menu/sound não desenhados; Image.Error continua counted1
+  com fallback invisível. Aprovar a observação do defeito não aprova o produto.
+- Sete aceites ampliados no README de2026-10-03-journey-engine-preview e JSON
+  agregado reproduzível com fixture própria. Autoria genérica, feedback tipado
+  por recurso, assets/receitas, eventos/mídia/interação, todas as etapas, pacote
+  único e comparação física/fluidez. A lista anterior é insuficiente; nenhuma
+  promessa de100% ou impossibilidade arquitetural foi inventada.
+- Três itens existentes ganharam cinco gaps explícitos, preservando os antigos
+  e todos os cinco eixos. Engine/Aura/plano receberam só renovação mecânica de
+  scopeDigest pela evidência compartilhada, sem novo aceite/capability. Claim
+  funcional de Engine continua com Jornada; atualização documental serial
+  registrada nos sharedPaths. Visões regeneradas antes deste append.
+- Documentação:13 testes/8,57s e status-check aprovados; diff/referências/tamanho
+  revisados. Nenhuma fonte de referência, mídia ou dado de acervo foi publicado.
+  Oito hashes congelados de fonte/testes e hashes auditados permanecem intactos.
+- Integral pendente do lote anterior iniciou com4539292KiB>=3145728KiB, mas
+  terminou143/2464,19s: SIGTERM15 registrado do pai rtk; último progresso41%,
+  sem full-result.json/cobertura válida. Não repetida por sorte nem reduzida
+  guarda/baseline. Próximo passo: diagnosticar ciclo de vida/timeout do wrapper,
+  conferir recursos e retomar integral serial observada e guardas de cobertura.
+  Nenhum processo temporário do observador/runner/probe ficou ativo.
+- Remoto conferido:fba166f8f454a0b928b1b82504613b26180987e2; mainad742ca3515f794fe285d42060708835cb09fb91.
+  Sem push por gate funcional pendente; checkpoint local não é backup GitHub.
+  Próximo checkpoint externo: push nominal/PR268/SHA remoto e CI terminal
+  somente após integral válida. Autorização de continuidade preservada.
+- Nenhuma instalação/auth/release/merge/deploy/boot, input físico ou execução
+  nativa de RetroFE/ES-DE. Link instalado observado aponta2.0.0rc1-59ecc2d8f0f6;
+  execução/rollback não revalidados. Fidelidade, áudio e desempenho físicos
+  continuam exigindo comparação autorizada na release/hardware.

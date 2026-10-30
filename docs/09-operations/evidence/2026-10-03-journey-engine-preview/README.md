@@ -456,3 +456,118 @@ sem arredondamento a r3-empty-return/coverage-full.json. Os8 hashes e guardas
 bitrot/resource/linux/screencast/modelo, além do salvamento do Studio, precisam
 ser conferidos. Históricos reprovados do Launcher continuam preservados.
 Sem ações de host; instalação/versão em execução/rollback não revalidados.
+
+### 2026-10-30 — Aeon Nox e ES-DE como aceite integral do Studio/motor
+
+**Conclusão: a lista anterior de pendências do Studio é necessária, mas não
+suficiente para prometer reprodução integral dessas referências.** A meta inclui
+aparência, comportamento, efeitos, transições e todas as etapas executadas pelo
+motor SteamZero. Importar XML, apresentar elementos genéricos ou abrir o frontend
+original não satisfaz esse aceite. Não há prova atual de impossibilidade
+arquitetural; também não há evidência que autorize garantir paridade futura antes
+da implementação e comparação real.
+
+Auditoria somente leitura, fonte SteamZero em
+`6d2216ad375b85dad3d3958c14a21ec33a1fb380`. Metadados agregados, hashes dos
+compiladores/renderizador e contraexemplos próprios estão na
+[matriz de evidência](studio-frontend-parity.json). Nenhum XML, asset, gamelist,
+configuração ou conteúdo do acervo das referências foi publicado. Nenhum frontend
+nativo foi executado. A pasta de temas do perfil ES-DE estava vazia; a referência
+efetivamente auditada foram os temas Linear, Modern e Slate embutidos no AppImage
+local pinado pelo hash da matriz, lido com unsquashfs, sem executá-lo.
+
+| Referência/caminho | Verificação feita | Limite observado |
+|---|---|---|
+| Aeon Nox | 385 XMLs lidos e compilados individualmente, incluindo seis variantes raiz, splash e layouts de coleções | A descoberta normal da pasta inteira recusa o limite de 64 layouts; compilar arquivos isolados não prova importação do pacote |
+| Aeon Nox, layout principal | 620 animações de entrada; 332 registros de animação na IR | Eventos idle/menuIdle e algoritmos de interpolação se perdem; contagens não são porcentagem de fidelidade |
+| Aeon Nox, mídia | 53 imagens estáticas do layout principal usam caminhos compartilhados externos à raiz aceita | O confinamento recusa esses caminhos; falta resolução governada de assets compartilhados, sem liberar traversal |
+| ES-DE | 849 XMLs inspecionados; 56 combinações variante×proporção dos três temas compiladas | Apenas snes/pt_BR e primeiro esquema/fonte; não cobre todos os sistemas, idiomas, fontes e cores |
+| ES-DE, propriedades | Includes resolvidos nas 56 combinações | itemScale/controllerSize/folderLinkSize, pillarboxThreshold e scrollFadeIn têm perdas por interpretação incompatível de valores; Modern/Slate também demandam cues de som |
+| Compilador, fixture própria | coverage=1.0/degraded=0 com texto e animação | fontColor e easing desaparecem; onIdle também pode desaparecer sem diagnóstico. Essa métrica não certifica capacidade |
+| Renderizador real, fixture própria | SceneEsdeView em Qt/offscreen/software | Texto vermelho resulta #e8eef6; alpha=0 chega ao Loader como opacity=1; menu/sound são classificados como não desenhados nessa superfície |
+| Feedback de mídia, fixture própria | Image.Error para arquivo deliberadamente ausente | drawnCount continua 1 e o fallback fica invisível; contador declarado não prova pixels válidos |
+
+A prova Qt executou dois cenários diagnósticos no renderizador real dentro de um
+teste Python: **1 passed/0,45s**. O teste aprova a observação dos defeitos, não a
+paridade. Estado pessoal monitorado antes/depois idêntico. Não mediu FPS, GPU,
+memória, áudio físico ou criação por uma pessoa. Primitivas nativas de movimento,
+efeitos, receitas e contratos tipados já existem; os resultados apontam perdas
+nos caminhos de tradução, consumo e autoria, não ausência de toda a engine.
+
+#### Aceite ampliado obrigatório
+
+1. **Demanda e resposta verificáveis.** O Studio transforma a composição e as
+   ações solicitadas em documento/IR validado pelos contratos e registries
+   existentes. O motor devolve capacidade por recurso, evento, binding, asset e
+   etapa: suportado/executado, parcial, indisponível ou desconhecido, com causa
+   e localização. Separar reconhecido, importado, renderizado, navegável,
+   operacional e medido. Perda silenciosa ou capacidade desconhecida reprova
+   o modo de reprodução integral. Fallback mantém navegação, mas declara perda.
+   Não há aqui promessa de um intérprete irrestrito de linguagem natural.
+2. **Assets e composição completos.** Resolver fontes e mídia compartilhada
+   com raízes autorizadas/URIs lógicas, licença e diagnóstico; preservar
+   geometria, cor, tipografia, alpha, camadas, recortes, máscaras, vídeos,
+   bindings e receitas. Variantes derivadas continuam renderizadas a partir
+   do asset-fonte. Importação grande deve preservar layouts e escolhas sem
+   truncar ou aumentar limites cegamente.
+3. **Movimento e interação equivalentes.** Eventos idle, entrada/saída/jump de
+   menu e entrada/saída de jogo, sequências, pausas, easing, interrupção e
+   retomada precisam atravessar IR e runtime. Mapear os tempos reais, inclusive
+   sequências longas, aos orçamentos governados; menus/listas/carrosséis/grids,
+   vídeo e cues de áudio não podem virar apenas representações genéricas.
+4. **Todas as etapas funcionais.** Inventariar também o que vive fora do XML:
+   inicialização/splash, plataformas, jogos, categorias, franquias, Options,
+   busca, filtros, favoritos, ajustes, iniciar e retornar à seleção anterior.
+   Cada ação usa o serviço canônico do SteamZero e disponibilidade real;
+   nenhum tema executa scripts/helpers arbitrários do frontend de referência.
+5. **Autoria visual genérica.** Cada primitiva e ação necessária fica acessível
+   no Studio para qualquer pacote compatível, com seleção, árvore, inspector,
+   timeline, estados, bindings e componentes reutilizáveis. Um autor deve
+   construir/ajustar essas cenas sem editar XML, QML, código ou usar terminal,
+   salvar/exportar/reabrir preservando tudo, com undo/redo e erros recuperáveis.
+   O gate atual de canvas/graph por ID de demonstração não satisfaz isso.
+6. **Mesmo documento até o Launcher.** Preview, Theme Engine e Launcher
+   consomem o mesmo pacote persistido, preservando foco, seleção, filtro,
+   posição e contexto ao lançar/retornar e após falhas. Retorno seguro e tema
+   ausente, asset inválido, indisponibilidade e recuperação são parte do aceite.
+7. **Comparação e fluidez medidas.** Fixar hash/versão de cada referência e
+   candidata, assets licenciados, cenário, catálogo, resolução e hardware.
+   Comparar capturas e quadros-chave, sequência de input, tempos, áudio e
+   comportamento nos dois runtimes. Cobrir as variantes e estados acordados,
+   ampliando a amostra ES-DE além das 56 configurações iniciais. Medir frame
+   time, travamentos, memória e carregamento frio segundo a direção vigente;
+   observar uma jornada real de autoria completa para julgar clareza e esforço.
+   Nenhuma medição offscreen substitui o aceite da release no hardware.
+
+Concluir esses aceites com evidência é o que permitirá afirmar que o objetivo
+foi cumprido. Apenas fechar tarefas genéricas de canvas, inspector, timeline e
+salvamento não permite essa afirmação. Theme Studio, Theme Engine, Launcher e
+cada tema conservam aceites independentes. Os itens de frontend marcados
+complete referem-se ao slice/importador já delimitado, não à reprodução integral.
+As lacunas novas foram registradas nos itens existentes, sem promover seus
+cinco eixos. Os aceites e capacidades do item Theme Engine permaneceram sob
+claim da frente de Jornada; este diagnóstico fica referenciado pelos itens
+Studio/frontends. A ampliação desta pasta de evidência exige apenas renovação
+mecânica de scopeDigest nos itens Engine/Aura/plano que a incluem, registrada
+como revalidação de escopo compartilhado, sem novo carimbo de capacidade.
+
+#### Checkpoint de execução e continuidade
+
+A RAM liberou a tentativa integral pendente do lote anterior. Ela iniciou com
+4.539.292 KiB disponíveis (guarda de 3.145.728 KiB), mas terminou **143** após
+2.464,19s: o observador registrou SIGTERM15 vindo do processo pai rtk. A última
+porcentagem impressa foi 41%; não houve full-result.json nem cobertura integral
+válida. Isso substitui o bloqueio anterior por RAM como situação atual; a
+causa de o pai ter emitido o sinal ainda precisa de diagnóstico. Não houve
+retentativa cega, redução de limiar ou promoção do resultado parcial.
+
+A auditoria e a prova focada estão concluídas; o fechamento funcional anterior
+continua pendente da integral. Os oito hashes de fonte/testes ficaram intactos.
+Antes de retomar: diagnosticar o ciclo de vida/timeout do wrapper rtk, conferir
+ausência de filhos temporários, RAM/disco e então executar uma integral
+observada com os mesmos critérios de cobertura/guardas. Push do conjunto e
+CI/PR268 continuam condicionados ao checkpoint; remoto fba166f8 é apenas a
+base anterior. Nada instalado/publicado, sem autenticação nova, merge, boot ou
+deploy. O link local de release aponta para 2.0.0rc1-59ecc2d8f0f6; execução e
+rollback não foram revalidados. Sem ação física requerida para esta auditoria;
+a certificação final depende de teste autorizado da release no hardware.

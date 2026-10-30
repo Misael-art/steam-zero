@@ -15,7 +15,10 @@
     "tests/unit/test_theme_import_esde.py"
   ],
   "dependsOn": [],
-  "knownGaps": ["GAP-G54"],
+  "knownGaps": [
+    "GAP-G54",
+    "GAP-ESDE-BUNDLED-THEMES-INTEGRAL-PARITY"
+  ],
   "acceptanceCriteria": [
     "Importador converte o contrato de tema ES-DE sem depender do runtime externo.",
     "Casos invalidos e valores ausentes possuem teste unitario.",
@@ -51,10 +54,16 @@
       "reference": "tests/integration/test_ui_dialog_journeys.py",
       "command": "jornada ES-DE implementada na tela system e registrada na sonda: test_ui_dialog_coverage + test_ui_dialog_journeys 8 passed; check_dialog_keys 7 passed; test_qml_handheld_offscreen + test_ui_dialog_keys + test_ui_action_inventory 50 passed; qmllint 0 erros em Main.qml e ui_dialog_probe.qml. O gate de denominador reprovou sozinho antes da jornada ser registrada ('1 de 16 modais nao tem jornada'), que e a prova de que ele funciona.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-frontend-parity.json",
+      "command": "2026-10-30: auditoria somente leitura de fontes locais pinadas + contraprovas próprias de compilação e SceneEsdeView Qt/offscreen; 1 teste diagnóstico aprovado/0,45s observa perdas, não aprova paridade. Sem execução nativa, hardware ou medição de desempenho.",
+      "result": "partial"
     }
   ],
-  "nextAction": "Preparar instalação/fixture ES-DE governada e provar inspect→apply→activate→launch→rollback no host; hoje ES-DE e SRM estão ausentes, quatro temas importados são inválidos por falta de compatibility e as provas existentes são de contrato/offscreen.",
+  "nextAction": "AppImage local pinado contém Linear/Modern/Slate; perfil themes vazio. Corrigir/mapear perdas de propriedades e cues de som pelo runtime comum, estender matriz além das56 combinações amostradas (snes/pt_BR/primeira fonte/cor), disponibilizar autoria visual e comparar aparência/etapas/navegação/áudio/launch-return no motor SteamZero. Não confundir executável disponível, includes resolvidos ou importação com tema operacional. Aceite2026-10-30 na evidência; sem executar/instalar AppImage.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-22",
-  "notes": "O suporte de importação está implementado no domínio e a jornada de inspect/apply existe no shell, mas a certificação operacional externa não existe no host atual: ES-DE e SRM não estão instalados. A auditoria real encontrou quatro temas de usuário inválidos por ausência de compatibility no schema SteamZero. A ausência deve continuar visível; não promover importação de contrato/offscreen a tema ativo ou lançamento real."
+  "updatedAt": "2026-10-30",
+  "notes": "O suporte de importação está implementado no domínio e a jornada de inspect/apply existe no shell, mas a certificação operacional externa não existe no host atual: ES-DE e SRM não estão instalados. A auditoria real encontrou quatro temas de usuário inválidos por ausência de compatibility no schema SteamZero. A ausência deve continuar visível; não promover importação de contrato/offscreen a tema ativo ou lançamento real.\n\n2026-10-30: referência local agora auditada por leitura do AppImage, hash pinado, sem executá-lo.849 XMLs e56 combinações variante×proporção de3 temas; includes resolvidos na amostra, propriedades degradadas e falta de execução de áudio. Complete conserva escopo do importador/jornada inspect-apply existente; não afirma fidelidade integral ou instalação. Nova lacuna integral registrada."
 }

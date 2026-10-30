@@ -29,7 +29,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
-| SZ-AURA-PLATFORM-EXECUTION-PLAN | 5 | 8 | 0 | none |  |
+| SZ-AURA-PLATFORM-EXECUTION-PLAN | 5 | 9 | 0 | none |  |
 | SZ-AURA-PLATFORM-MEDIA-SCOPE | 3 | 2 | 2 | unit |  |
 | SZ-AURA-RETROFE-MEDIA-INGESTION | 9 | 4 | 2 | hw |  |
 | SZ-AURA-RICH-MEDIA-PROJECTION | 9 | 5 | 3 | hw |  |
@@ -62,11 +62,11 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-EXPERIENCE-PERIPHERALS | 3 | 1 | 0 | none |  |
 | SZ-EXPERIENCE-PLATFORM-CATALOG | 3 | 1 | 0 | none |  |
 | SZ-EXPERIENCE-SAVES-REPLAY | 2 | 1 | 0 | none |  |
-| SZ-FRONTEND-ESDE | 2 | 5 | 2 | unit |  |
+| SZ-FRONTEND-ESDE | 2 | 6 | 2 | unit |  |
 | SZ-FRONTEND-ESDE-SYSTEMS | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-LAUNCHBOX | 1 | 0 | 0 | none | sem evidencia registrada |
 | SZ-FRONTEND-M11-SURFACE | 5 | 4 | 3 | unit |  |
-| SZ-FRONTEND-RETROFE | 6 | 3 | 2 | dev |  |
+| SZ-FRONTEND-RETROFE | 6 | 4 | 2 | dev |  |
 | SZ-FRONTEND-SRM | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
@@ -103,16 +103,16 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RESOURCE-QML-PROBE | 7 | 3 | 2 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 73 | 39 | 15 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 74 | 40 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 6 | 5 | dev |  |
-| SZ-THEME-ENGINE | 188 | 87 | 64 | hw |  |
+| SZ-THEME-ENGINE | 189 | 88 | 64 | hw |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 18 | 9 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 20 | 11 | hw |  |
 | SZ-THEME-IMPORT-RETROFE | 15 | 27 | 14 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 20 | 11 | unit |  |
-| SZ-THEME-STUDIO | 174 | 84 | 60 | hw |  |
+| SZ-THEME-STUDIO | 175 | 85 | 60 | hw |  |
 | SZ-UI-DESKTOP-AUDIT | 838 | 205 | 116 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |

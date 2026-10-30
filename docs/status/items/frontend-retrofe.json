@@ -19,7 +19,10 @@
   ],
   "scopeDigest": "0ae01c5c068bcf47212ee402a2f942491c8cfae00c8cc24de5c1dcadb6d2c7a8",
   "dependsOn": [],
-  "knownGaps": ["GAP-G54"],
+  "knownGaps": [
+    "GAP-G54",
+    "GAP-RETROFE-AEON-NOX-INTEGRAL-PARITY"
+  ],
   "acceptanceCriteria": [
     "O slice RetroFE e exercitado na integracao sem runtime externo.",
     "Declaracoes e texto possuem comportamento deterministico coberto por testes."
@@ -42,10 +45,16 @@
       "reference": "src/steamzero/adapters/desktop_contracts.py",
       "command": "levantamento de 2026-08-24: ZERO rotas de RetroFE em desktop_contracts.py. Nao e jornada de UI incompleta — e jornada sem tela. O codigo vive em domain/retrofe_declarations.py e domain/retrofe_text_slice.py e e alcancavel por CLI.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-frontend-parity.json",
+      "command": "2026-10-30: auditoria somente leitura de fontes locais pinadas + contraprovas próprias de compilação e SceneEsdeView Qt/offscreen; 1 teste diagnóstico aprovado/0,45s observa perdas, não aprova paridade. Sem execução nativa, hardware ou medição de desempenho.",
+      "result": "partial"
     }
   ],
-  "nextAction": "Publicar os contratos de UI RetroFE e preparar um pacote/fixture real licenciado; depois provar importação, aplicação, ativação, lançamento e rollback. O host atual não contém pacote RetroFE lançável, portanto o slice declarativo não é jornada certificada.",
+  "nextAction": "Aeon Nox agora disponível para auditoria local: 385 XMLs compilados individualmente; descoberta integral recusa limite64. Resolver assets compartilhados com confinamento, eventos idle/menuIdle, easing, menus e consumo runtime por contratos existentes. Compor essas primitivas no Studio e comparar etapas/visual/transições/áudio/retorno pelo motor SteamZero; não executar o frontend original como substituto. Aceite e hashes na matriz 2026-10-30; sem instalação autorizada nesta recuperação.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-22",
-  "notes": "O slice declarativo está integrado no repositório: layer atravessa declarations → ElementContract.zIndex → ResolvedTextNode → QmlTextRenderModel.z, com round-trip e invalidação cobertos. O host não tem pacote RetroFE disponível para lançamento e a camada de frontend M11 ainda não está ligada às superfícies; manter operação degraded até existir fixture instalada e jornada real."
+  "updatedAt": "2026-10-30",
+  "notes": "O slice declarativo está integrado no repositório: layer atravessa declarations → ElementContract.zIndex → ResolvedTextNode → QmlTextRenderModel.z, com round-trip e invalidação cobertos. O host não tem pacote RetroFE disponível para lançamento e a camada de frontend M11 ainda não está ligada às superfícies; manter operação degraded até existir fixture instalada e jornada real.\n\n2026-10-30: a declaração histórica de ausência de pacote descreve o host da auditoria anterior. A referência local Aeon Nox foi agora inspecionada, sem execução nativa nem publicação de mídia. Complete continua restrito ao slice declarativo original, não certifica este tema nem paridade integral. Layout principal620 animações→332 registros IR; métricas não são porcentagens visuais. Nova lacuna integral registrada."
 }

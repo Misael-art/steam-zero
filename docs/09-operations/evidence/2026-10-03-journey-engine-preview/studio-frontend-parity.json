@@ -1,0 +1,210 @@
+{
+  "assessment": "not-qualified-for-integral-reproduction",
+  "scope": {
+    "retrofe_xml_inspected": 385,
+    "retrofe_primary_xml_sha256": "881fab0fc754f9c34685bae820574b9c594f3a28903f101eed1375403144ece7",
+    "retrofe_root_variants": 6,
+    "retrofe_primary_source_animations": 620,
+    "retrofe_primary_compiled_animations": 332,
+    "retrofe_primary_ignored_events": {
+      "onIdle": 2,
+      "onMenuIdle": 4
+    },
+    "retrofe_whole_folder_discovery": {
+      "discovered": null,
+      "error": {
+        "code": "E-THEME-LIMIT",
+        "detail": "número de layouts excedido: 64"
+      },
+      "xml_count": 385
+    },
+    "esde_xml_inspected": 849,
+    "esde_variant_aspect_cases": 56,
+    "esde_selections": "snes/pt_BR/first scheme and font only",
+    "esde_package": {
+      "bytes": 124827104,
+      "sha256": "25c99841f14bc77272332dfc6bff6b219d3e77734380afbabb72a729f44161dc"
+    },
+    "native_frontends_executed": false,
+    "media_from_user_collection_published": false
+  },
+  "esde": [
+    {
+      "theme": "linear-es-de",
+      "configurations": 24,
+      "degraded_min": 4,
+      "degraded_max": 6,
+      "include_missing_union": [],
+      "include_refused_union": [],
+      "unknown_or_invalid_property_reasons": [
+        "par numérico inválido",
+        "pillarboxThreshold não numérico",
+        "scrollFadeIn não numérico"
+      ]
+    },
+    {
+      "theme": "modern-es-de",
+      "configurations": 20,
+      "degraded_min": 3,
+      "degraded_max": 7,
+      "include_missing_union": [],
+      "include_refused_union": [],
+      "unknown_or_invalid_property_reasons": [
+        "par numérico inválido",
+        "pillarboxThreshold não numérico",
+        "scrollFadeIn não numérico"
+      ]
+    },
+    {
+      "theme": "slate-es-de",
+      "configurations": 12,
+      "degraded_min": 2,
+      "degraded_max": 9,
+      "include_missing_union": [],
+      "include_refused_union": [],
+      "unknown_or_invalid_property_reasons": [
+        "par numérico inválido",
+        "pillarboxThreshold não numérico",
+        "scrollFadeIn não numérico"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "source_owned_synthetic": true,
+      "requested_features": [
+        "fontColor",
+        "onIdle",
+        "alpha animation",
+        "algorithm easeInOut"
+      ],
+      "reported": {
+        "elements": 1,
+        "degraded": 0,
+        "coverage": 1.0,
+        "reasons": []
+      },
+      "element": {
+        "id": "text-0",
+        "kind": "text",
+        "layout": {
+          "x": 100.0,
+          "y": 100.0,
+          "width": 200.0,
+          "height": 80.0
+        },
+        "text": "fixture"
+      }
+    },
+    {
+      "source_owned_synthetic": true,
+      "requested_features": [
+        "fontColor",
+        "onMenuEnter",
+        "alpha animation",
+        "algorithm easeInOut"
+      ],
+      "reported": {
+        "elements": 1,
+        "degraded": 0,
+        "coverage": 1.0,
+        "reasons": []
+      },
+      "element": {
+        "id": "text-0",
+        "kind": "text",
+        "layout": {
+          "x": 100.0,
+          "y": 100.0,
+          "width": 200.0,
+          "height": 80.0
+        },
+        "text": "fixture",
+        "on": {
+          "menuEnter": [
+            {
+              "duration": 1.0,
+              "animations": [
+                {
+                  "property": "alpha",
+                  "to": 0.0
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "audited_sources": {
+    "src/steamzero/domain/scene_retrofe.py": "dfd5da117ce5c82d8bc8c8a8ba230aab1bbed7c4b03ea3d28d06c7cc2bc6c3da",
+    "src/steamzero/domain/scene_esde.py": "963ed8668fba499a6c83e58e1d682e4d985db0178505afb71c96a6d6318e129e",
+    "src/steamzero/domain/theme_import_retrofe.py": "736a6a0fbdc25db1978b4311580573e668aef328719d085230c89b20b8c71ae3",
+    "src/steamzero/domain/theme_import_esde_layout.py": "e2f2dd4b9d4d530d3e001a2a83cd0259a8234f8a813bcb72ac1f8da16e809b8e",
+    "src/steamzero/domain/theme_scene.py": "b80db7d2b4911a20096ca61ae818b85b4243d85d351efabd8affa0cd68f93421",
+    "src/steamzero/domain/scene_motion.py": "7f4bb6d78bc4c15274389d8136bfa90c6f4b69bf84ca407bb1e30bb5d80fb91e",
+    "src/steamzero/ui/qml/SceneEsdeView.qml": "6a54c0f363a11641dc67d68f918f31b662d2da661e21fd21da5083ca96ab2671",
+    "src/steamzero/ui/qml/ThemeEditorPanel.qml": "e0c2a3d946d36b2667370e32d28494f692a6da8e07c8c62c3ef4460401ce8bae"
+  },
+  "runtime_probes": {
+    "result": "1 Python test passed in 0.45s, two Qt diagnostic scenarios",
+    "environment": "Qt 6.11.2, offscreen, software backend, isolated temporary XDG",
+    "observations": [
+      {
+        "case": "retrofe-imported-style-and-kinds",
+        "requestedColor": "#ff0000",
+        "observedColor": "#e8eef6",
+        "requestedAlpha": 0,
+        "observedLoaderOpacity": 1,
+        "drawnCount": 1,
+        "notDrawn": [
+          {
+            "id": "menu-1",
+            "kind": "menu",
+            "reason": "tipo ainda nao desenhado: menu"
+          },
+          {
+            "id": "sound-2",
+            "kind": "sound",
+            "reason": "tipo ainda nao desenhado: sound"
+          }
+        ],
+        "fullParity": false
+      },
+      {
+        "case": "invalid-media-feedback",
+        "imageStatus": 3,
+        "drawnCount": 1,
+        "fallbackVisible": false,
+        "fullParity": false
+      }
+    ],
+    "owned_source_xml": "<layout width=\"1920\" height=\"1080\"><text value=\"owned parity fixture\" x=\"192\" y=\"108\" width=\"1152\" height=\"216\" fontColor=\"FF0000\" alpha=\"0\"><onMenuEnter><set duration=\"1\"><animate type=\"alpha\" to=\"0\" algorithm=\"easeInOut\"/></set></onMenuEnter></text><menu orientation=\"vertical\" x=\"192\" y=\"432\" width=\"1152\" height=\"216\"/><sound src=\"fixture.wav\" x=\"192\" y=\"864\" width=\"192\" height=\"108\"/></layout>",
+    "owned_probe_qml": "import QtQuick\nimport QtTest\nimport \"<checkout>/src/steamzero/ui/qml\"\nItem {\n    id: root\n    width: 640; height: 360\n    property var results: []\n    readonly property url missingMedia: Qt.resolvedUrl(\"deliberately-absent-owned-fixture.png\")\n    function find(item, propertyName, value) {\n        if (item[propertyName] !== undefined && String(item[propertyName]) === value) return item\n        const children = item.children || []\n        for (let i=0;i<children.length;i++) {\n            const found=find(children[i],propertyName,value)\n            if (found) return found\n        }\n        return null\n    }\n    SceneEsdeView { id: scene; anchors.fill: parent; viewData: ({id:\"probe\",elements:[]}) }\n    TestCase {\n        name: \"ImportedSceneParityAudit\"\n        when: windowShown\n        function test_01_requested_color_alpha_and_nonvisual_kinds() {\n            const request=new XMLHttpRequest()\n            request.open(\"GET\",Qt.resolvedUrl(\"runtime-styled-scene.json\"),false)\n            request.send()\n            scene.viewData=JSON.parse(request.responseText).views[0]\n            tryCompare(scene,\"drawnCount\",1)\n            let text=null\n            tryVerify(function(){text=root.find(scene,\"text\",\"owned parity fixture\");return text!==null})\n            const result={case:\"retrofe-imported-style-and-kinds\",requestedColor:\"#ff0000\",\n                observedColor:text.color.toString(),requestedAlpha:0,\n                observedLoaderOpacity:text.parent.opacity,drawnCount:scene.drawnCount,\n                notDrawn:scene.notDrawn,fullParity:false}\n            verify(result.observedColor !== result.requestedColor)\n            verify(result.observedLoaderOpacity > 0)\n            verify(scene.notDrawn.some(function(row){return row.kind===\"menu\"}))\n            verify(scene.notDrawn.some(function(row){return row.kind===\"sound\"}))\n            root.results.push(result)\n        }\n        function test_02_unreadable_media_feedback() {\n            scene.viewData={id:\"broken-media\",elements:[{id:\"image-0\",kind:\"image\",\n                source:root.missingMedia.toString(),\n                layout:{x:0.1,y:0.1,width:0.6,height:0.6}}]}\n            let picture=null\n            tryVerify(function(){\n                picture=root.find(scene,\"source\",root.missingMedia.toString())\n                return picture!==null && picture.status===Image.Error\n            })\n            const fallback=root.find(scene,\"text\",\"Arte indisponível\")\n            verify(fallback!==null)\n            const result={case:\"invalid-media-feedback\",imageStatus:picture.status,\n                drawnCount:scene.drawnCount,fallbackVisible:fallback.parent.visible,\n                fullParity:false}\n            compare(result.drawnCount,1)\n            compare(result.fallbackVisible,false)\n            root.results.push(result)\n        }\n        function cleanupTestCase(){console.log(\"AUDIT_RUNTIME=\"+JSON.stringify(root.results))}\n    }\n}\n",
+    "reproduction": "Compile owned_source_xml with scene_retrofe.compile_layout, normalize with theme_scene._normalize_retrofe_scene; provide owned silent WAV and runtime-styled-scene.json beside probe, preserving IDs. Run qmltestrunner -input probe.qml with Qt offscreen/software via tools/run_tests_isolated.py. Missing image must remain absent. QML import placeholder must resolve to checkout. No reference media required.",
+    "personal_state_unchanged": true,
+    "physical_input": false,
+    "performance_measured": false
+  },
+  "sourceCommit": "6d2216ad375b85dad3d3958c14a21ec33a1fb380",
+  "date": "2026-10-30",
+  "interpretation": "Diagnostic counterexamples confirm losses; no full-parity or physical acceptance. Parser coverage is not visual fidelity.",
+  "required_acceptance": [
+    "strict per-feature source/IR/runtime capability feedback without silent losses",
+    "contained shared-assets and derived-media bindings, fonts and full paths",
+    "imported event machine, idle/menuIdle, sine easing and timing/lifecycle semantics",
+    "faithful menu/list/carousel/grid and video/audio execution rather than simplified representation",
+    "generic Studio exposure of every required primitive and semantic action",
+    "same document in Preview/Engine/Launcher with context and failure recovery",
+    "paired replay/capture/audio and measured performance on pinned hardware; author completes journey without manual code"
+  ],
+  "full_suite_checkpoint": {
+    "result": "interrupted, not passed",
+    "exit_code": 143,
+    "seconds": 2464.190971614,
+    "signal": 15,
+    "signal_sender": "parent rtk process; reason unknown",
+    "last_reported_progress_percent": 41,
+    "valid_coverage": false
+  }
+}
