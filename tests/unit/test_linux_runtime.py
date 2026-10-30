@@ -177,3 +177,47 @@ def test_session_environment_is_read_only_and_degrades_missing_sources(tmp_path:
     assert empty["displays"] == []
     assert empty["volumes"] == []
     assert empty["power"]["onAC"] is None
+
+
+@pytest.mark.parametrize(
+    "capacity,expected",
+    [
+        (None, None),
+        ("\n", None),
+        ("unavailable\n", None),
+        ("-1\n", None),
+        ("101\n", None),
+        ("0\n", 0),
+        ("100\n", 100),
+    ],
+    ids=["missing", "empty", "not-integer", "below-minimum", "above-maximum", "minimum", "maximum"],
+)
+def test_power_snapshot_preserves_unknown_capacity_without_changing_sources(
+    tmp_path: Path, capacity: str | None, expected: int | None
+) -> None:
+    sys_root, proc_root, dev_root, _mountpoint = _fixture(tmp_path)
+    source = sys_root / "class/power_supply/BAT1/capacity"
+    if capacity is None:
+        source.unlink()
+    else:
+        source.write_text(capacity)
+    before = {
+        path.relative_to(sys_root): path.read_bytes()
+        for path in sys_root.rglob("*")
+        if path.is_file()
+    }
+
+    snapshot = LinuxSessionEnvironment(
+        sys_root=sys_root, proc_root=proc_root, dev_root=dev_root, environ={}
+    ).snapshot()
+
+    assert snapshot["readOnly"] is True
+    assert snapshot["power"] == {
+        "onAC": False,
+        "batteries": [{"name": "BAT1", "capacityPercent": expected, "status": "Discharging"}],
+    }
+    assert {
+        path.relative_to(sys_root): path.read_bytes()
+        for path in sys_root.rglob("*")
+        if path.is_file()
+    } == before

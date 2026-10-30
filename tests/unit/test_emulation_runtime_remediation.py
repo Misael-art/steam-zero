@@ -2,11 +2,14 @@
 from __future__ import annotations
 
 import json
+import os
 import zipfile
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from steamzero.adapters import emulation
 from steamzero.adapters.console_runtime_readiness import XboxRuntimeReadiness
 from steamzero.adapters.emulation import EmulationController
 from steamzero.core import paths
@@ -214,3 +217,73 @@ def test_pcsx2_runtime_flag_is_normalized_only_at_spawn_boundary() -> None:
         "game.iso",
     ]
     assert EmulationController._runtime_compat_argv("dolphin", argv) == argv
+
+
+@pytest.mark.parametrize("failure", ["stat", "cmdline", "getpgid"])
+@pytest.mark.parametrize(
+    "managed_running", [False, True], ids=["no-managed-group", "managed-group"]
+)
+def test_stop_emulator_ignores_inaccessible_processes_and_unrelated_groups(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, failure: str, managed_running: bool
+) -> None:
+    controller = _controller(monkeypatch, tmp_path)
+    payload = tmp_path / "ryubing.AppImage"
+    proc = tmp_path / "proc"
+    proc.mkdir()
+    pids = ([101, 102] if managed_running else []) + [103, 104, 105, 106]
+    for pid in pids:
+        entry = proc / str(pid)
+        entry.mkdir()
+        argument = str(payload) + (".other" if pid == 104 else "")
+        (entry / "cmdline").write_bytes(b"fixture\0" + os.fsencode(argument) + b"\0")
+    source_bytes = {pid: (proc / str(pid) / "cmdline").read_bytes() for pid in pids}
+    other = proc / "self"
+    other.mkdir()
+    entries = [other, *(proc / str(pid) for pid in pids)]
+    original_iterdir, original_stat, original_read = Path.iterdir, Path.stat, Path.read_bytes
+    queried: list[int] = []
+    signaled: list[tuple[int, int]] = []
+
+    def controlled_iterdir(path: Path):
+        return iter(entries) if path == Path("/proc") else original_iterdir(path)
+
+    def controlled_stat(path: Path, *args, **kwargs):
+        if path == proc / "106" and failure == "stat":
+            raise FileNotFoundError("fixture process vanished after enumeration")
+        if path == proc / "103":
+            return SimpleNamespace(st_uid=os.getuid() + 1)
+        return original_stat(path, *args, **kwargs)
+
+    def controlled_read(path: Path) -> bytes:
+        if path == proc / "106/cmdline" and failure == "cmdline":
+            raise PermissionError("fixture cmdline denied")
+        return original_read(path)
+
+    def controlled_group(pid: int) -> int:
+        queried.append(pid)
+        if pid == 106:
+            assert failure == "getpgid"
+            raise ProcessLookupError("fixture process vanished before getpgid")
+        assert pid in {101, 102, 105}, "unrelated process queried"
+        return 1 if pid == 105 else 4321
+
+    monkeypatch.setattr(emulation.AdapterEngine, "payload_path", lambda _self, _id: payload)
+    monkeypatch.setattr(Path, "iterdir", controlled_iterdir)
+    monkeypatch.setattr(Path, "stat", controlled_stat)
+    monkeypatch.setattr(Path, "read_bytes", controlled_read)
+    monkeypatch.setattr(emulation.os, "getpgid", controlled_group)
+    monkeypatch.setattr(emulation.os, "killpg", lambda group, sig: signaled.append((group, sig)))
+
+    result = controller.stop_emulator("ryubing")
+
+    assert result == {
+        "status": "stopping" if managed_running else "not-running",
+        "emulatorId": "ryubing",
+        "processGroups": int(managed_running),
+    }
+    assert signaled == ([(4321, emulation.signal.SIGTERM)] if managed_running else [])
+    assert queried == ([101, 102] if managed_running else []) + [105] + (
+        [106] if failure == "getpgid" else []
+    )
+    assert {path.name for path in original_iterdir(proc)} == {*(str(pid) for pid in pids), "self"}
+    assert {pid: original_read(proc / str(pid) / "cmdline") for pid in pids} == source_bytes
