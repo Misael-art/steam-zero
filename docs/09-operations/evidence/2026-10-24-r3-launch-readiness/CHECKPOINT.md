@@ -1412,3 +1412,122 @@ SHA remoto, novo CI terminal e coreCI>=85,49540202112085% da base7bb07ea7,
 com todos os guardas no artefato. Resultado remoto será registrado no PR268,
 sem commit circular; históricos de SIGTERM/Saves e causas não confirmadas
 continuam preservados.
+
+
+### Recuperação órfã com catálogo alterado — 30/10/2026
+
+Assunção serial na branch/checkout/executor existentes, base remota
+fba166f8f454a0b928b1b82504613b26180987e2. CI41027298894 dessa base aprovou8jobs
+na primeira tentativa e core85,50677260258396%; integral85,66169677501884%.
+Paths já exclusivos: test_launcher_owner_loss_qml.py e check_launcher_owner_loss.qml.
+Domain navigation/session e seus testes continuam read-only nos claims de origem.
+Fonte/commits/push/PR268 autorizados; sem instalação/auth/release/merge/deploy/boot.
+
+O baseline novo de jogo removido passou1/14,03s; os outros5 passaram/49,98s.
+Não foi reproduzido defeito de runtime. As expectativas de fixture antes
+amarradas ao jogo original foram generalizadas: último registro consultado é
+do próximo jogo escolhido, e Home vazia é tratada também depois de dispensar
+a falha canônica. Isso é adaptação do harness aos dados, não correção do produto.
+
+Seis casos novos (7→13 percursos Qt): GET terminal perdido com jogo removido,
+seção removida, Home vazia e503/retry; resposta POST de recovery perdida com
+jogo removido e Home vazia. O owner é encerrado e o jogo de fixture continua
+ativo; após seu término, somente Enter no botão de recovery reconcilia o ID
+original. GETs terminais podem ser perdidos em duas bridges. Reabrir aceita
+E-SESSION-ORPHANED canônico, sem estimar tempo; outro jogo inicia somente por
+gestos posteriores. Sem catálogo, Enter recarrega pelo fluxo existente sem
+novo launch; a recarga503 conserva retry e devolve a navegação por teclado.
+
+Os callbacks reais de leitura são rastreados: todas as leituras exatas usam
+o par gameId/sessionId original; não há consulta de última sessão antes de
+novo lançamento explícito. Depois, somente o jogo realmente escolhido usa
+esse caminho. A linha canônica é capturada imediatamente após a operação
+real de recovery e comparada integralmente depois dos GETs, retries e reloads;
+também se compara entre bridges. Contexto byte a byte e IDs são preservados
+até lançamento explícito. IDs de recovery contados devem ser exatamente os
+retidos, não apenas uma quantidade de chamadas.
+
+Focados finais:59 passed/149,43s, incluindo os13 percursos e os contratos
+owner-loss/identidade. Ruff check/format dos arquivos alterados aprovados.
+Captura final:6 passed/7 deselected/63,96s. Quinze PNGs800×800/512.097bytes,
+revisados individualmente, com source Qt6.11.2/offscreen e dados controlados;
+não são prova de release/hardware. Fonte de produção permanece idêntica à
+árvorec987db69ad965f9ef344e47500337b4709d0d9e9. Dois hashes e imagens selados
+em tested-files.json/images.json no diretório local build/agent-runs/r3-orphan-catalog.
+
+![Retorno canônico ao vizinho após recuperação explícita, fonte/offscreen](orphan-catalog/removed/terminal-get/05-canonical-return.png)
+
+[Recovery explícito](orphan-catalog/removed/terminal-get/02-explicit-recovery-available.png),
+[resposta terminal ausente](orphan-catalog/removed/terminal-get/02-terminal-get-lost-again.png),
+[falha canônica](orphan-catalog/removed/terminal-get/03-canonical-failure-without-estimate.png),
+[outra seção](orphan-catalog/section/terminal-get/05-canonical-return.png),
+[Home vazia após POST perdido](orphan-catalog/empty/post-reply/05-empty-reload-navigable.png),
+[503 controlado](orphan-catalog/empty-offline/terminal-get/05-empty-reload-error.png) e
+[recuperação](orphan-catalog/empty-offline/terminal-get/06-empty-reload-recovered.png).
+
+Recursos: início203GiB disco/1,9GiB RAM disponível; leituras posteriores entre
+1,8 e2,5GiB, abaixo do mínimo3GiB do preflight de testes em bootstrap_dev.py.
+Caso Qt isolado:90.724KiB de maior RSS individual de filho, não pico agregado
+da árvore;59 focados e capturas executados serialmente/nice10, estado pessoal
+monitorado preservado (3arquivos/5diretórios/860.896bytes/max_mtime_ns1793069983507245137).
+Integral pesada aguarda margem apropriada; guarda equivalente de3GiB foi
+mantida no helper temporário. Não encerrar processos alheios nem ampliar swap
+ou instalar ferramenta para contornar a condição. Capturas e documentação
+avançam enquanto essa dependência é resolvida.
+
+Limites: produção inalterada, sem prova de acervo/emulador real, instalação,
+Deck, hardware ou GPU/FPS. Cinco eixos e gaps preservados, inclusive
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME. Integral, cobertura e publicação deste
+lote ainda pendentes; não se reutiliza aprovação de fba166f8 como se cobrisse
+os testes novos. WORKLOG permanece intocado até o fechamento.
+
+Nova leitura de MemAvailable:3,3GiB, acima do mínimo. Preparar gates estáticos e iniciar integral somente se o preflight imediatamente anterior ainda aprovar3GiB; sem modificar processos alheios, swap ou guarda.
+
+
+Primeira integral deste lote:7094 passed/48 skipped/19 warnings/2545,99s; runner/observador0, signals vazio/2555,90s. Comparação reprovada85,65601148428728%<85,66169677501884%, delta-0,005685290731562986pp. Únicas linhas perdidas: emulation9045/9046 (OSError/ProcessLookupError na leitura de /proc) e linux_runtime397/398 (capacidade de bateria não inteira). Guardas anteriores cobertos. Inferência de cobertura incidental por estado do host, sem evento/PID causal confirmado. Fonte não mudou; logs, cobertura, manifestos e recibo preservados em before-guard-*. Não conta como não regressão aprovada. Ampliados prospectivamente os testes R3 já exclusivos e a contraparte da cessão runtime-remediation; test_emulation_controller.py e fontes permanecem read-only. Acrescentar dados determinísticos pelos métodos públicos, provar efeitos e só então repetir o checkpoint justificado; base, limiar, fuzz, goldens e skips permanecem intactos.
+
+Seguimento determinístico:7 casos públicos LinuxSessionEnvironment.snapshot com capacidade ausente, vazia, não inteira, fora de0–100 e limites válidos; onAC/status preservados, capacidade desconhecida null e toda a árvore sysfs byte a byte igual.6 casos públicos stop_emulator com enumeração /proc redirecionada apenas para a fixture, erros stat(FileNotFoundError), cmdline(PermissionError) e getpgid(ProcessLookupError), com/sem grupo gerenciado. Usuário diferente, payload apenas semelhante e grupo1 são ignorados; grupo exato deduplicado recebe um SIGTERM somente quando existe. Nenhum sinal/varredura no proc real.27 testes passaram/1,59s no runner isolado, estado pessoal monitorado preservado. A coleta diagnóstica com --cov dos dois módulos também passou os27 comportamentos/4,58s e confirmou as quatro linhas, mas reprovou20,26%<85% pelo escopo restrito do módulo emulation; log/JSON guards-focused-* preservados. Não é gate de cobertura aprovado e o limiar não foi reduzido; o gate integral continua obrigatório. Quatro hashes congelados após formatação/Ruff; produção e capturas anteriores inalteradas. RAM novamente2,4GiB: segunda integral aguarda preflight>=3GiB, pedido de liberação enviado sem encerrar processos alheios.
+
+Estabilidade dos13 casos novos:5 execuções/65 aprovações, sem mudanças de seed/limiar/timeout; recibos guards-repeat-results.json. Não repete Qt nem integral entre microedições. A integral será repetida apenas pelo teste novo que elimina as quatro perdas incidentais observadas.
+
+
+Checkpoint local intermediário — validação final bloqueada por recursos:
+
+| Incremento | Commit local | Prova disponível |
+|---|---|---|
+| Recuperação órfã/catálogo | `89a2c7164af614c2a078335deec517e96df9a3aa` | 59 focados/149,43s;6 capturas/63,96s;integral7094/48 antes do seguimento |
+| Guardas determinísticos | `8f5f2a89e02b4b66c439695ff51a01419feff1fc` | 27 focados/1,59s;13 novos casos5x/65 aprovações;4 linhas perdidas cobertas no diagnóstico |
+
+São commits intermediários, não fechamento funcional nem cobertura aprovada.
+A integral inicial continua reprovada na comparação85,65601148428728%<85,66169677501884%.
+Nenhuma segunda integral iniciada: sete leituras em300s ficaram entre2.408.328
+e2.671.244KiB, abaixo de3.145.728KiB exigidos por tools/bootstrap_dev.py:319–320.
+O helper temporário terminou75 antes do runner. Pedido de liberação de memória
+pendente do operador; não foi encerrado processo alheio ou alterado swap/guarda.
+
+Ruff check/format736, mypy307 e make independence/boundaries/status-check
+passaram após os13 casos novos. Quatro hashes commitados e15 PNGs conferidos,
+capturas inalteradas desde a coleta válida, produção inteira c987db69ad965f9ef344e47500337b4709d0d9e9.
+Cinco eixos/gaps preservados. Sem push ou alteração remota deste lote;
+PR268 e remoto permanecem emfba166f8, cujo CI é apenas o baseline histórico.
+Não alegar backup GitHub dos novos commits enquanto o push estiver pendente.
+
+Retomar apenas após MemAvailable>=3145728KiB e>=8GiB livres: uma integral serial/nice10 no runner isolado oficial, quatro hashes congelados, cobertura integral>=85,66169677501884% da basefba166f8 e guardas9045/9046emulation,397/398linux mais todos os anteriores presentes. Não repetir mesma fonte por sorte nem baixar base/limiar. Depois fechamento documental e um push nominal da continuidade/PR268, conferir SHA remoto e oito jobs terminais/coreCI>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.
+
+Comando de retomada, **somente com o preflight de recursos satisfeito**:
+
+```bash
+rtk proxy bash -lc '
+. .steamzero-dev/env.sh
+env -u PYTHONPATH nice -n 10 .venv/bin/python tools/run_tests_isolated.py tests -q --cov=steamzero --cov-report=json:build/agent-runs/r3-orphan-catalog/coverage-full.json --cov-report=term -x
+'
+```
+
+No checkout atual, observe_command.py full no mesmo diretório local mantém
+a guarda de3GiB, sinais e logs. Históricos before-guard-* devem ser preservados.
+Após sucesso, comparar integral↔integral com r3-empty-return/coverage-full.json,
+sem arredondamento/base menor; validar guardas e ausência de perdas por módulo.
+Sem instalação/auth/release/merge/deploy/boot; readlink apenas59ecc2d8f0f6,
+runtime/rollback não revalidados. O próximo baseline de produto só vem após
+concluir este gate: referência retida ausente/incompatível diante de histórico
+mais recente, sem substituição silenciosa por latest ou launch automático.

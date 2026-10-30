@@ -15569,3 +15569,45 @@ automáticos. Handoff contém comando RTK isolado; GAP lifetime permanece aberto
 Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
 
 Validação documental final:13 testes/18,74s, status-check aprovado, visões/digests oficiais atualizados e estado pessoal monitorado preservado.
+
+
+## 2026-10-30 — checkpoint intermediário R3, órfão/catálogo e guardas
+
+- Continuidade serial, checkout/branch existentes, autorização de fonte/testes/
+  commit/push/PR268 mantida; sem instalação/auth/release/merge/deploy/boot.
+- Jornada Qt/HTTP/CLI em89a2c7164af614c2a078335deec517e96df9a3aa:
+  seis casos novos/13 percursos,59 focados/149,43s e6 capturas/63,96s;
+ 15 PNGs800×800/512.097bytes revisados. Leituras retidas no par original,
+  linha canônica inteira após recovery/retries/reloads, foco válido e novo
+  launch somente por gestos; Home vazia mantém recarga/503/retry.
+  Baselines já passavam com runtime fba166f8, sem defeito de produto inventado.
+- Integral7094/48/19warnings/2545,99s passou comportamento, mas comparação
+  reprovou85,65601148428728%<85,66169677501884%. Guardas perdidos em
+  emulation9045/9046 e linux_runtime397/398; fontes intactas. Registros
+  before-guard-* preservados, sem base menor/rerun da mesma fonte por sorte.
+- Seguimento em8f5f2a89e02b4b66c439695ff51a01419feff1fc:13 casos públicos
+  determinísticos para bateria ausente/inválida/limites e processos negados/
+  desaparecidos, com grupo exato do usuário deduplicado.27 focados/1,59s e
+  cinco passagens/65 aprovações; fontes e sinais do host intocados. Diagnóstico
+ 27/4,58s cobre4linhas, mas20,26%<85% restrito não conta como gate; logs
+  guards-focused-* preservados. Sem reduzir limiar/fuzz/goldens/timeout.
+- Segunda integral não iniciada: sete leituras em300s,2.408.328–2.671.244KiB
+  disponíveis<3.145.728KiB do preflight; helper75 antes do runner. Pedido ao
+  operador para liberar memória pendente; sem encerrar processo alheio,
+  ampliar swap ou remover guarda. Este é checkpoint local, não fechamento.
+- Estáticos Ruff736/mypy307/independência/fronteiras/status verdes após os
+  novos testes. Quatro hashes commitados e15imagens conferidos; produção
+  c987db69ad965f9ef344e47500337b4709d0d9e9 igual à basefba166f8. Runner
+  preservou o estado pessoal monitorado; fonte Qt6.11.2/offscreen não é
+  aceite de instalação/hardware. Eixos/gaps preservados.
+- Status/handoff/digests e visões oficiais atualizados antes deste fechamento
+  append-only. Sem push/CI novo: remoto/PR268 aindafba166f8; novos commits
+  locais não são backup GitHub. Apontador observado por readlink em
+  releases/2.0.0rc1-59ecc2d8f0f6, runtime/rollback não revalidados.
+- Próxima ação: RAM>=3GiB/disco>=8GiB, uma integral serial/nice10, comparação
+  integral>=85,66169677501884% e guardas mantidos; só então fechamento e push
+  nominal/PR268/SHA remoto, oito jobs terminais e coreCI>=85,50677260258396%.
+  GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME continua aberto. Comando exato e
+  capturas no CHECKPOINT existente; não avançar a novo item antes desse gate.
+
+Validação documental do checkpoint intermediário:13 testes/8,00s e status-check aprovados, estado pessoal monitorado preservado. WORKLOG apenas acrescido; gate integral/cobertura e publicação continuam pendentes por recursos.

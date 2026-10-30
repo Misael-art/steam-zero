@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "8bc223732125bbfd608a319b287e18b6f7221e3848b40612fd7b0fb3f1494fbb",
+  "scopeDigest": "57b449f646def88e78bad6308eaa218c955c3f1d76d2557d9c08b948f5119638",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -803,9 +803,27 @@
       "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
       "command": "Composição ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47/b399ab21ddf73d0bd129053b6bd029ff634ccb25: 7088 passed, 48 skipped, 19 warnings in 2598.81s (0:43:18); runner/observador0, signals vazio,2611,85s monotônicos. Cobertura integral85.66169677501884% >=85.65885412965305%, delta+0.0028426453657885986pp. Quatro hashes conferidos; source tree c987db69ad965f9ef344e47500337b4709d0d9e9 idêntico à base7bb07ea7. Guardas bitrot336/329→336 e leitores44→45,56→57,47–50/59–62 presentes; storage/http anteriores mantidos. Nenhum módulo perdeu linhas/ramos; somente resource_probe61/62 ganharam. Ruff736/mypy307/independence/boundaries/status aprovados. Fonte/fixture Qt6.11.2/offscreen800×800,60 focados/81,77s e3 capturas/27,03s;10PNGs240.369bytes revisados. Qualidade:40 focados/2,10s e12 novos casos5x/60 aprovações; fuzz64 intacto e dados pessoais monitorados preservados. Sem novo aceite instalado/físico ou promoção de eixos/gaps.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_owner_loss_qml.py",
+      "command": "Base fba166f8, novo lote serial:6 baselines de catálogo alterado/owner loss passaram (1/14,03s e5/49,98s), sem defeito de runtime. Harness generaliza próximo jogo e Home vazia após falha, rastreia leituras exatas/última sessão e compara linha completa logo após recovery com GET/retries/reloads.59 focados/149,43s,13 percursos Qt (7anteriores+6novos),6 capturas/63,96s e15 PNGs800×800/512.097bytes revisados. Contexto byte a byte e IDs originais preservados; zero lançamento automático. Produção inalterada, fonte/offscreen; integral/cobertura/publicação pendentes por MemAvailable1,8–2,5GiB<3GiB do preflight, sem promoção de eixos/gaps.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Primeira integral7094/48/0 passou comportamento/2545,99s mas cobertura85,65601148428728%<85,66169677501884%; emulation9045/9046 e linux_runtime397/398. Histórico before-guard-* preservado.13 casos públicos determinísticos novos: bateria inválida/limites sem mutar fonte e stop_emulator com processos inacessíveis/semelhantes/outro usuário/grupo1, sem tocar proc real.27 comportamentos/1,59s e13x5/65 aprovações; coleta confirma4linhas mas cov restrita20,26%<85% não conta como gate.4hashes, produção intacta; nova integral aguarda3GiB. Sem promoção de eixos/gaps.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Intermediários locais 89a2c7164af614c2a078335deec517e96df9a3aa/8f5f2a89e02b4b66c439695ff51a01419feff1fc:4 hashes commitados,15 PNGs revisados. Comparação integral85,65601148428728%<85,66169677501884% reprovada; seguimento13 casos públicos/27 focados+65 repetições verdes cobre as4linhas. Nenhuma segunda integral iniciada:7 leituras/300s,2.408.328–2.671.244KiB<3.145.728KiB; helper75 antes do runner. Estáticos Ruff736/mypy307/independência/fronteiras/status verdes. Sem push, CI novo, instalação ou promoção de eixos/gaps; remoto/PR268 aindafba166f8. Detalhes e próximo comando no CHECKPOINT.",
+      "result": "partial"
     }
   ],
-  "nextAction": "Checkpoint de fonte ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47/b399ab21ddf73d0bd129053b6bd029ff634ccb25 validado localmente, produção idêntica a7bb07ea7. Publicar documentação/PR268 e conferir CI/core contra a mesma base, sem instalação/auth. Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.",
+  "nextAction": "Checkpoint intermediário local 89a2c716/8f5f2a89; integral anterior7094 passou comportamento mas cobertura reprovou; segunda não iniciou por RAM2,3–2,6GiB<3GiB/300s. Focados59+27/65 repetições e capturas6 verdes, produção intacta. Retomar apenas após MemAvailable>=3145728KiB e>=8GiB livres: uma integral serial/nice10 no runner isolado oficial, quatro hashes congelados, cobertura integral>=85,66169677501884% da basefba166f8 e guardas9045/9046emulation,397/398linux mais todos os anteriores presentes. Não repetir mesma fonte por sorte nem baixar base/limiar. Depois fechamento documental e um push nominal da continuidade/PR268, conferir SHA remoto e oito jobs terminais/coreCI>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",

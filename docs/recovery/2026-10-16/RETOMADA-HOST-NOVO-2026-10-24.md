@@ -512,3 +512,29 @@ com guardas explícitos. Resultado terminal fica no PR, evitando SHA circular.
 Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
 
 [Evidência, falhas preservadas e capturas](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).
+
+
+### Continuidade R3 — checkpoint intermediário órfão/catálogo,30/10/2026
+
+Commits locais `89a2c7164af614c2a078335deec517e96df9a3aa` (seis novos percursos Qt) e
+`8f5f2a89e02b4b66c439695ff51a01419feff1fc` (13 casos públicos determinísticos de bateria/processos).
+59 focados/149,43s,6 capturas/63,96s;15 PNGs800×800/512.097bytes revisados.
+Guardas:27 focados/1,59s e13x5/65 aprovações. Quatro hashes commitados,
+produção c987db69ad965f9ef344e47500337b4709d0d9e9 inalterada, eixos/gaps preservados.
+
+Primeira integral7094/48/0/2545,99s passou comportamento, mas cobertura
+85,65601148428728%<85,66169677501884% reprovou. Perda em emulation9045/9046
+e linux_runtime397/398; novos casos determinísticos cobrem essas linhas.
+Diagnóstico restrito27/4,58s também reprovou limiar85% em20,26%; não conta
+como gate. Logs/JSON before-guard-* e guards-focused-* preservados.
+
+Segunda integral não iniciou: RAM2,3–2,6GiB por300s<3GiB do preflight,
+helper75 antes do runner. Pedido de liberação de memória sem resposta; sem
+processos alheios encerrados ou swap/guarda alterados. Estáticos e status verdes.
+Sem push novo; remoto/PR268 permanecemfba166f8, CI anterior apenas histórico.
+Novos commits ainda não constituem backup GitHub. Instalação/auth/release/
+merge/deploy/boot não executados; runtime/rollback não revalidados.
+
+Retomar apenas após MemAvailable>=3145728KiB e>=8GiB livres: uma integral serial/nice10 no runner isolado oficial, quatro hashes congelados, cobertura integral>=85,66169677501884% da basefba166f8 e guardas9045/9046emulation,397/398linux mais todos os anteriores presentes. Não repetir mesma fonte por sorte nem baixar base/limiar. Depois fechamento documental e um push nominal da continuidade/PR268, conferir SHA remoto e oito jobs terminais/coreCI>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.
+
+[Comando exato, históricos e capturas](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).
