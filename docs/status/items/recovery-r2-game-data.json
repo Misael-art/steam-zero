@@ -36,7 +36,7 @@
     "docs/09-operations/evidence/2026-10-23-r2-launcher-data",
     "tests/integration/test_game_metadata_migration_recovery.py"
   ],
-  "scopeDigest": "5c8550636348d560c64a0030b6f34e45b97379f6042cb0258aac6928ae446301",
+  "scopeDigest": "7de530717242be539ad07aa3eb2e93638511f53343320503d8ee98086fb144f2",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",

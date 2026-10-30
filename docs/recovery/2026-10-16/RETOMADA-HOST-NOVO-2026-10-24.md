@@ -234,6 +234,30 @@ de caminhos, downgrade do schema 23 ou cópia cega sobre o perfil novo.
 
 ## Próxima entrega concreta
 
+**Fechamento do retorno com jogo removido — 30/10/2026:** produto
+`edcfc20256d574e068406c8ac8a15d729327e559` e integração compartilhada final
+`f6738ec498ab0ccfbf6c5bccc6b4220695d8a5b2`. O modelo reutiliza restore_context para publicar
+returnFocus/returnDiagnostics, sem alterar returnContext/launchRecovery, arquivo
+owned ou linha canônica. Duas respostas closed perdidas e remoção do jogo antes
+de reabrir retornam ao vizinho da seção de origem; gestos iniciam uma única
+sessão nova desse jogo e seu término retorna ao cartão. Nenhuma adoção de latest,
+outro catálogo/supervisor/schema ou edição do domínio reservado.
+
+Baseline1falha/6,88s;93 focados +9 shell,10 novos. Integral7.069 passed/48 skipped/0 failed/19 warnings em3.096,25s. Runner e observador0, signals vazio; observador3.106,75s. Cobertura integral85,650326% >=integral85,647076% da baseac41c04c, delta+0,003251 ponto percentual.
+Ruff736/mypy307/independence/boundaries/status verdes; sete hashes e estado
+pessoal preservados. Primeira integral interrompida143/Qt-15 não conta como
+aprovação; ES-DE original1passed/34,38s e retomada integral0, sem fonte/teste/
+timeout alterados. A causa do sinal continua não confirmada. Seis PNGs fonte
+Qt/offscreen no CHECKPOINT R3; sem prova instalada/hardware ou promoção de eixos.
+
+Próximo baseline seguro: seção de origem inteira removida ou catálogo vazio antes da reabertura após closed com GET perdido. A projeção HTTP já cobre esses destinos; falta percorrer o Qt com resposta ausente e comprovar foco utilizável. Na Home vazia, Enter deve acionar a recarga existente library.add/library.retry pelo _retry, mantendo zero launches/recoveries automáticos e a referência canônica exata. Registrar comportamento antes de presumir defeito; reutilizar mapa/domínio e canais existentes, sem novo catálogo ou writer. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_focus_bootstrap.py -q. Manter claims e integração compartilhada por último; não editar domínio reservado sem handoff prospectivo. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Fechar documentação e publicar um checkpoint/PR268, conferir remoto/CI terminal
+no PR. Baseac41c04c teve CI40981206167 com oito jobs aprovados na primeira
+tentativa, core85,486462%; comparar CI↔CI separado da integral local. Host só
+readlink59ecc2d8f0f6, runtime/rollback não revalidados. Sem instalação/auth/release/
+merge/deploy/boot. Blocos seguintes são históricos.
+
 **Fechamento de sucesso closed após GET perdido e reinício — 29/10/2026:**
 `a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1`. O GET terminal conserva a referência v2 owned/recibo
 confirmado até o próximo launch explícito validado. Duas bridges perdem as

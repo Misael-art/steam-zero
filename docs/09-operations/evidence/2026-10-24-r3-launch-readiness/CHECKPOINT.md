@@ -992,3 +992,130 @@ causa não confirmada, sem alegar correção; recorrência exige diagnóstico.
 Validação documental:13 testes do catálogo passaram em10,06s, runner isolado0,
 estado pessoal monitorado preservado. Views/digests regenerados e status-check
 aprovado; WORKLOG recebe apenas o fechamento desta sessão.
+
+
+### Catálogo alterado antes do retorno closed — 29/10/2026
+
+Continuidade serial autorizada no checkout/branch/executor únicos, base
+ac41c04cd89890858b205dea05f678f8245a97f0. CI40981206167: oito jobs aprovados
+na primeira tentativa, coreCI85,486462%>=85,478942%; artefato12944359633,
+668.635 bytes,SHA-25681a9de33431a433385e4dd35dcbaaeb35fd0e6105e524abe719d28ad61f04620.
+Candidata em fonte: catálogo sem o jogo anterior após GET closed perdido e
+reinício; duas seções distinguem topo da Home de vizinho na seção de origem.
+Registrar baseline antes de corrigir. Reutilizar domínio restore_context,
+contexto owned/recibos/controller existentes. Sete paths previstos já exclusivos
+R3; domínio session.py/teste unitário são somente leitura, sem nova cessão.
+Fonte/testes/commits/push/PR268 autorizados; sem instalação/auth/release/merge/
+deploy/boot. Eixos/gaps preservados, WORKLOG somente no fechamento.
+
+**Baseline reproduzido:**1 failed/3 deselected em6,88s no Qt6.11.2 local,
+sem alterações de produto. Depois do primeiro término normal e perda de GET,
+a reabertura sem o jogo foi para top:first em vez de library:survivor. Log em
+build/agent-runs/r3-removed-return/baseline.log. O domínio já resolve o vizinho;
+o shell ignorava essa política e usava focusMap.initial quando o ID sumia.
+
+**Correção:** model publica returnFocus/returnDiagnostics calculados pelo
+restore_context existente. returnContext/launchRecovery permanecem com a
+identidade/foco originais; nada reescreve arquivo ou lifecycle para obter um
+destino visual. LauncherMain passa o destino e o shell só o aceita se estiver
+no mapa atual; mantém fallback legado para consumidores sem o campo. Sem
+novo schema persistido, catálogo, supervisor ou resolução duplicada de vizinho.
+Comentário do entry point foi alinhado à retenção v2 até novo launch validado.
+
+93 focados passaram em72,00s, incluindo10 novos:9 de projeção/HTTP e um percurso
+Qt completo. V1/v2 com vizinho, seção removida e Home vazia; contexto ausente,
+foco preservado/inválido, diagnóstico e bytes do contexto intactos em leituras
+repetidas. Modelo não lança/reconcilia lifecycle. Qt usa owner até término
+natural, perde GET em duas bridges, restaura vizinho na terceira, exige gestos
+para uma nova sessão do jogo sobrevivente e retorna a esse cartão. Guardas de
+identidade antiga/nova e linha canônica preservadas. Estado pessoal monitorado
+inalterado. Fixtures de CLI usam ID do novo jogo, sem mudar produtor real.
+
+LauncherShell.qml e test_launcher_app.py são exclusivos R3 e compartilhados
+na WS de Diagnóstico; integração com LauncherMain.qml dependente em commit
+próprio por último. Sem alterar claims ou arquivos de domínio reservados.
+
+Captura final:1 passed/3 deselected em16,13s. Seis PNGs Qt/offscreen800x800
+inspecionados e persistidos, dados sintéticos sem informações pessoais:
+
+![Vizinho da seção de origem restaurado após remoção e GETs perdidos; fonte offscreen](removed-return/04-closed-return-restored.png)
+
+[01 jogo/owner ativos](removed-return/01-original-game-running.png),
+[02 GET closed perdido](removed-return/02-closed-get-lost.png),
+[03 reabertura sem o jogo e GET perdido](removed-return/03-second-closed-get-lost.png),
+[05 próximo jogo explícito](removed-return/05-explicit-next-running.png),
+[06 retorno ao vizinho](removed-return/06-next-canonical-return.png).
+
+A captura03 mostra bloqueio de duplicação enquanto a resposta está ausente,
+com o vizinho já selecionado;04 mostra o retorno confirmado. Não comprovam
+emulador/acervo real, instalação, hardware, Deck ou GPU/FPS. Cinco eixos e
+GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME permanecem inalterados.
+
+A primeira integral foi interrompida por SIGTERM aos2.070,80s: observador143,
+remetente1517788/UID1000/SI_USER. Não houve fechamento do runner integral. O
+pytest registrou1 failed/2.042 passed/46 skipped/2.071,55s: o runner Qt de
+test_a_ordem_de_resposta_inverte (importador ES-DE, fora do código alterado)
+retornou-15 sem denominador final. Cast engine também registrou SIGTERM. É uma
+passagem interrompida, não aprovação nem prova de regressão do Launcher.
+Remetente já encerrado na inspeção; causa do sinal não confirmada. Logs/recibo
+preservados como full-interrupted* e esde-ordem-interrupted.txt em
+build/agent-runs/r3-removed-return. Sete arquivos de produto/teste seguem
+congelados. Investigar com caso focado e melhorar atribuição de ancestralidade
+no observador temporário; sem ignorar sinal, relaxar teste ou timeout.
+
+Caso ES-DE original isolado:1 passed/8 deselected em34,38s, sem mudar produto,
+harness, timeout ou teste. Isso não prova a causa do cancelamento. Observador
+temporário passou a registrar ancestry no início e metadados do remetente no
+sinal; a prova curta identificou o sender e repassou SIGTERM/recolheu o filho,
+sem ignorar cancelamento. A integral será retomada com PTY e a mesma árvore
+congelada; não se atribui causa à diferença de modo de terminal. Ruff/mypy/
+fronteiras/independência permanecem válidos nos mesmos sete hashes. Apenas
+digests/views/status documentais são atualizados para registrar a interrupção.
+
+
+### Fechamento do retorno ao catálogo alterado — 30/10/2026
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: projeção do destino pelo domínio e percurso com jogo removido | `edcfc20256d574e068406c8ac8a15d729327e559` | Baseline1falha/6,88s;93 focados/72,00s,10 novos; seis PNGs fonte Qt/offscreen |
+| Integração compartilhada por último: shell, consumidor e testes HTTP | `f6738ec498ab0ccfbf6c5bccc6b4220695d8a5b2` | +9 cenários existentes do shell/4,23s; integral certifica a árvore integrada de sete arquivos |
+
+Integral7.069 passed/48 skipped/0 failed/19 warnings em3.096,25s. Runner e observador0, signals vazio; observador3.106,75s. Cobertura integral85,650326% >=integral85,647076% da baseac41c04c, delta+0,003251 ponto percentual.
+Comparação equivalente integral↔integral em coverage-comparison.json, logs e
+manifestos em build/agent-runs/r3-removed-return. Core CI↔core CI será comparado
+entre artefatos Python3.14 aprovados no PR, sem misturar seleções. Ruff736,
+mypy307, independence/boundaries/status verdes. Sete hashes íntegros coincidem
+com a integração final; não instalar o checkpoint backend parcial isoladamente.
+Nenhum golden, skip, limiar, gesto, correlação ou contador foi relaxado.
+
+A primeira passagem continua registrada como interrompida: SIGTERM143 aos
+2.070,80s, runner Qt-15 e resumo parcial1 failed/2.042 passed/46 skipped. Caso
+ES-DE original isolado passou1/8deselected/34,38s; não houve alteração de fonte,
+teste ou timeout para esse caso. O observador temporário passou a registrar
+ancestralidade/remetente e provou encaminhamento do cancelamento em ensaio
+curto. A retomada integral concluiu0/signals vazio; isso não prova a origem do
+sinal nem uma correção de infraestrutura. Só a passagem concluída conta como
+gate; estáticos não foram repetidos nos mesmos bytes.
+
+Estado pessoal monitorado idêntico antes/depois:3 arquivos,5 diretórios,
+860.896 bytes e mesmo max_mtime_ns. Seis PNGs800x800 inspecionados/persistidos;
+fonte Qt/offscreen, sem emulador/acervo real, instalação/hardware/Deck ou GPU/FPS.
+Contexto original e linha canônica preservados; modelo publica destino e
+causa separados da identidade. Não cria catálogo, supervisor, writer ou schema.
+V1 e consumidores sem a projeção conservam compatibilidade. Cinco eixos e gaps
+preservados, sem edição de arquivos de domínio reservados.
+
+Host somente readlink:releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não
+revalidados. Sem instalação, auth, release, merge, deploy ou boot. Fonte/testes/
+commits/push/PR268 autorizados na continuidade, checkout e executor únicos.
+
+Próximo baseline seguro: seção de origem inteira removida ou catálogo vazio antes da reabertura após closed com GET perdido. A projeção HTTP já cobre esses destinos; falta percorrer o Qt com resposta ausente e comprovar foco utilizável. Na Home vazia, Enter deve acionar a recarga existente library.add/library.retry pelo _retry, mantendo zero launches/recoveries automáticos e a referência canônica exata. Registrar comportamento antes de presumir defeito; reutilizar mapa/domínio e canais existentes, sem novo catálogo ou writer. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_app.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_launcher_focus_bootstrap.py -q. Manter claims e integração compartilhada por último; não editar domínio reservado sem handoff prospectivo. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Fechar documentação e publicar uma vez a branch de continuidade/PR268. Conferir
+SHA remoto e CI terminal. Resultado remoto e artefato de cobertura registrados
+no PR, sem commit circular. O episódio histórico de Saves mantém causa não
+confirmada; não apresentado como corrigido por aprovações posteriores.
+
+Validação documental:13 testes do catálogo passaram em13,56s, runner isolado0
+e estado pessoal monitorado preservado. Digests/views regenerados, status-check
+aprovado. WORKLOG recebe somente o fechamento desta sessão.

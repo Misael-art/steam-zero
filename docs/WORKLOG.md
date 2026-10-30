@@ -15422,3 +15422,59 @@ reabertura após closed com GET perdido, prova exata e foco válido sem launch
 automático; observar primeiro, sem presumir defeito. Handoff contém comando
 isolado. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e
 prova física independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.
+
+
+## 2026-10-30 — R3: retorno após remoção do jogo com GETs perdidos
+
+Continuidade serial autorizada, checkout/branch/executor únicos. Baseac41c04c,
+CI40981206167 com oito jobs aprovados na primeira tentativa, coreCI85,486462%.
+Fonte/testes/commits/push/PR268 autorizados; sem instalação/auth/release/merge/
+deploy/boot. Sete paths exclusivos R3, sem editar domínio reservado. Shell e
+testes app compartilhados com Diagnóstico integram em commit próprio por último.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: projetar destino existente do domínio sem reescrever identidade | edcfc20256d574e068406c8ac8a15d729327e559 | Baseline1falha/6,88s;93 focados/72,00s,10 novos; Qt/HTTP/CLI e dados controlados |
+| Integração compartilhada: shell, consumidor e testes HTTP | f6738ec498ab0ccfbf6c5bccc6b4220695d8a5b2 | +9 shell/4,23s; integral certifica a árvore integrada de sete arquivos |
+
+O shell caía no início da Home quando o jogo sumia. Modelo publica returnFocus/
+returnDiagnostics pelo restore_context existente; QML aceita destino do mapa.
+returnContext/launchRecovery e bytes owned mantêm ID/foco originais, independentes
+do destino visual. Sem novo catálogo, supervisor, writer ou schema. V1 e chamadas
+sem a projeção nova preservam compatibilidade. Testes cobrem vizinho, seção
+removida, Home vazia, contexto ausente e foco válido/inválido, diagnóstico e
+leituras sem efeitos. Owner até término natural, duas perdas de GET, jogo
+removido, terceira bridge restaura vizinho, um jogo sobrevivente por gestos e
+retorno. Linha canônica anterior e contexto novo corretos; sem adoção de latest.
+
+Integral7.069 passed/48 skipped/0 failed/19 warnings/3.096,25s; runner/observador0,
+signals vazio,3.106,75s monotônicos. Integral85,650326%>=integral85,647076% da
+baseac41c04c, delta+0,003251pp. Comparação integral↔integral; core CI↔core CI
+será registrada no PR entre artefatos Python3.14 aprovados. Ruff736/mypy307,
+independence/boundaries/status verdes, sete hashes coincidem com integração.
+13 testes do catálogo/13,56s. Estado pessoal monitorado idêntico:3 arquivos,
+5 diretórios,860.896 bytes e mesmo max_mtime_ns. Views/digests regenerados, sem
+promover eixos/gaps ou relaxar goldens/skips/limiares/gestos/contadores.
+
+Primeira integral interrompida por SIGTERM143 aos2.070,80s: runner Qt-15, resumo
+parcial1 failed/2.042 passed/46 skipped. Não é gate aprovado. ES-DE original
+isolado1passed/8deselected/34,38s; nenhum produtor, teste ou timeout ES-DE foi
+alterado. Observador temporário passou a registrar ancestry/remetente e provou
+encaminhamento de cancelamento/recolhimento do filho. Retomada completa0 e
+signals vazio não prova causa do sinal nem correção de infraestrutura. Logs
+full-interrupted* e esde-ordem-interrupted.txt preservados em
+build/agent-runs/r3-removed-return. Estáticos válidos não repetidos nos mesmos bytes.
+
+Seis PNGs Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT R3 existente,
+sem emulador/acervo real, instalação/hardware/Deck ou GPU/FPS. Host apenas
+readlink releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados.
+Nenhuma ação privilegiada. Fontes/fixtures e provas físicas continuam distintas.
+
+Publicar um checkpoint dos dois funcionais e documental na continuidade/PR268,
+conferir SHA remoto e CI terminal; resultado remoto no PR, sem commit circular.
+Próximo baseline: seção de origem inteira removida ou catálogo vazio após closed/
+GET perdido, foco utilizável e Enter na recarga existente, sem launch/recovery
+automáticos. Projeção HTTP já coberta, percurso Qt pendente; não presumir defeito.
+Handoff contém comando RTK isolado. V1, Steam sem recibo, provas/contextos
+ausentes, outro boot/namespace e hardware seguem independentes; GAP lifetime
+aberto. Episódio histórico de Saves mantém causa não confirmada.
