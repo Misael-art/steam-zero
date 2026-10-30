@@ -34,8 +34,8 @@ from steamzero.launcher.launch import consume_context
 from steamzero.launcher.navigation import HomeSection
 database,context,stop,release,counters,worker,entry=map(Path,sys.argv[1:8])
 mode=sys.argv[8]
-removed=len(sys.argv)>9 and sys.argv[9]=='removed'
-launches=[];recoveries=[];dropped=[];terminal_dropped=[]
+catalog=sys.argv[9] if len(sys.argv)>9 else 'unchanged'
+launches=[];recoveries=[];dropped=[];terminal_dropped=[];models=[]
 def spawn(argv,*,request_id,game_id):
     launches.append(request_id);release.unlink(missing_ok=True)
     launch_worker=worker
@@ -51,10 +51,14 @@ def recover(game,identity):
     recoveries.append(identity)
     return router.recover_session(game,identity)
 sections=(HomeSection(id='library',title='Library',items=('first','lifetime-probe')),)
-if removed:
+if catalog!='unchanged':
     items=('lifetime-probe','survivor') if mode=='closed-finish-lost' else ('survivor',)
     sections=(HomeSection(id='top',title='Top',items=('first',)),
         HomeSection(id='library',title='Library',items=items))
+    if mode!='closed-finish-lost' and catalog=='section':
+        sections=(HomeSection(id='top',title='Top',items=('first',)),)
+    if mode!='closed-finish-lost' and catalog.startswith('empty'):
+        sections=()
 bridge=launcher_ui.LauncherBridge(
     sections=sections,
     titles={'first':'First','lifetime-probe':'Synthetic game','survivor':'Surviving game'},
@@ -66,11 +70,15 @@ bridge=launcher_ui.LauncherBridge(
 original_get=launcher_ui._Handler.do_GET
 original_send=launcher_ui._Handler._send
 def get(handler):
+    if handler.path=='/model' and handler._authorized():
+        models.append(True)
+        if catalog=='empty-offline' and mode=='closed-reopened' and len(models)==2:
+            original_send(handler,503,{'code':'FIXTURE-MODEL-UNAVAILABLE'});return
     if handler.path=='/owner-control/finish' and handler._authorized():
         release.touch();original_send(handler,200,{})
     elif handler.path=='/owner-control/count' and handler._authorized():
         original_send(handler,200,{'launches':len(launches),'recoveries':len(recoveries),
-            'terminalDrops':len(terminal_dropped)})
+            'terminalDrops':len(terminal_dropped),'models':len(models)})
     else:original_get(handler)
 def send(handler,status,body):
     if (mode in {'closed-finish-lost','closed-restart-lost'}
@@ -90,18 +98,34 @@ with bridge.serving() as api:
     deadline=time.monotonic()+45
     while not stop.exists() and time.monotonic()<deadline:time.sleep(.02)
 counters.write_text(json.dumps({'launches':launches,'recoveries':recoveries,
-    'dropped':len(dropped),'terminalDrops':len(terminal_dropped)}))
+    'dropped':len(dropped),'terminalDrops':len(terminal_dropped),'models':len(models)}))
 """
 
 
 @pytest.mark.visual
 @pytest.mark.parametrize(
-    "lose_terminal,normal_close,catalog_removed",
-    [(False, False, False), (True, False, False), (True, True, False), (True, True, True)],
-    ids=["post-reply-loss", "terminal-get-restart", "closed-get-restart", "removed-closed-restart"],
+    "lose_terminal,normal_close,catalog",
+    [
+        (False, False, "unchanged"),
+        (True, False, "unchanged"),
+        (True, True, "unchanged"),
+        (True, True, "removed"),
+        (True, True, "section"),
+        (True, True, "empty"),
+        (True, True, "empty-offline"),
+    ],
+    ids=[
+        "post-reply-loss",
+        "terminal-get-restart",
+        "closed-get-restart",
+        "removed-closed-restart",
+        "section-closed-restart",
+        "empty-closed-restart",
+        "empty-offline-closed-restart",
+    ],
 )
 def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
-    tmp_path, lose_terminal, normal_close, catalog_removed
+    tmp_path, lose_terminal, normal_close, catalog
 ):
     runner = shutil.which("qmltestrunner6") or "/usr/lib/qt6/bin/qmltestrunner"
     assert Path(runner).is_file(), "QML-VISUAL-ENVIRONMENT-001: Qt6 obrigatório"
@@ -180,6 +204,7 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
             )
         terminal_row = None
         for mode in phases:
+            context_before = context.read_bytes()
             stop, counters = (tmp_path / f"{mode}-{name}" for name in ("stop", "counts.json"))
             with subprocess.Popen(
                 [
@@ -194,7 +219,7 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     str(worker),
                     str(entry),
                     mode,
-                    "removed" if catalog_removed else "unchanged",
+                    catalog,
                 ],
                 env=env,
                 stdout=subprocess.PIPE,
@@ -211,20 +236,32 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                         "mode": mode,
                         "identity": identity,
                         "returnFocus": (
-                            "library:survivor"
-                            if catalog_removed and mode != "closed-finish-lost"
+                            {
+                                "removed": "library:survivor",
+                                "section": "top:first",
+                                "empty": "empty:action",
+                                "empty-offline": "empty:action",
+                            }[catalog]
+                            if catalog != "unchanged" and mode != "closed-finish-lost"
                             else "library:lifetime-probe"
                         ),
-                        "nextGame": "survivor" if catalog_removed else "lifetime-probe",
-                        "nextFocus": "library:survivor"
-                        if catalog_removed
-                        else "library:lifetime-probe",
+                        "nextGame": {"removed": "survivor", "section": "first"}.get(
+                            catalog, "lifetime-probe"
+                        ),
+                        "nextFocus": {"removed": "library:survivor", "section": "top:first"}.get(
+                            catalog, "library:lifetime-probe"
+                        ),
+                        "emptyCatalog": catalog.startswith("empty")
+                        and mode != "closed-finish-lost",
+                        "reloadError": catalog == "empty-offline",
                         "capture": "",
                     }
                     if os.environ.get("STEAMZERO_CAPTURE_OWNER_LOSS") == "1":
                         folder = (
-                            "r3-removed-return"
-                            if catalog_removed
+                            "r3-empty-return"
+                            if (catalog == "section" or catalog.startswith("empty"))
+                            else "r3-removed-return"
+                            if catalog == "removed"
                             else "r3-closed-restart"
                             if normal_close
                             else "r3-terminal-restart"
@@ -232,6 +269,9 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                             else "r3-owner-loss"
                         )
                         config["capture"] = str(ROOT / "build/agent-runs" / folder)
+                        if catalog == "section" or catalog.startswith("empty"):
+                            config["capture"] += f"/{catalog}"
+                        Path(config["capture"]).mkdir(parents=True, exist_ok=True)
                     (tmp_path / "owner-loss-config.json").write_text(json.dumps(config))
                     result = subprocess.run(
                         [runner, "-input", str(harness)],
@@ -245,16 +285,28 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     stop.touch()
                     server.communicate(timeout=10)
             counts = json.loads(counters.read_text())
-            retried = mode in {"recover", "recover-reopened", "closed-reopened"}
+            retried = mode in {
+                "recover",
+                "recover-reopened",
+                "closed-reopened",
+            } and not catalog.startswith("empty")
             assert len(counts["launches"]) == int(retried)
             assert len(counts["recoveries"]) == int(mode in {"recover", "lost-terminal"})
+            if not retried:
+                assert context.read_bytes() == context_before
             with StateStore(database) as store:
                 row = store.get_game_session(identity)
             retained = json.loads(context.read_text())
             assert retained["owner"] == CONTEXT_OWNER and retained["schemaVersion"] == 2
-            next_game = "survivor" if catalog_removed and retried else "lifetime-probe"
+            next_game = (
+                {"removed": "survivor", "section": "first"}.get(catalog, "lifetime-probe")
+                if retried
+                else "lifetime-probe"
+            )
             assert retained["gameId"] == next_game
-            assert retained["focusId"] == f"library:{next_game}"
+            assert retained["focusId"] == (
+                "top:first" if catalog == "section" and retried else f"library:{next_game}"
+            )
             if normal_close:
                 assert row["state"] == "closed" and row["exit_code"] == 0
                 assert row["failure_code"] is None and counts["recoveries"] == []
@@ -275,7 +327,11 @@ def test_qml_retains_terminal_context_after_reply_loss_and_restarts(
                     assert latest["id"] == latest_id and latest["state"] == "closed"
                     assert latest["exit_code"] == 0 and latest["failure_code"] is None
                 else:
-                    assert counts["terminalDrops"] > 0
+                    if mode != "closed-reopened":
+                        assert counts["terminalDrops"] > 0
+                    else:
+                        assert catalog.startswith("empty")
+                        assert counts["models"] == (3 if catalog == "empty-offline" else 2)
                     latest_id = identity
                 assert json.loads(context.read_text())["launchRequestId"] == latest_id
             elif mode == "observe":

@@ -10,13 +10,12 @@ Item {
     TestCase {
         name: "LauncherOwnerLoss"
         when: windowShown
-        function capture(scene, config, name) {
+        function capture(scene, config, name, rendered) {
             if (!config.capture) return
-            let saved=false
-            verify(scene.contentItem.grabToImage(function(result) {
-                saved=result.saveToFile(config.capture + "/" + name + ".png")
-            }))
-            tryVerify(function() { return saved }, 3000)
+            verify(waitForPolish(scene.contentItem,3000))
+            const frame=rendered || grabImage(scene.contentItem)
+            verify(frame.width>0 && frame.height>0)
+            frame.save(config.capture + "/" + name + ".png")
         }
         function waitForLostTerminal(scene) {
             let counts=null
@@ -66,6 +65,7 @@ Item {
                 compare(shell.gamePage,null)
                 compare(shell.homeFocus,config.returnFocus)
                 compare(shell.sessionUncertain,false)
+                compare(shell.observedSessionId,config.identity)
                 compare(findChild(shell,"launchFailureOverlay").visible,false)
                 tryVerify(function(){return !findChild(shell,"returnFadeLayer").visible},2000)
                 capture(scene,config,"04-closed-return-restored")
@@ -97,6 +97,65 @@ Item {
             })
             tryVerify(function(){return counts!==null},2000)
             compare(counts.launches,0); compare(counts.recoveries,0)
+            if (normalReturn && config.emptyCatalog) {
+                const home=findChild(shell,"launcherHome")
+                verify(home.activeFocus)
+                compare(home.empty,true)
+                compare(home.currentNode.action,"library.add")
+                compare(counts.models,1)
+                keyClick(Qt.Key_Up)
+                compare(shell.homeFocus,"header:home")
+                keyClick(Qt.Key_Down)
+                compare(shell.homeFocus,"empty:action")
+                const generation=scene.modelGeneration
+                keyClick(Qt.Key_Return)
+                tryCompare(scene,"modelGeneration",generation+1)
+                if (config.reloadError) {
+                    tryCompare(scene,"loadState","error")
+                    const retry=findChild(scene,"launcherRetry")
+                    tryVerify(function(){return retry.visible && retry.activeFocus},2000)
+                    verify(scene.failure.indexOf("503")>=0)
+                    compare(shell.homeFocus,"empty:action")
+                    compare(shell.gamePage,null)
+                    compare(scene.model.returnContext.launchRequestId,config.identity)
+                    capture(scene,config,"05-empty-reload-error")
+                    keyClick(Qt.Key_Return)
+                    tryCompare(scene,"modelGeneration",generation+2)
+                }
+                tryCompare(scene,"loadState","ready")
+                compare(shell.homeFocus,"empty:action")
+                compare(shell.gamePage,null)
+                compare(shell.launchState,"recovered")
+                compare(shell.observedSessionId,config.identity)
+                compare(shell.sessionUncertain,false)
+                compare(scene.model.returnContext.launchRequestId,config.identity)
+                compare(scene.model.launchRecovery.sessionId,config.identity)
+                let reloaded=null
+                scene._request("GET","/owner-control/count",null,function(status,text){
+                    if(status===200)reloaded=JSON.parse(text)
+                })
+                tryVerify(function(){return reloaded!==null},2000)
+                compare(reloaded.models,config.reloadError ? 3 : 2)
+                compare(reloaded.launches,0); compare(reloaded.recoveries,0)
+                verify(home.activeFocus)
+                keyClick(Qt.Key_Up)
+                compare(shell.homeFocus,"header:home")
+                keyClick(Qt.Key_Down)
+                compare(shell.homeFocus,"empty:action")
+                tryVerify(function(){return !findChild(shell,"returnFadeLayer").visible},2000)
+                const action=findChild(home,"launcherEmptyAction")
+                verify(action.visible && action.width>0 && action.height>0)
+                const sample=action.mapToItem(scene.contentItem,20,20)
+                let rendered=null
+                tryVerify(function() {
+                    rendered=grabImage(scene.contentItem)
+                    const x=Math.round(sample.x), y=Math.round(sample.y)
+                    return rendered.red(x,y)+rendered.green(x,y)+rendered.blue(x,y)>0
+                },3000,"empty action was not rendered after reload")
+                capture(scene,config,config.reloadError
+                    ? "06-empty-reload-recovered" : "05-empty-reload-navigable",rendered)
+                return
+            }
             if (!normalReturn && config.mode !== "recover-reopened") {
                 tryVerify(function(){return findChild(shell,"sessionRecoveryButton").activeFocus},2000)
                 capture(scene,config,"02-explicit-recovery-available")
