@@ -12,7 +12,10 @@ line/caminho privado no snapshot e no pacote de suporte.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
+
+import pytest
 
 from steamzero.adapters.diagnostics import _assert_sanitized, sanitize_payload
 from steamzero.adapters.resource_probe import (
@@ -481,3 +484,95 @@ class TestProbeContract:
         snapshot = probe.snapshot()
         assert snapshot["complete"] is True
         assert _class_row(snapshot, "unknown")["processCount"] == 1
+
+
+def _write_proc_files(tmp_path: Path) -> tuple[Path, Path]:
+    proc_root = tmp_path / "proc"
+    process = proc_root / "300"
+    process.mkdir(parents=True)
+    (process / "stat").write_text(_stat(300), encoding="utf-8")
+    (process / "status").write_text(_status(rss_kib=8), encoding="utf-8")
+    (process / "smaps_rollup").write_text(_smaps(8), encoding="utf-8")
+    return proc_root, process
+
+
+@pytest.mark.parametrize("environ_kind", ["regular", "missing", "directory", "symlink", "oversize"])
+def test_default_readers_reject_unsafe_environ_without_attributing_or_writing(
+    tmp_path: Path, environ_kind: str
+) -> None:
+    proc_root, process = _write_proc_files(tmp_path)
+    marker = tmp_path / "outside-environ"
+    marker.write_bytes(_environ("STEAMZERO_CLASS=ui"))
+    environ = process / "environ"
+    if environ_kind == "regular":
+        environ.write_bytes(marker.read_bytes())
+    elif environ_kind == "directory":
+        environ.mkdir()
+    elif environ_kind == "symlink":
+        environ.symlink_to(marker)
+    elif environ_kind == "oversize":
+        environ.write_bytes(marker.read_bytes().ljust((1 << 20) + 1, b"x"))
+    before = {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()}
+
+    snapshot = ResourceProbe(
+        proc_root=str(proc_root),
+        getpid=lambda: 100,
+        now=lambda: "2026-08-01T00:00:00+00:00",
+    ).snapshot()
+
+    assert snapshot["complete"] is True and snapshot["readOnly"] is True
+    expected_class = "ui" if environ_kind == "regular" else "unknown"
+    assert _class_row(snapshot, expected_class)["processCount"] == 1
+    assert _class_row(snapshot, expected_class)["pssBytes"] == 8 * 1024
+    assert len(snapshot["processes"]) == 1
+    serialized = json.dumps(snapshot)
+    assert str(tmp_path) not in serialized and "STEAMZERO_CLASS" not in serialized
+    assert {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()} == before
+    assert environ.is_symlink() == (environ_kind == "symlink")
+    if environ_kind == "missing":
+        assert not environ.exists()
+    if environ_kind == "directory":
+        assert environ.is_dir() and not list(environ.iterdir())
+
+
+def test_default_readers_report_a_missing_stat_without_creating_it(tmp_path: Path) -> None:
+    proc_root, process = _write_proc_files(tmp_path)
+    (process / "stat").unlink()
+    before = {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()}
+
+    snapshot = ResourceProbe(proc_root=str(proc_root), getpid=lambda: 100).snapshot()
+
+    assert snapshot["complete"] is False and snapshot["reason"] == "proc-incomplete"
+    assert snapshot["readOnly"] is True
+    assert _class_row(snapshot, "unknown")["processCount"] == 1
+    assert not (process / "stat").exists()
+    assert {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()} == before
+
+
+@pytest.mark.parametrize("filename", ["stat", "environ"])
+@pytest.mark.parametrize("failure", [PermissionError, OSError])
+def test_default_readers_degrade_conservatively_on_open_errors(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, filename: str, failure: type[OSError]
+) -> None:
+    proc_root, process = _write_proc_files(tmp_path)
+    (process / "environ").write_bytes(_environ("STEAMZERO_CLASS=ui"))
+    before = {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()}
+    original_open = Path.open
+
+    def fail_selected_open(path: Path, *args: Any, **kwargs: Any) -> Any:
+        if path == process / filename:
+            raise failure("controlled read failure")
+        return original_open(path, *args, **kwargs)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(Path, "open", fail_selected_open)
+        snapshot = ResourceProbe(proc_root=str(proc_root), getpid=lambda: 100).snapshot()
+
+    assert snapshot["readOnly"] is True
+    assert snapshot["complete"] is (filename != "stat")
+    assert snapshot.get("reason") == ("proc-incomplete" if filename == "stat" else None)
+    assert _class_row(snapshot, "unknown")["processCount"] == 1
+    assert len(snapshot["processes"]) == 1
+    serialized = json.dumps(snapshot)
+    assert str(tmp_path) not in serialized and "STEAMZERO_CLASS" not in serialized
+    assert {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()} == before

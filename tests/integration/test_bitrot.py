@@ -189,6 +189,20 @@ def test_cli_status_plan_apply_roundtrip(
     assert applied["health"]["state"] == "healthy"
 
 
+@pytest.mark.parametrize("raw", [b"[]", b"{}"], ids=["not-an-object", "missing-fields"])
+def test_structurally_invalid_json_fails_closed_without_rewriting(
+    tmp_path: Path, raw: bytes
+) -> None:
+    state = tmp_path / "invalid-document.json"
+    state.write_bytes(raw)
+
+    with pytest.raises(SteamZeroError, match="documento anti-bitrot inválido") as error:
+        BitrotManager(state).status()
+
+    assert error.value.code == "E-STATE-INTEGRITY"
+    assert state.read_bytes() == raw
+
+
 @settings(
     max_examples=64,
     deadline=None,
