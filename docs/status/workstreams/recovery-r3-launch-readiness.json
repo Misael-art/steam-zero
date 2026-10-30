@@ -6,7 +6,7 @@
   "branch": "codex/product-recovery-2026-10-16",
   "baseRef": "fba166f8f454a0b928b1b82504613b26180987e2",
   "owner": "codex-central-executor",
-  "state": "active",
+  "state": "blocked",
   "exclusivePaths": [
     "src/steamzero/adapters/launcher_ui.py",
     "src/steamzero/ui/qml/launcher/LauncherMain.qml",
@@ -65,6 +65,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Checkpoint intermediário local 89a2c7164af614c2a078335deec517e96df9a3aa/8f5f2a89e02b4b66c439695ff51a01419feff1fc:59+27 focados,13x5/65 aprovações e6 capturas/15PNG,4hashes, produção intacta. Primeira integral7094 passou comportamento mas cobertura reprovou, logs preservados; segunda não iniciou por RAM2,3–2,6GiB<3GiB/300s/helper75. Sem push/CI novo; não fechar lote. Retomar apenas após MemAvailable>=3145728KiB e>=8GiB livres: uma integral serial/nice10 no runner isolado oficial, quatro hashes congelados, cobertura integral>=85,66169677501884% da basefba166f8 e guardas9045/9046emulation,397/398linux mais todos os anteriores presentes. Não repetir mesma fonte por sorte nem baixar base/limiar. Depois fechamento documental e um push nominal da continuidade/PR268, conferir SHA remoto e oito jobs terminais/coreCI>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.",
+  "nextAction": "Checkpoint intermediário local 89a2c7164af614c2a078335deec517e96df9a3aa/8f5f2a89e02b4b66c439695ff51a01419feff1fc:59+27 focados,13x5/65 aprovações e6 capturas/15PNG,4hashes, produção intacta. Primeira integral7094 passou comportamento mas cobertura reprovou, logs preservados; segunda não iniciou por RAM2,3–2,6GiB<3GiB/300s/helper75. Sem push/CI novo; não fechar lote. Retomar apenas após MemAvailable>=3145728KiB e>=8GiB livres: uma integral serial/nice10 no runner isolado oficial, quatro hashes congelados, cobertura integral>=85,66169677501884% da basefba166f8 e guardas9045/9046emulation,397/398linux mais todos os anteriores presentes. Não repetir mesma fonte por sorte nem baixar base/limiar. Depois fechamento documental e um push nominal da continuidade/PR268, conferir SHA remoto e oito jobs terminais/coreCI>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Direção expressa30/10/2026: proprietário pediu foco no Studio. Lote Launcher estacionado com3commits locais e integral/cobertura/push pendentes por recursos; não fechado nem promovido. Executor serial assume WS-2026-10-STUDIO-DRAFT-HISTORY; o próximo checkpoint integral poderá validar a composição dos bytes, mantendo comparações e guardas do Launcher.",
   "updatedAt": "2026-10-30"
 }

@@ -15611,3 +15611,46 @@ Validação documental final:13 testes/18,74s, status-check aprovado, visões/di
   capturas no CHECKPOINT existente; não avançar a novo item antes desse gate.
 
 Validação documental do checkpoint intermediário:13 testes/8,00s e status-check aprovados, estado pessoal monitorado preservado. WORKLOG apenas acrescido; gate integral/cobertura e publicação continuam pendentes por recursos.
+
+
+## 2026-10-30 — foco expresso no Studio, assets em subpastas
+
+- Direção do proprietário para o Studio; Launcher mantido bloqueado por recursos
+  com seus3commits e integral/cobertura/push pendentes. Um checkout/executor,
+  mesma continuidade. Handoff prospectivo theme_editor.py/test_theme_editor.py
+  de JLS para o workstream Studio existente antes dos testes/edições.
+- Defeito reproduzido:4 testes falhos/1 aprovado/0,80s. Save removia artes em
+  subpastas e deixava referências sem arquivo; upload também perdia originais.
+  Qt/HTTP real abriu a imagem, editou/undo/redo/salvou/reabriu e então perdeu
+  o preview (7QMLpass/1fail). Baseline visual final1falha/27,62s preservado.
+- Primeira corrida Qt1falha/27,20s teve diagnóstico oculto por truncagem; log
+  bruto e FAIL/Loc agora são conservados. Coleta1falha/21,26s parou no harness
+  por tratar retorno void de QtTestImage.save como booleano, apesar de PNG
+  gravado. Corrigido o uso, sem trocar golden/timeout/aceite. Não foi usada
+  como prova do defeito do produto; a baseline seguinte confirmou o preview.
+- Correção local40988da9fdf2cda16ef8256057392091dbcec23f: core.fs.iter_files
+  mantém arquivos regulares recursivos e caminho relativo; upload vence apenas
+  homônimo exato. Leitura negada de arquivo falha antes da remoção existente,
+  preserva tema/rascunho/histórico/upload e permite retry. Atomicidade de
+  diretório durante falha de escrita/crash não foi certificada; próximo baseline.
+-100 testes de domínio/7,46s e3 Qt/HTTP/30,97s aprovados. Cinco casos Python
+  novos+um percurso Qt aos cinco anteriores; metadados por gestos, undo/redo,
+  save/reopen e preview decodificado, export/import pela API pública mantendo
+  bytes/manifesto/URI. Idempotência byte a byte, mesmo basename em pastas
+  distintas, não referenciado, upload e recusa sem overwrite confirmados.
+- Dois PNGs1100×900/230.857bytes revisados no diretório de evidência existente.
+  Fonte Qt6.11.2/offscreen/software, fixtures CC0-1.0/XDG temporário; estado
+  pessoal monitorado preservado. Nenhum aceite de release/hardware/GPU/FPS.
+- Ruff check/format736, mypy307, independência/fronteiras/status aprovados.
+  Oito hashes commitados conferidos (4Studio+4Launcher), eixos/gaps intactos.
+  Visões/digests/status/handoff atualizados antes deste fechamento append-only.
+- Integral não iniciou:7 leituras/300s,2.475.856–2.837.792KiB<3.145.728KiB;
+  helper75. Não encerrados processos alheios nem alterados swap/guarda.
+  Sem push/CI novo; remoto/PR268fba166f8, fonte local ainda não é backup GitHub.
+  Sem instalação/auth/release/merge/deploy/boot, runtime/rollback não revalidados.
+- Retomar com RAM>=3GiB/disco>=8GiB: uma integral serial/nice10, comparação
+  >=85,66169677501884% e todos os guardas, então checkpoint/push nominal/PR268/
+  SHA remoto e CI terminal/core>=85,50677260258396%. Comando e capturas no
+  README de2026-10-03-journey-engine-preview; não alegar lote integral fechado.
+
+Validação documental Studio:13 testes/7,34s e status-check aprovados, dados pessoais monitorados preservados. Revisão de diff e8hashes/2PNGs conferidos; integral/push/CI novo ainda pendentes por recursos.

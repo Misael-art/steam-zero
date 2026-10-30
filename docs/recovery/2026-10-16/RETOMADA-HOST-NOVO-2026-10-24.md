@@ -538,3 +538,33 @@ merge/deploy/boot não executados; runtime/rollback não revalidados.
 Retomar apenas após MemAvailable>=3145728KiB e>=8GiB livres: uma integral serial/nice10 no runner isolado oficial, quatro hashes congelados, cobertura integral>=85,66169677501884% da basefba166f8 e guardas9045/9046emulation,397/398linux mais todos os anteriores presentes. Não repetir mesma fonte por sorte nem baixar base/limiar. Depois fechamento documental e um push nominal da continuidade/PR268, conferir SHA remoto e oito jobs terminais/coreCI>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.
 
 [Comando exato, históricos e capturas](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md).
+
+
+### Foco expresso no Theme Studio —30/10/2026
+
+Fonte/testes locais `40988da9fdf2cda16ef8256057392091dbcec23f`. O proprietário redirecionou a continuidade ao
+Studio; Launcher permanece estacionado com integral/cobertura/push pendentes.
+Assunção serial do workstream existente e handoff prospectivo de
+src/steamzero/domain/theme_editor.py/tests/unit/test_theme_editor.py registrados.
+Único checkout/branch/executor, sem outra instalação ou catálogo.
+
+Defeito real: salvar tema apagava artes em subpastas, conservando referências
+inúteis no manifesto. Baseline4 unitários falhos/1 aprovado e Qt com preview
+indisponível depois do save/reopen. Salvamento agora reutiliza fs.iter_files,
+preserva caminhos relativos e precedência exata de upload.100 testes de domínio
+(7,46s) e3 Qt/HTTP (30,97s) passaram; nomes iguais em pastas distintas,
+bytes/export/import, histórico, idempotência e leitura negada com retry.
+Dois PNGs1100×900/230.857bytes revisados, fonte/offscreen/software, sem aceite
+instalado ou de hardware. Uma coleta falhou por tratar retorno void de save
+como booleano; logs e baseline posterior do produto preservados no registro.
+
+Estáticos verdes,8 hashes commitados conferidos (4Studio+4Launcher). Integral
+não iniciou:7 leituras/300s,2475856–2837792KiB<3GiB; helper75.
+Sem push/CI novo; remoto/PR268aindafba166f8, commits locais ainda sem backup
+GitHub. Sem instalação/auth/release/merge/deploy/boot; runtime/rollback não
+revalidados. Eixos/gaps preservados. Erro de escrita/crash durante a publicação
+existente não foi certificado por este lote de paths/leitura.
+
+Checkpoint local Studio 40988da9fdf2cda16ef8256057392091dbcec23f:103 focados aprovados (100 domínio/7,46s+3 Qt/30,97s),2PNG230.857bytes revisados,8hashes commitados incluindo4 Launcher pendentes. Integral não iniciada:7 leituras/300s,2475856–2837792KiB<3145728KiB, helper75. Retomar após MemAvailable>=3GiB/disco>=8GiB: uma integral serial/nice10 no runner isolado, cobertura>=85,66169677501884% e guardas antigos/novos presentes, então checkpoint documental e um push nominal da continuidade/PR268/SHA remoto, CI terminal/core>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot ou novo aceite físico. Próximo baseline só depois desse gate: falhas de escrita/publicação preservando tema anterior.
+
+[Prova, capturas e comando exato](../../09-operations/evidence/2026-10-03-journey-engine-preview/README.md).

@@ -352,3 +352,107 @@ instalada, não medem pixels de uma sessão SteamZero e não substituem B_VISUAL
 Após os ajustes de viewport e controles, a imagem `ghcr.io/misael-art/steamzero-qml-visual@sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd` executou `tests/integration/test_experience_journey_e2e.py` e `tests/integration/test_theme_authoring_e2e.py`: **2 passed em 16,81 s**. A correção usa a largura do `contentItem` da jornada, mantém o diálogo de remoção dentro do painel e deixa o preview ao vivo do Studio rolável; os controles de edição se ajustam ao viewport compacto. O teste percorre os dois alvos de receita e a interação da Jornada.
 
 O guard de `XDG_STATE_HOME=/tmp/steamzero-codex-isolated-state` reportou `exists=False` antes e depois. A imagem confirma QML/bridge do checkout em Qt 6.11.2. Não executa a aplicação instalada, não captura uma janela SteamZero física e não fecha B_VISUAL nem o desempenho da release.
+
+
+## Continuidade do Theme Studio — assets em subpastas,30/10/2026
+
+Direção expressa do proprietário: foco no Studio. Assunção serial do workstream
+WS-2026-10-STUDIO-DRAFT-HISTORY na branch de continuidade, base
+021ce1e32863b077b6fd43e7d8de8b955cd6a3a0. Único checkout/executor. Antes dos
+arquivos, cessão de theme_editor.py/test_theme_editor.py registrada dos claims
+de WS-2026-10-JOURNEY-LAUNCHER-SESSION. O lote Launcher permanece bloqueado,
+com seus três commits, guardas e comparação pendentes; esta frente não os fecha.
+Fonte/testes/commit/push/PR268 autorizados; sem auth/instalação/release/merge/boot.
+
+Baseline controlado:4 failed,1 passed,52 deselected/0,80s nos novos casos.
+Salvar um tema com assets/logos/platform/logo.svg e
+assets/backgrounds/platform/logo.svg apagava ambos, apesar de nomes/refs
+permanecerem no manifesto; a variante com upload também perdia arquivos.
+Um arquivo aninhado sem leitura era ignorado em vez de impedir a sobrescrita.
+Recusar overwrite sem confirmação já preservava o tema (o caso aprovado).
+
+A causa foi reproduzida também no Qt/HTTP real: a arte decodifica antes da
+edição; após nome/undo/redo/Salvar/Fechar/reabrir, o preview fica indisponível.
+O harness relata “Salvar removeu a arte aninhada; preview indisponível ao reabrir”,
+com7 casos QML aprovados e1 reprovado. A primeira corrida de27,20s teve a mensagem
+oculta pela truncagem do assert; agora o log bruto Qt fica no destino de captura
+local e FAIL/Loc também entram no resumo. Uma coleta posterior parou antes do
+save por usar como booleano o retorno void de QtTestImage.save; o PNG existia,
+mas essa passagem não prova o defeito do produto. Log preservado em
+baseline-capture-harness-failure.log. Corrigido apenas o uso desse retorno;
+goldens, timeouts, critérios e dados dos testes anteriores permanecem iguais.
+
+Correção mínima no salvamento: reutiliza core.fs.iter_files para enumerar
+arquivos regulares recursivamente e preserva o caminho relativo à pasta assets.
+Os uploads continuam vencendo somente o mesmo caminho completo. Não há
+achatamento por basename, criação de variantes derivadas ou outro instalador.
+Os bytes são reunidos antes da remoção existente do destino; erro de leitura
+de arquivo preserva tema, rascunho, histórico e upload para nova tentativa.
+Esta prova de erro é de leitura antes da sobrescrita; não certifica atomicidade
+de diretório em crash ou erro de escrita durante a publicação existente.
+
+Resultado focal final: **100 passed/7,46s** (editor, herança, efeitos, pacote e
+jornada de autoria) e **3 passed/30,97s** (autoria Qt/HTTP real e guardas de saída).
+Cinco casos Python novos e um percurso Qt adicional aos cinco anteriores.
+Metadados por gestos, undo/redo, save/reopen e imagem decodificada no painel real;
+export/import posterior pela API pública do dashboard preserva cada byte,
+manifesto e URI. No domínio, também há save repetido byte a byte idêntico,
+nomes iguais em subpastas diferentes, arquivo não referenciado, upload e
+leitura PermissionError controlada seguida de retentativa. A recusa de overwrite
+preserva bytes/histórico. O runner preservou o estado pessoal monitorado.
+
+![Studio reaberto com a arte preservada, fonte Qt offscreen](studio-nested-assets/02-salvo-reaberto.png)
+
+[Baseline antes do save](studio-nested-assets/01-baseline.png). Dois PNGs1100×900,
+230.857bytes, revisados individualmente; SVG/PNG de fixtures CC0-1.0, sem acervo
+ou perfil pessoal. Qt6.11.2/offscreen/software, source e bridge em XDG temporário.
+Não é release instalada, hardware, fidelidade de outro tema ou medição GPU/FPS.
+
+Ruff check/format focados aprovados. Oito hashes congelados (quatro desta frente
+mais quatro do Launcher pendente), capturas seladas no diretório local
+build/agent-runs/studio-nested-assets. Preparar gates estáticos e integral única
+quando MemAvailable>=3GiB e disco>=8GiB. Comparar integral à base aprovada
+fba166f8/85,66169677501884%, mantendo os guardas de qualidade do Launcher;
+coreCI comparável>=85,50677260258396%. Sem reduzir baseline/limiar ou repetir a
+mesma fonte por sorte. Push apenas após checkpoint de gates, status e commits
+coerentes. Eixos/gaps existentes preservados; aceite instalado do Studio continua
+pendente. Próxima prova independente: falhas de escrita/publicação do tema e
+recuperação sem perda; registrar baseline antes de ampliar o salvamento.
+
+
+### Checkpoint local de retomada
+
+| Item | Commit local | Prova |
+|---|---|---|
+| Preservação de assets em subpastas | `40988da9fdf2cda16ef8256057392091dbcec23f` | 100 testes de domínio/7,46s +3 testes Qt/30,97s;2 PNGs revisados |
+
+Ruff check/format736, mypy307, independência, fronteiras e status aprovados
+após os oito hashes congelados. Revisão de diff, bytes dos assets, tamanho e
+procedência das imagens concluída. Nenhum eixo/gap existente promovido.
+
+**Integral ainda pendente.** O monitor fez7 leituras em300s:
+2475856–2837792KiB disponíveis, abaixo de3.145.728KiB exigidos.
+Terminou75 antes de iniciar o runner; nenhum full-result.json foi produzido.
+Não encerrar aplicações alheias nem alterar swap/guarda. A candidata ainda não
+foi enviada: remoto/PR268 permanecem emfba166f8, CI antigo é apenas baseline.
+Este commit local não constitui backup GitHub nem fechamento integral do lote.
+
+Checkpoint local Studio 40988da9fdf2cda16ef8256057392091dbcec23f:103 focados aprovados (100 domínio/7,46s+3 Qt/30,97s),2PNG230.857bytes revisados,8hashes commitados incluindo4 Launcher pendentes. Integral não iniciada:7 leituras/300s,2475856–2837792KiB<3145728KiB, helper75. Retomar após MemAvailable>=3GiB/disco>=8GiB: uma integral serial/nice10 no runner isolado, cobertura>=85,66169677501884% e guardas antigos/novos presentes, então checkpoint documental e um push nominal da continuidade/PR268/SHA remoto, CI terminal/core>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot ou novo aceite físico. Próximo baseline só depois desse gate: falhas de escrita/publicação preservando tema anterior.
+
+Comando do checkout atual quando o preflight estiver satisfeito (helper local
+reutilizado, guarda3GiB, observação e propagação de sinais):
+
+```bash
+rtk proxy bash -lc '
+. .steamzero-dev/env.sh
+env -u PYTHONPATH .venv/bin/python build/agent-runs/studio-nested-assets/observe_command.py full
+'
+```
+
+O comando portátil é tools/run_tests_isolated.py tests -q --cov=steamzero,
+serial/nice10, após conferir>=3GiB MemAvailable e>=8GiB livres. O JSON integral
+fica em build/agent-runs/studio-nested-assets/coverage-full.json e é comparado
+sem arredondamento a r3-empty-return/coverage-full.json. Os8 hashes e guardas
+bitrot/resource/linux/screencast/modelo, além do salvamento do Studio, precisam
+ser conferidos. Históricos reprovados do Launcher continuam preservados.
+Sem ações de host; instalação/versão em execução/rollback não revalidados.
