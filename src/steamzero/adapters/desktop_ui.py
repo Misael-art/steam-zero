@@ -1272,6 +1272,30 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 self._required_string(payload, "field"),
                 payload.get("value"),
             )
+        if path == "/theme/editor/create-layout":
+            return self._dashboard().editor_create_layout(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "layoutId"),
+                self._required_string(payload, "kind"),
+                self._required_string(payload, "templateKind"),
+            )
+        if path == "/theme/editor/sources":
+            return self._dashboard().editor_sources(self._required_string(payload, "sessionId"))
+        if path == "/theme/editor/set-source":
+            return self._dashboard().editor_set_source(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "slot"),
+                self._required_string(payload, "digest"),
+            )
+        if path == "/theme/editor/preserve-source":
+            return self._dashboard().editor_preserve_source(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "slot"),
+                self._required_string(payload, "source"),
+                self._required_string(payload, "license"),
+                str(payload.get("origin", "")),
+                str(payload.get("attribution", "")),
+            )
         if path == "/theme/editor/set-layout":
             return self._dashboard().editor_set_layout(
                 self._required_string(payload, "sessionId"),
@@ -1538,7 +1562,10 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 for row in rows
                 if isinstance(row, Mapping)
             ]
-            theme_read_model = {"preview": {"items": engine_rows}}
+            theme_read_model = {
+                "context": {"items": engine_rows},
+                "preview": {"items": engine_rows},
+            }
             appearance = menu.get("appearance")
             declared_theme_id = (
                 str(appearance.get("themeId"))

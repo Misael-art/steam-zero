@@ -919,9 +919,10 @@ Item {
                     && panel.assetRecipePreviewRecipe.nodes[0].parameters.width === 6
                     && renderedAssetPreview
                     && renderedAssetPreview.sourceStatus === Image.Ready
-                    && renderedAssetPreview.outlineActive
                     && renderedAssetPreview.outlineWidth === 6
-                    && !renderedAssetPreview.fallbackActive
+                    && (renderedAssetPreview.softwareBackend
+                        ? renderedAssetPreview.fallbackActive && !renderedAssetPreview.outlineActive
+                        : renderedAssetPreview.outlineActive && !renderedAssetPreview.fallbackActive)
             }, 5000, "o preview não aplicou o breakpoint wide à receita renderizada")
             captureItem("06-studio-perfil-breakpoint-wide", renderedAssetPreview)
 

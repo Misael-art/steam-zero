@@ -8,15 +8,17 @@ Item {
     // Sem nome explícito o AT-SPI não oferecia como achar a cena Cinema.
     Accessible.role: Accessible.Pane
     Accessible.name: qsTr("Cinema")
-    Accessible.description: qsTr("Cena do AURA Launcher com a coleção e o jogo selecionado")
+    Accessible.description: qsTr("Cena do Launcher com a coleção e o jogo selecionado")
     property var scene: null
     property string currentFocus: ""
     readonly property bool selectionReady: scene !== null && scene.focusId === currentFocus
-    readonly property var selectedGame: scene && scene.items ? scene.items[Number(scene.selected || 0)] || ({}) : ({})
+    readonly property var selectedGame: selectionReady && scene && scene.items ? scene.items[Number(scene.selected || 0)] || ({}) : ({})
     property var accessibility: ({})
     readonly property var activeLayout: scene && scene.layouts
         ? scene.layouts[String(scene.layoutId || "covers")] || scene.layouts.covers || ({})
         : ({})
+    readonly property bool nativeRecipeLayout: ["wheel", "carousel", "stack"].indexOf(String(activeLayout.kind || "")) >= 0
+        || (entries.length > 0 && entries[0].recipe !== undefined)
     readonly property var entries: activeLayout && activeLayout.entries
         && typeof activeLayout.entries.length === "number" ? activeLayout.entries : []
     readonly property real textScale: Math.max(1, Number(accessibility.visualScale || 1))
@@ -47,6 +49,8 @@ Item {
     readonly property color accentColor: highContrast ? "#55d8ff"
         : _safeColor(String(themeColors.accent || selectedPalette.accent
                             || selectedPalette.vibrant || ""), "#22d3ee")
+    readonly property color sceneBackgroundColor: highContrast ? "#000000"
+        : _safeColor(String(themeColors.background || ""), "#071019")
     readonly property color primaryTextColor: highContrast ? "#ffffff"
         : _safeColor(String(themeColors.text || ""), "#f2f6fb")
     readonly property color mutedTextColor: highContrast ? "#e8e8e8"
@@ -69,10 +73,21 @@ Item {
         : (Array.isArray(themeEffects.focusedCover) ? themeEffects.focusedCover : [])
     readonly property var peripheralCoverEffectStack: highContrast ? []
         : (Array.isArray(themeEffects.peripheralCover) ? themeEffects.peripheralCover : [])
-    readonly property string videoSource: performanceTier === "cinematic"
+    readonly property string videoSource: visible && selectionReady && performanceTier === "cinematic"
         ? String(selectedGame.videoUrl || "") : ""
     readonly property string connectionState: scene && scene.connectionState
         ? String(scene.connectionState) : "connected"
+    readonly property string mediaPlaybackState: videoSource === "" ? "idle"
+        : highContrast || reducedMotion ? "suppressed"
+        : videoBackdrop.player !== null ? String(videoBackdrop.player.playbackState)
+        : videoBackdrop.loadError !== "" ? "unavailable" : "loading"
+    readonly property string mediaDiagnostic: videoBackdrop.player !== null
+        ? String(videoBackdrop.player.errorMessage || videoBackdrop.player.audioDiagnostic || "")
+        : videoBackdrop.loadError
+    readonly property int decodedVideoFrames: videoBackdrop.player !== null
+        ? Number(videoBackdrop.player.decodedFrames || 0) : 0
+    readonly property string mediaSelectionKey: videoBackdrop.player !== null
+        ? String(videoBackdrop.player.selectionKey || "") : ""
     property int clockTick: 0
     readonly property string clockLabel: {
         clockTick;
@@ -126,45 +141,72 @@ Item {
         return views[0]
     }
 
+    property bool _mediaCompleted: false
+    property string _scheduledMediaOwner: ""
+    property string _scheduledMediaSource: ""
+
+    function _scheduleMedia() {
+        if (!_mediaCompleted) return
+        const source = selectionReady && !highContrast && !reducedMotion ? videoSource : ""
+        const owner = source !== "" ? currentFocus + ":" + String(activeTheme.logicalRevision || "") : ""
+        if (source === _scheduledMediaSource && owner === _scheduledMediaOwner) return
+        _scheduledMediaSource = source
+        _scheduledMediaOwner = owner
+        videoSelectionDelay.stop()
+        _destroyVideo()
+        if (source !== "") videoSelectionDelay.start()
+    }
+
     function _destroyVideo() {
         if (videoBackdrop.player !== null) {
+            videoBackdrop.player.stop()
             videoBackdrop.player.destroy()
             videoBackdrop.player = null
         }
-        videoBackdrop.ready = false
+        videoBackdrop.loadError = ""
     }
 
     function _loadVideo(source) {
         _destroyVideo()
-        if (source === "" || highContrast || reducedMotion)
+        if (!visible || !selectionReady || source === "" || highContrast || reducedMotion)
             return
         // QtMultimedia é opcional no host. O objeto é criado dinamicamente para
         // que uma instalação sem o plugin de vídeo mantenha a cena navegável e
         // revele o fanart/capa como fallback, em vez de falhar ao importar QML.
-        const qml = 'import QtQuick; import QtMultimedia; Item {'
-            + ' id: root; property url clip; property bool ready: false;'
-            + ' anchors.fill: parent;'
-            + ' MediaPlayer { id: mp; source: root.clip; loops: MediaPlayer.Infinite;'
-            + ' videoOutput: out; onMediaStatusChanged: root.ready ='
-            + ' mediaStatus === MediaPlayer.LoadedMedia ||'
-            + ' mediaStatus === MediaPlayer.BufferedMedia;'
-            + ' onErrorChanged: if (error !== MediaPlayer.NoError) root.ready = false;'
-            + ' Component.onCompleted: play() }'
-            + ' VideoOutput { id: out; anchors.fill: parent;'
-            + ' fillMode: VideoOutput.PreserveAspectCrop } }'
         try {
-            const item = Qt.createQmlObject(qml, videoBackdrop, "auraCinemaVideo")
-            item.clip = source
+            const component = Qt.createComponent(Qt.resolvedUrl("../SceneMediaPlayer.qml"))
+            if (component.status !== Component.Ready) {
+                videoBackdrop.loadError = qsTr("Suporte multimídia indisponível neste contexto.")
+                return
+            }
+            const item = component.createObject(videoBackdrop, {
+                source: source, selectionKey: cinema.currentFocus,
+                width: videoBackdrop.width, height: videoBackdrop.height
+            })
+            if (item === null) {
+                videoBackdrop.loadError = qsTr("Não foi possível iniciar a mídia selecionada.")
+                return
+            }
+            item.width = Qt.binding(function() { return videoBackdrop.width })
+            item.height = Qt.binding(function() { return videoBackdrop.height })
             videoBackdrop.player = item
+            videoBackdrop.loadError = ""
         } catch (error) {
-            // O fallback visual abaixo continua sendo a fonte da verdade.
             videoBackdrop.player = null
+            videoBackdrop.loadError = qsTr("Não foi possível iniciar a mídia selecionada.")
         }
     }
 
-    onVideoSourceChanged: _loadVideo(videoSource)
-    onHighContrastChanged: _loadVideo(videoSource)
-    onReducedMotionChanged: _loadVideo(videoSource)
+    onVideoSourceChanged: _scheduleMedia()
+    onCurrentFocusChanged: _scheduleMedia()
+    onSceneChanged: _scheduleMedia()
+    Timer {
+        id: videoSelectionDelay
+        interval: 100
+        onTriggered: if (cinema.visible && cinema.selectionReady) cinema._loadVideo(cinema.videoSource)
+    }
+    onHighContrastChanged: _scheduleMedia()
+    onReducedMotionChanged: _scheduleMedia()
 
     Timer {
         id: clockRefresh
@@ -192,7 +234,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: cinema.highContrast ? "#000000" : "#071019"
+        color: cinema.sceneBackgroundColor
     }
 
     SceneEsdeView {
@@ -227,7 +269,7 @@ Item {
             id: xmlSceneDiagnostic
             anchors.fill: parent
             anchors.margins: 10
-            text: qsTr("A cena XML está incompleta. O Cinema mantém o fallback AURA. %1")
+            text: qsTr("A cena XML está incompleta. A navegação continua disponível. %1")
                 .arg(String(cinema.activeTheme.sceneDiagnostic || "Revise o tema no Studio."))
             color: cinema.primaryTextColor
             wrapMode: Text.WordWrap
@@ -250,25 +292,26 @@ Item {
         id: videoBackdrop
         objectName: "cinemaVideoBackdrop"
         anchors.fill: parent
-        z: 1
+        z: 0
         property var player: null
-        property bool ready: false
+        property string loadError: ""
+        readonly property bool ready: player !== null && player.ready === true
         visible: ready && !cinema.highContrast && cinema.videoSource !== ""
         opacity: cinema.performanceTier === "cinematic" ? 0.28 : 0
         // A troca de jogo deve descartar o player anterior imediatamente para
         // não manter áudio/vídeo de uma seleção que já perdeu o foco.
-        Component.onCompleted: cinema._loadVideo(cinema.videoSource)
+        Component.onCompleted: { cinema._mediaCompleted = true; cinema._scheduleMedia() }
     }
     // Véus de leitura: mantém arte como elemento principal, mas protege
     // título, chips e rodapé em capas claras ou sem paleta publicada.
     Rectangle {
         anchors.fill: parent
-        color: "#071019"
+        color: cinema.sceneBackgroundColor
         opacity: cinema.highContrast ? 1 : 0.48
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#02060bdd" }
-            GradientStop { position: 0.42; color: "#07101944" }
-            GradientStop { position: 1.0; color: "#02060bcf" }
+            GradientStop { position: 0.0; color: Qt.rgba(cinema.sceneBackgroundColor.r, cinema.sceneBackgroundColor.g, cinema.sceneBackgroundColor.b, 0.87) }
+            GradientStop { position: 0.42; color: Qt.rgba(cinema.sceneBackgroundColor.r, cinema.sceneBackgroundColor.g, cinema.sceneBackgroundColor.b, 0.27) }
+            GradientStop { position: 1.0; color: Qt.rgba(cinema.sceneBackgroundColor.r, cinema.sceneBackgroundColor.g, cinema.sceneBackgroundColor.b, 0.81) }
         }
     }
     Rectangle {
@@ -276,11 +319,11 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: Math.max(112, parent.height * 0.18)
-        color: "#02060b"
+        color: cinema.sceneBackgroundColor
         opacity: cinema.highContrast ? 1 : 0.58
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#02060b00" }
-            GradientStop { position: 1.0; color: "#02060bcc" }
+            GradientStop { position: 0.0; color: Qt.rgba(cinema.sceneBackgroundColor.r, cinema.sceneBackgroundColor.g, cinema.sceneBackgroundColor.b, 0.0) }
+            GradientStop { position: 1.0; color: Qt.rgba(cinema.sceneBackgroundColor.r, cinema.sceneBackgroundColor.g, cinema.sceneBackgroundColor.b, 0.8) }
         }
     }
 
@@ -330,8 +373,28 @@ Item {
             height: cinema.scene && cinema.scene.viewport ? cinema.scene.viewport.height : cinema.height
             scale: Math.min(coverViewport.width / Math.max(1, width), Math.max(0, coverViewport.height) / Math.max(1, height))
 
+            SceneRepeater {
+                objectName: "cinemaNativeComposition"
+                visible: cinema.nativeRecipeLayout && cinema.selectionReady
+                anchors.fill: parent
+                layout: cinema.activeLayout
+                visualScale: cinema.textScale
+            }
+            Item {
+                readonly property var selectedEntry: cinema.entries[Number(cinema.scene && cinema.scene.selected || 0)] || ({})
+                visible: cinema.nativeRecipeLayout && cinema.selectionReady
+                x: Number(selectedEntry.x || 0)
+                y: Number(selectedEntry.y || 0)
+                width: Number(selectedEntry.width || 0)
+                height: Number(selectedEntry.height || 0)
+                scale: Number(selectedEntry.scale || 1)
+                z: 100
+                Accessible.role: Accessible.Button
+                Accessible.name: String(cinema.selectedGame.title || "")
+                TapHandler { onTapped: cinema.activateSelection() }
+            }
             Repeater {
-                model: cinema.entries
+                model: cinema.nativeRecipeLayout ? [] : cinema.entries
                 delegate: Rectangle {
                     id: card
                     objectName: card.modelData.highlighted
@@ -411,7 +474,8 @@ Item {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.margins: 24
-        text: "AURA  /  CINEMA  ·  " + String(cinema.scene ? cinema.scene.collection || "" : "")
+        text: String(cinema.activeTheme.themeName || qsTr("Launcher")) + " · "
+            + String(cinema.scene ? cinema.scene.collection || "" : "")
         textFormat: Text.PlainText
         width: parent.width - 48
         elide: Text.ElideRight

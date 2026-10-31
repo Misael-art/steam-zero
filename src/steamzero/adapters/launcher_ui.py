@@ -1195,7 +1195,27 @@ class LauncherBridge:
             0,
         )
         recipe, layout_state, layout_diagnostic = self._journey_cinema_recipe(view, height)
-        result = resolve_cinema_covers(recipe, items, selected, bounds=bounds)
+        raw_theme = view.get("theme")
+        theme = raw_theme if isinstance(raw_theme, Mapping) else {}
+        tokens = theme.get("resolved")
+        performance = tokens.get("performance", {}) if isinstance(tokens, Mapping) else {}
+        selection = theme.get("assetRecipeSelection")
+        tier = selection.get("tier") if isinstance(selection, Mapping) else None
+        if tier is None and isinstance(performance, Mapping):
+            tier = performance.get("defaultTier")
+        if not isinstance(tier, str) or tier not in {
+            "cinematic",
+            "balanced",
+            "economy",
+            "accessible",
+        }:
+            tier = "balanced"
+        result = resolve_cinema_covers(recipe, items, selected, bounds=bounds, theme=theme)
+        if result["diagnostics"]:
+            layout_state = "partial"
+            layout_diagnostic = "; ".join(
+                str(diagnostic["reason"]) for diagnostic in result["diagnostics"]
+            )
         source_indices = result["sourceIndices"]
         result.update(
             focusId=focus_id,
@@ -1216,7 +1236,7 @@ class LauncherBridge:
             ),
             layoutResolutionState=layout_state,
             layoutDiagnostic=layout_diagnostic,
-            performanceTier="balanced",
+            performanceTier=tier,
             connectionState="connected",
             viewport={"width": width, "height": height},
             items=[items[index] for index in source_indices],
@@ -1234,7 +1254,7 @@ class LauncherBridge:
             for layout_id, raw in raw_layouts.items():
                 if not isinstance(layout_id, str) or not isinstance(raw, Mapping):
                     continue
-                if raw.get("kind") != "coverFlow":
+                if raw.get("kind") not in {"coverFlow", "wheel", "carousel", "stack"}:
                     continue
                 try:
                     recipe = LayoutRecipe.from_dict(layout_id, raw)
@@ -1265,7 +1285,7 @@ class LauncherBridge:
             },
         )
         diagnostic = (
-            "O tema da etapa não publica um layout coverFlow compatível; "
+            "O tema da etapa não publica uma composição com seleção central compatível; "
             "o Cinema usa a composição AURA."
             if isinstance(book, Mapping)
             else "A etapa não declara layout; o Cinema usa a composição AURA."

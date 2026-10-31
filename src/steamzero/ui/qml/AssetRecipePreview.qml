@@ -13,6 +13,10 @@ Item {
     property var recipe: ({"source": "logo", "nodes": [], "fallback": "source"})
     property int fillMode: Image.PreserveAspectFit
     property string cacheKey: ""
+   property size decodeSize: Qt.size(-1, -1)
+   property int transitionDuration: 0
+   property int transitionEasing: Easing.Linear
+   property var transitionBezier: [0.42, 0, 0.58, 1, 1, 1]
 
     readonly property int sourceStatus: sourceImage.status
     readonly property int sourceDecodeCount: root._sourceDecodeCount
@@ -24,11 +28,13 @@ Item {
     readonly property bool recipeDegraded: recipe && recipe.degraded === true
     readonly property int droppedNodeCount: recipe && recipe.droppedNodes !== undefined
         ? Number(recipe.droppedNodes) : 0
+    readonly property bool softwareBackend: GraphicsInfo.api === GraphicsInfo.Software
+    readonly property bool rendererUnavailable: softwareBackend && recipe && (recipe.nodes || []).length > 0
     readonly property bool fallbackActive: unsupportedNodeCount > 0
-        || recipeDegraded || colorTransform.unsupported
+        || recipeDegraded || colorTransform.unsupported || rendererUnavailable
     readonly property int unsupportedNodeCount: {
         const supported = ["recolor", "grayscale", "silhouette", "outline",
-                           "glow", "shadow", "invert", "hueRotate"]
+                           "glow", "shadow", "invert", "hueRotate", "saturation"]
         let count = 0
         const entries = recipe && recipe.nodes ? recipe.nodes : []
         for (let i = 0; i < entries.length; ++i) {
@@ -37,10 +43,10 @@ Item {
         }
         return count
     }
-    readonly property real appliedColorization: fillLayer.colorization
-    readonly property real appliedSaturation: fillLayer.saturation
+    readonly property real appliedColorization: fillLayer.visible ? fillLayer.colorization : 0
+    readonly property real appliedSaturation: fillLayer.visible ? fillLayer.saturation : 0
     readonly property bool outlineActive: outlineLayer.visible
-    readonly property bool colorTransformAvailable: colorTransform.available
+    readonly property bool colorTransformAvailable: colorTransform.available && !softwareBackend
 
     property int _sourceDecodeCount: 0
     property bool _sourceReadySeen: false
@@ -58,6 +64,7 @@ Item {
 
     readonly property var recolorNode: node(root.recipe, "recolor")
     readonly property var grayscaleNode: node(root.recipe, "grayscale")
+    readonly property var saturationNode: node(root.recipe, "saturation")
     readonly property var silhouetteNode: node(root.recipe, "silhouette")
     readonly property var outlineNode: node(root.recipe, "outline")
     readonly property var invertNode: node(root.recipe, "invert")
@@ -71,10 +78,11 @@ Item {
         id: sourceImage
         anchors.fill: parent
         source: root.source
+        sourceSize: root.decodeSize
         fillMode: root.fillMode
         asynchronous: false
         cache: true
-        visible: true
+        visible: root.softwareBackend || root.fallbackActive
         onStatusChanged: {
             if (status === Image.Ready && !root._sourceReadySeen) {
                 root._sourceReadySeen = true
@@ -104,6 +112,8 @@ Item {
         shadowHorizontalOffset: 0
         shadowVerticalOffset: 0
         shadowScale: root.outlineScale
+       Behavior on shadowScale { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
+       Behavior on opacity { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
     }
 
     // Invert e hue rotate saem de um node builtin: o tema nomeia a semântica,
@@ -112,7 +122,7 @@ Item {
         id: colorTransform
         anchors.fill: parent
         source: sourceImage
-        visible: requested && available
+        visible: requested && available && !root.fallbackActive
         mode: root.invertNode ? "invert" : (root.hueRotateNode ? "hueRotate" : "")
         hue: root.hueRotateNode ? root.hueRotateNode.parameters.degrees / 360.0 : 0
     }
@@ -121,12 +131,17 @@ Item {
         id: fillLayer
         anchors.fill: parent
         source: sourceImage
-        visible: !colorTransform.visible
+        visible: !colorTransform.visible && !root.softwareBackend && !root.fallbackActive
         // Node inesperado nunca produz tela vazia: mostra a fonte e publica
         // ``fallbackActive`` para diagnóstico do consumidor.
         saturation: root.grayscaleNode && !root.fallbackActive
-            ? -root.grayscaleNode.parameters.amount : 0
-        // Normaliza RGB para branco antes do colorize. O alpha permanece o da
+            ? -root.grayscaleNode.parameters.amount
+            : root.saturationNode && !root.fallbackActive ? root.saturationNode.parameters.amount - 1 : 0
+        Behavior on saturation { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
+       Behavior on brightness { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
+       Behavior on colorization { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
+       Behavior on colorizationColor { ColorAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
+       // Normaliza RGB para branco antes do colorize. O alpha permanece o da
         // fonte, portanto recolor e silhueta não dependem de threshold RGB.
         brightness: root.colorNode && !root.fallbackActive ? 1 : 0
         colorization: root.colorNode && !root.fallbackActive ? 1 : 0
