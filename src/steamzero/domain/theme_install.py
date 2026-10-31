@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import urllib.parse
 from collections.abc import Callable
 from pathlib import Path
@@ -14,7 +15,7 @@ from steamzero.core import fs, ids, log, paths
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.net import HttpClient, NetworkPolicy, RetryPolicy, fetch_bytes
 from steamzero.core.safezip import SafeZipLimits, extract_safe
-from steamzero.domain.themes import ThemeManifest
+from steamzero.domain.themes import ThemeManifest, validate_theme_manifest
 
 THEME_PACKAGE_MAX = 64 * 1024 * 1024
 _THEME_EXTRACT_LIMITS = SafeZipLimits(
@@ -91,32 +92,46 @@ class ThemeInstaller:
                 detail="o pacote não contém um theme.json na raiz",
             )
 
-        manifest: ThemeManifest | None = None
-        if self._validate is not None:
-            manifest = self._validate(theme_dir)
-        if manifest is None:
+        try:
             manifest_path = theme_dir / "theme.json"
-            if manifest_path.is_file():
-                try:
-                    raw = json.loads(manifest_path.read_bytes())
-                    manifest = ThemeManifest.from_dict(raw)
-                except Exception:
-                    manifest = ThemeManifest(id=theme_dir.name, name=theme_dir.name, version="")
-            else:
-                manifest = ThemeManifest(id=theme_dir.name, name=theme_dir.name, version="")
+            if manifest_path.stat().st_size > 256 * 1024:
+                raise ValueError("manifesto excede 256 KiB")
+            raw = json.loads(manifest_path.read_bytes())
+            validate_theme_manifest(raw)
+            manifest = ThemeManifest.from_dict(raw)
+            if self._validate is not None:
+                manifest = self._validate(theme_dir)
+            if not re.fullmatch(r"[a-z0-9]+(?:[.-][a-z0-9]+)+", manifest.id):
+                raise ValueError("identidade de tema inválida")
+        except (OSError, ValueError, TypeError, SteamZeroError) as exc:
+            fs.remove_tree(paths.staging_for(op_id))
+            fs.remove_tree(extract_dir)
+            if isinstance(exc, SteamZeroError):
+                raise
+            raise SteamZeroError("E-THEME-MANIFEST", detail=str(exc)[:400]) from exc
 
         target = paths.themes_dir() / manifest.id
-        if target.exists():
-            if not force:
-                fs.remove_tree(paths.staging_for(op_id))
-                fs.remove_tree(extract_dir)
-                raise SteamZeroError(
-                    "E-THEME-DOWNLOAD-FAILED",
-                    detail=f"tema '{manifest.id}' já instalado. Use --force para sobrescrever.",
-                )
-            fs.remove_tree(target)
-
-        fs.move_tree(theme_dir, target)
+        if target.exists() and not force:
+            fs.remove_tree(paths.staging_for(op_id))
+            fs.remove_tree(extract_dir)
+            raise SteamZeroError(
+                "E-THEME-DOWNLOAD-FAILED",
+                detail=f"tema '{manifest.id}' já instalado. Use --force para sobrescrever.",
+            )
+        # Resolve/ingest masters before replacing anything. Transport sources
+        # are removed from staging, never copied into each installed consumer.
+        self._ingest_sources(theme_dir, manifest)
+        staged = target.parent / f".{manifest.id}.stage.{op_id.lower()}"
+        publishing = False
+        published = False
+        try:
+            fs.move_tree(theme_dir, staged)
+            publishing = True
+            fs.publish_tree(staged, target, replace_existing=force)
+            published = True
+        finally:
+            if staged.exists() and (not publishing or published):
+                fs.remove_tree(staged)
         fs.remove_tree(paths.staging_for(op_id))
         fs.remove_tree(extract_dir)
 
@@ -125,6 +140,44 @@ class ThemeInstaller:
             "name": manifest.name,
             "version": manifest.version,
         }
+
+    @staticmethod
+    def _ingest_sources(theme_dir: Path, manifest: ThemeManifest) -> None:
+        from steamzero.domain.media_pipeline import MediaPipeline
+        from steamzero.domain.media_registry import MediaRegistry, MediaSource
+
+        transport = theme_dir / "media-sources"
+        for reference in sorted(set(manifest.assets.values())):
+            if not reference.startswith("master:"):
+                continue
+            if not re.fullmatch(r"master:sha256:[a-f0-9]{64}", reference):
+                raise SteamZeroError("E-THEME-UNSAFE", detail="referência de master inválida")
+            digest = reference[14:]
+            record = transport / f"{digest}.json"
+            if not record.exists():
+                MediaRegistry.resolve_source(paths.media_dir(), digest)
+                continue
+            try:
+                if record.is_symlink() or record.stat().st_size > 8192:
+                    raise ValueError("metadados de master inválidos")
+                source = MediaSource.from_dict(json.loads(record.read_text(encoding="utf-8")))
+                if source.digest != digest:
+                    raise ValueError("identidade de master divergente")
+                master = transport / f"{digest}.{source.format}"
+                if master.is_symlink() or master.stat().st_size != source.size:
+                    raise ValueError("tamanho de master divergente")
+                MediaPipeline(paths.media_dir()).preserve_source(
+                    master.read_bytes(),
+                    source.filename,
+                    source.provenance,
+                    expected_source=source,
+                )
+            except (OSError, ValueError, KeyError, TypeError) as exc:
+                raise SteamZeroError(
+                    "E-CONTENT-INCOMPLETE", detail="master do pacote inválido"
+                ) from exc
+        if transport.exists():
+            fs.remove_tree(transport)
 
     def _check_size(self, url: str, *, http_client: HttpClient | None = None) -> None:
         try:

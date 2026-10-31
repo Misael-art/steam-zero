@@ -12,7 +12,7 @@
       "type": "object",
       "minProperties": 1,
       "maxProperties": 16,
-      "propertyNames": {"pattern": "^[a-z][a-zA-Z0-9]{0,63}$"},
+      "propertyNames": {"pattern": "^[a-z][a-zA-Z0-9-]{0,63}$"},
       "additionalProperties": {"$ref": "#/$defs/layout"}
     }
   },
@@ -36,6 +36,8 @@
         "selected": {"type": "integer", "minimum": 0, "maximum": 127},
         "offset": {"$ref": "#/$defs/offset"},
         "highlight": {"$ref": "#/$defs/highlight"},
+        "imageRecipes": {"type": "object", "additionalProperties": false, "properties": {"normal": {"type": "string", "pattern": "^[a-z][a-zA-Z0-9-]{0,63}$"}, "focused": {"type": "string", "pattern": "^[a-z][a-zA-Z0-9-]{0,63}$"}}},
+        "motion": {"type": "object", "additionalProperties": false, "properties": {"enter": {"type": "string", "pattern": "^[a-z][a-zA-Z0-9-]{0,63}$"}, "exit": {"type": "string", "pattern": "^[a-z][a-zA-Z0-9-]{0,63}$"}, "move": {"type": "string", "pattern": "^[a-z][a-zA-Z0-9-]{0,63}$"}, "interruption": {"enum": ["retarget", "snap"]}}},
         "breakpoints": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/breakpoint"}}
       }
     },

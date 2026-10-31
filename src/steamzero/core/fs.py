@@ -966,3 +966,47 @@ def iter_files(root: Path) -> Iterator[Path]:
     for entry in sorted(root.rglob("*")):
         if entry.is_file() and not entry.is_symlink():
             yield entry
+
+
+def publish_tree(staged: Path, target: Path, *, replace_existing: bool = False) -> None:
+    """Publish a complete same-filesystem directory, keeping old or new intact.
+
+    Existing content is exchanged atomically, never deleted before publication.
+    On success the former target remains at ``staged`` for caller-owned cleanup.
+    Unsupported rename semantics fail closed. No cross-filesystem copy fallback
+    can expose a partly written target.
+    """
+    if (
+        staged.resolve() == target.resolve()
+        or staged.is_symlink()
+        or not staged.is_dir()
+        or target.is_symlink()
+    ):
+        raise SteamZeroError(
+            "E-CONTENT-UNSAFE-PATH", detail="alvo de publicação não é diretório seguro"
+        )
+    ensure_dir(target.parent)
+    existed = target.exists()
+    if existed and (not replace_existing or not target.is_dir()):
+        raise FileExistsError(f"destino já existe: {target}")
+    flags = _RENAME_EXCHANGE if existed else _RENAME_NOREPLACE
+    if not _renameat2(staged, target, flags):
+        raise SteamZeroError(
+            "E-TX-STALE-PLAN", detail="filesystem sem publicação atômica de diretório"
+        )
+    try:
+        if existed and (staged.is_symlink() or not staged.is_dir()):
+            raise SteamZeroError("E-TX-STALE-PLAN", detail="alvo mudou durante a publicação")
+        _fsync_dir(target.parent)
+        if staged.parent != target.parent:
+            _fsync_dir(staged.parent)
+    except BaseException:
+        if existed:
+            restored = _renameat2(staged, target, _RENAME_EXCHANGE)
+        else:
+            restored = _renameat2(target, staged, _RENAME_NOREPLACE)
+        if not restored:
+            raise SteamZeroError(
+                "E-TX-STALE-PLAN", detail="publicação íntegra; recuperação de durabilidade pendente"
+            ) from None
+        raise
