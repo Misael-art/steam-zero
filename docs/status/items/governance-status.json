@@ -35,7 +35,7 @@
     "requirements-runtime.lock",
     "docs/09-operations/HANDOFF-2026-08-27.md"
   ],
-  "scopeDigest": "f8613051f7f3ddd91b9a6b9842f820fc296551c32f4c3c9be78d7938d1267862",
+  "scopeDigest": "070eb78fe3bdd13f3ceee8866f8b07736f137e4f4a96ab82909e4488aba177b6",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -242,6 +242,12 @@
       "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
       "command": "2026-10-30: renovação mecânica do digest compartilhado por consolidação normativa da seção22 e vínculos em AGENTS/direção/plano/superfícies. Nenhuma fonte/runtime, aceite ou eixo deste item alterado; evidências anteriores não reexecutadas nem promovidas.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "result": "passed",
+      "command": "Visão gerada CAPABILITY-MATRIX:155→159 ações; teste oficial capability_matrix7passed/0,56s e platform_vita_catalog6passed/0,54s. Somente digest da visão compartilhada; aceites de hardware e gaps preservados."
     }
   ],
   "nextAction": "Manter status-check e WORKLOG append-only verdes; PR #234 integrado no main em 9176c1aeca792e4bd8ccaca0fbb55e9767ad5625. Repetir apenas as provas físicas restantes com a release 2.0.0rc1-504d10b14485 instalada.",

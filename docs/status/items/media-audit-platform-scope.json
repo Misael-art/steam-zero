@@ -15,7 +15,7 @@
     "src/steamzero/adapters/emulation.py",
     "tests/integration/test_media_audit_platform_scope.py"
   ],
-  "scopeDigest": "0ecf5fc5cf9c2398178797b09a5fb7d9ae77c87bc7f17e6ccbb25fcaf6b382fe",
+  "scopeDigest": "fb5dcc93af5f206eacbdacccb42227a48f9549f8b3adbb6995d51f43df45b56e",
   "dependsOn": [
     "SZ-MEDIA-PIPELINE-PLATFORM-SCOPE"
   ],
@@ -78,10 +78,16 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
       "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Completar o contrato de qualidade: score perceptual e política de melhor candidato por kind, auditoria de hero/logo/icon/screenshot/manual/video e prova física de publicação/rollback Steam; só então promover a auditoria de integridade a qualidade garantida.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-19",
-  "notes": "A auditoria por plataforma está integrada e foi executada na release instalada em Switch. Ela prova integridade, dimensões, ausência de órfãos e consistência do registry; não prova que a melhor mídia foi escolhida, nem cobre todos os kinds ou publicação/rollback. Operação permanece degraded até esse contrato de qualidade ser medido."
+  "updatedAt": "2026-10-31",
+  "notes": "A auditoria por plataforma está integrada e foi executada na release instalada em Switch. Ela prova integridade, dimensões, ausência de órfãos e consistência do registry; não prova que a melhor mídia foi escolhida, nem cobre todos os kinds ou publicação/rollback. Operação permanece degraded até esse contrato de qualidade ser medido.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

@@ -18,7 +18,7 @@
     "tests/unit/test_desktop_dashboard.py",
     "docs/09-operations/evidence/2026-09-21-aura-harmonization"
   ],
-  "scopeDigest": "d6862b7e109ca2001ba2394ed6961d325ce99583051a712d718ebec9dd8f2bb7",
+  "scopeDigest": "7483841f824a11d5ffee8e7bad14fe0bd02d154ba1abbbe95485fc34448a0164",
   "dependsOn": [
     "SZ-THEME-ENGINE",
     "SZ-AURA-LAUNCHER"
@@ -96,12 +96,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 4c31ca88 (2026-10-08): 6705 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após as mudanças da branch codex/r05-component-operation-trace-2026-10-05; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-ESDE-RUNTIME-BRIDGE"
   ],
   "nextAction": "Ligar os sinais itemFocused/itemActivated ao consumidor real do Launcher e repetir as provas físicas de vídeo, OSD, saves, multidisc e retorno ao foco.",
-  "updatedAt": "2026-10-04",
-  "notes": "A release 2.0.0rc1-13c933c30ace foi promovida pelo fluxo governado, com daemon convergente, schema 22, captura AURA e medição dentro do orçamento. A captura prova a superfície instalada e o bridge visual; não promove OSD, saves, troca de disco ou consumo de ativação pelo Launcher. Em 2026-10-03, ThemeScenePreview recebeu runtimeModelOverride para permitir que o consumidor Jornada apresente rows públicos já filtrados; teste focal passou. Isto não altera a evidência histórica do item nem certifica consumo da Jornada no runtime ou na release instalada."
+  "updatedAt": "2026-10-31",
+  "notes": "A release 2.0.0rc1-13c933c30ace foi promovida pelo fluxo governado, com daemon convergente, schema 22, captura AURA e medição dentro do orçamento. A captura prova a superfície instalada e o bridge visual; não promove OSD, saves, troca de disco ou consumo de ativação pelo Launcher. Em 2026-10-03, ThemeScenePreview recebeu runtimeModelOverride para permitir que o consumidor Jornada apresente rows públicos já filtrados; teste focal passou. Isto não altera a evidência histórica do item nem certifica consumo da Jornada no runtime ou na release instalada.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

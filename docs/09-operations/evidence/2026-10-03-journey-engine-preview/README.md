@@ -670,3 +670,101 @@ externo histórico ao RTK continua desconhecida. Próximo slice obrigatório:
 wheel de fonte única da seção 22.5; ainda não implementada. Sem instalação,
 autenticação nova, release, merge, deploy, boot ou prova física. Push/novo CI
 seguem o fechamento documental governado do PR #268.
+
+
+#### Incremento nativo de wheel — 31/10/2026, validação na fonte
+
+A autoria genérica escolhe um master canônico compartilhado, cria uma composição,
+edita receitas e transições, salva e reabre pelo mesmo documento. O Launcher
+consome a mesma revisão lógica e o mesmo SceneRepeater/SceneRecipeImage. O percurso
+Qt real usa cliques/teclas, bridge e backend, nove registros, mudança rápida de
+seleção, retenção/retorno de instâncias, grayscale lateral e centro colorido com
+contorno no RHI. Os casos de persistência cobrem dois consumidores sem cópias,
+ZIP portátil em perfil vazio, falha de escrita e recuperação do master original.
+
+[Recibo e limites](studio-native-wheel.json) distingue provas e lacunas.
+[Wheel no RHI](native-wheel-2026-10-31/01-wheel-rhi.png),
+[tema salvo no Launcher RHI](native-wheel-2026-10-31/02-launcher-rhi.png) e
+[Studio compacto/software, com efeitos indisponíveis explícitos](native-wheel-2026-10-31/03-studio-compact-software.png)
+são capturas de fixtures isoladas; não são a release instalada.
+A captura PCM virtual confirma o sinal final de 880 Hz, com potência mais de
+20 vezes superior à de 440 Hz da seleção anterior. A prova adicional sem saída
+de áudio mantém os quadros e exige estado parcial e diagnóstico. Não certifica
+áudio físico nem desempenho/fluidez no hardware.
+
+Baselines e contraprovas estão preservados nos diretórios oficiais locais
+`build/agent-runs/studio-runner-cancellation/` (início) e
+`build/agent-runs/studio-native-wheel/` (fechamento). A leitura inicial de espaço
+consultava tmpfs (máximo 7,3 GiB); foi corrigida para distinguir a área temporária
+do disco do checkout. Dois preflights não iniciaram AV por espaço/RAM, sem afrouxar
+o mínimo do gate. A fixture privada de áudio precisou publicar metadata/portas,
+usou identidades seriais para não confundir portas recriadas e explicitou buffer
+curto da captura. O buffer antigo ainda continha o sinal anterior; isso não foi
+atribuído ao reprodutor como causa comprovada.
+
+O CI anterior 41133040350, cabeça 59a91da7, teve Python/smokes aprovados e falha
+visual na abertura da galeria. Cobertura remota 85,54615876625684% contra
+85,50677260258396%. O teste local agora aguarda polish e exige recebimento real
+do toque; não se afirma causa histórica definitiva nem aprovação remota nova.
+
+O checkpoint final de fonte está aprovado conforme o fechamento r6 abaixo.
+Os eixos, gaps e aceites físicos permanecem abertos. Contorno uniforme/inner/SDF,
+associações contextuais completas, autoria/composição integral e paridade externa
+continuam trabalho obrigatório. O atalho pessoal abre a produção já instalada,
+2.0.0rc1/59ecc2d8f0f6; este incremento não foi instalado. Sem autenticação nova,
+release, merge, deploy, alteração de boot ou interação no desktop ocupado.
+
+
+Tentativas integrais do incremento: `full-20261031` parou na coleta por basename
+igual de dois testes novos; contrato unitário renomeado, modo de importação
+preservado e coleta completa de 7.226 testes aprovada. `full-20261031-r2` teve
+1.265 passed/45 skipped/1 failed em 376,67 s: o relatório filtrado por plataforma
+recebia o campo global `preservedSources` e lia registros sem associação. Três
+contraprovas confirmaram a causa, inclusive corrupção de registro global afetando
+auditoria Switch. A leitura/contagem agora só ocorre no relatório global; o teste
+antigo de igualdade do relatório permanece intacto. 51 testes focados/1,97 s
+aprovados. Ambas as tentativas mantiveram fontes e perfil observados inalterados,
+sem sinais; nenhuma aprova a integral. Manifestos de fontes anteriores preservados
+junto ao candidato r3. Qualidade de decode em escala física/DPR também permanece
+aceite pendente, além do contorno e demais lacunas do recibo.
+
+
+A integral `full-20261031-r5` aprovou a árvore congelada r3: **7.181 passed,
+48 skipped, 24 warnings/2.171,38 s**, saída0, sem sinais, com1.294 arquivos e
+perfil observado inalterados. Cobertura com branches **85,71972259810555%**,
+acima de85,70961552128492%; todos os guardas críticos anteriores permanecem
+cobertos. O domínio foi separado no commit `686d0b7e`; a integração compartilhada
+ainda aguarda o fechamento final.
+
+A revisão de ownership acrescentou uma contraprova de mídia real: ocultar Cinema
+ou um ancestral mantinha reprodução, owner e estado (seis falhas, teste1failed/
+4,16s). A fonte agora depende da visibilidade efetiva, e a criação atrasada também
+valida visibilidade/seleção. Revelar retoma o owner atual. **11 testes focados/
+41,57s** aprovados preservam PCM da seleção final, pixels, erros e navegação;
+[saída virtual com dois casos de parada confirmados](native-wheel-2026-10-31/06-visibility-and-audio-output.json).
+O [novo manifesto congelado](studio-native-wheel-tested-files-visibility.json)
+difere de r5 somente em LauncherCinema e nos dois arquivos de teste AV.
+O checkpoint integral final usa85,71972259810555% como baseline, sem reduzir
+limiar. A reprodução virtual não certifica latência ou áudio físico.
+
+
+Fechamento funcional `full-20261031-r6`: **7.181 passed,48 skipped,26 warnings/
+2.183,57s**, saída0, sem sinais e com todos os1.294 arquivos/perfil observados
+inalterados. Cobertura agregada com branches **85,72395128552097%** contra
+85,71972259810555% da r5. Guardas críticos conferidos; nenhum módulo perdeu
+linhas ou arcos em relação à r5. Ganhos observados foram duas linhas de cache
+e um arco de sessão, sem atribuir causalidade à mudança de visibilidade.
+
+O domínio está em `686d0b7e10442fbf11d06baba7f0db7da2f4c6c8`; a integração de
+adapters/QML/testes ficou por último em `d9392bec9d3132e58bfc0812ec0dc892014ff28d`.
+Os dois harnesses antigos de software exigem agora fallback explícito e valores
+aplicados zerados quando os efeitos não são desenhados; as exigências RHI e os
+goldens permanecem iguais. Ruff check/format740, mypy307, independência,
+fronteiras e status passaram. A documentação final recebe revisão e validação
+de status, sem repetir a integral por alteração documental.
+
+Este fechamento entrega o primeiro incremento na fonte. O trabalho continua
+nos papéis contextuais publicados, associações canônicas completas, autoria
+ampliada, contorno fiel, decode físico/DPR e paridade RetroFE/ES-DE. Nenhum eixo,
+gap ou aceite físico foi promovido. A produção e o atalho continuam no contexto
+já descrito; sem instalação, release, nova autenticação, merge, deploy ou boot.

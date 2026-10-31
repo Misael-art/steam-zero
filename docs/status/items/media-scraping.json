@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "a2695ecf1c4ce45a6f8d9e1ab6a4df27812870f5d1fb8c3639bf5309cb9ad6ea",
+  "scopeDigest": "d16053ea9cbae217136ea7fecd9a24ba538dbb4b1aa73956baf5824b8c731c99",
   "scopePaths": [
     "src/steamzero/adapters/scraping",
     "docs/09-operations/evidence/2026-08-29-media-pipeline-installed",
@@ -83,10 +83,16 @@
       "reference": "docs/09-operations/evidence/2026-09-22-media-theme-first-run/README.md",
       "command": "Host real na release 2.0.0rc1-504d10b14485: SteamGridDB autenticou; ScreenScraper foi persistido como rejected/E-SCRAPE-CREDENTIAL-REJECTED; busca Switch retornou 19 candidatos, um foi aplicado/canonicalizado/otimizado e o lote assíncrono concluiu 15 jogos (9 processados, 6 pulados, 0 falhas de aplicação).",
       "result": "partial"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "P1-MEDIA-QUALITY: identificar o provider referido como Steam Deck API; após credencial ScreenScraper autorizada, repetir individual e lote registrando login, candidatos, download, seleção, otimização, qualidade por kind, publicação Steam e rollback. Não tratar o lote degradado como sucesso nem artwork legado como master.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-22",
-  "notes": "Contratos de providers, cache, credenciais sanitizadas e classificação de falhas continuam integrados e cobertos pela suíte scraping. A verificação de host agora é hw: SteamGridDB está funcional; ScreenScraper foi exercitado contra a API real e rejeitado por credencial, sem ser mascarado como quota ou ausência. A busca individual e o lote assíncrono provaram descoberta, seleção, download, canonicalização e otimização de um candidato, mas não garantem qualidade perceptual, cobertura de todos os kinds, publicação Steam ou rollback. O nome Steam Deck API não aparece como provider identificável no inventário atual e precisa ser reconciliado antes de promover a capacidade. G44 permanece parcial por causa do cofre do host."
+  "updatedAt": "2026-10-31",
+  "notes": "Contratos de providers, cache, credenciais sanitizadas e classificação de falhas continuam integrados e cobertos pela suíte scraping. A verificação de host agora é hw: SteamGridDB está funcional; ScreenScraper foi exercitado contra a API real e rejeitado por credencial, sem ser mascarado como quota ou ausência. A busca individual e o lote assíncrono provaram descoberta, seleção, download, canonicalização e otimização de um candidato, mas não garantem qualidade perceptual, cobertura de todos os kinds, publicação Steam ou rollback. O nome Steam Deck API não aparece como provider identificável no inventário atual e precisa ser reconciliado antes de promover a capacidade. G44 permanece parcial por causa do cofre do host.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

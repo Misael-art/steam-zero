@@ -15781,3 +15781,51 @@ fechamento separado; push/CI novos seguem checkpoint governado do PR268.
 Próximo slice elegível obrigatório: wheel22.5 nativa e genérica, master canônico
 compartilhado, receitas/movimento, persistência e mesmo Launcher. Ainda não
 implementada. Sem delegação, outro checkout/branch ou migração do acervo pessoal.
+
+
+## 2026-10-31 — Studio nativo: master compartilhado, wheel e ownership da mídia
+
+Continuidade serial na raiz e branch oficiais, base59a91da7, sem outro executor,
+checkout ou branch. Primeiro incremento nativo da seção22.5; o objetivo maior
+permanece aberto.
+
+| Incremento | Commit funcional | Prova |
+|---|---|---|
+| Registro canônico de fontes, receitas/layout/movimento, revisão lógica e publicação atômica | `686d0b7e10442fbf11d06baba7f0db7da2f4c6c8` | Fontes exatas compartilhadas, reparo/interrupção, save/reopen/export/import; suíte congelada r5 aprovada |
+| Autoria genérica e execução comum no Launcher, com diagnóstico real e ownership audiovisual | `d9392bec9d3132e58bfc0812ec0dc892014ff28d` | 11 focados/41,57s; integral final 7.181 passed, 48 skipped, 26 warnings |
+
+O Studio escolhe o original, cria composição, configura variantes e transições
+pelas ações tipadas. Preview e Launcher usam a mesma revisão e os mesmos
+SceneRepeater/SceneRecipeImage. A origem preservada mantém bytes/alpha/licença
+declarada; o tema guarda a referência e o transporte ZIP inclui cada fonte uma
+vez. Publicação completa evita apagar o pacote anterior antes da escrita íntegra.
+
+A contraprova final de visibilidade falhou1/4,16s em seis checks: Cinema e
+ancestral ocultos mantinham reprodução/owner. A correção exige visibilidade
+na fonte e na criação atrasada. Parada e retomada foram observadas com mídia
+real em grafo privado, além do PCM final880Hz, pixels e erro de decoder.
+Dois testes antigos de software passaram a exigir fallback e valores aplicados
+zerados para efeitos indisponíveis; as exigências RHI e os goldens foram mantidos.
+
+Integral final: 7.181 passed, 48 skipped, 26 warnings, 2.183,57 s; runner/supervisor0,
+sem sinais,1.294 hashes e perfil observado inalterados. Cobertura agregada com
+branches 85,72395128552097% >=85,71972259810555% da r5; guardas críticos e projeção
+inicial do modelo cobertos. Ruff check/format740, mypy307, independência,
+fronteiras e status aprovados. Tentativas anteriores e diagnóstico do relatório
+sem -x permanecem no recibo, sem aprovação retroativa ou baseline menor.
+
+Recibo: docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json.
+Logs privados: build/agent-runs/studio-native-wheel/. Capturas próprias RHI e
+saída virtual não certificam instalação, latência, áudio físico, GPU ou fluidez.
+Os eixos, gaps e aceites anteriores foram preservados.
+
+Atalho local para a produção existente criado e validado; release observada
+2.0.0rc1/59ecc2d8f0f66e27ce9aefa1dd7656451a610997. Nenhuma instalação, nova
+autenticação, release, merge, deploy ou boot; execução e rollback da release
+não foram revalidados. Integração e documentação ficam em commits separados;
+publicação segue o checkpoint do PR268, com SHA remoto e CI a conferir.
+
+Próximo incremento elegível: publicação comum dos papéis de mídia contextual
+para Studio/Launcher, reutilizando os serviços existentes. Contorno uniforme,
+decode físico/DPR, associações completas, autoria ampliada, exportação com
+herança customizada, paridade RetroFE/ES-DE e aceites físicos permanecem abertos.

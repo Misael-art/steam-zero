@@ -53,13 +53,19 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/host-59ecc2d8/05-summary.json",
       "command": "Controlador install exit0 da main59ecc2d8; servico/socket ativos, CLI/daemon convergentes, QML iniciou no smoke5s. Sem prova instalada de acao/refrescamento/gameplay/hardware.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Slice refresh integrado e instalado em 2.0.0rc1-59ecc2d8f0f6, CI push40083592868 oito jobs verdes; controlador confirmou CLI/daemon e smoke QML. Executar aceite de erro/recuperacao instalado e sessao real D-08 overlay/D-12/D-22/D-23 com perfil/hardware apropriados; sem promover jornada completa. Year-alias7d89ab0f permanece fora desta release.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R3-LAUNCHER-JOURNEY"
   ],
-  "updatedAt": "2026-10-24",
-  "notes": "Slice de R3/D-08 do PLANO existente, assumido apos conclusao local de R2 conforme autorizacao para ausencia. Um executor, checkout e branch existentes. Handoffs prospectivos dos dois paths pela WS-JOURNEY-PLATFORM-PROJECTION e README pela WS-RECOVERY-R2; nao ha implementacao concorrente. Fixtures/offscreen nao provam gameplay, instalacao, hardware ou recuperacao de sessao.",
-  "scopeDigest": "143a3c3a88b09fdecca205c43f123e1b1c49f96a842dd511ece73c4a8dd12eb4"
+  "updatedAt": "2026-10-31",
+  "notes": "Slice de R3/D-08 do PLANO existente, assumido apos conclusao local de R2 conforme autorizacao para ausencia. Um executor, checkout e branch existentes. Handoffs prospectivos dos dois paths pela WS-JOURNEY-PLATFORM-PROJECTION e README pela WS-RECOVERY-R2; nao ha implementacao concorrente. Fixtures/offscreen nao provam gameplay, instalacao, hardware ou recuperacao de sessao.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+  "scopeDigest": "79b66986ba04ba662e3e16ac812567975157902b2bdfacb18a2609982c865cf7"
 }

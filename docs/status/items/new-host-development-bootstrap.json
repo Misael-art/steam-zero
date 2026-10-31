@@ -105,11 +105,17 @@
       "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
       "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Checkpoint técnico e7bb579c aprovado: 7.117 testes passaram, 48 skips; cobertura 85,70961552128492% >= 85,66169677501884%, oito hashes e guardas críticos preservados, sem sinais ou delta no perfil. Publicar/conferir o fechamento documental no PR #268 com SHA remoto e novo CI; depois registrar claims prospectivos e implementar a wheel da seção 22.5: autoria nativa genérica, master canônico preservado e compartilhado, receitas/movimento, round-trip e mesmo Launcher. Wheel ainda não entregue; Studio/Engine parciais. Origem externa histórica do SIGTERM desconhecida. Sem auth, instalação, release, merge, deploy ou boot. Ownership futuro da .venv e backup privado externo mantêm pendências independentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-30",
-  "notes": "Bootstrap e ferramentas de handoff recuperados do WIP e testados por runner isolado; backup privado local verificado. Raiz e governanca alinhadas com Projects. Ambiente herdado preservado sem adocao ficticia; instalacao limpa do SO, ownership futuro, upload privado e produto instalado mantem aceites independentes. Ambiente herdado isolado in-place dos pacotes globais;13dependencias faltantes instaladas pelo lock com hashes, pip check aprovado, sem recriar ambiente nem inventar ownership. Corrigido PYTEST_DEBUG_TEMPROOT herdado no runner, com regressao de subprocesso real e130testes focados aprovados. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.",
-  "scopeDigest": "e7788f78371ede4ee61ff0ab23e14c6c81c98c72a8830f412d8e198bc9795812"
+  "updatedAt": "2026-10-31",
+  "notes": "Bootstrap e ferramentas de handoff recuperados do WIP e testados por runner isolado; backup privado local verificado. Raiz e governanca alinhadas com Projects. Ambiente herdado preservado sem adocao ficticia; instalacao limpa do SO, ownership futuro, upload privado e produto instalado mantem aceites independentes. Ambiente herdado isolado in-place dos pacotes globais;13dependencias faltantes instaladas pelo lock com hashes, pip check aprovado, sem recriar ambiente nem inventar ownership. Corrigido PYTEST_DEBUG_TEMPROOT herdado no runner, com regressao de subprocesso real e130testes focados aprovados. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+  "scopeDigest": "ee26ac14847d9a17a566e95b53c42bc8ce8188f36e0df93abcfbbf7f376224ee"
 }

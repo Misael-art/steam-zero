@@ -1067,3 +1067,13 @@ privado. A causa externa do sinal histórico ao RTK permanece desconhecida.
 Isso fecha o gate técnico do checkout; não entrega a wheel nem promove Studio,
 Engine, Launcher, Aura, compatibilidade, instalação ou hardware. Os requisitos
 desta seção permanecem integrais; o próximo slice obrigatório é o roteiro 22.5.
+
+
+Atualização de implementação, 31/10/2026: o primeiro incremento da wheel nativa
+já possui autoria genérica, master preservado compartilhado, receitas/movimento,
+persistência/round-trip, renderer comum e execução do tema salvo no Launcher RHI.
+[Provas e limites](../09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json). O fechamento da fonte aprovou 7.181 testes/48 skips
+e cobertura com branches de 85,72395128552097%, acima de 85,71972259810555%.
+Domínio `686d0b7e` e integração `d9392bec` foram separados. Isto não encerra os
+requisitos da seção 22, não promove eixos/gaps nem substitui instalação,
+fidelidade integral ou aceite físico.

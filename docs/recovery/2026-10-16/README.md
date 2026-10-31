@@ -54,3 +54,13 @@ As [fontes primárias e seus limites](FONTES-EXPERIENCIAS.md) sustentam a pesqui
 ## Continuidade em checkout único
 
 Use o [prompt de execução centralizada](PROMPT-EXECUCAO-CENTRALIZADA.md) para iniciar a implementação. A terceira orientação do proprietário estabelece um executor e um lote funcional por vez no diretório canônico, com instalação e prova real na máquina, pendência explícita de credencial e checkpoint de retomada. A conferência encontrou um único worktree registrado e 16 registros de frentes ativas, não 16 executores comprovados.
+
+
+Atualização de implementação, 31/10/2026: o primeiro incremento da wheel nativa
+já possui autoria genérica, master preservado compartilhado, receitas/movimento,
+persistência/round-trip, renderer comum e execução do tema salvo no Launcher RHI.
+[Provas e limites](../../09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json). O fechamento da fonte aprovou 7.181 testes/48 skips
+e cobertura com branches de 85,72395128552097%, acima de 85,71972259810555%.
+Domínio `686d0b7e` e integração `d9392bec` foram separados. Isto não encerra os
+requisitos da seção 22, não promove eixos/gaps nem substitui instalação,
+fidelidade integral ou aceite físico.

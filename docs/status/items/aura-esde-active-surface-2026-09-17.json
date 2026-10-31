@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "unknown",
   "distribution": "not-packaged",
-  "scopeDigest": "b708b4010569932c7f5d10b90fceb0cefe62380e58acd4adc2a300ec7937c18c",
+  "scopeDigest": "1643600b15bd56fd3d069ab69f2ccd8fc7229608f264f82d7cf93ec35dc82780",
   "scopePaths": [
     "src/steamzero/adapters/desktop_dashboard.py",
     "src/steamzero/domain/theme_import_esde.py",
@@ -102,12 +102,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q sobre o código de 5c085750 (2026-10-09): 6708 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após a branch codex/d5-studio-draft-history-2026-10-09, cujo delta neste escopo se limita a ThemeEditorPanel.qml, à guarda de fechamento em Main.qml e a arquivos de status; nenhum comportamento deste item mudou. Não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch, acompanhar gates e executar a prova governada na release instalada com captura do background ativo.",
   "activeWorkstreams": [
     "WS-2026-09-ESDE-ACTIVE-SURFACE"
   ],
-  "updatedAt": "2026-10-09",
-  "notes": "A ponte técnica agora preserva background estático, permite aplicar o tema pela rota transacional existente e renderiza a camada ativa com fallback. A prova física requer release instalada; decoder de vídeo e read model de jogo ainda não foram promovidos.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada."
+  "updatedAt": "2026-10-31",
+  "notes": "A ponte técnica agora preserva background estático, permite aplicar o tema pela rota transacional existente e renderiza a camada ativa com fallback. A prova física requer release instalada; decoder de vídeo e read model de jogo ainda não foram promovidos.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

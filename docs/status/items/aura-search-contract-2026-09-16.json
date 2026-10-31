@@ -16,7 +16,7 @@
     "tests/unit/test_catalog_search.py",
     "tests/integration/test_launcher_search_contract.py"
   ],
-  "scopeDigest": "4163261ca9080a1b8ff248a9fd7679fa5e40a0a0119cd42a5c3a3df32399a349",
+  "scopeDigest": "5bc8e56a07c7ef433cf7b69866e4f815d7eb5149928d6fe5923a6726e759cafe",
   "dependsOn": [
     "SZ-AURA-METADATA"
   ],
@@ -96,12 +96,18 @@
       "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
       "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Publicar a branch integrada e, após a release governada, provar busca por nome/filtro na janela real; conteúdo PS4 legítimo ainda é necessário para a prova de jogo.",
   "activeWorkstreams": [
     "WS-2026-09-AURA-SEARCH-CONTRACT"
   ],
-  "updatedAt": "2026-10-26",
-  "notes": "CatalogSearchQuery agora é consumido pelo LauncherBridge e pela rota /search usada pelo QML. Filtros de plataforma, sistema e papel de mídia são independentes; sem filtro não há default Switch. A prova física segue aberta por depender de instalação e interação real."
+  "updatedAt": "2026-10-31",
+  "notes": "CatalogSearchQuery agora é consumido pelo LauncherBridge e pela rota /search usada pelo QML. Filtros de plataforma, sistema e papel de mídia são independentes; sem filtro não há default Switch. A prova física segue aberta por depender de instalação e interação real.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

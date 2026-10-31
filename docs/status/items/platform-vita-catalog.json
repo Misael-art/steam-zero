@@ -16,7 +16,7 @@
     "tests/unit/test_capability_matrix.py",
     "docs/01-product/CAPABILITY-MATRIX.md"
   ],
-  "scopeDigest": "a07c9f6572fa3b7ff295b1725f1a3d5034e5208a8c23c09913e8fdda0eb2cd05",
+  "scopeDigest": "43fb6c11a7ebebac848ad72c81c87fb2ad77762565a428f3cee761d92c5aee94",
   "dependsOn": [
     "SZ-AGG-PLATFORM-MANIFESTS",
     "SZ-PLATFORM-REQUIREMENT-SCOPE"
@@ -97,6 +97,12 @@
       "reference": "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel/README.md",
       "command": "2026-10-04 scope-only reconciliation after PR #250: declared paths changed in the current correction cycle. This entry refreshes scope integrity only; it does not rerun this item’s full acceptance criteria or promote an implementation, integration, verification, operation, or distribution axis.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "result": "passed",
+      "command": "Visão gerada CAPABILITY-MATRIX:155→159 ações; teste oficial capability_matrix7passed/0,56s e platform_vita_catalog6passed/0,54s. Somente digest da visão compartilhada; aceites de hardware e gaps preservados."
     }
   ],
   "nextAction": "G56 está fechada: seis Vita visíveis no workspace real. Não declarar lançamento suportado enquanto Vita3K runtime/adapter não estiver instalado e testado. Implementar G58 para derivados em gestão universal e validar relatedContent/quarentena sem tocar originais; depois validar adapter/store de requisitos.",

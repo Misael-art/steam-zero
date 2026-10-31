@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "8b7c36a25ebadd6002cc9d0858258fa05e035f475654e41714497c3e5d1416e0",
+  "scopeDigest": "bfecc9201c31aa2dcab6df90eff6c9909198d6e66503bbe215407a831c5babe0",
   "scopePaths": [
     "src/steamzero/domain/session_overlay.py",
     "tests/unit/test_session_overlay.py",
@@ -206,10 +206,16 @@
       "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
       "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Exit confirmado a partir de pausa continua validado somente por processo descartável. Depois da release candidata autorizada, executar a jornada real e o retorno; preservação de saves, captura e input físico continuam pendentes.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-26",
-  "notes": "A10 da execução AURA. O contrato semântico continua impedindo que o tema invente pausa, volume ou saves. A release 2.0.0rc1-3acc2104dd5a adiciona prova física do OSD e da galeria de saves pelo Launcher instalado sobre jogo real; ações sem adapter permanecem visíveis e desabilitadas. Troca de disco segue dependente de um jogo multi-disc legítimo. Recuperacao26/10: fonte compartilhada inclui WIP R3; evidencia instalada/fisica anterior permanece historica e nao certifica os bytes atuais. Verificacao corrente de fonte/fixtures, sem nova promocao de hardware."
+  "updatedAt": "2026-10-31",
+  "notes": "A10 da execução AURA. O contrato semântico continua impedindo que o tema invente pausa, volume ou saves. A release 2.0.0rc1-3acc2104dd5a adiciona prova física do OSD e da galeria de saves pelo Launcher instalado sobre jogo real; ações sem adapter permanecem visíveis e desabilitadas. Troca de disco segue dependente de um jogo multi-disc legítimo. Recuperacao26/10: fonte compartilhada inclui WIP R3; evidencia instalada/fisica anterior permanece historica e nao certifica os bytes atuais. Verificacao corrente de fonte/fixtures, sem nova promocao de hardware.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }
