@@ -1,0 +1,344 @@
+FFFFFFFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+_____________ test_readiness_is_read_only_authenticated_and_public _____________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_is_read_only_au0')
+
+    def test_readiness_is_read_only_authenticated_and_public(tmp_path: Path) -> None:
+        prepared, launched = [], []
+        bridge = _bridge(
+            tmp_path,
+            readiness=lambda game: {
+                "playable": False,
+                "canPrepare": True,
+                "code": "E-CONTENT-INCOMPLETE",
+                "reason": f"Extraia o arquivo em {Path.home()}/private/roms.",
+                "path": "/private/library.db",
+            },
+            prepare=lambda game: prepared.append(game),
+            on_launch=lambda game, focus: launched.append(game),
+        )
+        with bridge.serving() as base:
+            assert _request(base, "wrong", "/readiness?gameId=game")[0] == 403
+            status, result = _request(base, bridge.token, "/readiness?gameId=game")
+>       assert status == 200
+E       assert 404 == 200
+
+tests/integration/test_launcher_readiness.py:56: AssertionError
+_____________ test_unobserved_readiness_is_unknown_not_ready[None] _____________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u0')
+verdict = None
+
+    @pytest.mark.parametrize("verdict", [None, {}, {"playable": "true"}, {"playable": 1}])
+    def test_unobserved_readiness_is_unknown_not_ready(tmp_path: Path, verdict: dict | None) -> None:
+>       bridge = _bridge(tmp_path, readiness=None if verdict is None else lambda game: verdict)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:67:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u0')
+kwargs = {'readiness': None}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+___________ test_unobserved_readiness_is_unknown_not_ready[verdict1] ___________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u1')
+verdict = {}
+
+    @pytest.mark.parametrize("verdict", [None, {}, {"playable": "true"}, {"playable": 1}])
+    def test_unobserved_readiness_is_unknown_not_ready(tmp_path: Path, verdict: dict | None) -> None:
+>       bridge = _bridge(tmp_path, readiness=None if verdict is None else lambda game: verdict)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:67:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u1')
+kwargs = {'readiness': <function test_unobserved_readiness_is_unknown_not_ready.<locals>.<lambda> at 0x7feb9262f690>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+___________ test_unobserved_readiness_is_unknown_not_ready[verdict2] ___________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u2')
+verdict = {'playable': 'true'}
+
+    @pytest.mark.parametrize("verdict", [None, {}, {"playable": "true"}, {"playable": 1}])
+    def test_unobserved_readiness_is_unknown_not_ready(tmp_path: Path, verdict: dict | None) -> None:
+>       bridge = _bridge(tmp_path, readiness=None if verdict is None else lambda game: verdict)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:67:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u2')
+kwargs = {'readiness': <function test_unobserved_readiness_is_unknown_not_ready.<locals>.<lambda> at 0x7feb9262f480>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+___________ test_unobserved_readiness_is_unknown_not_ready[verdict3] ___________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u3')
+verdict = {'playable': 1}
+
+    @pytest.mark.parametrize("verdict", [None, {}, {"playable": "true"}, {"playable": 1}])
+    def test_unobserved_readiness_is_unknown_not_ready(tmp_path: Path, verdict: dict | None) -> None:
+>       bridge = _bridge(tmp_path, readiness=None if verdict is None else lambda game: verdict)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:67:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_unobserved_readiness_is_u3')
+kwargs = {'readiness': <function test_unobserved_readiness_is_unknown_not_ready.<locals>.<lambda> at 0x7feb9262fe20>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+________ test_readiness_error_is_recoverable_without_leaking_exception _________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_error_is_recove0')
+
+    def test_readiness_error_is_recoverable_without_leaking_exception(tmp_path: Path) -> None:
+        calls = []
+
+        def readiness(game):
+            calls.append(game)
+            if len(calls) == 1:
+                raise OSError("/private/path token=fixture-secret")
+            return {"playable": True}
+
+>       bridge = _bridge(tmp_path, readiness=readiness)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:84:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_error_is_recove0')
+kwargs = {'readiness': <function test_readiness_error_is_recoverable_without_leaking_exception.<locals>.readiness at 0x7feb9262f110>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+__________ test_readiness_requires_a_catalog_identity[/readiness-400] __________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_requires_a_cata0')
+path = '/readiness', status = 400
+
+    @pytest.mark.parametrize("path,status", [("/readiness", 400), ("/readiness?gameId=outside", 404)])
+    def test_readiness_requires_a_catalog_identity(tmp_path: Path, path: str, status: int) -> None:
+        queried = []
+>       bridge = _bridge(tmp_path, readiness=lambda game: queried.append(game))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:95:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_requires_a_cata0')
+kwargs = {'readiness': <function test_readiness_requires_a_catalog_identity.<locals>.<lambda> at 0x7feb9262fe20>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+__ test_readiness_requires_a_catalog_identity[/readiness?gameId=outside-404] ___
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_requires_a_cata1')
+path = '/readiness?gameId=outside', status = 404
+
+    @pytest.mark.parametrize("path,status", [("/readiness", 400), ("/readiness?gameId=outside", 404)])
+    def test_readiness_requires_a_catalog_identity(tmp_path: Path, path: str, status: int) -> None:
+        queried = []
+>       bridge = _bridge(tmp_path, readiness=lambda game: queried.append(game))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:95:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_readiness_requires_a_cata1')
+kwargs = {'readiness': <function test_readiness_requires_a_catalog_identity.<locals>.<lambda> at 0x7feb931eea30>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+__ test_explicit_preparation_reports_activity_deduplicates_and_never_launches __
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_explicit_preparation_repo0')
+
+    def test_explicit_preparation_reports_activity_deduplicates_and_never_launches(tmp_path: Path) -> None:
+        release = threading.Event()
+        started = threading.Event()
+        ready = threading.Event()
+        prepared, launched = [], []
+
+        def prepare(game):
+            prepared.append(game)
+            started.set()
+            assert release.wait(5)
+            ready.set()
+            return {"prepared": True}
+
+        bridge = _bridge(
+            tmp_path,
+            readiness=lambda game: {"playable": ready.is_set(), "canPrepare": not ready.is_set()},
+            prepare=prepare,
+            on_launch=lambda game, focus: launched.append(game),
+        )
+        try:
+            with bridge.serving() as base:
+                first, result = _request(base, bridge.token, "/prepare", {"gameId": "game"})
+>               assert started.wait(2)
+E               assert False
+E                +  where False = wait(2)
+E                +    where wait = <threading.Event at 0x7feb92689040: unset>.wait
+
+tests/integration/test_launcher_readiness.py:125: AssertionError
+_____ test_preparation_failure_remains_visible_and_explicit_retry_recovers _____
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_preparation_failure_remai0')
+
+    def test_preparation_failure_remains_visible_and_explicit_retry_recovers(tmp_path: Path) -> None:
+        ready = threading.Event()
+        attempts = []
+
+        def prepare(game):
+            attempts.append(game)
+            if len(attempts) == 1:
+                return {"prepared": False, "reason": "Arquivo de fixture corrompido"}
+            ready.set()
+            return {"prepared": True}
+
+>       bridge = _bridge(
+            tmp_path,
+            readiness=lambda game: {"playable": ready.is_set(), "canPrepare": not ready.is_set()},
+            prepare=prepare,
+        )
+
+tests/integration/test_launcher_readiness.py:152:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_preparation_failure_remai0')
+kwargs = {'readiness': <function test_preparation_failure_remains_visible_and_explicit_retry_recovers.<locals>.<lambda> at 0x7f...e': <function test_preparation_failure_remains_visible_and_explicit_retry_recovers.<locals>.prepare at 0x7feb926349e0>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+_____________ test_prepare_without_a_supported_port_is_not_started _____________
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_prepare_without_a_support0')
+
+    def test_prepare_without_a_supported_port_is_not_started(tmp_path: Path) -> None:
+>       bridge = _bridge(tmp_path, readiness=lambda game: {"playable": False, "canPrepare": True})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_launcher_readiness.py:171:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_prepare_without_a_support0')
+kwargs = {'readiness': <function test_prepare_without_a_supported_port_is_not_started.<locals>.<lambda> at 0x7feb926343b0>}
+
+    def _bridge(tmp_path: Path, **kwargs) -> LauncherBridge:
+>       return LauncherBridge(
+            sections=build_sections([{"id": "game", "title": "Fixture", "section": "library"}]),
+            context_path=tmp_path / "return.json",
+            **kwargs,
+        )
+E       TypeError: LauncherBridge.__init__() missing 1 required keyword-only argument: 'on_launch'
+
+tests/integration/test_launcher_readiness.py:19: TypeError
+____ test_router_observation_does_not_confuse_fail_open_with_verified_ready ____
+
+tmp_path = PosixPath('/tmp/steamzero-tests-3mmqr0rl/tmp/pytest-of-misael/pytest-0/test_router_observation_does_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7feb927def70>
+
+    def test_router_observation_does_not_confuse_fail_open_with_verified_ready(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        calls = []
+
+        def query(executable, operation, game, *, timeout):
+            calls.append((operation, game, timeout))
+            return None
+
+        monkeypatch.setattr("steamzero.launcher.app.query_product", query)
+        router = LaunchRouter(
+            on_spawn=lambda argv: 1,
+            context_path=tmp_path / "return.json",
+            executable=lambda: "fixture-cli",
+            kinds={"steam-game": "steam"},
+        )
+        assert router.readiness("game") == {"playable": True}
+>       assert router.readiness_observation("game")["playable"] is None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'LaunchRouter' object has no attribute 'readiness_observation'
+
+tests/integration/test_launcher_readiness.py:195: AttributeError
+=========================== short test summary info ============================
+FAILED tests/integration/test_launcher_readiness.py::test_readiness_is_read_only_authenticated_and_public
+FAILED tests/integration/test_launcher_readiness.py::test_unobserved_readiness_is_unknown_not_ready[None]
+FAILED tests/integration/test_launcher_readiness.py::test_unobserved_readiness_is_unknown_not_ready[verdict1]
+FAILED tests/integration/test_launcher_readiness.py::test_unobserved_readiness_is_unknown_not_ready[verdict2]
+FAILED tests/integration/test_launcher_readiness.py::test_unobserved_readiness_is_unknown_not_ready[verdict3]
+FAILED tests/integration/test_launcher_readiness.py::test_readiness_error_is_recoverable_without_leaking_exception
+FAILED tests/integration/test_launcher_readiness.py::test_readiness_requires_a_catalog_identity[/readiness-400]
+FAILED tests/integration/test_launcher_readiness.py::test_readiness_requires_a_catalog_identity[/readiness?gameId=outside-404]
+FAILED tests/integration/test_launcher_readiness.py::test_explicit_preparation_reports_activity_deduplicates_and_never_launches
+FAILED tests/integration/test_launcher_readiness.py::test_preparation_failure_remains_visible_and_explicit_retry_recovers
+FAILED tests/integration/test_launcher_readiness.py::test_prepare_without_a_supported_port_is_not_started
+FAILED tests/integration/test_launcher_readiness.py::test_router_observation_does_not_confuse_fail_open_with_verified_ready
+12 failed in 3.43s
+real-state before: exists=True files=12983 directories=2123 bytes=1440930479 max_mtime_ns=1792838782311915482 source=HOME-default
+real-state after:  exists=True files=12983 directories=2123 bytes=1440930479 max_mtime_ns=1792838782311915482 source=HOME-default

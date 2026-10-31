@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
@@ -434,7 +434,12 @@ class StateStore:
             raise
 
     def transition_game_session(
-        self, session_id: str, target: str, **changes: Any
+        self,
+        session_id: str,
+        target: str,
+        *,
+        expected: Mapping[str, Any] | None = None,
+        **changes: Any,
     ) -> dict[str, Any]:
         """Faz compare-and-transition serializado e emite o evento canônico."""
         allowed = {
@@ -450,6 +455,9 @@ class StateStore:
         }
         if not set(changes).issubset(allowed):
             raise SteamZeroError("E-API-SCHEMA", detail="campo de sessão não permitido")
+        guarded = {"owner", "game_id", "state", "pid", "start_ticks", "metadata_json"}
+        if expected is not None and not set(expected).issubset(guarded):
+            raise SteamZeroError("E-API-SCHEMA", detail="guarda de sessão não permitida")
         self._conn.execute("BEGIN IMMEDIATE")
         try:
             current_row = self._conn.execute(
@@ -457,6 +465,10 @@ class StateStore:
             ).fetchone()
             if current_row is None:
                 raise SteamZeroError("E-STATE-INTEGRITY", detail="sessão de jogo ausente")
+            if expected is not None and any(
+                current_row[key] != value for key, value in expected.items()
+            ):
+                raise SteamZeroError("E-TX-STALE-PLAN", detail="identidade da sessão mudou")
             current = str(current_row["state"])
             if not can_transition(current, target):
                 raise SteamZeroError(

@@ -36,11 +36,53 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
       "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Gate adicional30/10 em f3139596: CI40997943230 core85,485453%<base85,486462%, apesar de ganho nos módulos Launcher. Perda em ramos não alterados de linux_runtime (405) e screencast_web (86→88,110→saída). Testes sintéticos não cobrem SATA; testes HTTP sem-provider restauram global após headers antes da conclusão do handler. Reserva prospectiva dos dois testes unitários sem claim concorrente para determinismo, sem alterar produção/eixos/limiar ou usar nova rodada de CI como loteria.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_screencast_web.py",
+      "command": "Seguimento 0749d8e80ad8c97e422e81883181f735ca1fdd2b:76 focados/37,34s;4 novos casos públicos de volumes SATA/NVMe/MMC e HTTP real com provider estável até fim observado, um keep-alive antes de desconexão na escrita e limpeza verificada.9 casos5x/45 aprovações;91,567852% focada, limiar85% mantido. Integral do seguimento7.073 passed/48 skipped/0 failed/19 warnings/2.762,51s; runner/observador0, signals vazio,2.774,28s monotônicos. Cobertura integral85,658854% >=85,650326% da integral anterior, delta+0,008528pp. Arcos antes variáveis e heartbeat observados na integral;9 hashes. Produção idêntica à árvore src c987db69ad965f9ef344e47500337b4709d0d9e9 de f3139596. Estáticos/status verdes; dados pessoais monitorados preservados; sem promoção de eixos. CI anterior8jobs verdes mas comparação adicional85,485453%<85,486462% reprovada e preservada. Novo checkpoint/CI comparará mesma base aprovada, sem rerun aleatório/limiar menor.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Base7bb07ea7: integral7076/48/0/24warnings/2449,83s, observer0/signals[]; comparação integral reprovou85,65601148428728%<85,65885412965305%. Única perda em bitrot.py336/arco329→336, cujo guarda estrutural depende de o fuzz64 bytes aleatórios gerar JSON válido com formato inválido. Reserva prospectiva de tests/integration/test_bitrot.py sem claim concorrente, produção read-only; históricos before-bitrot-* preservados com hashes, sem base menor.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_bitrot.py",
+      "command": "Dois casos públicos determinísticos (lista/objeto vazio) exigem E-STATE-INTEGRITY estrutural e preservam bytes. Fuzz64 intacto, sem seed fixada.8 focados/1,66s,90,833333% do módulo, limiar85% mantido; linha336 e arco329→336 presentes. Checkpoint atualizado repetirá a integral para exigir a mesma base aprovada; fontes e dois hashes Qt anteriores preservados, sem promoção de eixos. Cinco repetições8×5=40 aprovações, todas com90,833333% e guarda/arco presente; estado pessoal monitorado preservado.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Segunda integral7078/48/0/24warnings/2440,09s, bitrot336 restaurado;85,65601148428728%<base85,65885412965305% agora perde só resource_probe.py57/arco56→57. Testes injetavam leitores; faltava prova dos leitores padrão contra arquivos inválidos/erros. Cobertura incidental por /proc é inferência, sem evento/PID causal comprovado. Reserva prospectiva de tests/unit/test_resource_probe.py sem claim concorrente, fonte somente leitura; dados/resultado/hashes before-resource-* preservados sem base menor.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_resource_probe.py",
+      "command": "10 novos casos de snapshot público com proc_root temporário: environ regular/ausente/diretório/symlink/oversize, stat ausente e PermissionError/OSError na abertura dos dois leitores. Classificação conservadora, dados/bytes preservados e sem paths/marcador no snapshot.40 focados/2,10s:32probe+8bitrot;87,59%/90,83%,88,79% combinada com limiar85% mantido; guardas44→45,56→57,tratamentos47–50/59–62 e bitrot336 presentes.12 casos novos5x/60 aprovações. Primeiro grupo27passou mas84,91% reprovou85%, log preservado. Produção e3hashes anteriores intactos; integral atualizada pendente, sem promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md",
+      "command": "Composição ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47/b399ab21ddf73d0bd129053b6bd029ff634ccb25: 7088 passed, 48 skipped, 19 warnings in 2598.81s (0:43:18); runner/observador0, signals vazio,2611,85s monotônicos. Cobertura integral85.66169677501884% >=85.65885412965305%, delta+0.0028426453657885986pp. Quatro hashes conferidos; source tree c987db69ad965f9ef344e47500337b4709d0d9e9 idêntico à base7bb07ea7. Guardas bitrot336/329→336 e leitores44→45,56→57,47–50/59–62 presentes; storage/http anteriores mantidos. Nenhum módulo perdeu linhas/ramos; somente resource_probe61/62 ganharam. Ruff736/mypy307/independence/boundaries/status aprovados. Fonte/fixture Qt6.11.2/offscreen800×800,60 focados/81,77s e3 capturas/27,03s;10PNGs240.369bytes revisados. Qualidade:40 focados/2,10s e12 novos casos5x/60 aprovações; fuzz64 intacto e dados pessoais monitorados preservados. Sem novo aceite instalado/físico ou promoção de eixos/gaps.",
+      "result": "passed"
     }
   ],
   "nextAction": "Amarrar cada arquivo de teste ao item da capacidade que ele prova, comecando pelos que sustentam evidencia declarada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-19",
+  "updatedAt": "2026-10-30",
   "notes": "Item AGREGADOR: existe para que nenhum arquivo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto da arvore. Promover um recorte a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.",
-  "scopeDigest": "9ff757c8b17c527f0ec199f51f4beb4678172edbe52dc71cf4b4164697fbc11f"
+  "scopeDigest": "f358ef2e1deaeef830e2d2c4e441fc291d366ab204cc26b73516b72ab60ca20e"
 }

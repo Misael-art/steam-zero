@@ -3,10 +3,12 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import signal
 import socket
 import tempfile
 import threading
 import time
+from collections.abc import Iterator
 from contextlib import suppress
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -110,6 +112,15 @@ _TMP = Path(tempfile.mkdtemp())
 
 
 class TestCastEngineUnit:
+    @pytest.fixture(autouse=True)
+    def _restore_process_signal_handlers(self) -> Iterator[None]:
+        before = {sig: signal.getsignal(sig) for sig in (signal.SIGINT, signal.SIGTERM)}
+        try:
+            yield
+        finally:
+            for sig, handler in before.items():
+                signal.signal(sig, handler)
+
     def _tmp_sock(self, name: str) -> str:
         return str(_TMP / name)
 
@@ -126,14 +137,20 @@ class TestCastEngineUnit:
 
     def test_main_sigterm_stops_engine(self) -> None:
         ce = _reload_engine()
-        eng = ce.CastEngine(self._tmp_sock("sigterm.sock"))
-        ce._INSTANCE = eng
-        with patch.object(eng, "_cmd_stop"):
+        with (
+            patch("sys.argv", ["cast_engine.py", "--socket", self._tmp_sock("sigterm.sock")]),
+            patch.object(ce.CastEngine, "run"),
+        ):
+            ce.main()
+        eng = ce._INSTANCE
+        assert eng is not None
+        with patch.object(eng, "_cmd_stop") as stop:
             for sig_name in ("SIGTERM", "SIGINT"):
                 sig = getattr(ce.signal, sig_name)
                 handler = ce.signal.getsignal(sig)
                 handler(sig, None)
             assert ce.signal.getsignal(ce.signal.SIGTERM) is not ce.signal.SIG_DFL
+            assert stop.call_count == 2
 
     def test_stop_with_pipeline_sets_state_null(self) -> None:
         ce = _reload_engine()

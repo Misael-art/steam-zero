@@ -13,14 +13,27 @@
     "tests/unit/test_amiga_bios_launch_preflight.py",
     "tests/integration/test_cli_emulation.py",
     "tests/integration/test_launcher_app.py",
-    "src/steamzero/adapters/launcher_process.py"
+    "src/steamzero/adapters/launcher_process.py",
+    "src/steamzero/adapters/launcher_ui.py",
+    "src/steamzero/ui/qml/launcher/LauncherMain.qml",
+    "src/steamzero/ui/qml/launcher/LauncherShell.qml",
+    "src/steamzero/ui/qml/launcher/LauncherGamePage.qml",
+    "src/steamzero/ui/qml/launcher/LauncherReadiness.qml",
+    "tests/integration/test_launcher_readiness.py",
+    "tests/integration/test_launcher_readiness_qml.py",
+    "tests/qml/launcher/check_launcher_readiness.qml",
+    "src/steamzero/launcher/app.py",
+    "docs/09-operations/evidence/2026-10-24-r3-launch-readiness",
+    "src/steamzero/adapters/multidisc_materializer.py",
+    "tests/unit/test_multidisc_materializer.py",
+    "tests/integration/test_launcher_archive_preparation.py",
+    "src/steamzero/ui/qml/launcher/LauncherHome.qml",
+    "tests/unit/test_emulation_runtime_remediation.py"
   ],
-  "scopeDigest": "a23a16d3d70f2b458b97e1daa8cd4877e6006d6c29305ec6d622831bf3ba617c",
+  "scopeDigest": "4962eb26e4d22a0354796627bd97991976090e1c024161ff5a192c8d537d00c9",
   "dependsOn": [],
   "knownGaps": [
-    "GAP-LAUNCH-READINESS-INSTALLED-PROOF",
-    "GAP-LAUNCH-READINESS-CARD-STATE-AND-PROGRESS",
-    "GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN"
+    "GAP-LAUNCH-READINESS-INSTALLED-PROOF"
   ],
   "acceptanceCriteria": [
     "`steamzero emulation readiness --game-id` responde somente leitura com código e motivo do bloqueio, sem iniciar jogo.",
@@ -47,10 +60,40 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-r3-launch-readiness/05-focused-final.log",
+      "command": "Runner isolado final14passed: HTTPautenticado, semconsulta mutante, preparo/dedup/erro/retry semspawn; QMLcom raizLauncherMain real e ponteHTTP, Enter, callbacks antigos/duplicados e perda dePOST. Broad64passed em04. Fixtures/offscreen apenas; sem prova de extracao/runtime instalado.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_archive_preparation.py",
+      "command": "53 testes focados finais passaram em14,59s: scan/preparo/rescan/reabertura, ZIP real, transação, corrupção/recuperação, HTTP e LauncherMain/Qt offscreen. Integral bruta:6893passed/48skipped/1failed; fixture de remediation ajustada ao contrato novo e retestada, código de produto congelado; cobertura85,573587%. Detalhes e limites no CHECKPOINT.md.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_launcher_readiness_qml.py",
+      "command": "128 integrações Launcher verdes; integral6894passed/48skipped/0failed em2270,17s, cobertura85,559251%. Novo teste de custódia em111focadas verdes e núcleo6498passed/48skipped/397deselected em680,68s; cobertura núcleo85,435961%>=CIverde85,395819%, mesma seleção e denominadores. QML/fonte/offscreen, sem instalar; detalhes no CHECKPOINT.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Integrar por gates/CI no SHA exato, instalar candidata autorizada e provar no host: 409 legível no Launcher, extração real de Amiga/X68000, BIOS projetada e id do jogo válido após o rescan. Depois entregar o estado no cartão e o progresso da preparação.",
+  "nextAction": "Prontidão/cartão em d9d8f42b/d93bae2e; mantém GAP-LAUNCH-READINESS-INSTALLED-PROOF sem instalação/auth. Consulta da bridge em b4b7196d e ACK perdido com bridge viva em 36e01f70, no item SZ-AURA-LAUNCHER; próximo baseline é continuidade entre processos, com prova física independente.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-08",
-  "notes": "Os quatro primeiros critérios estão implementados e testados na branch; o quinto não está implementado. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos."
+  "updatedAt": "2026-10-31",
+  "notes": "Os cinco critérios estão implementados e testados em fonte na branch; a prova instalada permanece pendente. Nada foi provado na release instalada, que não contém o patch. O código em emulation.py, cli/main.py, launcher_ui.py e launcher/app.py pertence aos workstreams Biblioteca e Jornada e foi alterado por handoff serial registrado em WS-2026-10-DIAGNOSTICO-JORNADAS-UX; por isso o escopo deste item fixa os testes e o adaptador próprio, e não reivindica aqueles arquivos. 24/10: assuncao serial prospectiva de WS-R3-LAUNCH-READINESS apos checkpoint local R2/year-alias, sem escritores concorrentes. Slice de codigo/testes apenas; sem promover eixo instalado/fisico. Handoffs JLS/R2 registrados antes de editar. 28/10: quinto critério implementado em fonte para o cartão selecionado e faixa operacional da Home/Cinema. Um observador por seleção, debounce200ms, leitura sem preparação automática, andamento indeterminado real (sem porcentagem inventada), reducedMotion e timeout com descarte de resposta atrasada. Aceite instalado/físico separado. Frente serial existente passou a SZ-AURA-LAUNCHER para o lote de recuperação de consultas da bridge em28/10; fonte de prontidão não mudou e aceite instalado permanece pendente.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

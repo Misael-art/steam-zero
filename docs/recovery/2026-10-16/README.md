@@ -1,8 +1,8 @@
 # Recuperação da proposta SteamZero
 
-> **Continuidade vigente em 2026-10-24:** desenvolvimento contínuo na branch existente, **sem pedir senha ou iniciar autenticação até nova direção do proprietário**. Instalada `2.0.0rc1-59ecc2d8f0f6`; [checkpoint R2 e fila única](../../09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md). Retomada atual: PR/CI do ajuste de ano `7d89ab0f`, com integral local já aprovada (6849 passed/47 skipped, bytes conferidos), seguido do próximo trabalho independente do plano. Fonte nova continua separada da instalação/aceite.
+> **Continuidade vigente em 26/10/2026:** raiz única em `$HOME/Projects/SteamZero`, na branch existente `codex/product-recovery-2026-10-16`. Leia primeiro [RETOMADA-HOST-NOVO-2026-10-24.md](RETOMADA-HOST-NOVO-2026-10-24.md), incluindo a atualização de 26/10: recuperação do histórico e WIP, ambiente, testes e próxima ação. Permanecem **sem senha, nova autenticação ou instalação neste host**. [R3 em fonte](../../09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md) e [recibos do handoff](../../09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md). A cópia privada externa ainda exige comprovação; código remoto não preserva biblioteca pessoal.
 
-> **2026-10-21 — host será reformatado.** Retomada a partir do GitHub: leia primeiro [`REINSTALACAO-HOST-2026-10-21.md`](REINSTALACAO-HOST-2026-10-21.md).
+> O plano de [reinstalação de 21/10](REINSTALACAO-HOST-2026-10-21.md) é referência histórica; o ponto de entrada atual é o handoff de 24/10 acima.
 
 Direção estabelecida pelo proprietário em 16 de outubro de 2026. O SteamZero deve oferecer experiências de jogo prontas para computadores, emulação e plataformas web, com configuração avançada acessível e uma experiência de sala/handheld completa.
 
@@ -18,6 +18,14 @@ Direção estabelecida pelo proprietário em 16 de outubro de 2026. O SteamZero 
 6. [Validação desta entrega](VALIDACAO.md): verificações executadas e seus limites.
 
 ## Precedência e preservação
+
+**Consolidação de 30/10/2026:** o proprietário esclareceu a plataforma criativa
+nativa e o objetivo integral de compatibilidade RetroFE/ES-DE. A
+[seção 22 de Theme Engine e Studio](../../01-product/THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026)
+é leitura normativa para autoria, biblioteca canônica, receitas de asset único,
+importação/Play, resposta do motor e equivalência preview/Launcher. A direção e
+o plano apontam para esse contrato; ele não substitui o catálogo de status nem
+certifica capacidades ainda parciais.
 
 A orientação do proprietário nesta sessão corrige a nomenclatura anterior. `AGENTS.md` remete a esta direção antes dos documentos antigos. Em conflito de significado ou prioridade, prevalece [DIRECAO.md](DIRECAO.md); contratos técnicos existentes, segurança, preservação de dados e governança de release continuam aplicáveis.
 
@@ -46,3 +54,13 @@ As [fontes primárias e seus limites](FONTES-EXPERIENCIAS.md) sustentam a pesqui
 ## Continuidade em checkout único
 
 Use o [prompt de execução centralizada](PROMPT-EXECUCAO-CENTRALIZADA.md) para iniciar a implementação. A terceira orientação do proprietário estabelece um executor e um lote funcional por vez no diretório canônico, com instalação e prova real na máquina, pendência explícita de credencial e checkpoint de retomada. A conferência encontrou um único worktree registrado e 16 registros de frentes ativas, não 16 executores comprovados.
+
+
+Atualização de implementação, 31/10/2026: o primeiro incremento da wheel nativa
+já possui autoria genérica, master preservado compartilhado, receitas/movimento,
+persistência/round-trip, renderer comum e execução do tema salvo no Launcher RHI.
+[Provas e limites](../../09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json). O fechamento da fonte aprovou 7.181 testes/48 skips
+e cobertura com branches de 85,72395128552097%, acima de 85,71972259810555%.
+Domínio `686d0b7e` e integração `d9392bec` foram separados. Isto não encerra os
+requisitos da seção 22, não promove eixos/gaps nem substitui instalação,
+fidelidade integral ou aceite físico.

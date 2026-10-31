@@ -77,7 +77,7 @@ Domínios (Fase 1):
   admin health          verifica helper e autorização Polkit (read-only)
   session environment    observa sessão, energia, rede, DRM e volumes (read-only)
   session status         mostra lifecycle persistido (--game-id APPID)
-  session recover        reconhece sessão interrompida (--game-id APPID)
+  session recover        reconhece interrupção (--game-id ID [--session-id ULID])
   playtime list          lista recentes e playtime (--limit N --cursor CURSOR)
   playtime show          mostra um jogo e a última sessão (--game-id ID)
   collections list       lista tags, favoritos e coleções inteligentes
@@ -1020,6 +1020,28 @@ def _cmd_session_status(args: list[str], correlation_id: str) -> tuple[dict[str,
 
 def _cmd_session_recover(args: list[str], correlation_id: str) -> tuple[dict[str, Any], int]:
     app_id = _required_flag(args, "--game-id")
+    session_id = _flag_value(args, "--session-id")
+    if "--session-id" in args:
+        if args.count("--session-id") != 1 or session_id is None or not ids.is_ulid(session_id):
+            raise SteamZeroError("E-API-SCHEMA", detail="session-id inválido")
+        from steamzero.adapters.emulation import EmulationController
+
+        controller = EmulationController()
+        try:
+            data = controller.recover_game_session(app_id, session_id)
+        finally:
+            controller.close()
+        blocked = data["status"] == "blocked"
+        return (
+            build_envelope(
+                "session",
+                "recover",
+                status="blocked" if blocked else "ok" if data["status"] == "recovered" else "noop",
+                data=data,
+                correlation_id=correlation_id,
+            ),
+            EXIT_BLOCKED if blocked else EXIT_OK,
+        )
     data = _session_launcher().recover(app_id)
     return (
         build_envelope(
@@ -1335,13 +1357,20 @@ def _cmd_emulation_launch(args: list[str], correlation_id: str) -> tuple[dict[st
     if game_id is None:
         raise SteamZeroError("E-API-SCHEMA", detail="use --game-id <id>")
     bezel_resource = _flag_value(args, "--bezel-resource")
+    launch_request_id = _flag_value(args, "--launch-request-id")
+    if args.count("--launch-request-id") > 1 or (
+        "--launch-request-id" in args
+        and (launch_request_id is None or not ids.is_ulid(launch_request_id))
+    ):
+        raise SteamZeroError("E-API-SCHEMA", detail="launch-request-id inválido")
     controller = EmulationController()
     try:
-        data = (
-            controller.launch_game(game_id)
-            if bezel_resource is None
-            else controller.launch_game(game_id, bezel_resource=bezel_resource)
-        )
+        options = {}
+        if bezel_resource is not None:
+            options["bezel_resource"] = bezel_resource
+        if launch_request_id is not None:
+            options["launch_request_id"] = launch_request_id
+        data = controller.launch_game(game_id, **options)
     finally:
         close = getattr(controller, "close", None)
         if callable(close):

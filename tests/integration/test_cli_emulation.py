@@ -15,6 +15,52 @@ from steamzero.cli.main import main
 from steamzero.core.errors import LaunchNotStartedError, SteamZeroError
 
 
+@pytest.mark.parametrize(
+    "suffix",
+    [
+        ["--launch-request-id"],
+        ["--launch-request-id", "bad"],
+        ["--launch-request-id", "01ARZ3NDEKTSV4RRFFQ69G5FAV", "--launch-request-id", "bad"],
+    ],
+)
+def test_launch_request_identity_rejected_before_controller(monkeypatch, capsys, suffix):
+    monkeypatch.setattr(
+        emulation, "EmulationController", lambda: pytest.fail("invalid identity has effects")
+    )
+    assert main(["emulation", "launch", "--game-id", "game", "--json", *suffix]) != 0
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "E-API-SCHEMA"
+
+
+def test_launch_request_identity_reaches_controller_without_replacing_bezel(monkeypatch, capsys):
+    identity = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+    calls = []
+
+    class Controller:
+        def launch_game(self, game_id, **options):
+            calls.append((game_id, options))
+            return {"sessionId": identity}
+
+    monkeypatch.setattr(emulation, "EmulationController", Controller)
+    assert (
+        main(
+            [
+                "emulation",
+                "launch",
+                "--game-id",
+                "game",
+                "--json",
+                "--launch-request-id",
+                identity,
+                "--bezel-resource",
+                "aura-default",
+            ]
+        )
+        == 0
+    )
+    assert calls == [("game", {"launch_request_id": identity, "bezel_resource": "aura-default"})]
+    assert json.loads(capsys.readouterr().out)["data"]["sessionId"] == identity
+
+
 def test_emulation_workspace_cli_emits_versioned_envelope(
     capsys, monkeypatch: pytest.MonkeyPatch
 ) -> None:

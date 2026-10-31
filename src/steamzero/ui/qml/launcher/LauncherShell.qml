@@ -24,8 +24,24 @@ Item {
     property var accessibility: ({"highContrast": false, "visualScale": 1.0, "reducedMotion": false})
     // Função que devolve a página de um jogo, injetada por quem monta o shell.
     property var resolveGamePage: null
+    property var readinessRequest: null
     // Contexto gravado antes do lançamento, lido na inicialização.
     property var returnContext: null
+    property string returnFocus: ""
+    property var recoveryContext: null
+    signal sessionRestored()
+
+    Component.onCompleted: {
+        if (recoveryContext && recoveryContext.gameId && recoveryContext.sessionId) {
+            sessionGameId = recoveryContext.gameId
+            observedSessionId = recoveryContext.sessionId
+            expectedRequestId = recoveryContext.requestId
+            exitFocus = homeFocus
+            launchState = "launching"
+            markUnconfirmed()
+            sessionRestored()
+        }
+    }
 
     readonly property string screen: gamePage !== null ? "game" : "home"
     readonly property var launchStates: ["idle", "preparing", "launching",
@@ -34,6 +50,10 @@ Item {
     property string launchError: ""
     property string observedSessionId: ""
     property string sessionGameId: ""
+    property bool sessionUncertain: false
+    property bool sessionRecoveryAvailable: false
+    property bool sessionRecoveryPending: false
+    signal sessionRecoveryRequested(string gameId, string sessionId)
     // A volta confirmada cobre a troca do jogo pela home sem deixar um frame
     // exposto. O lifecycle continua semântico; esta camada só anima a
     // superfície visual e respeita reducedMotion.
@@ -43,11 +63,22 @@ Item {
     // Uma falha sem sessionId só é aceita se o requestId coincide: resposta
     // de tentativa antiga não pode encerrar um pedido novo.
     property string expectedRequestId: ""
+    property string expectedClientRequestId: ""
 
     function observeSession(observation) {
         if (!observation || observation.gameId !== shell.sessionGameId)
             return false
+        if (shell.expectedClientRequestId !== ""
+                && observation.clientRequestId !== shell.expectedClientRequestId)
+            return false
         const attempt = observation.attempt || null
+        if (shell.expectedClientRequestId !== "" && attempt) {
+            if (typeof attempt.requestId !== "string" || attempt.requestId === ""
+                    || (shell.expectedRequestId !== ""
+                        && attempt.requestId !== shell.expectedRequestId))
+                return false
+            shell.expectedRequestId = attempt.requestId
+        }
         if (attempt && attempt.state === "notStarted") {
             if (!shell.expectedRequestId
                     || attempt.requestId !== shell.expectedRequestId)
@@ -72,13 +103,31 @@ Item {
         if (shell.launchState !== "launching" && shell.launchState !== "emulator-visible")
             return false
         shell.observedSessionId = observation.sessionId
-        if (observation.state === "running")
+        if (observation.state === "unknown") {
+            shell.sessionUncertain = true
+            shell.sessionRecoveryAvailable = !!(observation.recovery && observation.recovery.available)
+            shell.launchError = qsTr("LAUNCHER-SESSION-UNCERTAIN-001\nO estado atual desta sessão não pôde ser confirmado. Um novo lançamento permanece bloqueado.")
+            if (shell.sessionRecoveryAvailable)
+                shell.launchError += "\n" + qsTr("O jogo anterior já não está ativo. Selecione Verificar sessão para liberar uma nova tentativa.")
+            else
+                shell.launchError += "\n" + qsTr("A observação continua. Sem evidência suficiente, consulte a sessão na central.")
+            return true
+        }
+        if (observation.state === "running") {
+            shell.sessionUncertain = false
+            shell.sessionRecoveryAvailable = false
             return shell.markEmulatorVisible()
+        }
         if (observation.state === "failed") {
-            shell.failLaunch(qsTr("LAUNCHER-SESSION-FAILED-001\nA sessão registrou falha. Verifique os requisitos do jogo na central antes de tentar novamente."))
+            shell.failLaunch(observation.failureCode === "E-SESSION-ORPHANED"
+                ? qsTr("E-SESSION-ORPHANED\nA sessão foi interrompida e o registro foi recuperado. O tempo de jogo não pôde ser confirmado. Volte para tentar novamente.")
+                : qsTr("LAUNCHER-SESSION-FAILED-001\nA sessão registrou falha. Verifique os requisitos do jogo na central antes de tentar novamente."))
             return true
         }
         if (observation.state === "closed") {
+            shell.sessionUncertain = false
+            shell.sessionRecoveryAvailable = false
+            shell.sessionRecoveryPending = false
             // Even a short game may close between two polls. A canonical
             // terminal record is evidence; window focus is not.
             if (shell.launchState === "launching")
@@ -133,15 +182,25 @@ Item {
     }
 
     function markUnconfirmed() {
-        if (shell.launchState !== "launching")
+        if (shell.launchState !== "launching" || shell.sessionUncertain)
             return false
         shell.launchError = qsTr("LAUNCHER-SESSION-UNCONFIRMED-001\nO início do jogo ainda não foi confirmado. A observação continua; um novo lançamento está bloqueado para evitar duplicação. Consulte a sessão na central.")
         shell.feedbackRequested("launch-unconfirmed")
         return true
     }
 
+    function requestSessionRecovery() {
+        if (!sessionUncertain || !sessionRecoveryAvailable || sessionRecoveryPending)
+            return false
+        sessionRecoveryPending = true
+        sessionRecoveryRequested(sessionGameId, observedSessionId)
+        return true
+    }
+
     function _restoredFocus() {
         const fallback = focusMap && focusMap.initial ? focusMap.initial : ""
+        if (focusMap && focusMap.nodes && focusMap.nodes[returnFocus] !== undefined)
+            return returnFocus
         if (!returnContext || !focusMap || !focusMap.nodes)
             return fallback
         const saved = returnContext.focusId
@@ -165,6 +224,16 @@ Item {
         return true
     }
 
+    function restoreSurfaceFocus() {
+        if (shell.launchState === "failed")
+            recoverButton.forceActiveFocus()
+        else if (gamePage !== null)
+            page.forceActiveFocus()
+        else
+            home.forceActiveFocus()
+        return true
+    }
+
     function openGame(gameId) {
         if (launchState === "launching" || launchState === "emulator-visible")
             return false
@@ -184,6 +253,9 @@ Item {
             return false
         launchError = ""
         observedSessionId = ""
+        sessionUncertain = false
+        sessionRecoveryAvailable = false
+        sessionRecoveryPending = false
         sessionGameId = gamePage.gameId
         launchState = "preparing"
         launchStateRequested("preparing")
@@ -217,10 +289,14 @@ Item {
         launchError = ""
         launchState = "recovered"
         launchStateRequested("recovered")
+        restoreSurfaceFocus()
         return true
     }
 
     function failLaunch(reason) {
+        sessionUncertain = false
+        sessionRecoveryAvailable = false
+        sessionRecoveryPending = false
         launchError = String(reason || "Não foi possível iniciar o jogo.")
         launchState = "failed"
         launchStateRequested("failed")
@@ -267,6 +343,7 @@ Item {
         focus: visible
         focusMap: shell.focusMap
         sections: shell.sections
+        readinessRequest: shell.readinessRequest
         catalogSummary: shell.catalogSummary
         cinemaScene: shell.cinemaScene
         currentFocus: shell.homeFocus
@@ -291,6 +368,7 @@ Item {
             : ({"gameId": "", "title": "", "platform": "", "lastPlayed": null,
                 "initialFocus": "", "actions": []})
         accessibility: shell.accessibility
+        readinessRequest: shell.readinessRequest
         onActivated: function(actionId) {
             if (actionId === "play")
                 shell.launchFocused()
@@ -319,6 +397,7 @@ Item {
         z: 10
         visible: shell.launchState === "preparing"
             || shell.launchState === "launching" || shell.launchState === "failed"
+            || shell.sessionUncertain
         // QML interpreta oito dígitos como #AARRGGBB. O valor anterior punha
         // 0x07 no alfa e deixava a página vazar por trás do texto da falha.
         color: "#ee071019"
@@ -329,8 +408,9 @@ Item {
             }
         }
         Accessible.name: shell.launchState === "failed"
-            ? qsTr("Falha ao iniciar o jogo") : qsTr("Preparando o jogo")
-        Accessible.description: shell.launchState === "failed"
+            ? qsTr("Falha na sessão") : shell.sessionUncertain
+            ? qsTr("Sessão não confirmada") : qsTr("Preparando o jogo")
+        Accessible.description: shell.launchState === "failed" || shell.sessionUncertain
             ? shell.launchError : qsTr("Aguarde enquanto o jogo é iniciado")
 
         Column {
@@ -356,10 +436,41 @@ Item {
             }
 
             Rectangle {
+                id: sessionRecoveryButton
+                objectName: "sessionRecoveryButton"
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: shell.sessionUncertain && shell.sessionRecoveryAvailable
+                enabled: !shell.sessionRecoveryPending
+                onVisibleChanged: { if (visible) forceActiveFocus() }
+                width: 220; height: 48; radius: 8
+                color: "#0b1622"
+                border.width: activeFocus ? 3 : 1
+                border.color: activeFocus ? "#55d8ff" : "#68839b"
+                focus: visible
+                Accessible.name: qsTr("Verificar sessão")
+                Accessible.role: Accessible.Button
+                Accessible.description: qsTr("Recuperar apenas o registro comprovadamente interrompido, sem encerrar processos")
+                Text {
+                    anchors.centerIn: parent
+                    text: shell.sessionRecoveryPending ? qsTr("Verificando…") : qsTr("Verificar sessão")
+                    color: "#ffffff"; font.pixelSize: 14
+                }
+                TapHandler { onTapped: shell.requestSessionRecovery() }
+                Keys.onPressed: function(event) {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                        shell.requestSessionRecovery(); event.accepted = true
+                    }
+                }
+            }
+
+            Rectangle {
                 id: recoverButton
                 objectName: "launchFailureRetry"
                 anchors.horizontalCenter: parent.horizontalCenter
                 visible: shell.launchState === "failed"
+                onVisibleChanged: {
+                    if (visible) forceActiveFocus()
+                }
                 width: 220
                 height: 48
                 radius: 8

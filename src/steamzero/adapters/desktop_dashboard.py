@@ -2201,6 +2201,54 @@ class DesktopDashboard:
     ) -> dict[str, object]:
         return self._theme_editor.set_metadata(session_id, meta_field, value)
 
+    def editor_create_layout(
+        self, session_id: str, layout_id: str, kind: str, template_kind: str
+    ) -> dict[str, object]:
+        return self._theme_editor.create_layout(session_id, layout_id, kind, template_kind)
+
+    def editor_sources(self, session_id: str) -> dict[str, object]:
+        from steamzero.domain.media_registry import MediaRegistry
+
+        self._theme_editor.preview(session_id)
+        sources = []
+        for source in MediaRegistry.sources(paths.media_dir()):
+            try:
+                uri = MediaRegistry.resolve_source(paths.media_dir(), source.digest).as_uri()
+                sources.append({**source.to_dict(), "uri": uri, "available": True})
+            except SteamZeroError as exc:
+                sources.append(
+                    {**source.to_dict(), "uri": "", "available": False, "reason": exc.detail}
+                )
+        return {"sources": sources}
+
+    def editor_set_source(self, session_id: str, slot: str, digest: str) -> dict[str, object]:
+        return self._theme_editor.set_source(session_id, slot, digest)
+
+    def editor_preserve_source(
+        self,
+        session_id: str,
+        slot: str,
+        source: str,
+        license_id: str,
+        origin: str,
+        attribution: str,
+    ) -> dict[str, object]:
+        from steamzero.domain.media_pipeline import MediaPipeline
+        from steamzero.domain.media_registry import Provenance
+
+        # Validate the target session/slot before preserving any selected file.
+        self._theme_editor.preview(session_id)
+        if slot not in {"logo", "background", "sidebar"}:
+            raise SteamZeroError("E-API-SCHEMA", detail="slot de master inválido")
+        payload, filename = self._editor_read_local_image(source)
+        preserved = MediaPipeline(paths.media_dir()).preserve_source(
+            payload, filename, Provenance("local-import", origin, license_id, attribution)
+        )
+        return {
+            **self._theme_editor.set_source(session_id, slot, preserved.digest),
+            "source": preserved.to_dict(),
+        }
+
     def editor_set_layout(
         self, session_id: str, layout_id: str, field: str, value: object
     ) -> dict[str, object]:
@@ -2213,17 +2261,22 @@ class DesktopDashboard:
 
     def editor_set_bezel(self, session_id: str, source: str) -> dict[str, object]:
         """Import one locally selected PNG into the current theme edit session."""
+        payload, filename = self._editor_read_local_image(source)
+        return self._theme_editor.set_asset(session_id, "bezel", payload, filename)
+
+    @staticmethod
+    def _editor_read_local_image(source: str) -> tuple[bytes, str]:
         selected = Path(source).expanduser()
         if not selected.is_absolute() or selected.is_symlink():
             raise SteamZeroError(
-                "E-THEME-UNSAFE", detail="selecione um PNG local que não seja link simbólico"
+                "E-THEME-UNSAFE", detail="selecione uma imagem local que não seja link simbólico"
             )
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
         try:
             descriptor = os.open(selected, flags)
         except OSError as exc:
             raise SteamZeroError(
-                "E-THEME-UNSAFE", detail="não foi possível abrir o PNG selecionado"
+                "E-THEME-UNSAFE", detail="não foi possível abrir a imagem selecionada"
             ) from exc
         with os.fdopen(descriptor, "rb") as stream:
             metadata = os.fstat(stream.fileno())
@@ -2232,13 +2285,11 @@ class DesktopDashboard:
                 or metadata.st_size <= 0
                 or metadata.st_size > 16 * 1024 * 1024
             ):
-                raise SteamZeroError(
-                    "E-THEME-LIMIT", detail="o PNG do bezel precisa ter até 16 MiB"
-                )
+                raise SteamZeroError("E-THEME-LIMIT", detail="a imagem precisa ter até 16 MiB")
             payload = stream.read((16 * 1024 * 1024) + 1)
         if len(payload) > 16 * 1024 * 1024:
-            raise SteamZeroError("E-THEME-LIMIT", detail="o PNG do bezel precisa ter até 16 MiB")
-        return self._theme_editor.set_asset(session_id, "bezel", payload, selected.name)
+            raise SteamZeroError("E-THEME-LIMIT", detail="a imagem precisa ter até 16 MiB")
+        return payload, selected.name
 
     def editor_edit_asset_recipe(
         self,

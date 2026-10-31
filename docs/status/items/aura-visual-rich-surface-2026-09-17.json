@@ -16,7 +16,7 @@
     "tests/qml/launcher/check_launcher_focus_bootstrap.qml",
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed"
   ],
-  "scopeDigest": "858b199d907ac3c3f57d565c8960674d308e7900058e75de76604ef70ac268f9",
+  "scopeDigest": "c22591abdab9d62478bd43d0231ebfcb13e590bf830ce7e4fc258aaabad9f219",
   "dependsOn": [
     "SZ-AURA-VISUAL-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -106,12 +106,18 @@
       "reference": "tools/run_tests_isolated.py",
       "command": "LC_ALL=C.UTF-8 .venv/bin/python tools/run_tests_isolated.py tests -q em dc1d92ce (2026-10-09): 6706 passed, 47 skipped, 1 failed; a única falha é a consistência de digests do catálogo. Revalidação do escopo após os lotes de overlay de sessão, página de jogo e placeholder de capa; não promove eixo nem fecha gap, e não substitui prova na release instalada.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-VISUAL-RICH-SURFACE"
   ],
   "nextAction": "Repetir a troca de disco pelo Launcher instalado com um jogo multi-disc legítimo; OSD e galeria já estão capturados na release atual.",
-  "updatedAt": "2026-10-04",
-  "notes": "A release instalada prova a superfície Cinema rica, ingestão de fanart/capa, medição física dentro do orçamento, OSD e galeria de saves sobre jogo real. A sessão real comprovou save-state, pausa/retomada, bezel e fade pelo contrato; o ciclo multidisco foi comprovado fora da release. Troca de disco pelo Launcher instalado permanece aberta."
+  "updatedAt": "2026-10-31",
+  "notes": "A release instalada prova a superfície Cinema rica, ingestão de fanart/capa, medição física dentro do orçamento, OSD e galeria de saves sobre jogo real. A sessão real comprovou save-state, pausa/retomada, bezel e fade pelo contrato; o ciclo multidisco foi comprovado fora da release. Troca de disco pelo Launcher instalado permanece aberta.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

@@ -36,7 +36,7 @@
     "docs/09-operations/evidence/2026-10-23-r2-launcher-data",
     "tests/integration/test_game_metadata_migration_recovery.py"
   ],
-  "scopeDigest": "327984e2b4fb23299ba1b9502e8398d4789a85df5a731a931774eac728470ee1",
+  "scopeDigest": "7de530717242be539ad07aa3eb2e93638511f53343320503d8ee98086fb144f2",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",
@@ -92,12 +92,18 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/host-59ecc2d8/05-summary.json",
       "command": "prepare/verify/install exit0 da main 59ecc2d8 e CI push40083592868 verde; CLI/daemon/servico/socket e schema23 integros. Release parcial instalada nao inclui year-alias7d89ab0f; esse snapshot do item permanece not-packaged. Sem gameplay/hardware/rollback executado.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
+  "nextAction": "Year-alias integrado PR267/mainad742ca3, CI40087147293 oito jobs verdes e cobertura equivalente85,3375%>=base85,3309%. Fonte nova ainda fora da release ativa59ecc2d8. R3 prontidao/preparo segue serialmente com integral ativa /tmp/steamzero-r3-readiness-full.log e fonte congelada. Sem senha/autenticacao ate nova direcao expressa; consolidar candidata somente apos gates e manter fila de aceite.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R2-GAME-DATA"
   ],
-  "updatedAt": "2026-10-24",
+  "updatedAt": "2026-10-26",
   "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado. 2026-10-23: assuncao serial Codex, projecao canonica no Launcher implementada; provas de fixture/offscreen separadas de instalacao e provedor remoto. Nenhum eixo promovido ate gates e aceite aplicavel. 2026-10-24: instalada main 59ecc2d8 com operador; distribution not-packaged conserva o snapshot local com year-alias 7d89ab0f ainda nao integrado/empacotado, sem negar a release parcial instalada e comprovada no recibo host-59ecc2d8."
 }

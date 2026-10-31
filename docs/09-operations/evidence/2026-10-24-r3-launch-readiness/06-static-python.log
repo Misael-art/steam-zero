@@ -1,0 +1,6 @@
+.venv/bin/ruff check src tests tools
+All checks passed!
+.venv/bin/ruff format --check src tests tools
+723 files already formatted
+.venv/bin/mypy
+Success: no issues found in 306 source files

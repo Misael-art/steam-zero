@@ -120,6 +120,9 @@ def inprocess_core(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterator[
     monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    # This fixture provides its own private daemon; a caller's offline profile
+    # must not redirect CLI assertions to the local-store fallback.
+    monkeypatch.delenv("STEAMZERO_NO_DAEMON", raising=False)
     socket_path = safe_socket_path()
     server = CoreServer(str(socket_path), CoreRequestHandler)
     fs.set_mode(socket_path, 0o600)

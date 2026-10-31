@@ -132,7 +132,7 @@ def test_the_cycle_returns_to_the_same_steam_card(scenario) -> None:
     assert not diagnostics
 
 
-def test_the_context_is_consumed_so_an_old_return_does_not_hijack_a_new_session(
+def test_tracked_context_survives_restarts_until_canonical_termination(
     scenario,
 ) -> None:
     _library_path, _steam_root_path, catalog, context_path = scenario
@@ -149,9 +149,10 @@ def test_the_context_is_consumed_so_an_old_return_does_not_hijack_a_new_session(
     assert first == "nes-famicom:hollow"
 
     second, diagnostics = _focus_after_restart(context_path, catalog)
-    focus = resolve_home_focus(_sections_from_catalog(catalog))
-    assert second == focus.initial
-    assert diagnostics
+    # Tracked v2 survives reads; legacy one-shot consumption has separate coverage.
+    assert second == "nes-famicom:hollow"
+    assert not diagnostics
+    assert context_path.exists()
 
 
 def test_a_game_removed_while_playing_lands_in_the_same_section(scenario) -> None:

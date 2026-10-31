@@ -28,10 +28,7 @@
     "src/steamzero/adapters/launcher_game_metadata.py",
     "tests/unit/test_launcher_game_metadata.py",
     "tests/integration/test_launcher_metadata_projection.py",
-    "src/steamzero/ui/qml/launcher/LauncherGamePage.qml",
-    "tests/qml/launcher/check_launcher_game_page.qml",
-    "tests/integration/test_game_metadata_migration_recovery.py",
-    "docs/recovery/2026-10-16/README.md"
+    "tests/integration/test_game_metadata_migration_recovery.py"
   ],
   "sharedPaths": [
     "src/steamzero/adapters/emulation.py",
@@ -40,9 +37,8 @@
     "docs/STATUS.md",
     "docs/ACTIVE-WORK.md",
     "docs/status/COVERAGE.md",
-    "docs/WORKLOG.md",
-    "src/steamzero/launcher/app.py"
+    "docs/WORKLOG.md"
   ],
-  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
+  "nextAction": "Year-alias integrado PR267/mainad742ca3, CI40087147293 oito jobs verdes e cobertura equivalente85,3375%>=base85,3309%. Fonte nova ainda fora da release ativa59ecc2d8. R3 prontidao/preparo segue serialmente com integral ativa /tmp/steamzero-r3-readiness-full.log e fonte congelada. Sem senha/autenticacao ate nova direcao expressa; consolidar candidata somente apos gates e manter fila de aceite.",
   "updatedAt": "2026-10-24"
 }

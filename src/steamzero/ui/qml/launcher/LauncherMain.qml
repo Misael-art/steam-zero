@@ -131,6 +131,7 @@ Window {
     // requestId do POST atual: é ele que autoriza o shell a aceitar uma falha
     // sem sessionId — resposta de tentativa antiga não altera pedido novo.
     property string launchRequestId: ""
+    property string launchClientRequestId: ""
 
     // O overlay é uma superfície de leitura/ação sobre a sessão canônica. O
     // QML não decide capabilities nem executa o emulador: apenas pede o
@@ -225,7 +226,7 @@ Window {
                 && root.journeyOverlayVisible && journeyLoader.item)
             journeyLoader.item.forceActiveFocus()
         else if (shell)
-            shell.restoreHomeFocus()
+            shell.restoreSurfaceFocus()
     }
 
     function toggleSessionOverlay() {
@@ -352,15 +353,22 @@ Window {
         if (!shell || root.sessionPollPending || !shell.sessionGameId)
             return
         const generation = root.launchGeneration
+        const clientId = root.launchClientRequestId
         root.sessionPollPending = true
-        root._request("GET", "/session?gameId=" + encodeURIComponent(shell.sessionGameId),
+        root._request("GET", "/session?gameId=" + encodeURIComponent(shell.sessionGameId)
+                      + (clientId ? "&clientRequestId=" + encodeURIComponent(clientId) : ""),
                       null, function(status, text) {
             root.sessionPollPending = false
-            if (generation !== root.launchGeneration || status !== 200)
+            if (generation !== root.launchGeneration || status !== 200
+                    || clientId !== root.launchClientRequestId)
                 return
             try {
                 const observation = JSON.parse(text)
-                shell.observeSession(observation)
+                if (clientId && observation.clientRequestId !== clientId)
+                    return
+                const accepted = shell.observeSession(observation)
+                if (!accepted && (observation.state === "closed" || observation.state === "failed"))
+                    return
                 // D-12: o rodapé consome o snapshot de /model tirado antes do
                 // lançamento; sem isto, Pausar/Salvar/Sair nascem desabilitados
                 // e só o botão "Atualizar" os habilitaria. A transição de
@@ -485,24 +493,35 @@ Window {
                 watchdog.stop()
                 watchdog.destroy()
             }
+            request.onreadystatechange = null
+            request.onerror = null
+            request.ontimeout = null
+            if (status === 0 && request.readyState !== XMLHttpRequest.UNSENT) {
+                try { request.abort() } catch (error) {}
+            }
             onDone(status, text)
         }
         if (watchdog !== null) {
             watchdog.triggered.connect(function() { finish(0, "") })
             watchdog.start()
         }
-        request.open(method, root.api + path)
-        request.timeout = root.requestTimeoutMs
-        request.setRequestHeader("X-SteamZero-Token", root.token)
-        if (body !== null)
-            request.setRequestHeader("Content-Type", "application/json")
-        request.onreadystatechange = function() {
-            if (request.readyState === XMLHttpRequest.DONE)
-                finish(request.status, request.responseText)
-        }
-        request.onerror = function() { finish(0, "") }
-        request.ontimeout = function() { finish(0, "") }
-        request.send(body === null ? undefined : JSON.stringify(body))
+        try {
+            request.open(method, root.api + path)
+            request.timeout = root.requestTimeoutMs
+            request.setRequestHeader("X-SteamZero-Token", root.token)
+            if (body !== null)
+                request.setRequestHeader("Content-Type", "application/json")
+            request.onreadystatechange = function() {
+                if (request.readyState === XMLHttpRequest.DONE)
+                    finish(request.status, request.responseText)
+                else if (request.readyState === XMLHttpRequest.UNSENT)
+                    finish(0, "")
+            }
+            request.onerror = function() { finish(0, "") }
+            request.ontimeout = function() { finish(0, "") }
+            request.send(body === null ? undefined : JSON.stringify(body))
+        } catch (error) { finish(0, "") }
+        return request
     }
 
     function _search() {
@@ -545,7 +564,7 @@ Window {
 
     function launchErrorText(status, text) {
         if (status === 0)
-            return qsTr("LAUNCHER-BRIDGE-OFFLINE-001\nA ponte local do SteamZero não respondeu. O jogo não foi iniciado.\nVolte e tente novamente; se persistir, abra a central para verificar o serviço.")
+            return qsTr("LAUNCHER-BRIDGE-OFFLINE-001\nA ponte local do SteamZero não respondeu. O início do jogo não foi confirmado.\nConfira a sessão na central antes de tentar novamente.")
         try {
             const payload = JSON.parse(text)
             const error = payload.error
@@ -617,8 +636,17 @@ Window {
 
     // Estados acionáveis do fluxo: loading, error, offline, ready.
     property string loadState: "loading"
+    property int modelGeneration: 0
+    property var modelRequest: null
 
     function _start() {
+        const generation = ++root.modelGeneration
+        if (root.modelRequest) {
+            root.modelRequest.abort()
+            root.modelRequest = null
+        }
+        const channelApi = root.api
+        const channelToken = root.token
         if (root.api === "" || root.token === "") {
             // Sem canal não há como buscar a biblioteca nem lançar nada; dizer
             // isso é melhor do que abrir uma home permanentemente vazia.
@@ -628,14 +656,27 @@ Window {
         }
         root.loadState = "loading"
         root.failure = ""
-        _request("GET", "/model", null, function(status, text) {
+        root.modelRequest = _request("GET", "/model", null, function(status, text) {
+            if (generation !== root.modelGeneration
+                    || channelApi !== root.api || channelToken !== root.token)
+                return
+            root.modelRequest = null
             if (status !== 200) {
                 root.failure = "modelo indisponível (" + status + ")"
                 root.loadState = "error"
                 return
             }
             try {
-                root.model = JSON.parse(text)
+                const nextModel = JSON.parse(text)
+                if (!nextModel || !nextModel.focusMap || !nextModel.focusMap.nodes
+                        || typeof nextModel.focusMap.initial !== "string"
+                        || !nextModel.focusMap.nodes[nextModel.focusMap.initial]
+                        || !Array.isArray(nextModel.sections))
+                    throw new Error("invalid catalog")
+                root.model = nextModel
+                const shell = root._activeLauncherShell()
+                if (shell && !nextModel.focusMap.nodes[shell.homeFocus])
+                    shell.homeFocus = nextModel.focusMap.initial || ""
                 if (root.model && root.model.accessibility)
                     root.accessibility = root.model.accessibility
                 root.loadState = "ready"
@@ -647,7 +688,6 @@ Window {
     }
 
     function _retry() {
-        root.model = null
         root._start()
     }
 
@@ -658,9 +698,24 @@ Window {
         root._start()
     }
 
+    Rectangle {
+        anchors.fill: parent
+        z: 29
+        visible: root.model !== null && (root.loadState === "error" || root.loadState === "offline")
+        color: "#ee071019"
+        MouseArea { anchors.fill: parent }
+    }
+
     Text {
+        objectName: "launcherLoadMessage"
         anchors.centerIn: parent
-        visible: root.model === null
+        anchors.verticalCenterOffset: root.loadState === "loading" ? 0 : -70
+        z: 31
+        width: Math.min(parent.width - 48, 680)
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.Wrap
+        textFormat: Text.PlainText
+        visible: root.model === null || root.loadState === "error" || root.loadState === "offline"
         color: root.loadState === "offline" || root.loadState === "error" ? "#ff8a90" : "#8b93a8"
         font.pixelSize: 16
         text: root.loadState === "loading"
@@ -673,16 +728,28 @@ Window {
     Rectangle {
         anchors.centerIn: parent
         visible: root.loadState === "offline" || root.loadState === "error"
+        id: retryControl
         objectName: "launcherRetry"
+        z: 30
         width: 200
-        height: 44
+        height: 48
         radius: 8
         color: "#0b1622"
-        border.width: 1
-        border.color: "#243044"
+        border.width: activeFocus ? 3 : 1
+        border.color: activeFocus ? "#55d8ff" : "#68839b"
         Accessible.name: qsTr("Tentar novamente")
         Accessible.role: Accessible.Button
         Accessible.description: qsTr("Recarregar a biblioteca do SteamZero")
+        Keys.onEscapePressed: {
+            if (root.model !== null) {
+                root.loadState = "ready"
+                root.failure = ""
+                const shell = root._activeLauncherShell()
+                if (shell) shell.restoreSurfaceFocus()
+            } else {
+                root.close()
+            }
+        }
         // Estado acionável: o usuário não fica preso numa tela de erro sem
         // saída — pode pedir de novo (retry) e voltar ao fluxo.
         Text {
@@ -697,6 +764,21 @@ Window {
         Keys.onSpacePressed: root._retry()
         focus: root.loadState === "offline" || root.loadState === "error"
         activeFocusOnTab: true
+    }
+
+    Text {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: retryControl.bottom
+        anchors.topMargin: 16
+        z: 31
+        visible: retryControl.visible
+        width: Math.min(parent.width - 48, 680)
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.Wrap
+        color: "#ffffff"
+        font.pixelSize: 14
+        text: root.model !== null ? qsTr("Enter: tentar novamente · Esc: voltar")
+                                 : qsTr("Enter: tentar novamente · Esc: sair")
     }
 
     // Painel de busca full-text. Aparece quando a busca está ativa; usa a
@@ -820,21 +902,68 @@ Window {
                 Component.onCompleted: cinemaRefresh.restart()
                 accessibility: root.accessibility
                 resolveGamePage: function(gameId) { return root._resolveGamePage(gameId) }
+                readinessRequest: function(method, path, body, done) {
+                    root._request(method, path, body, done)
+                }
                 returnContext: root.model.returnContext || null
+                returnFocus: root.model.returnFocus || ""
+                recoveryContext: root.model.launchRecovery || null
+                onSessionRestored: {
+                    root.launchClientRequestId = ""
+                    root.launchRequestId = launcherShell.expectedRequestId
+                    if (root.model.journey && root.model.journey.active === true) {
+                        root.journeyLaunchActive = true
+                        root.journeyOverlayVisible = false
+                    }
+                }
+                onSessionRecoveryRequested: function(gameId, sessionId) {
+                    const generation = root.launchGeneration
+                    root._request("POST", "/session/recover", {gameId: gameId, sessionId: sessionId}, function(status, text) {
+                        if (generation !== root.launchGeneration || launcherShell.sessionGameId !== gameId
+                                || launcherShell.observedSessionId !== sessionId)
+                            return
+                        launcherShell.sessionRecoveryPending = false
+                        // Only canonical GET drives the terminal UI transition,
+                        // including when this mutation's HTTP reply was lost.
+                        root.pollSession()
+                    })
+                }
                 onExitRequested: Qt.quit()
                 onLaunchRequested: function(gameId, focusId) {
-                    ++root.launchGeneration
+                    const generation = ++root.launchGeneration
+                    const correlated = root.model.launchCorrelation
+                        && root.model.launchCorrelation.clientRequestId === true
+                    const clientId = correlated ? "launch-" + Date.now().toString(36)
+                        + "-" + generation + "-" + Math.random().toString(36).slice(2, 12) : ""
+                    root.launchClientRequestId = clientId
+                    root.launchRequestId = ""
+                    launcherShell.expectedRequestId = ""
+                    launcherShell.expectedClientRequestId = clientId
+                    const request = {"gameId": gameId, "focusId": focusId}
+                    if (clientId) request.clientRequestId = clientId
+                    const channelAvailable = root.api !== "" && root.token !== ""
                     root._request("POST", "/launch",
-                                  {"gameId": gameId, "focusId": focusId},
+                                  request,
                                   function(status, text) {
+                                      if (generation !== root.launchGeneration
+                                              || clientId !== root.launchClientRequestId)
+                                          return
+                                      if (status === 0 && channelAvailable) {
+                                          launcherShell.markUnconfirmed()
+                                          root.pollSession()
+                                          return
+                                      }
                                       if (status === 200) {
                                           try {
                                               const payload = JSON.parse(text)
+                                              if (clientId && payload.clientRequestId !== clientId)
+                                                  throw new Error("launch acknowledgment mismatch")
                                               root.launchRequestId = payload
                                                   && payload.requestId
                                                   ? String(payload.requestId) : ""
                                           } catch (error) {
                                               root.launchRequestId = ""
+                                              launcherShell.markUnconfirmed()
                                           }
                                           launcherShell.expectedRequestId = root.launchRequestId
                                           root.pollSession()

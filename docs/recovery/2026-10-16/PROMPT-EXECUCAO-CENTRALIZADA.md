@@ -7,7 +7,7 @@ Continue a implementação do SteamZero conforme a direção do proprietário de
 Use exclusivamente este checkout de desenvolvimento:
 
 ```text
-/home/misael/Projects/Steam Zero/Canonical/2026-09-21
+/home/misael/Projects/SteamZero
 ```
 
 Na conferência de 2026-10-16, `git worktree list --porcelain` mostrou somente esse worktree, com HEAD `431348c0ff595587d621cb91dc2aacbe35100140`, na branch `codex/product-recovery-2026-10-16`, e árvore limpa antes desta atualização documental. Esse SHA é uma referência histórica: continue do HEAD atual que contém este prompt. Não volte ao SHA antigo.

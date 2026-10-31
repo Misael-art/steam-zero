@@ -151,13 +151,13 @@ Window {
                 harness.check(preview.recolorNode !== null,
                               "receita colored precisa chegar ao renderer")
             if (name === "colored")
-                harness.check(preview.appliedColorization === 1,
+                harness.check(preview.softwareBackend ? preview.fallbackActive && preview.appliedColorization === 0 : preview.appliedColorization === 1,
                               "recolor precisa ativar colorization")
             if (name === "grayscale")
                 harness.check(preview.grayscaleNode !== null,
                               "receita grayscale precisa chegar ao renderer")
             if (name === "grayscale")
-                harness.check(preview.appliedSaturation === -1,
+                harness.check(preview.softwareBackend ? preview.fallbackActive && preview.appliedSaturation === 0 : preview.appliedSaturation === -1,
                               "grayscale precisa remover saturação")
             if (name === "black" || name === "white")
                 harness.check(preview.silhouetteNode !== null,
@@ -166,7 +166,7 @@ Window {
                 harness.check(preview.outlineNode !== null,
                               "receita outline precisa chegar ao renderer")
             if (name === "outlineThin" || name === "outlineThick")
-                harness.check(preview.outlineActive,
+                harness.check(preview.softwareBackend ? preview.fallbackActive && !preview.outlineActive : preview.outlineActive,
                               "outline precisa ativar a camada alpha")
             // Contrato de degradacao: o node de cor existe (invert/hueRotate) e
             // ou o runtime aplica o efeito, ou o fallback precisa estar publicado.

@@ -93,6 +93,12 @@ R1 e R2 podem avançar independentemente com contratos comuns. R5 e R6 validam a
 
 ## R4 Runtime comum e preferências separadas
 
+Aplicar o [contrato consolidado de 30/10, seção 22](../../01-product/THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026):
+temas nativos primeiro, master canônico compartilhado, receitas não destrutivas,
+wheel de fonte única, eventos/mídia fiéis e resposta de capacidade por recurso.
+As ferramentas de autoria acompanham os slices do runtime; não basta um efeito
+existir no schema sem ser executado e configurável na UI.
+
 **Problema:** escolher tema administrativo, renderizar IR e montar cinema não são a mesma operação.
 
 **Pontos de partida:** `domain/themes.py`, `theme_scene.py`, `scene_esde.py`, `scene_retrofe.py`, `theme_preferences.py`, `adapters/theme_catalog.py`, `ThemeScene*.qml` disponíveis no checkout, `LauncherCinema.qml`.
@@ -108,6 +114,13 @@ R1 e R2 podem avançar independentemente com contratos comuns. R5 e R6 validam a
 ## R5 ES-DE e RetroFE de verdade
 
 Selecionar um pacote real de cada ecossistema, com origem, licença e hash. `xmb-menu` e um layout RetroFE já estudado são candidatos a confirmar no acervo; fixtures mini continuam úteis, mas não são o aceite visual.
+
+Em 30/10, Aeon Nox e Linear/Modern/Slate do AppImage ES-DE local receberam
+auditoria datada de metadados e contraprovas do motor. São referências iniciais
+do objetivo integral descrito na seção 22, não certificação nem limite definitivo
+da compatibilidade. Inventariar também funções fora do XML; importar e dar Play
+deve reproduzir a experiência pelo motor SteamZero. Perdas observadas mantêm o
+aceite aberto, sem redefini-lo como semelhança visual.
 
 Para cada pacote: inspecionar → compilar com perdas explícitas → prévia → instalar → ativar no Launcher → plataformas/jogos → detalhe → jogar → retornar → reiniciar → desfazer ativação. Validar imagens, vídeo, texto, menus, foco, eventos, transições e proporções. Comparar com execução/capturas da versão original equivalente.
 
@@ -150,6 +163,12 @@ Steam/Big Picture: definir se a solicitação concreta é importar estilos, exec
 Pegasus: tratar metadata e tema como capacidades diferentes; pesquisar o contrato do tema escolhido antes de definir suporte.
 
 Studio: priorizar editar e executar os mesmos documentos em R4–R6. Canvas, timeline e efeitos avançados ampliam autoria depois do ciclo abrir/salvar/reabrir/preview/ativar/rollback estar sólido. A engine não deve esperar o editor completo para aceitar pacotes válidos.
+
+O alvo integral de autoria é o da seção 22 do contrato: qualquer pacote compatível
+deve poder usar biblioteca, composição, recipes, estados/eventos, movimento,
+áudio/vídeo, bindings e Jornada pela UI, sem edição manual de código/XML.
+Preview e Launcher executam a mesma revisão; concluir ferramentas genéricas
+isoladas não substitui a jornada criativa completa nem a comparação física.
 
 **Aceite:** uma matriz por formato e pacote, com teste real e perdas, e um documento criado no Studio que execute sem divergência no Launcher. `SZ-FRONTEND-LAUNCHBOX` e `SZ-THEME-STUDIO` permanecem com seus estados reais até suas próprias provas.
 

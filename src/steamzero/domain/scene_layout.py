@@ -504,6 +504,8 @@ class LayoutRecipe:
     offset: LayoutOffset | None = None
     highlight: LayoutHighlight | None = None
     breakpoints: tuple[LayoutBreakpoint, ...] = ()
+    image_recipes: Mapping[str, str] = field(default_factory=dict)
+    motion: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         _identifier(self.id, name="layout.id")
@@ -538,6 +540,28 @@ class LayoutRecipe:
             raise ValueError(
                 "highlight exige layout com centro: wheel, coverFlow, carousel ou stack"
             )
+        if not isinstance(self.image_recipes, Mapping) or set(self.image_recipes) - {
+            "normal",
+            "focused",
+        }:
+            raise ValueError("imageRecipes exige normal/focused")
+        if self.image_recipes and self.template.kind != "image":
+            raise ValueError("imageRecipes exige template image")
+        for name in self.image_recipes.values():
+            _identifier(name, name="imageRecipes")
+        if not isinstance(self.motion, Mapping) or set(self.motion) - {
+            "enter",
+            "exit",
+            "move",
+            "interruption",
+        }:
+            raise ValueError("motion de layout inválido")
+        for key, value in self.motion.items():
+            if key == "interruption":
+                if value not in {"retarget", "snap"}:
+                    raise ValueError("interruption exige retarget/snap")
+            else:
+                _identifier(value, name="motion.transition")
         ranges: list[tuple[float, float]] = []
         for point in self.breakpoints:
             low = point.min_width if point.min_width is not None else float("-inf")
@@ -562,6 +586,8 @@ class LayoutRecipe:
             "offset",
             "highlight",
             "breakpoints",
+            "imageRecipes",
+            "motion",
         }
         unknown = set(raw) - allowed
         required = {"source", "kind", "item", "template"}
@@ -611,6 +637,8 @@ class LayoutRecipe:
                 LayoutHighlight.from_dict(highlight_raw) if highlight_raw is not None else None
             ),
             breakpoints=tuple(LayoutBreakpoint.from_dict(point) for point in breakpoints),
+            image_recipes=raw.get("imageRecipes", {}),
+            motion=raw.get("motion", {}),
         )
 
     def columns_for(self, width: float) -> int:
@@ -643,6 +671,10 @@ class LayoutRecipe:
                 value["offset"] = self.offset.to_dict()
             if self.highlight is not None:
                 value["highlight"] = self.highlight.to_dict()
+        if self.image_recipes:
+            value["imageRecipes"] = dict(self.image_recipes)
+        if self.motion:
+            value["motion"] = dict(self.motion)
         if self.breakpoints:
             value["breakpoints"] = [
                 {
@@ -906,6 +938,9 @@ def resolve_scene_layouts(
     read_model: Mapping[str, Any],
     *,
     bounds: LayoutBounds,
+    asset_uris: Mapping[str, str] | None = None,
+    asset_recipes: Mapping[str, Any] | None = None,
+    motion: Mapping[str, Any] | None = None,
 ) -> SceneLayoutResolution:
     """Resolve receitas para modelos finais consumíveis por ``SceneRepeater``.
 
@@ -1051,6 +1086,110 @@ def resolve_scene_layouts(
                     if isinstance(base, int | float) and not isinstance(base, bool):
                         node["opacity"] = round(float(base) * fade, 4)
                     _apply_highlight(recipe.highlight, node, distance)
+            node["key"] = str(raw_item.get("id") or f"{layout_id}:{index}")
+            state = "focused" if node.get("highlighted") else "normal"
+            node["state"] = state
+            if recipe.template.kind == "image":
+                name = recipe.image_recipes.get(state, recipe.image_recipes.get("normal", ""))
+                if name:
+                    image_recipe = (asset_recipes or {}).get(name)
+                    if image_recipe is None:
+                        diagnostics.append(
+                            LayoutDiagnostic(
+                                "THEME-LAYOUT-RECIPE-003",
+                                layout_id,
+                                f"item {index}, imageRecipes.{state}: receita '{name}' ausente",
+                                "source",
+                            )
+                        )
+                    else:
+                        node["recipeName"] = name
+                        node["recipe"] = dict(image_recipe)
+                source = node.get("source", "")
+                declared_source = recipe.template.properties.get("source", "")
+                bound_source = (
+                    _item_value(raw_item, str(declared_source["binding"]))
+                    if isinstance(declared_source, Mapping) and "binding" in declared_source
+                    else None
+                )
+                from_public_model = bound_source is not None and bound_source != ""
+                if (source is not None and not isinstance(source, str)) or (
+                    source
+                    and not from_public_model
+                    and not source.startswith(("asset:", "assets/"))
+                ):
+                    node["source"] = source = ""
+                    node["resourceDegraded"] = True
+                    node["resourceDiagnostic"] = (
+                        "A fonte literal não é uma referência autorizada; "
+                        "vincule um master ou papel público."
+                    )
+                    diagnostics.append(
+                        LayoutDiagnostic(
+                            "THEME-LAYOUT-RESOURCE-006",
+                            layout_id,
+                            f"item {index}, template.properties.source "
+                            "fora do resolver de recursos",
+                            "missing",
+                        )
+                    )
+                if isinstance(source, str) and source.startswith("assets/"):
+                    node["source"] = (asset_uris or {}).get(source, "")
+                    if not node["source"]:
+                        node["resourceDegraded"] = True
+                        node["resourceDiagnostic"] = (
+                            "Asset do pacote não resolvido; vincule um slot do tema."
+                        )
+                        diagnostics.append(
+                            LayoutDiagnostic(
+                                "THEME-LAYOUT-RESOURCE-006",
+                                layout_id,
+                                f"item {index}, template.properties.source "
+                                "sem referência de asset publicada",
+                                "missing",
+                            )
+                        )
+                if (
+                    isinstance(source, str)
+                    and source.startswith("asset:")
+                    and not source.startswith("asset://")
+                ):
+                    slot = source[6:]
+                    node["source"] = (asset_uris or {}).get(slot, "")
+                    if not node["source"]:
+                        diagnostics.append(
+                            LayoutDiagnostic(
+                                "THEME-LAYOUT-ASSET-004",
+                                layout_id,
+                                f"item {index}, source: asset '{slot}' indisponível; "
+                                "importe/vincule o master",
+                                "missing",
+                            )
+                        )
+                if "recipe" in node and not node.get("source"):
+                    slot = node["recipe"].get("source", "")
+                    node["source"] = (asset_uris or {}).get(slot, "")
+            if recipe.motion:
+                resolved_motion = motion or {}
+                transitions = resolved_motion.get("transitions", {})
+                node["motionTransitions"] = {}
+                node["interruption"] = recipe.motion.get("interruption", "retarget")
+                for event, transition_id in recipe.motion.items():
+                    if event == "interruption":
+                        continue
+                    transition = transitions.get(transition_id)
+                    if transition is None:
+                        diagnostics.append(
+                            LayoutDiagnostic(
+                                "THEME-LAYOUT-MOTION-005",
+                                layout_id,
+                                f"motion.{event}: transição '{transition_id}' ausente",
+                                "snap",
+                            )
+                        )
+                    else:
+                        node["motionTransitions"][event] = dict(transition)
+                node["motionStates"] = resolved_motion.get("states", {})
             entries.append(
                 ResolvedLayoutEntry(
                     index=index,

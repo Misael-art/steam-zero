@@ -86,6 +86,42 @@ O contrato normativo está em [CAPACIDADES-COMPONIVEIS.md](CAPACIDADES-COMPONIVE
 
 ## Compatibilidade externa
 
+### Consolidação expressa do proprietário — 30/10/2026
+
+A definição detalhada e normativa está no
+[relatório consolidado de Theme Engine e Studio, seção 22](../../01-product/THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026).
+Leia-o antes de alterar autoria, assets, tradução ou execução de temas. Ele
+amplia o aceite sem promover o estado de runtime.
+
+O SteamZero combina automação/organização/configuração de plataformas na Central
+com experiência audiovisual e launch/return no Launcher. Temas nativos são a
+função primária da plataforma criativa. Studio deve permitir construí-los pela
+interface, sem edição manual de XML/código, usando os recursos do motor. A meta
+de compatibilidade é reproduzir integralmente capacidades RetroFE/ES-DE nesse
+mesmo motor; perdas observadas são lacunas a corrigir, não redução automática
+do objetivo. Aeon Nox e os temas ES-DE auditados são casos iniciais de prova.
+
+Assets pertencem à biblioteca canônica compartilhada. O mesmo master pode
+alimentar vários temas, papéis e estados sem cópias persistentes por consumidor.
+Artes distintas são permitidas; variações de cor, stroke, escala e efeito são
+receitas não destrutivas. O caso obrigatório é a wheel com laterais monocromáticas
+e centro colorido/contornado, derivada do mesmo logo-fonte. Organização e economia
+devem ser verificadas separadamente do cache e do desempenho.
+
+Importação traduz para documentos/IR SteamZero; dar Play os executa pela Theme
+Engine. Preview e Launcher devem consumir a mesma revisão sem uma reconstrução
+manual de aparência/comportamento. O motor responde por recurso e etapa, com
+causa, contexto, perda e recuperação. Percentuais de parser ou fallback não
+certificam reprodução integral. Fidelidade, fluidez, áudio, vídeo, navegação e
+autoria amigável exigem comparação e observação na candidata/hardware indicados.
+
+O relatório preserva a separação entre requisito, fundação existente e prova.
+Não constitui migração do acervo pessoal, autorização de execução externa ou
+certificação de superioridade de desempenho. A reprodução fiel e os recursos
+nativos adicionais precisam de aceites próprios, nos itens e marcos existentes.
+
+### Classificação por pacote
+
 Cada pacote recebe uma classificação separada: reconhecido; importado; renderizado; navegável; launch/return integrado; validado visualmente e em desempenho. Declarar formato, versão, tema, digest, perdas, release e hardware. Percentual de propriedades reconhecidas não equivale a fidelidade visual.
 
 | Ecossistema | Situação a recuperar | Critério para a primeira entrega |

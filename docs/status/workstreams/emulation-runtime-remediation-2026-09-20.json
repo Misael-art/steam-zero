@@ -10,8 +10,7 @@
   "exclusivePaths": [
     "docs/status/items/emulation-runtime-remediation-2026-09-20.json",
     "docs/status/workstreams/emulation-runtime-remediation-2026-09-20.json",
-    "docs/09-operations/evidence/2026-09-20-emulation-runtime-remediation",
-    "tests/unit/test_emulation_runtime_remediation.py"
+    "docs/09-operations/evidence/2026-09-20-emulation-runtime-remediation"
   ],
   "sharedPaths": [
     "src/steamzero/adapters/emulation.py",
@@ -21,6 +20,6 @@
     "docs/ACTIVE-WORK.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Entregar o patch de materialização assíncrona e aguardar release governada para repetir PCSX2, M3U, save/load e retorno físico.",
-  "updatedAt": "2026-09-20"
+  "nextAction": "Entregar o patch de materialização assíncrona e aguardar release governada para repetir PCSX2, M3U, save/load e retorno físico. Handoff serial 2026-10-28 para WS-2026-10-RECOVERY-R3-LAUNCH-READINESS: tests/unit/test_emulation_runtime_remediation.py, somente fixture de archive conforme novo preflight. Contraparte registrada no fechamento após commit eb39b4b6; não foi prospectiva. Autorização vigente do proprietário para continuidade, sem escritores concorrentes; devolver no fechamento integrado. Ampliação prospectiva em30/10/2026 da cessão serial já vigente para WS-2026-10-RECOVERY-R3-LAUNCH-READINESS, basefba166f8: tests/unit/test_emulation_runtime_remediation.py também cobrirá stop_emulator público com proc controlado (entry desaparecido, acesso negado e grupo exato do usuário). Motivo: integral7094 passou mas perdeu cobertura incidental do catch em emulation9045/9046. Fonte e test_emulation_controller.py permanecem read-only; sem escritor concorrente, devolver no fechamento integrado.",
+  "updatedAt": "2026-10-30"
 }

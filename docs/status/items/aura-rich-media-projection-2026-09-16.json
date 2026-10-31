@@ -66,13 +66,19 @@
       "reference": "tests/integration/test_media.py",
       "command": "run_tests_isolated.py tests/integration/test_media.py -q",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
   "activeWorkstreams": [
     "WS-2026-09-AURA-RICH-MEDIA-PROJECTION"
   ],
   "nextAction": "Manter a projeção rica na release d70; fechar credenciais remotas e repetir prova física de fanart/screenshots na próxima release. Save-state físico e disc swap permanecem gaps da composição de sessão.",
-  "scopeDigest": "74252e1a809b3c6806e12254c9b4fc88af70c751c91c3ab78071d49add31ebfd",
-  "updatedAt": "2026-09-16",
-  "notes": "A projeção mantém papéis ricos separados, ordena screenshots numerados e publica somente URLs locais dentro da raiz gerenciada. O código foi integrado ao main e está presente na release d70; as capturas físicas provam o catálogo e o detalhe com arte local. A evidência não infere fanart, screenshots ou vídeo quando o registro ativo não os fornece."
+  "scopeDigest": "205d59f86a4a1b3dc92904c480f72cdee09b1d3b06d42b85d7644bc4c6cad583",
+  "updatedAt": "2026-10-31",
+  "notes": "A projeção mantém papéis ricos separados, ordena screenshots numerados e publica somente URLs locais dentro da raiz gerenciada. O código foi integrado ao main e está presente na release d70; as capturas físicas provam o catálogo e o detalhe com arte local. A evidência não infere fanart, screenshots ou vídeo quando o registro ativo não os fornece.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
 }

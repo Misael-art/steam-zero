@@ -4,6 +4,30 @@ Regras obrigatórias para qualquer agente (IA ou humano) atuando no SteamZero,
 especialmente em trabalho paralelo. Cada regra existe por causa de um incidente
 real; violar uma delas já quebrou o boot do host em produção.
 
+## Retomada prioritária em host novo (2026-10-24)
+
+Leia primeiro `docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md`.
+O proprietário perderá acesso ao disco antigo. Código, diagnóstico e próxima
+ação devem estar commitados e recuperáveis pelo GitHub; arquivo local do Codex
+não constitui backup externo. Dados privados nunca entram no repositório público.
+
+No host novo, o único checkout autorizado é
+`$HOME/Projects/SteamZero` (ou o destino explicitamente
+escolhido pelo operador no bootstrap), mantendo a branch de continuidade.
+Isso permite reconstruir o checkout depois da migração; não autoriza clones ou
+worktrees adicionais neste host. Use o `RTK.md` do repositório como instrução
+portável quando a referência externa antiga não existir.
+
+`bootstrap-dev.sh` prepara desenvolvimento em `.steamzero-dev/` e `.venv`
+gerenciadas. O operador pode iniciar `--apply --system-packages` **somente no
+host novo vazio** para os pré-requisitos mínimos; `--ui` acrescenta Qt nativo
+no Arch/Manjaro. Essa exceção de preparação inicial não autoriza o agente a
+executar sudo, instalar releases, configurar boot ou solicitar senhas. Direção
+mais recente: **não pedir senha nem iniciar autenticação até nova orientação**.
+Ambiente existente sem marcador é preservado, nunca recriado para facilitar gates.
+Não copie `.venv`, caches, serviços ou `/opt` do host antigo. Provas de instalação,
+hardware e restauração externa continuam independentes dos testes de código.
+
 ## Direção vigente do produto desde 2026-10-16
 
 Antes de planejar ou implementar UI, Launcher, temas, emulação ou experiências,
@@ -29,7 +53,7 @@ sendo a fonte do estado atual; o baseline da recuperação é uma fotografia dat
 ## Execução centralizada por orientação do proprietário em 2026-10-16
 
 O diretório oficial de desenvolvimento é
-`/home/misael/Projects/Steam Zero/Canonical/2026-09-21`.
+`/home/misael/Projects/SteamZero`.
 Leia `docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md` para assumir a
 continuidade. O proprietário determinou um único checkout, um executor e um lote
 funcional por vez. Não crie worktrees/clones de desenvolvimento ou branches por
@@ -276,6 +300,18 @@ e uma receita declarativa; variações de cor, contorno, máscara, composição 
 são produzidas pela engine e apenas cacheadas. Não aceite múltiplos assets
 pré-editados como substituto de uma capacidade prometida pela engine.
 
+O esclarecimento expresso do proprietário de **30/10/2026** está na
+[seção 22 de THEME-ENGINE-AND-STUDIO.md](docs/01-product/THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026),
+de leitura obrigatória antes de alterar Studio, assets, importação ou execução
+de temas. Temas nativos primeiro; compatibilidade RetroFE/ES-DE deve reproduzir
+seus recursos pelo mesmo motor SteamZero. Biblioteca canônica compartilha masters
+sem cópia por tema; wheel monocromática/colorida e demais variações usam receitas
+não destrutivas. Autoria genérica pela interface, resposta do motor por recurso
+e fidelidade/fluidez comprovadas fazem parte do aceite. Não reduzir esse objetivo
+a importação parcial, troca de arquivos pré-editados ou execução do frontend
+original. Preview e Launcher consomem a mesma revisão de tema/Jornada, com
+contextos e perdas explícitos. Requisitos não são capabilities já entregues.
+
 Liberdade criativa não amplia a fronteira de confiança. Tema de terceiros não
 executa QML, JavaScript, Python, shell, binário, biblioteca ou shader arbitrário;
 usa somente scene graph, bindings, componentes e effect nodes allowlisted. Toda
@@ -290,3 +326,16 @@ e os passos que ainda exigem o operador (especialmente teste físico de boot).
 Atualize o item de status, regenere `docs/STATUS.md` e `docs/ACTIVE-WORK.md` e
 então acrescente o fechamento ao WORKLOG. Push apenas da SUA branch; nunca force
 push.
+
+## Coleção Projects: organização e continuidade — 2026-10-26
+
+- Siga a [política comum](../AGENTS.md), especialmente §§5–10, e o [registro central](../.workspace/projects.json). A raiz única neste host é `/home/misael/Projects/SteamZero`. Fontes e evidências antigas foram reunidas como material privado de recuperação; não são checkouts de desenvolvimento. Não criar clones, worktrees, versões alternativas ou branches por lote.
+- Este pedido autoriza recuperar, organizar, testar e fazer commit/push/PR dos incrementos revisados na branch de continuidade, com SHA remoto conferido. Preserva a restrição vigente de não iniciar autenticação, pedir senha ou executar instalação privilegiada, release, merge, boot ou deploy nesta recuperação. Reutilize helpers válidos e registre bloqueios concretos sem interromper o trabalho independente.
+- Leia direção, handoff e catálogo de status antes de implementar. Central Desktop, Launcher, Theme Engine, Theme Studio e Aura mantêm contratos e aceites distintos. Reutilize os serviços e fontes de verdade existentes; não crie outro catálogo, executor, supervisor ou fluxo de instalação para contornar uma integração.
+- Prossiga até entregar o lote integrado e verificável. Resolva escolhas reversíveis pelo contexto; não peça confirmação para editar ou testar o escopo autorizado, nem reporte microavanços. Comunicação cobre descobertas relevantes, bloqueios e entrega.
+- Antes de operações pesadas, confira disco, RAM e carga. Uma suíte/build pesada por vez e inicialmente um ou dois jobs; logs em `build/agent-runs/`, ferramentas/perfil em `.steamzero-dev/` e um ambiente em `.venv/`. Preserve evidências, fontes, dados pessoais e consumidores de dependências compartilhadas. Limpeza exige owner, regenerabilidade e ausência de uso comprovados.
+- A `.venv` herdada foi preservada, com caminhos dos launchers corrigidos e isolamento dos pacotes globais após a mudança de raiz. As dependências seguem `requirements-dev.lock`, com hashes; não recebeu marcador fictício de ownership. Use o perfil e o runner existentes para desenvolver. `bootstrap-dev.sh --apply` continua recusando ambientes sem ownership: não recrie a `.venv`, remova a guarda ou adicione marcador para fazê-lo passar. Migração do gerenciador exige verificação própria; isso não impede os comandos de fonte já validados.
+- Rode testes focados durante a implementação e os gates da seção 6 no checkpoint apropriado. Documentação isolada exige revisão de diff, referências e status. Testes usam o runner isolado e dados controlados; registre fixture/offscreen, fonte, instalação e hardware separadamente. Não toque no perfil pessoal, desktop ocupado, acervo ou boot para produzir uma evidência.
+- Confira branch, remoto, PRs e checks antes de trabalhar e publicar. Revise arquivos explícitos, segredos e tamanho; não use stage global sobre resgates nem envie referências privadas de recuperação. Reutilize o PR do mesmo objetivo, sem force push ou polling contínuo. Release exige marco, artefatos, gates e autorização própria; organização documental não gera release.
+- Novo arquivo acima de 10 MiB exige revisão. Downloads acima de 70.000.000 bytes são manuais, inclusive pacotes divididos; registre origem, tamanho/hash, destino e restauração, priorizando o que libera desenvolvimento. `.gitignore` não é backup: dados e contextos privados exigem proteção separada e nunca entram no remoto público.
+- Atualize o handoff/status existentes com SHA, testes reais, limites e próximo comando; WORKLOG permanece append-only. Encerre somente processos temporários próprios e mantenha as fontes antigas identificadas até a reconciliação comprovada.

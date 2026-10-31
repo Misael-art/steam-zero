@@ -1,16 +1,25 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass, field
-from pathlib import Path
+import importlib.resources
+import json
+import re
+from dataclasses import dataclass, field, replace
+from functools import cache
+from pathlib import Path, PurePosixPath
 from typing import Any
 
+import jsonschema
+from jsonschema import Draft202012Validator
+
+from steamzero.core.errors import SteamZeroError
 from steamzero.domain.asset_recipes import (
     AssetRecipeBook,
     AssetRecipeDiagnostic,
     AssetRecipeSelection,
     ResolvedAssetRecipe,
     resolve_asset_recipes,
+    validate_asset_source,
 )
 from steamzero.domain.dynamic_palette import PaletteRecipe
 from steamzero.domain.glass_panels import GlassBook
@@ -304,6 +313,7 @@ class ThemeAsset:
     slot: str
     path: str
     resolved_path: Path | None = None
+    owner_id: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {"slot": self.slot, "path": self.path}
@@ -483,6 +493,8 @@ class ResolvedTheme:
     asset_recipe_diagnostics: tuple[AssetRecipeDiagnostic, ...] = ()
     high_contrast: bool = False
     reduced_motion: bool = False
+    source_diagnostics: tuple[dict[str, str], ...] = ()
+    logical_revision: str = ""
 
     def apply_accessibility(self, high_contrast: bool, reduced_motion: bool) -> ResolvedTheme:
         if not high_contrast and not reduced_motion:
@@ -553,6 +565,8 @@ class ResolvedTheme:
             scene_containers=self.scene_containers,
             effect_diagnostics=self.effect_diagnostics,
             asset_recipe_diagnostics=self.asset_recipe_diagnostics,
+            source_diagnostics=self.source_diagnostics,
+            logical_revision=self.logical_revision,
             high_contrast=high_contrast,
             reduced_motion=reduced_motion,
         )
@@ -602,7 +616,18 @@ class ResolvedTheme:
         return {
             "schemaVersion": 1,
             "themeId": self.id,
+            "themeName": self.name,
             "themeVersion": self.version,
+            "logicalRevision": self.logical_revision
+            or hashlib.sha256(
+                json.dumps(self.to_dict(), sort_keys=True, ensure_ascii=False).encode("utf-8")
+            ).hexdigest(),
+            "assetUris": {
+                slot: asset.resolved_path.as_uri()
+                for slot, asset in self.assets.items()
+                if asset.resolved_path is not None
+            },
+            "assetSourceDiagnostics": list(self.source_diagnostics),
             "highContrast": self.high_contrast,
             "reducedMotion": self.reduced_motion,
             "resolved": tokens,
@@ -697,6 +722,7 @@ class ThemeResolver:
         accessibility = ThemeAccessibilityTokens()
         performance = ThemePerformanceTokens()
         assets: dict[str, str] = {}
+        asset_owners: dict[str, str] = {}
         effects: dict[str, tuple[EffectSpec, ...]] = {}
         media_recipes: dict[str, MediaRecipe] = {}
         asset_recipe_book: AssetRecipeBook | None = None
@@ -754,6 +780,7 @@ class ThemeResolver:
                 performance = ThemePerformanceTokens.from_dict(p)
             if manifest.assets:
                 assets.update(manifest.assets)
+                asset_owners.update({slot: manifest.id for slot in manifest.assets})
             if manifest.effects:
                 effects.update(manifest.effects)
             if manifest.media_recipes:
@@ -779,7 +806,10 @@ class ThemeResolver:
 
         validate_recipe_effect_stacks(tuple(media_recipes.values()), effects)
 
-        resolved_assets = {slot: ThemeAsset(slot=slot, path=path) for slot, path in assets.items()}
+        resolved_assets = {
+            slot: ThemeAsset(slot=slot, path=path, owner_id=asset_owners[slot])
+            for slot, path in assets.items()
+        }
         effect_kwargs: dict[str, Any] = {
             "tier": performance_tier or performance.defaultTier,
             "high_contrast": high_contrast,
@@ -808,8 +838,20 @@ class ThemeResolver:
                 asset_recipe_book, **asset_kwargs
             )
         top = chain[-1]
+        # Authoring identity includes the complete validated dependency chain.
+        # Runtime tier, viewport and accessibility negotiate execution, not a
+        # different logical theme document.
+        logical_revision = hashlib.sha256(
+            json.dumps(
+                [manifest.to_dict() for manifest in chain],
+                sort_keys=True,
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
         resolved = ResolvedTheme(
             id=top.id,
+            logical_revision=logical_revision,
             name=name,
             version=version,
             author=author,
@@ -844,3 +886,158 @@ class ThemeResolver:
         if not hasattr(self, "_chain_visiting"):
             self._chain_visiting: set[str] = set()
         return self._chain_visiting
+
+
+def bind_theme_sources(
+    theme: ResolvedTheme, media_root: Path, *, user_themes_dir: Path | None = None
+) -> ResolvedTheme:
+    """Bind typed identities through the canonical registry, never arbitrary URLs."""
+    from steamzero.core.errors import SteamZeroError
+    from steamzero.domain.media_registry import MediaRegistry
+
+    assets = dict(theme.assets)
+    diagnostics: list[dict[str, str]] = []
+    for slot, asset in assets.items():
+        try:
+            if asset.path.startswith("master:"):
+                if not re.fullmatch(r"master:sha256:[a-f0-9]{64}", asset.path):
+                    raise ValueError("referência canônica inválida")
+                resolved = MediaRegistry.resolve_source(media_root, asset.path[14:])
+            else:
+                resolved = _package_asset_path(asset, user_themes_dir=user_themes_dir)
+            assets[slot] = replace(asset, resolved_path=resolved)
+        except (OSError, ValueError, SteamZeroError) as exc:
+            assets[slot] = replace(asset, resolved_path=None)
+            diagnostics.append(
+                {
+                    "code": "THEME-SOURCE-001",
+                    "element": slot,
+                    "demand": asset.path,
+                    "context": "canonical-media"
+                    if asset.path.startswith("master:")
+                    else "theme-package",
+                    "result": "unavailable",
+                    "reason": str(exc),
+                    "recovery": (
+                        "Importe o master preservado com a identidade indicada."
+                        if asset.path.startswith("master:")
+                        else "Restaure o asset no tema que o declarou, sem links simbólicos."
+                    ),
+                }
+            )
+    return replace(theme, assets=assets, source_diagnostics=tuple(diagnostics))
+
+
+def _load_manifest_schema() -> dict[str, Any]:
+    schemas = importlib.resources.files("steamzero.schemas")
+    ref = schemas.joinpath("theme-manifest-v1.schema.json")
+    with importlib.resources.as_file(ref) as path:
+        loaded: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    # ``jsonschema.validate`` não recebe o registry multi-arquivo usado pela API.
+    # Injetar o schema empacotado preserva a mesma validação sem buscar a rede.
+    asset_schemas = []
+    for name in ("asset-recipe-v1.schema.json", "asset-recipe-v2.schema.json"):
+        asset_ref = schemas.joinpath(name)
+        with importlib.resources.as_file(asset_ref) as path:
+            asset_schemas.append(json.loads(path.read_text(encoding="utf-8")))
+    loaded["properties"]["assetRecipes"] = {"oneOf": asset_schemas}
+    layout_ref = schemas.joinpath("scene-layout-v1.schema.json")
+    with importlib.resources.as_file(layout_ref) as path:
+        loaded["properties"]["sceneLayouts"] = json.loads(path.read_text(encoding="utf-8"))
+    palette_ref = schemas.joinpath("dynamic-palette-v1.schema.json")
+    with importlib.resources.as_file(palette_ref) as path:
+        loaded["properties"]["dynamicPalette"] = json.loads(path.read_text(encoding="utf-8"))
+    glass_ref = schemas.joinpath("glass-panel-v1.schema.json")
+    with importlib.resources.as_file(glass_ref) as path:
+        loaded["properties"]["glass"] = json.loads(path.read_text(encoding="utf-8"))
+    motion_ref = schemas.joinpath("scene-motion-v1.schema.json")
+    with importlib.resources.as_file(motion_ref) as path:
+        loaded["properties"]["sceneMotion"] = json.loads(path.read_text(encoding="utf-8"))
+    surface_ref = schemas.joinpath("scene-surfaces-v1.schema.json")
+    with importlib.resources.as_file(surface_ref) as path:
+        loaded["properties"]["sceneSurfaces"] = json.loads(path.read_text(encoding="utf-8"))
+    container_ref = schemas.joinpath("scene-containers-v1.schema.json")
+    with importlib.resources.as_file(container_ref) as path:
+        loaded["properties"]["sceneContainers"] = json.loads(path.read_text(encoding="utf-8"))
+    return loaded
+
+
+@cache
+def theme_manifest_validator() -> Draft202012Validator:
+    """Validador do manifesto de tema, compilado uma vez por processo.
+
+    ``jsonschema.validate`` recheca o proprio schema empacotado a cada chamada:
+    medido em 305 ms por manifesto na ponte do produto, o que dominava o bloco
+    ``theme`` do /status (4,1 s de 8,9 s na baseline RC-01). Validar o schema
+    que nos empacotamos nao e a checagem de seguranca do lote; a validacao da
+    instancia do manifesto permanece identica, inclusive a primeira ordem de
+    erro e a mensagem.
+    """
+    return Draft202012Validator(_load_manifest_schema())
+
+
+def _validation_detail(exc: jsonschema.ValidationError) -> str:
+    """Descrição curta e estável da falha: caminho JSON + mensagem, sem despejo.
+
+    ``str(exc)`` faz pprint do schema *e* da instância. Com quatro pacotes ES-DE
+    malformados no diretório de temas do host, isso custava 1,2 s de CPU por
+    composição do ``theme`` no /status, e o ``theme.list`` publicava os 1,1 MB
+    resultantes na UI do Estúdio de Temas, onde ninguém consegue ler um dump de
+    schema. O caminho e a mensagem preservam o diagnóstico.
+    """
+    return f"{exc.json_path}: {exc.message}"[:400]
+
+
+def validate_theme_manifest(raw: dict[str, Any]) -> None:
+    try:
+        theme_manifest_validator().validate(raw)
+    except jsonschema.ValidationError as exc:
+        raise SteamZeroError("E-THEME-MANIFEST", detail=_validation_detail(exc)) from exc
+    api = raw.get("compatibility", {}).get("themeApi", 0)
+    if api != THEME_API_VERSION:
+        raise SteamZeroError(
+            "E-THEME-INCOMPATIBLE", detail=f"tema requer themeApi={api}, atual={THEME_API_VERSION}"
+        )
+
+
+def _package_asset_path(asset: ThemeAsset, *, user_themes_dir: Path | None) -> Path:
+    from steamzero.core import paths
+
+    relative = PurePosixPath(asset.path)
+    if (
+        not re.fullmatch(r"[a-z0-9]+(?:[.-][a-z0-9]+)+", asset.owner_id)
+        or not asset.path.startswith("assets/")
+        or ".." in relative.parts
+        or "\\" in asset.path
+        or relative.is_absolute()
+    ):
+        raise ValueError("referência de asset fora do pacote")
+    user_root = (
+        user_themes_dir if user_themes_dir is not None else paths.themes_dir()
+    ) / asset.owner_id
+    if user_root.exists() or user_root.is_symlink():
+        root = user_root
+    else:
+        root = Path(str(importlib.resources.files("steamzero.themes").joinpath(asset.owner_id)))
+    if root.is_symlink():
+        raise ValueError("raiz de asset simbólica")
+    candidate = root
+    for part in relative.parts:
+        candidate = candidate / part
+        if candidate.is_symlink():
+            raise ValueError("asset simbólico")
+    resolved = candidate.resolve(strict=True)
+    resolved.relative_to(root.resolve(strict=True))
+    if not resolved.is_file() or resolved.suffix.lower() not in {
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp",
+        ".svg",
+        ".avif",
+    }:
+        raise ValueError("formato de imagem indisponível")
+    # Bound the read even if a file changes between stat and open.
+    with resolved.open("rb") as stream:
+        validate_asset_source(stream.read(16 * 1024 * 1024 + 1))
+    return resolved

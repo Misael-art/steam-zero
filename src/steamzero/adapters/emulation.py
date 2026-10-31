@@ -55,6 +55,7 @@ from steamzero.adapters.enhancements.installer import (
     validate_policy,
 )
 from steamzero.adapters.flatpak import FlatpakCLI, FlatpakExecutor
+from steamzero.adapters.game_session_probe import game_process, lifecycle_owner, orphan_recovery
 from steamzero.adapters.lifecycle import ComponentLifecycle
 from steamzero.adapters.managed_multidisc_projection import discover_managed_projection
 from steamzero.adapters.mods.build_id_scanner import BuildIdScanner
@@ -1673,13 +1674,12 @@ class EmulationController:
 
         archive_evidence = str(game.get("evidence") or "")
         if rom.name.casefold().endswith(_ARCHIVE_SUFFIXES) and archive_evidence != "archive-native":
-            raise SteamZeroError(
-                "E-CONTENT-INCOMPLETE",
-                detail=(
-                    "archive detectado, mas ainda não foi materializado para um formato "
-                    "consumível; use a ação assíncrona de preparação e tente novamente"
-                ),
-            )
+            request = self._archive_request_for(game_id)
+            if request is None:
+                raise SteamZeroError(
+                    "E-CONTENT-INCOMPLETE", detail="archive sem contrato de preparação"
+                )
+            rom = ArchiveMaterializer().launch_target(request)
         if archive_evidence.startswith("archive-multidisc-"):
             state = archive_evidence.removeprefix("archive-multidisc-")
             if state != "ready":
@@ -1810,7 +1810,13 @@ class EmulationController:
             "core_path": core_path,
         }
 
-    def launch_game(self, game_id: str, *, bezel_resource: str = "aura-default") -> dict[str, Any]:
+    def launch_game(
+        self,
+        game_id: str,
+        *,
+        bezel_resource: str = "aura-default",
+        launch_request_id: str | None = None,
+    ) -> dict[str, Any]:
         # A fase de PREPARAÇÃO precede sessão e spawn: qualquer SteamZeroError
         # aqui é comprovadamente anterior ao spawn e vira LaunchNotStartedError,
         # para o CLI declarar notStarted e o Launcher liberar a tentativa.
@@ -1820,7 +1826,22 @@ class EmulationController:
         retroarch_artifacts_created = False
         configured_bezel: Mapping[str, Any] | None = None
         bezel_catalog: list[dict[str, Any]] = []
+        request_available = False
         try:
+            if launch_request_id is not None:
+                if not ids.is_ulid(launch_request_id):
+                    raise SteamZeroError("E-API-SCHEMA", detail="launch-request-id inválido")
+                if self._process_waiter is None:
+                    raise SteamZeroError(
+                        "E-COMPONENT-DEGRADED", detail="lifecycle canônico ausente"
+                    )
+                with self._store_factory() as store:
+                    store.migrate()
+                    if store.get_game_session(launch_request_id) is not None:
+                        raise SteamZeroError(
+                            "E-TX-LOCKED", detail="identidade de sessão já utilizada"
+                        )
+                request_available = True
             self._prepare_launch(game_id)
             preflight = self._launch_preflight(game_id)
             game = preflight["game"]
@@ -1851,7 +1872,7 @@ class EmulationController:
                 )
             session_config = None
             if retroarch_supported:
-                session_artifact_id = ids.new_ulid()
+                session_artifact_id = launch_request_id or ids.new_ulid()
                 try:
                     configured_bezel = resolve_bezel_resource(bezel_resource)
                     bezel_catalog = list_bezel_resources()
@@ -1878,6 +1899,8 @@ class EmulationController:
         except SteamZeroError as exc:
             if session_artifact_id is not None:
                 cleanup_retroarch_session_artifacts(session_artifact_id)
+            if request_available and launch_request_id is not None:
+                self._record_launch_refusal(game_id, launch_request_id, exc.code)
             raise LaunchNotStartedError(exc) from exc
 
         session_id: str | None = None
@@ -1889,7 +1912,9 @@ class EmulationController:
                     game,
                     emulator_id,
                     platform_id,
-                    session_id=session_artifact_id if retroarch_artifacts_created else None,
+                    session_id=session_artifact_id
+                    if retroarch_artifacts_created
+                    else launch_request_id,
                 )
             except Exception:
                 if retroarch_artifacts_created and session_artifact_id is not None:
@@ -1913,11 +1938,16 @@ class EmulationController:
             if session_id is not None:
                 with self._store_factory() as store:
                     store.migrate()
+                    ticks = self._read_start_ticks(pid)
+                    current = store.get_game_session(session_id)
+                    metadata = json.loads(current["metadata_json"]) if current is not None else {}
+                    metadata["gameProcess"] = game_process(pid, ticks)
                     store.transition_game_session(
                         session_id,
                         "running",
                         pid=pid,
-                        start_ticks=self._read_start_ticks(pid),
+                        start_ticks=ticks,
+                        metadata_json=json.dumps(metadata),
                     )
                 if getattr(self, "_session_control_enabled", False):
                     try:
@@ -2141,6 +2171,38 @@ class EmulationController:
     def launch_cloud(self, platform_id: str) -> dict[str, Any]:
         return self._cloud.launch(platform_id)
 
+    def _record_launch_refusal(self, game_id: str, request_id: str, code: str) -> None:
+        """Persist only a proven pre-spawn refusal; never replace another identity.
+
+        Error detail may contain private paths. Persist the registered code,
+        not raw exception text; readers rebuild the public catalog message.
+        Failure to store evidence preserves the original CLI refusal and leaves
+        recovery unknown. The atomic INSERT also rejects a concurrent ID reuse.
+        """
+        try:
+            with self._store_factory() as store:
+                store.migrate()
+                refused_at = datetime.now(UTC).isoformat()
+                store.create_game_session(
+                    {
+                        "id": request_id,
+                        "game_id": game_id,
+                        "owner": SESSION_OWNER,
+                        "state": "failed",
+                        "started_at": refused_at,
+                        "finished_at": refused_at,
+                        "failure_code": code,
+                        "metadata_json": json.dumps(
+                            {
+                                "source": "emulation",
+                                "launchAcknowledgment": {"schemaVersion": 1, "state": "notStarted"},
+                            }
+                        ),
+                    }
+                )
+        except Exception:
+            _log.warning("recusa pré-spawn %s não persistida para %s", code, request_id)
+
     def _create_tracked_game_session(
         self,
         game: Mapping[str, Any],
@@ -2157,6 +2219,7 @@ class EmulationController:
                 "platformId": platform_id,
                 "coverUrl": str(game.get("coverUrl") or game.get("bannerAsset") or "")[:4096],
                 "emulatorId": emulator_id,
+                "lifecycleOwner": lifecycle_owner(),
             },
             sort_keys=True,
             ensure_ascii=False,
@@ -2231,6 +2294,53 @@ class EmulationController:
             if title_id is not None:
                 self._session_save_checkpoint(game_id, title_id, emulator_id)
 
+    def recover_game_session(self, game_id: str, session_id: str) -> dict[str, Any]:
+        """Explicit exact reconciliation through the canonical lifecycle writer."""
+        if not ids.is_ulid(session_id) or not isinstance(game_id, str) or not game_id:
+            raise SteamZeroError("E-API-SCHEMA", detail="identidade de sessão inválida")
+        result: dict[str, Any] = {
+            "gameId": game_id,
+            "sessionId": session_id,
+            "status": "blocked",
+            "state": "unknown",
+        }
+        with self._store_factory() as store:
+            store.migrate()
+            row = store.get_game_session(session_id)
+            if row is None or row["owner"] != SESSION_OWNER or row["game_id"] != game_id:
+                return {**result, "diagnostic": "LAUNCHER-SESSION-RECOVERY-UNPROVEN-001"}
+            if row["state"] in {"closed", "failed"}:
+                return {**result, "status": "clean", "state": row["state"]}
+            evidence = orphan_recovery(row)
+            if not evidence["available"]:
+                return {**result, "diagnostic": evidence["diagnostic"]}
+            try:
+                self._reconcile_orphaned_game_session(store, row)
+            except SteamZeroError as exc:
+                if exc.code != "E-TX-STALE-PLAN":
+                    raise
+                return {**result, "diagnostic": exc.code}
+        return {
+            **result,
+            "status": "recovered",
+            "state": "failed",
+            "failureCode": "E-SESSION-ORPHANED",
+        }
+
+    @staticmethod
+    def _reconcile_orphaned_game_session(store: StateStore, row: Mapping[str, Any]) -> None:
+        store.transition_game_session(
+            str(row["id"]),
+            "failed",
+            expected={
+                key: row[key]
+                for key in ("owner", "game_id", "state", "pid", "start_ticks", "metadata_json")
+            },
+            pid=None,
+            finished_at=datetime.now(UTC).isoformat(),
+            failure_code="E-SESSION-ORPHANED",
+        )
+
     def _reap_dead_game_sessions(self) -> int:
         """Encerra sessões cujo processo já não existe.
 
@@ -2249,18 +2359,23 @@ class EmulationController:
         with suppress(Exception), self._store_factory() as store:
             store.migrate()
             for row in store.active_game_sessions(SESSION_OWNER):
+                try:
+                    raw_metadata = row.get("metadata_json")
+                    metadata = json.loads(raw_metadata) if isinstance(raw_metadata, str) else None
+                except (TypeError, ValueError, RecursionError):
+                    metadata = None
+                if isinstance(metadata, dict) and "lifecycleOwner" in metadata:
+                    if not orphan_recovery(row)["available"]:
+                        continue
+                    self._reconcile_orphaned_game_session(store, row)
+                    reaped += 1
+                    continue
                 pid = row.get("pid")
                 if isinstance(pid, int) and pid > 1 and _process_alive(pid):
                     recorded = row.get("start_ticks")
                     if recorded is None or self._read_start_ticks(pid) == recorded:
                         continue
-                store.transition_game_session(
-                    str(row["id"]),
-                    "failed",
-                    pid=None,
-                    finished_at=datetime.now(UTC).isoformat(),
-                    failure_code="E-SESSION-ORPHANED",
-                )
+                self._reconcile_orphaned_game_session(store, row)
                 reaped += 1
         return reaped
 
@@ -10071,6 +10186,11 @@ class EmulationController:
                     reconciled_archive = archive_evidence.startswith(
                         "archive-multidisc-"
                     ) and candidate_path.suffix.casefold() in {".zip", ".7z"}
+                    recoverable_archive = (
+                        archive_evidence == "archive-needs-extraction"
+                        and candidate_path.suffix.casefold() in {".zip", ".7z", ".rar"}
+                        and platform_scanner.container_policy_for(resolved_platform) == "extract"
+                    )
                     declared: str | None = resolved_platform
                     directory_native = (
                         fmt in platform_scanner.directory_formats_for(resolved_platform)
@@ -10094,7 +10214,7 @@ class EmulationController:
                         if metadata.identity is None or metadata.identity.value != title_id:
                             continue
                         declared, kind = resolved_platform, "base"
-                    elif reconciled_archive:
+                    elif reconciled_archive or recoverable_archive:
                         kind = "base"
                     else:
                         declared = ""
@@ -10103,7 +10223,7 @@ class EmulationController:
                         siblings = {item.name for item in candidate_path.parent.iterdir()}
                     except OSError:
                         siblings = {candidate_path.name}
-                    if not reconciled_archive and not directory_native:
+                    if not (reconciled_archive or recoverable_archive or directory_native):
                         declared, kind, _evidence = platform_scanner.classify(
                             candidate_path.name,
                             siblings,

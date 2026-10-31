@@ -66,11 +66,41 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/CHECKPOINT.md",
       "command": "2026-10-23 R2 Launcher: reconcilia bytes compartilhados; gates e limites no checkpoint; sem novo aceite integral deste item, instalação ou promoção dos cinco eixos.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+      "command": "28/10: revisao de identidade Port Steam/SteamZero, raiz unica e referencias de recuperacao; nenhuma fonte de produto alterada, nenhum novo aceite instalado/fisico. Digest atualizado apenas pela mudanca documental revisada.",
+      "result": "recorded"
+    },
+    {
+      "kind": "design",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: esclarecimento expresso do proprietário consolidado na seção22: nativo primeiro, biblioteca/master canônico compartilhado, receitas não destrutivas e wheel de fonte única; paridade RetroFE/ES-DE pelo mesmo motor, autoria visual, consulta de capacidades e preview/Launcher equivalentes. Contrato/relatório documental, não teste de runtime ou certificação física.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
+      "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
+  "nextAction": "Conferir o CI do SHA publicado no PR268 e continuar a publicação comum dos papéis de mídia contextual para Studio/Launcher, reutilizando registro e projetor existentes. Incremento nativo de fonte concluído em686d0b7e/d9392bec com7181 testes e cobertura85,72395128552097%; autoria integral, associações, contorno/decode e paridade seguem abertos. Produção59ecc2d8f0f6 não atualizada; sem auth, instalação, release, merge, deploy ou boot.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-24",
-  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental.",
-  "scopeDigest": "21cbb6018d23f9dcc33df4ef248fb895601777e24c327e0db364514a5c8d2a94"
+  "updatedAt": "2026-10-31",
+  "notes": "Entrega exclusivamente documental: direção, diagnóstico, plano e prompt prontos em branch própria. complete/dev/ready descrevem estes documentos, sem promover Central, Launcher, Theme Engine, Aura, emuladores ou experiências. Sem push, release ou mutação de host. A direção corrige nomenclatura por instrução explícita do proprietário. Terceira orientação: prompt de execução centralizada e autorização do programa registradas; nenhum lote funcional ou instalação executado nesta entrega documental. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.\n\n2026-10-30, consolidação expressa: seção22 de THEME-ENGINE-AND-STUDIO é a referência normativa de produto, autoria, biblioteca canônica e compatibilidade integral. Aceites ampliados não habilitam recursos nem promovem eixos. Dados e acervo pessoal não foram migrados.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+  "scopeDigest": "9bdf8a3bc0db08572bd719bdd224eb6180450da0e19eee4e93601b1d433aba57"
 }

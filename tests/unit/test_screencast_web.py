@@ -6,6 +6,7 @@ import socket
 import subprocess
 import sys
 import threading
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -49,6 +50,54 @@ def provider(tmp_path: Any) -> WebReceiverProvider:
     )
     yield p
     p.close()
+
+
+@pytest.fixture
+def completed_sse_handler() -> Iterator[threading.Event]:
+    """Observe the real handler finishing after a controlled peer disconnect."""
+    finished = threading.Event()
+    original = _ReceiverHandler._serve_sse
+
+    def serve(handler: _ReceiverHandler) -> None:
+        original_write = handler.wfile.write
+        keepalives = 0
+
+        def write(payload: bytes) -> Any:
+            nonlocal keepalives
+            if payload.startswith(b": keepalive"):
+                keepalives += 1
+                if keepalives > 1:
+                    raise BrokenPipeError("controlled receiver disconnect")
+            return original_write(payload)
+
+        try:
+            with patch.object(handler.wfile, "write", side_effect=write):
+                original(handler)
+        finally:
+            finished.set()
+
+    with (
+        patch.object(_ReceiverHandler, "_serve_sse", serve),
+        patch.object(sw_mod, "time", wraps=sw_mod.time) as clock,
+    ):
+        clock.sleep.return_value = None
+        yield finished
+
+
+@pytest.fixture
+def completed_signal_handler() -> Iterator[threading.Event]:
+    """An HTTP response can precede dispatch; wait for the actual handler."""
+    finished = threading.Event()
+    original = _ReceiverHandler._handle_signal_post
+
+    def handle(handler: _ReceiverHandler) -> None:
+        try:
+            original(handler)
+        finally:
+            finished.set()
+
+    with patch.object(_ReceiverHandler, "_handle_signal_post", handle):
+        yield finished
 
 
 class TestWebReceiverProvider:
@@ -117,22 +166,33 @@ class TestWebReceiverProvider:
         assert len(body) > 0
         conn.close()
 
-    def test_serve_sse_returns_headers(self, provider: WebReceiverProvider) -> None:
+    def test_serve_sse_returns_headers(
+        self, provider: WebReceiverProvider, completed_sse_handler: threading.Event
+    ) -> None:
         conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
         conn.request("GET", "/signal")
         resp = conn.getresponse()
         assert resp.status == 200
         assert resp.getheader("Content-Type") == "text/event-stream"
+        assert completed_sse_handler.wait(5), "SSE handler did not finish"
+        assert resp.readline() == b": keepalive\n"
+        assert resp.readline() == b"\n"
         conn.close()
 
-    def test_sse_cleanup_on_close(self, provider: WebReceiverProvider) -> None:
+    def test_sse_cleanup_on_close(
+        self, provider: WebReceiverProvider, completed_sse_handler: threading.Event
+    ) -> None:
         conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
         conn.request("GET", "/signal")
         resp = conn.getresponse()
         assert resp.status == 200
+        assert completed_sse_handler.wait(5), "disconnected SSE handler leaked"
+        assert provider._sse_writers == []
         conn.close()
 
-    def test_signal_post_answer(self, provider: WebReceiverProvider) -> None:
+    def test_signal_post_answer(
+        self, provider: WebReceiverProvider, completed_signal_handler: threading.Event
+    ) -> None:
         conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
         body = json.dumps({"type": "answer", "sdp": "v=0"}).encode("utf-8")
         conn.request("POST", "/signal", body=body, headers={"Content-Type": "application/json"})
@@ -140,6 +200,7 @@ class TestWebReceiverProvider:
         assert resp.status == 200
         data = json.loads(resp.read().decode("utf-8"))
         assert data["ok"] is True
+        assert completed_signal_handler.wait(5), "signal dispatch did not finish"
         conn.close()
 
     def test_signal_post_candidate(self, provider: WebReceiverProvider) -> None:
@@ -533,26 +594,38 @@ class TestWebReceiverProvider:
         proc.terminate.assert_called_once()
         proc.kill.assert_called_once()
 
-    def test_sse_without_provider(self, provider: WebReceiverProvider) -> None:
-        original = _ReceiverHandler.provider
-        _ReceiverHandler.provider = None
-        conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
-        conn.request("GET", "/signal")
-        resp = conn.getresponse()
-        assert resp.status == 200
-        conn.close()
-        _ReceiverHandler.provider = original
+    def test_sse_without_provider(
+        self, provider: WebReceiverProvider, completed_sse_handler: threading.Event
+    ) -> None:
+        # Headers arrive before the provider guard. Hold None until completion.
+        with patch.object(_ReceiverHandler, "provider", None):
+            conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
+            try:
+                conn.request("GET", "/signal")
+                resp = conn.getresponse()
+                assert resp.status == 200
+                assert resp.getheader("Content-Type") == "text/event-stream"
+                assert completed_sse_handler.wait(5), "unbound SSE handler did not finish"
+                assert provider._sse_writers == []
+            finally:
+                conn.close()
 
-    def test_signal_post_without_provider(self, provider: WebReceiverProvider) -> None:
-        original = _ReceiverHandler.provider
-        _ReceiverHandler.provider = None
-        conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
-        body = json.dumps({"type": "answer", "sdp": "v=0"}).encode("utf-8")
-        conn.request("POST", "/signal", body=body, headers={"Content-Type": "application/json"})
-        resp = conn.getresponse()
-        assert resp.status == 200
-        conn.close()
-        _ReceiverHandler.provider = original
+    def test_signal_post_without_provider(
+        self, provider: WebReceiverProvider, completed_signal_handler: threading.Event
+    ) -> None:
+        with patch.object(_ReceiverHandler, "provider", None):
+            conn = http.client.HTTPConnection("127.0.0.1", provider._receiver_port, timeout=5)
+            try:
+                body = json.dumps({"type": "answer", "sdp": "v=0"}).encode("utf-8")
+                conn.request(
+                    "POST", "/signal", body=body, headers={"Content-Type": "application/json"}
+                )
+                resp = conn.getresponse()
+                assert resp.status == 200
+                assert json.loads(resp.read())["ok"] is True
+                assert completed_signal_handler.wait(5), "unbound signal handler did not finish"
+            finally:
+                conn.close()
 
     def test_http_server_start_failure_logs_error(self, tmp_path: Path) -> None:
         with patch(

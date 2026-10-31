@@ -85,11 +85,23 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
       "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-frontend-parity.json",
+      "command": "2026-10-30: renovação mecânica do escopo compartilhado pela ampliação da pasta de evidência do Studio com auditoria de paridade. Nenhum código, aceite, capability ou eixo deste item alterado; provas anteriores não foram reexecutadas nem promovidas.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: renovação mecânica do digest compartilhado por consolidação normativa da seção22 e vínculos em AGENTS/direção/plano/superfícies. Nenhuma fonte/runtime, aceite ou eixo deste item alterado; evidências anteriores não reexecutadas nem promovidas.",
+      "result": "recorded"
     }
   ],
   "nextAction": "A0 fechado (contratos game-record-v1/enhancement-entry-v1, ADR 0028, fixtures e matriz em SZ-AURA-CONTRACTS); abrir as frentes A1 (metadados canônicos) e A2 (pipeline de imagem) com workstreams próprios; nenhum agente edita o shell compartilhado sem workstream registrado.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-19",
+  "updatedAt": "2026-10-30",
   "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.",
-  "scopeDigest": "7a2c623fbdb3924976afacda5b6bb83db41c16356e16bbdece4bd7e67d48c395"
+  "scopeDigest": "6506eebc75a36e013acef6ca406e4f7104bbc22f0bdeff729c6eac475a7fc7df"
 }

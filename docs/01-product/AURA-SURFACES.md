@@ -1,5 +1,15 @@
 # AURA-SURFACES — contrato de nomenclatura do produto
 
+> **Nomenclatura vigente:** aplicar a
+> [direção de 16/10](../recovery/2026-10-16/DIRECAO.md) e o
+> [esclarecimento normativo de 30/10, seção 22](THEME-ENGINE-AND-STUDIO.md#22-definição-consolidada--30102026).
+> Central Desktop administra; Launcher hospeda a experiência fullscreen; Theme
+> Engine executa a composição; Theme Studio é a autoria visual; Aura é o tema
+> fullscreen nativo de referência. As definições antigas de “AURA UI” e “AURA
+> Launcher” abaixo conservam histórico/IDs e estão superadas quanto aos nomes e
+> ao papel de Aura. Não as usar para redefinir o produto. Provas históricas
+> continuam restritas à sua data, versão e escopo.
+
 ## Regra obrigatória
 
 “AURA” sozinho é ambíguo e não deve ser usado em status, roadmap, relatório de

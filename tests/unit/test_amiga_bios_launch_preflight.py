@@ -209,7 +209,9 @@ def test_readiness_flags_archive_that_can_be_prepared(monkeypatch, tmp_path: Pat
     monkeypatch.setattr(
         module.ArchiveMaterializer,
         "inspect",
-        lambda self, req: SimpleNamespace(state="needs-extraction"),
+        lambda self, req: SimpleNamespace(
+            state="needs-extraction", reason="archive requer extração"
+        ),
     )
 
     verdict = controller.game_readiness("g")

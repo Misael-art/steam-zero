@@ -21,8 +21,10 @@
     "tests/unit/test_doctor.py",
     "tests/unit/test_service_core.py"
   ],
-  "scopeDigest": "28ba753652d3ed9c4a3dd6f6d40ba40e8444c02017a953c68d2c4ad8c73061d5",
-  "dependsOn": ["SZ-TEST-STATE-ISOLATION"],
+  "scopeDigest": "0618d2c2ad1fa9bd66da645e297ddfe3ce9c0988c79f069a334a9643009358b5",
+  "dependsOn": [
+    "SZ-TEST-STATE-ISOLATION"
+  ],
   "knownGaps": [],
   "acceptanceCriteria": [
     "O bootstrap chama recovery de jobs e operações uma vez, em modo best-effort, sem impedir o daemon de subir.",
@@ -52,7 +54,9 @@
     }
   ],
   "nextAction": "HARD-EXTERNAL-SUBITEM: rechecagem read-only observou staleJobs=0, mas nenhum ciclo governado de recovery/convergência é atribuível a esta sessão; preservar degraded e não executar restart ou cleanup no host.",
-  "activeWorkstreams": ["WS-2026-09-JOB-RECOVERY-G25"],
+  "activeWorkstreams": [
+    "WS-2026-09-JOB-RECOVERY-G25"
+  ],
   "updatedAt": "2026-09-21",
   "notes": "O software de G25 está integrado e verificado em ambiente isolado. A rechecagem somente leitura de 2026-09-22 observou staleJobs=0, pendingOperations=0 e nenhum órfão; como nenhum restart/convergência governado foi executado ou atribuído a esta sessão, a operação não é promovida e o host permanece fora da prova física completa. Nenhum arquivo ou serviço do host foi alterado."
 }

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-NEW-HOST-HANDOFF",
+  "item": "SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP",
+  "branch": "codex/product-recovery-2026-10-16",
+  "baseRef": "ad742ca3515f794fe285d42060708835cb09fb91",
+  "owner": "codex-projects-recovery-executor",
+  "state": "closed",
+  "exclusivePaths": [
+    "bootstrap-dev.sh",
+    "tools/bootstrap_dev.py",
+    "tools/dev-bootstrap.lock.json",
+    "tools/export_host_handoff.py",
+    "tests/unit/test_bootstrap_dev.py",
+    "tests/unit/test_host_handoff_export.py",
+    ".gitignore",
+    "RTK.md",
+    "AGENTS.md",
+    "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+    "docs/recovery/2026-10-16/README.md",
+    "docs/09-operations/evidence/2026-10-24-new-host-handoff"
+  ],
+  "sharedPaths": [
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md",
+    "README.md",
+    "docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md",
+    "tools/run_tests_isolated.py",
+    "tests/unit/test_test_state_isolation.py",
+    "src/steamzero/core/fs.py",
+    "tests/unit/test_fs.py",
+    "tests/integration/test_core_service.py",
+    "tests/unit/test_service_core.py"
+  ],
+  "nextAction": "Lote de recuperacao e preparacao de continuidade encerrado em Projects/SteamZero. Manter pendentes o gate visual canonico por SHA, prova instalada/fisica e backup privado externo. A proxima implementacao segue WS-R3-LAUNCH-READINESS: reproduzir GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN, sem nova raiz, autenticacao ou instalacao privilegiada.",
+  "updatedAt": "2026-10-26"
+}

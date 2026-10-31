@@ -13,3 +13,9 @@ Correção de projeção: remove apenas o alias year na cópia em memória quand
 Próxima operação: integral isolada da fonte congelada, log /tmp/steamzero-r2-year-full.log, cobertura /tmp/steamzero-r2-year-coverage.json. Aguardar resultado terminal antes de commit. Sem testes/GUI reais concorrentes ou autenticação.
 
 Integral terminal **exit 0, 6849 passed, 47 skipped, 19 warnings**, 2355,17 s; cobertura **85,51151888176248%**, estado real sem delta. 1262 hashes sem mudança; recibo 06. Commit funcional `7d89ab0fce0486fabb51560a87ee7d1fde7fe890`. Em 24/10 o operador está presente e pediu instalação imediata da mais recente main com CI verde; esta correção local fica preservada, ainda fora da candidata main 59ecc2d8 até CI remoto próprio. Não reiniciar integral por docs.
+
+## Integração remota concluída em24/10
+
+PR[#267](https://github.com/Misael-art/steam-zero/pull/267), head744d300bf1672275ce15c08cf2fe44d31d067ab1, CI[40087147293](https://github.com/Misael-art/steam-zero/actions/runs/40087147293): oito jobs success. Merge normal em2026-10-24T11:11:40Z, main`ad742ca3515f794fe285d42060708835cb09fb91`, sem bypass/forcepush. Cobertura equivalente Python3.14:85,33751330207944% >= base main59ecc2d8 85,33087865145914%, +0,00663465062030 ponto (recibos07–09).
+
+Instalada continua59ecc2d8. Ajuste integrado ainda não instalado; desenvolvimento contínuo sem senha até nova direção expressa. Lote serial atual R3 prontidão/preparo tem integral ativa em/tmp/steamzero-r3-readiness-full.log. Não repetir local do ano nem alinhar fonte durante a integral R3.

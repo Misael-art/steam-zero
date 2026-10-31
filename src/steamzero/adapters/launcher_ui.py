@@ -19,7 +19,8 @@ import secrets
 import shutil
 import threading
 from collections.abc import Callable, Iterator, Mapping, Sequence
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
+from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, cast
@@ -28,7 +29,7 @@ from steamzero.adapters.launcher_process import supervised_child
 from steamzero.adapters.launcher_receipt import LaunchAttempt
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
 from steamzero.core import ids, log, paths
-from steamzero.core.errors import SteamZeroError
+from steamzero.core.errors import ERROR_CATALOG, SteamZeroError
 from steamzero.core.title_variants import (
     TITLE_VARIANT_MODES,
     normalize_title_variants,
@@ -43,7 +44,9 @@ from steamzero.domain.scene_layout import LayoutBounds, LayoutRecipe
 from steamzero.domain.session_overlay import resolve_session_overlay
 from steamzero.launcher.cinema import resolve_cinema_covers
 from steamzero.launcher.journey_runtime import JourneyRuntime
+from steamzero.launcher.launch import forget_context, read_recovery_context, recovery_context
 from steamzero.launcher.navigation import HomeSection, resolve_home_focus
+from steamzero.launcher.session import restore_context
 
 #: Devolve a tentativa com recibo (ou ``None`` na rota Steam, sem recibo).
 LaunchCallback = Callable[[str, str], LaunchAttempt | None]
@@ -60,6 +63,29 @@ _ALLOWED_QSG_RENDER_LOOPS = frozenset({"basic", "threaded"})
 #: texto cru pode conter caminhos locais, mas o rastro resolúvel precisa
 #: caber numa linha JSONL e continuar legível para o suporte.
 MAX_LAUNCH_DETAIL = 240
+
+
+def _valid_client_request_id(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and 1 <= len(value) <= 128
+        and value.isascii()
+        and all(character.isalnum() or character in "-_." for character in value)
+    )
+
+
+def _retained_terminal(result: Mapping[str, Any]) -> bool:
+    return result.get("state") == "closed" or (
+        result.get("state") == "failed" and result.get("failureCode") == "E-SESSION-ORPHANED"
+    )
+
+
+@dataclass(frozen=True)
+class _LaunchRequest:
+    client_id: str
+    game_id: str
+    focus_id: str
+    attempt: LaunchAttempt | None
 
 
 def _resolve_qt_quick_backend() -> str:
@@ -101,10 +127,26 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path == "/model":
             self._send(200, self._bridge.model())
             return
+        if self.path == "/readiness" or self.path.startswith("/readiness?"):
+            game_id = self._query_param("gameId")
+            if not game_id:
+                self._send(400, {"error": "gameId ausente"})
+                return
+            try:
+                result = self._bridge.readiness(game_id)
+            except KeyError:
+                self._send(404, {"error": "LAUNCHER-GAME-NOT-FOUND-001"})
+                return
+            self._send(200, result)
+            return
         if self.path == "/journey/current":
             self._send(200, self._bridge.journey_current())
             return
         if self.path.startswith("/session?"):
+            client_id = self._query_param("clientRequestId")
+            if client_id is not None and not _valid_client_request_id(client_id):
+                self._send(400, {"error": "LAUNCHER-CLIENT-REQUEST-INVALID-001"})
+                return
             stage = self._query_param("stage")
             if stage is not None and stage not in SESSION_STAGES:
                 self._send(400, {"error": "JOURNEY-STAGE-REFERENCE-MISSING"})
@@ -115,6 +157,7 @@ class _Handler(BaseHTTPRequestHandler):
                     self._query_param("gameId") or "",
                     include_overlay=self._query_param("overlay") == "1",
                     journey_stage=stage,
+                    client_request_id=client_id,
                 ),
             )
             return
@@ -154,7 +197,13 @@ class _Handler(BaseHTTPRequestHandler):
         if not self._authorized():
             self._send(403, {"error": "token inválido"})
             return
-        if self.path not in {"/launch", "/session/action", "/journey/event"}:
+        if self.path not in {
+            "/launch",
+            "/prepare",
+            "/session/action",
+            "/session/recover",
+            "/journey/event",
+        }:
             self._send(404, {"error": "rota desconhecida"})
             return
         try:
@@ -173,9 +222,37 @@ class _Handler(BaseHTTPRequestHandler):
         if not isinstance(payload, dict):
             self._send(400, {"error": "corpo inválido"})
             return
+        if self.path == "/prepare":
+            game_id = payload.get("gameId")
+            if not isinstance(game_id, str) or not game_id:
+                self._send(400, {"error": "gameId inválido"})
+                return
+            try:
+                result = self._bridge.prepare_game(game_id)
+            except KeyError:
+                self._send(404, {"error": "LAUNCHER-GAME-NOT-FOUND-001"})
+                return
+            state = result["state"]
+            self._send(202 if state == "preparing" else 200 if state == "ready" else 409, result)
+            return
         if self.path == "/journey/event":
             result = self._bridge.journey_event(payload)
             self._send(200, result)
+            return
+        if self.path == "/session/recover":
+            game_id = payload.get("gameId")
+            session_id = payload.get("sessionId")
+            if (
+                not isinstance(game_id, str)
+                or not game_id
+                or not isinstance(session_id, str)
+                or not ids.is_ulid(session_id)
+                or set(payload) != {"gameId", "sessionId"}
+            ):
+                self._send(400, {"error": "LAUNCHER-SESSION-RECOVERY-IDENTITY-001"})
+                return
+            result = self._bridge.recover_session(game_id, session_id)
+            self._send(200 if result["accepted"] else 409, result)
             return
         if self.path == "/session/action":
             game_id = payload.get("gameId")
@@ -220,11 +297,17 @@ class _Handler(BaseHTTPRequestHandler):
             return
         game_id = str(payload.get("gameId", ""))
         focus_id = str(payload.get("focusId", ""))
+        client_id = payload.get("clientRequestId")
+        if "clientRequestId" in payload and not _valid_client_request_id(client_id):
+            self._send(400, {"error": "LAUNCHER-CLIENT-REQUEST-INVALID-001"})
+            return
         if not game_id:
             self._send(400, {"error": "gameId ausente"})
             return
         try:
-            attempt = self._bridge.launch(game_id, focus_id)
+            attempt = self._bridge.launch(
+                game_id, focus_id, client_request_id=cast(str | None, client_id)
+            )
         except LaunchBlocked as blocked:
             # Falha comprovadamente anterior ao spawn: o motivo já é escrito
             # para o usuário e dá a ação que resolve.
@@ -273,10 +356,10 @@ class _Handler(BaseHTTPRequestHandler):
         # O requestId publica a tentativa criada: é ele que o shell exige de
         # volta numa falha sem sessionId, para que resposta de tentativa antiga
         # nunca altere um pedido novo. Sem recibo (rota Steam), requestId nulo.
-        self._send(
-            200,
-            {"requestId": attempt.request_id if attempt is not None else None},
-        )
+        acknowledgment = {"requestId": attempt.request_id if attempt is not None else None}
+        if client_id is not None:
+            acknowledgment["clientRequestId"] = client_id
+        self._send(200, acknowledgment)
 
     def _query_param(self, name: str) -> str | None:
         return self._query_params().get(name)
@@ -343,17 +426,24 @@ class LauncherBridge:
         catalog_records: Sequence[Mapping[str, Any]] | None = None,
         metadata: Mapping[str, Mapping[str, Any]] | None = None,
         session_observer: Callable[[str], dict[str, Any]] | None = None,
+        session_by_id: Callable[[str, str], dict[str, Any]] | None = None,
+        recover_session: Callable[[str, str], Mapping[str, Any]] | None = None,
         session_overlay: SessionOverlayAdapter | None = None,
         journey_runtime: JourneyRuntime | None = None,
         journey_diagnostic: Mapping[str, Any] | None = None,
         readiness: Callable[[str], Mapping[str, Any]] | None = None,
         prepare: Callable[[str], Mapping[str, Any]] | None = None,
+        readiness_observer: Callable[[str], Mapping[str, Any]] | None = None,
     ) -> None:
         self._readiness = readiness
+        self._readiness_observer = (
+            readiness_observer if readiness_observer is not None else readiness
+        )
         self._prepare = prepare
         self._preparing: dict[str, threading.Thread] = {}
         self._prepare_failures: dict[str, str] = {}
         self._sections = tuple(sections)
+        self._game_ids = frozenset(game for section in self._sections for game in section.items)
         self._titles = dict(titles or {})
         self._covers = dict(covers or {})
         self._metadata = {key: dict(value) for key, value in (metadata or {}).items()}
@@ -363,15 +453,21 @@ class LauncherBridge:
             if isinstance(record, Mapping) and record.get("id")
         }
         self._session_observer = session_observer
+        self._session_by_id = session_by_id
+        self._recover_session = recover_session
         self._session_overlay = session_overlay
         self._journey_runtime = journey_runtime
         self._journey_diagnostic = dict(journey_diagnostic or {})
         self._previous_sessions: dict[str, str | None] = {}
         self._pending_game: str | None = None
         self._attempts: dict[str, LaunchAttempt] = {}
+        # One retained request, bounded by the current bridge lifetime. A lost
+        # HTTP reply must not consume the only proof of a terminal receipt.
+        self._launch_request: _LaunchRequest | None = None
         self._session_lock = threading.RLock()
         self._journey_request_results: dict[str, tuple[str, dict[str, Any]]] = {}
         self._session_action_results: dict[str, tuple[str, dict[str, Any]]] = {}
+        self._last_recovery: tuple[str, str, dict[str, Any]] | None = None
         if title_mode not in TITLE_VARIANT_MODES:
             raise ValueError(f"modo de título desconhecido: {title_mode}")
         self._title_mode = title_mode
@@ -386,12 +482,21 @@ class LauncherBridge:
         self._on_launch_bezel = on_launch_bezel
         self._accessibility = dict(accessibility or {})
         self._return_context = dict(return_context or {}) or None
+        self._recovery = recovery_context(self._return_context)
+        if self._recovery is not None:
+            self._pending_game = self._recovery["gameId"]
         self._catalog_summary = dict(catalog_summary or {})
         self.token = secrets.token_urlsafe(32)
         self._focus = resolve_home_focus(self._sections)
 
     def model(self) -> dict[str, Any]:
+        return_focus, return_diagnostics = (
+            restore_context(self._return_context, self._focus)
+            if self._return_context is not None
+            else (self._focus.initial, ())
+        )
         return {
+            "launchCorrelation": {"clientRequestId": True},
             "titleMode": self._title_mode,
             "accessibility": {
                 "highContrast": bool(self._accessibility.get("highContrast", False)),
@@ -399,10 +504,12 @@ class LauncherBridge:
                 "reducedMotion": bool(self._accessibility.get("reducedMotion", False)),
             },
             "focusMap": self._focus.to_qml_object(),
-            # O processo consome o contexto antes de iniciar o QML. Publicá-lo
-            # aqui faz a restauração existir no entry point real, e não apenas
-            # no harness que injeta returnContext diretamente.
+            # Keep persisted identity separate from its current visual target.
+            # A removed card may resolve to a neighbour without rewriting v2.
             "returnContext": self._return_context,
+            "returnFocus": return_focus,
+            "returnDiagnostics": [entry.to_dict() for entry in return_diagnostics],
+            "launchRecovery": self._recovery,
             "catalogSummary": self._catalog_summary,
             "journey": self.journey_current(),
             "sections": [
@@ -1088,7 +1195,27 @@ class LauncherBridge:
             0,
         )
         recipe, layout_state, layout_diagnostic = self._journey_cinema_recipe(view, height)
-        result = resolve_cinema_covers(recipe, items, selected, bounds=bounds)
+        raw_theme = view.get("theme")
+        theme = raw_theme if isinstance(raw_theme, Mapping) else {}
+        tokens = theme.get("resolved")
+        performance = tokens.get("performance", {}) if isinstance(tokens, Mapping) else {}
+        selection = theme.get("assetRecipeSelection")
+        tier = selection.get("tier") if isinstance(selection, Mapping) else None
+        if tier is None and isinstance(performance, Mapping):
+            tier = performance.get("defaultTier")
+        if not isinstance(tier, str) or tier not in {
+            "cinematic",
+            "balanced",
+            "economy",
+            "accessible",
+        }:
+            tier = "balanced"
+        result = resolve_cinema_covers(recipe, items, selected, bounds=bounds, theme=theme)
+        if result["diagnostics"]:
+            layout_state = "partial"
+            layout_diagnostic = "; ".join(
+                str(diagnostic["reason"]) for diagnostic in result["diagnostics"]
+            )
         source_indices = result["sourceIndices"]
         result.update(
             focusId=focus_id,
@@ -1109,7 +1236,7 @@ class LauncherBridge:
             ),
             layoutResolutionState=layout_state,
             layoutDiagnostic=layout_diagnostic,
-            performanceTier="balanced",
+            performanceTier=tier,
             connectionState="connected",
             viewport={"width": width, "height": height},
             items=[items[index] for index in source_indices],
@@ -1127,7 +1254,7 @@ class LauncherBridge:
             for layout_id, raw in raw_layouts.items():
                 if not isinstance(layout_id, str) or not isinstance(raw, Mapping):
                     continue
-                if raw.get("kind") != "coverFlow":
+                if raw.get("kind") not in {"coverFlow", "wheel", "carousel", "stack"}:
                     continue
                 try:
                     recipe = LayoutRecipe.from_dict(layout_id, raw)
@@ -1158,14 +1285,16 @@ class LauncherBridge:
             },
         )
         diagnostic = (
-            "O tema da etapa não publica um layout coverFlow compatível; "
+            "O tema da etapa não publica uma composição com seleção central compatível; "
             "o Cinema usa a composição AURA."
             if isinstance(book, Mapping)
             else "A etapa não declara layout; o Cinema usa a composição AURA."
         )
         return fallback, "aura-fallback", diagnostic
 
-    def launch(self, game_id: str, focus_id: str) -> LaunchAttempt | None:
+    def launch(
+        self, game_id: str, focus_id: str, *, client_request_id: str | None = None
+    ) -> LaunchAttempt | None:
         """Lança o jogo e devolve a tentativa com requestId correlacionado.
 
         ``None`` significa rota sem recibo (Steam): falha sem sessionId não é
@@ -1174,7 +1303,118 @@ class LauncherBridge:
         # Connections are concurrent; validation, spawn and reservation form
         # one critical section so two clients cannot both launch the game.
         with self._session_lock:
-            return self._launch_locked(game_id, focus_id)
+            if client_request_id is not None:
+                if not _valid_client_request_id(client_request_id):
+                    raise ValueError("invalid client request identity")
+                previous = self._launch_request
+                if previous is not None and previous.client_id == client_request_id:
+                    if (previous.game_id, previous.focus_id) != (game_id, focus_id):
+                        raise ValueError("client request identity already used for another launch")
+                    return previous.attempt
+            attempt = self._launch_locked(game_id, focus_id)
+            self._launch_request = (
+                _LaunchRequest(client_request_id, game_id, focus_id, attempt)
+                if client_request_id is not None
+                else None
+            )
+            return attempt
+
+    def readiness(self, game_id: str) -> dict[str, Any]:
+        """Observe the existing preparation, without starting or consuming it."""
+        if game_id not in self._game_ids:
+            raise KeyError(game_id)
+
+        def activity() -> dict[str, Any] | None:
+            running = self._preparing.get(game_id)
+            if running is not None and running.is_alive():
+                return {
+                    "gameId": game_id,
+                    "state": "preparing",
+                    "playable": False,
+                    "preparing": True,
+                    "canPrepare": False,
+                    "code": "LAUNCHER-PREPARING-001",
+                    "reason": "Preparando o jogo (extraindo o arquivo).",
+                }
+            failure = self._prepare_failures.get(game_id)
+            if failure is not None:
+                return {
+                    "gameId": game_id,
+                    "state": "failed",
+                    "playable": False,
+                    "preparing": False,
+                    "canPrepare": self._prepare is not None,
+                    "code": "LAUNCHER-PREPARE-FAILED-001",
+                    "reason": failure,
+                }
+            return None
+
+        with self._session_lock:
+            current = activity()
+        if current is not None:
+            return current
+        try:
+            verdict = self._readiness_observer(game_id) if self._readiness_observer else None
+        except Exception:
+            # A failed observation is not evidence that the game is ready.
+            verdict = None
+        with self._session_lock:
+            current = activity()
+        if current is not None:
+            return current
+        playable = verdict.get("playable") if isinstance(verdict, Mapping) else None
+        if not isinstance(verdict, Mapping) or not isinstance(playable, bool):
+            return {
+                "gameId": game_id,
+                "state": "unknown",
+                "playable": None,
+                "preparing": False,
+                "canPrepare": False,
+                "code": "LAUNCHER-READINESS-UNAVAILABLE-001",
+                "reason": (
+                    "Prontidão não verificada. Tente verificar novamente ou consulte a Central."
+                ),
+            }
+        reason = verdict.get("reason")
+        code = verdict.get("code")
+        public_code = (
+            code
+            if isinstance(code, str)
+            and 1 <= len(code) <= 96
+            and code.isascii()
+            and all(character.isalnum() or character in "-_" for character in code)
+            else "LAUNCHER-NOT-READY-001"
+        )
+        return {
+            "gameId": game_id,
+            "state": "ready" if playable else "blocked",
+            "playable": playable,
+            "preparing": False,
+            "canPrepare": not playable
+            and verdict.get("canPrepare") is True
+            and self._prepare is not None,
+            "code": "" if playable else public_code,
+            "reason": _public_reason(reason) if isinstance(reason, str) else "",
+        }
+
+    def prepare_game(self, game_id: str) -> dict[str, Any]:
+        """Use the existing preparation worker; this operation never launches."""
+        with self._session_lock:
+            if game_id not in self._game_ids:
+                raise KeyError(game_id)
+            running = self._preparing.get(game_id)
+            if running is not None and running.is_alive():
+                return self.readiness(game_id)
+            # An explicit retry observes current requirements again. A past
+            # failure cannot authorize another extraction after an external
+            # repair or after this operation became inapplicable.
+            self._prepare_failures.pop(game_id, None)
+            current = self.readiness(game_id)
+            if current["canPrepare"] is not True:
+                return current
+            with suppress(LaunchBlocked):
+                self._auto_prepare(game_id, {"canPrepare": True})
+            return self.readiness(game_id)
 
     def _auto_prepare(self, game_id: str, verdict: Mapping[str, Any]) -> None:
         """Inicia, em segundo plano, o que o jogo precisa para abrir.
@@ -1201,13 +1441,15 @@ class LauncherBridge:
             try:
                 result = prepare(game_id)
                 if result.get("prepared") is not True:
-                    self._prepare_failures[game_id] = _public_reason(
-                        str(result.get("reason") or "a preparação não foi concluída")
-                    )
+                    with self._session_lock:
+                        self._prepare_failures[game_id] = _public_reason(
+                            str(result.get("reason") or "a preparação não foi concluída")
+                        )
             except Exception as exc:  # qualquer falha vira motivo ao usuário
-                self._prepare_failures[game_id] = _public_reason(
-                    str(getattr(exc, "detail", "") or "a preparação falhou")
-                )
+                with self._session_lock:
+                    self._prepare_failures[game_id] = _public_reason(
+                        str(getattr(exc, "detail", "") or "a preparação falhou")
+                    )
 
         thread = threading.Thread(target=work, name=f"prepare-{game_id}", daemon=True)
         self._preparing[game_id] = thread
@@ -1241,6 +1483,7 @@ class LauncherBridge:
                     _public_reason(str(verdict.get("reason") or "")),
                     can_prepare=verdict.get("canPrepare") is True,
                 )
+        previous_session_id = None
         if self._session_observer is not None:
             previous = self._session_observer(game_id)
             if previous.get("state") in {
@@ -1252,11 +1495,32 @@ class LauncherBridge:
                 "closing",
             }:
                 raise ValueError("the game already has an active canonical session")
-            self._previous_sessions[game_id] = previous.get("sessionId")
+            previous_session_id = previous.get("sessionId")
         bezel_resource = "aura-default"
         if self._journey_runtime is not None:
             selection = self._journey_runtime.stage_bezel("bezel")
             bezel_resource = str(selection.get("resourceId") or "aura-default")
+        if self._recovery is not None:
+            recovered = self._recovery
+            prior = self._session_locked(recovered["gameId"])
+            refusal = prior.get("attempt", {}).get("state") == "notStarted"
+            terminal = prior.get("sessionId") == recovered["sessionId"] and _retained_terminal(
+                prior
+            )
+            if not refusal and not terminal:
+                raise ValueError("recovery has no proven retryable terminal state")
+            if read_recovery_context(self._context_path) != recovered and (
+                self._context_path.exists() or self._context_path.is_symlink()
+            ):
+                raise ValueError("recovery context changed; refusing to replace it")
+            if not forget_context(self._context_path, recovered["requestId"]) and (
+                self._context_path.exists() or self._context_path.is_symlink()
+            ):
+                raise ValueError("recovery context changed; refusing to replace it")
+            self._attempts.pop(recovered["gameId"], None)
+            self._recovery = None
+        if self._session_observer is not None:
+            self._previous_sessions[game_id] = previous_session_id
         attempt = (
             self._on_launch_bezel(game_id, focus_id, bezel_resource)
             if self._on_launch_bezel is not None
@@ -1268,6 +1532,7 @@ class LauncherBridge:
             self._attempts[game_id] = attempt
         if self._session_observer is not None:
             self._pending_game = game_id
+        self._last_recovery = None
         return attempt
 
     def session(
@@ -1276,9 +1541,21 @@ class LauncherBridge:
         *,
         include_overlay: bool = False,
         journey_stage: str | None = None,
+        client_request_id: str | None = None,
     ) -> dict[str, Any]:
         with self._session_lock:
-            result = self._session_locked(game_id)
+            request = self._launch_request if client_request_id is not None else None
+            if client_request_id is not None and (
+                request is None
+                or request.client_id != client_request_id
+                or request.game_id != game_id
+            ):
+                return {"gameId": game_id, "state": "unknown", "sessionId": None}
+            result = self._session_locked(
+                game_id, retained_attempt=request.attempt if request is not None else None
+            )
+            if request is not None:
+                result = {**result, "clientRequestId": request.client_id}
             if include_overlay:
                 result["overlay"] = self._overlay_locked(
                     game_id, result, journey_stage=journey_stage
@@ -1424,15 +1701,101 @@ class LauncherBridge:
             result["journeyBezel"] = self._journey_runtime.stage_bezel("bezel")
         return result
 
-    def _session_locked(self, game_id: str) -> dict[str, Any]:
-        if self._session_observer is None or not any(
+    def recover_session(self, game_id: str, session_id: str) -> dict[str, Any]:
+        """An explicit mutation; GET observation never reaps canonical state."""
+        with self._session_lock:
+            denied = {
+                "accepted": False,
+                "gameId": game_id,
+                "sessionId": session_id,
+                "state": "unknown",
+                "diagnostic": "LAUNCHER-SESSION-RECOVERY-UNPROVEN-001",
+            }
+            previous = self._last_recovery
+            if previous is not None and previous[:2] == (game_id, session_id):
+                return dict(previous[2])
+            if not ids.is_ulid(session_id) or self._recover_session is None:
+                return denied
+            attempt = self._attempts.get(game_id)
+            request = self._launch_request
+            if attempt is None and request is not None and request.game_id == game_id:
+                attempt = request.attempt
+            identity = (
+                self._recovery.get("sessionId")
+                if self._recovery and self._recovery["gameId"] == game_id
+                else None
+            )
+            if identity is None and attempt is not None and attempt.state == "confirmed":
+                identity = attempt.outcome().get("sessionId")
+            if identity != session_id:
+                return denied
+            current = self._session_locked(game_id, retained_attempt=attempt)
+            if current.get("sessionId") != session_id:
+                return denied
+            if current.get("state") in {"failed", "closed"}:
+                return {**current, "accepted": True}
+            if not current.get("recovery", {}).get("available"):
+                return denied
+            try:
+                result = self._recover_session(game_id, session_id)
+            except (SteamZeroError, OSError):
+                return denied
+            if result.get("gameId") != game_id or result.get("sessionId") != session_id:
+                return denied
+            accepted = result.get("status") in {"recovered", "clean"} and result.get("state") in {
+                "failed",
+                "closed",
+            }
+            public = {
+                key: result[key]
+                for key in ("gameId", "sessionId", "status", "state", "failureCode", "diagnostic")
+                if key in result
+            }
+            public["accepted"] = accepted
+            if accepted:
+                self._last_recovery = (game_id, session_id, dict(public))
+            return public
+
+    def _session_locked(
+        self, game_id: str, *, retained_attempt: LaunchAttempt | None = None
+    ) -> dict[str, Any]:
+        recovered = (
+            self._recovery if self._recovery and self._recovery["gameId"] == game_id else None
+        )
+        if recovered is not None:
+            result = (
+                self._session_by_id(game_id, recovered["sessionId"])
+                if self._session_by_id is not None
+                else {}
+            )
+            if result.get("sessionId") != recovered["sessionId"] or result.get("gameId") != game_id:
+                return {"gameId": game_id, "state": "awaiting", "sessionId": None}
+        elif self._session_observer is None or not any(
             game_id in section.items for section in self._sections
         ):
             return {"gameId": game_id, "state": "unknown", "sessionId": None}
-        result = self._session_observer(game_id)
-        attempt = self._attempts.get(game_id)
+        else:
+            result = self._session_observer(game_id)
+        attempt = retained_attempt if retained_attempt is not None else self._attempts.get(game_id)
         outcome = attempt.outcome() if attempt is not None else None
+        if (
+            recovered is not None
+            and result.get("state") == "failed"
+            and result.get("launchAcknowledgment") == "notStarted"
+            and isinstance(result.get("failureCode"), str)
+            and result["failureCode"] in ERROR_CATALOG
+        ):
+            error = SteamZeroError(result["failureCode"]).to_error_object()
+            outcome = {
+                "requestId": recovered["requestId"],
+                "state": "notStarted",
+                "error": {key: error[key] for key in ("code", "what", "impact", "manualAction")},
+            }
         if outcome is not None and outcome.get("state") == "notStarted":
+            if recovered is None:
+                forget_context(self._context_path, str(outcome["requestId"]))
+            # A restored refusal survives lost GET replies and another restart.
+            # Only the next explicit, validated launch consumes its context.
             # Falha comprovadamente anterior ao spawn, confirmada pelo requestId
             # do pedido atual: nada foi criado, a tentativa é liberada e Jogar
             # volta a ser elegível. O erro viaja na projeção da tentativa.
@@ -1462,8 +1825,30 @@ class LauncherBridge:
             if outcome is not None:
                 awaiting["attempt"] = outcome
             return awaiting
+        if _retained_terminal(result):
+            if recovered is None and outcome is not None and attempt is not None:
+                pending = read_recovery_context(self._context_path)
+                if pending is not None and (
+                    pending["gameId"] == game_id
+                    and pending["sessionId"] == result.get("sessionId")
+                    and pending["requestId"] == attempt.request_id
+                ):
+                    self._recovery = pending
+            if recovered is not None or outcome is not None:
+                if self._pending_game == game_id:
+                    self._pending_game = None
+                # Delivery is unconfirmed. Preserve context/receipt until the
+                # next explicit, validated launch; this is NOT notStarted.
+                return {**result, "attempt": outcome} if outcome is not None else result
         if self._pending_game == game_id and result.get("state") in {"closed", "failed"}:
             self._pending_game = None
+            identity = (
+                recovered["requestId"]
+                if recovered is not None
+                else (attempt.request_id if attempt is not None else "")
+            )
+            forget_context(self._context_path, identity)
+            self._recovery = None
             # Terminalização canônica encerra a tentativa; retenção liberada.
             self._attempts.pop(game_id, None)
         if outcome is not None:

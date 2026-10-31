@@ -385,12 +385,13 @@ class LaunchRouter:
         argv: tuple[str, ...] = (executable, "emulation", "launch", "--game-id", game_id)
         if bezel_resource != "aura-default":
             argv = (*argv, "--bezel-resource", bezel_resource)
-        argv = (*argv, "--json")
+        argv = (*argv, "--json", "--launch-request-id", request_id)
         plan = LaunchPlan(
             game_id=game_id,
             argv=argv,
             focus_id=focus_id or f"{_DEFAULT_SECTION}:{game_id}",
             context_path=self._context_path,
+            launch_request_id=request_id,
         )
         collected: list[LaunchAttempt] = []
 
@@ -415,6 +416,13 @@ class LaunchRouter:
         data = query_product(self._executable(), "readiness", game_id, timeout=20)
         return data if data is not None and "playable" in data else {"playable": True}
 
+    def readiness_observation(self, game_id: str) -> Mapping[str, Any]:
+        """A bounded read for details; fail-open launch permission is not proof."""
+        if self._kinds.get(game_id, "emulation") != "emulation":
+            return {"playable": None}
+        data = query_product(self._executable(), "readiness", game_id, timeout=2)
+        return data if data is not None else {"playable": None}
+
     def prepare(self, game_id: str) -> Mapping[str, Any]:
         """Prepara o jogo (extrai archive) pelo produto; sem iniciar nada."""
         data = query_product(self._executable(), "prepare", game_id, timeout=3600)
@@ -426,6 +434,12 @@ class LaunchRouter:
                 "reason": "a preparação não pôde ser executada",
             }
         )
+
+    def recover_session(self, game_id: str, session_id: str) -> Mapping[str, Any]:
+        data = query_product(
+            self._executable(), "recover", game_id, timeout=3, session_id=session_id
+        )
+        return data if data is not None else {"status": "blocked", "state": "unknown"}
 
     def _steam_argv(self, app_id: str) -> tuple[str, ...]:
         if not app_id.isdigit() or len(app_id) > 32:
@@ -647,8 +661,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     from steamzero.adapters.launcher_ui import LauncherBridge, launch_launcher_ui
 
     context_path = args.context or _context_path()
-    # Um contexto pendente significa que a sessão anterior lançou algo. Consumir
-    # aqui evita que um retorno antigo posicione o foco de uma sessão nova.
+    # V1 restaura foco uma vez. V2 mantém a referência até novo lançamento
+    # explícito validado; sua presença não comprova que o jogo iniciou.
     restored_context = consume_context(context_path)
     return_context = restored_context if isinstance(restored_context, Mapping) else None
 
@@ -710,6 +724,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.isolated_library:
         observe_session = None
+        session_by_id = None
         session_overlay = None
     else:
         from steamzero.adapters.launcher_session import observe_game_session
@@ -717,6 +732,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         def observe_session(game_id: str) -> dict[str, Any]:
             return observe_game_session(paths.state_db(), game_id)
+
+        def session_by_id(game_id: str, session_id: str) -> dict[str, Any]:
+            return observe_game_session(paths.state_db(), game_id, session_id=session_id)
 
         session_overlay = SessionOverlayAdapter(
             observe=observe_session,
@@ -892,12 +910,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         catalog_records=catalog_records,
         metadata=metadata,
         session_observer=observe_session,
+        session_by_id=session_by_id,
+        recover_session=None if args.isolated_library else router.recover_session,
         session_overlay=session_overlay,
         context_path=context_path,
         on_launch=launch_game,
         on_launch_bezel=launch_game_with_bezel,
         readiness=None if args.isolated_library else router.readiness,
         prepare=None if args.isolated_library else router.prepare,
+        readiness_observer=None if args.isolated_library else router.readiness_observation,
         accessibility=accessibility,
         return_context=return_context,
         catalog_summary=catalog_summary(payload, catalog, library),

@@ -12,7 +12,7 @@ from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import dataclass, field
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
 from steamzero.core import fs, ids, paths
@@ -57,6 +57,7 @@ from steamzero.domain.themes import (
     ThemeMotionTokens,
     ThemeResolver,
     ThemeTypographyTokens,
+    bind_theme_sources,
     merge_scene_surface_books,
 )
 
@@ -79,7 +80,10 @@ _LAYOUT_PREVIEW_READ_MODEL: dict[str, object] = {
         ]
     }
 }
-_LAYOUT_PREVIEW_BOUNDS = LayoutBounds(width=640, height=96)
+# Both surfaces publish the same context name. ``preview`` remains an alias
+# for existing v1 themes; new native documents never persist a preview-only source.
+_LAYOUT_PREVIEW_READ_MODEL["context"] = _LAYOUT_PREVIEW_READ_MODEL["preview"]
+_LAYOUT_PREVIEW_BOUNDS = LayoutBounds(width=640, height=360)
 # O preview mostra a interface ociosa para tornar a transparência declarada
 # legível; o estado real vem do shell, nunca do pacote.
 _MOTION_PREVIEW_INTERACTION = "idle"
@@ -184,10 +188,10 @@ def _load_manifests_for_resolution() -> dict[str, ThemeManifest]:
         except OSError:
             entries = []
         for entry in entries:
-            if not entry.is_dir():
+            if entry.name.startswith(".") or entry.is_symlink() or not entry.is_dir():
                 continue
             loaded = _read_manifest_file(entry / "theme.json")
-            if loaded is not None:
+            if loaded is not None and loaded.id == entry.name:
                 # Usuário sobrescreve homônimo builtin apenas no mapa de resolução
                 # da sessão; o pacote builtin no disco/recursos não é tocado.
                 manifests[loaded.id] = loaded
@@ -266,12 +270,15 @@ def _make_resolved(
         # Rascunho da sessão vence o que estiver em disco/builtin para o mesmo id.
         available[draft.id] = draft
         return (
-            ThemeResolver(available).resolve(
-                draft.id,
-                performance_tier=performance_tier,
-                viewport_size=viewport_size,
-                high_contrast=high_contrast,
-                reduced_motion=reduced_motion,
+            bind_theme_sources(
+                ThemeResolver(available).resolve(
+                    draft.id,
+                    performance_tier=performance_tier,
+                    viewport_size=viewport_size,
+                    high_contrast=high_contrast,
+                    reduced_motion=reduced_motion,
+                ),
+                paths.media_dir(),
             ),
             (),
         )
@@ -409,6 +416,7 @@ def _resolved_preview(
         resolved,
         diagnostics=diagnostics,
         scene_layout_read_model=scene_layout_read_model,
+        viewport_size=viewport_size,
     )
 
 
@@ -417,20 +425,35 @@ def _to_preview_object(
     *,
     diagnostics: tuple[dict[str, str], ...] = (),
     scene_layout_read_model: Mapping[str, Any] | None = None,
+    viewport_size: tuple[int, int] | None = None,
 ) -> dict[str, object]:
     """Entrega ao editor um preview já materializado, nunca bindings vivos."""
     preview = resolved.to_theme_qml_object()
     preview["editorDiagnostics"] = [dict(item) for item in diagnostics]
     if resolved.scene_layouts is not None:
-        preview["sceneLayoutPreview"] = resolve_scene_layouts(
+        bounds = (
+            LayoutBounds(width=viewport_size[0], height=viewport_size[1])
+            if viewport_size is not None
+            else _LAYOUT_PREVIEW_BOUNDS
+        )
+        layout_preview = resolve_scene_layouts(
             resolved.scene_layouts,
             (
                 scene_layout_read_model
                 if scene_layout_read_model is not None
                 else _LAYOUT_PREVIEW_READ_MODEL
             ),
-            bounds=_LAYOUT_PREVIEW_BOUNDS,
+            bounds=bounds,
+            asset_uris=preview.get("assetUris", {}),
+            asset_recipes=preview.get("assetRecipes", {}),
+            motion=resolve_scene_motion(
+                resolved.scene_motion, reduced_motion=resolved.reduced_motion
+            ).to_qml_object()
+            if resolved.scene_motion
+            else None,
         ).to_qml_object()
+        layout_preview["viewport"] = {"width": bounds.width, "height": bounds.height}
+        preview["sceneLayoutPreview"] = layout_preview
     extracted = None
     if resolved.dynamic_palette is not None:
         extracted = extract_dynamic_palette(
@@ -480,6 +503,12 @@ BINDING_FIELDS = (
     "region",
     "language",
     "series",
+    "logoUrl",
+    "coverUrl",
+    "fanartUrl",
+    "iconUrl",
+    "marqueeUrl",
+    "videoUrl",
 )
 _MEDIA_RECIPE_FIELDS = {"fit", "orientation", "alignH", "alignV", "focalX", "focalY"}
 
@@ -587,7 +616,7 @@ class ThemeEditorManager:
         extends: str = THEME_DEFAULT_ID,
     ) -> dict[str, object]:
         sid = _default_session_id()
-        new_id = f"org.steamzero.{ids.new_ulid().casefold()[:8]}"
+        new_id = f"org.steamzero.{ids.new_ulid().casefold()}"
         manifest = ThemeManifest(
             id=new_id,
             name=name,
@@ -641,6 +670,63 @@ class ThemeEditorManager:
             session.dirty = True
         return {"manifest": dict(session.manifest), "history": _history_state(session)}
 
+    def create_layout(
+        self, session_id: str, layout_id: str, kind: str, template_kind: str = "image"
+    ) -> dict[str, object]:
+        """Create a native composition on any editable theme, without a demo base."""
+        session = self._get_session(session_id)
+        inherited = _declared(session.manifest).get("sceneLayouts")
+        candidate: dict[str, Any] = (
+            deepcopy(inherited)
+            if isinstance(inherited, dict)
+            else {"schemaVersion": 1, "layouts": {}}
+        )
+        if layout_id in candidate["layouts"]:
+            raise SteamZeroError("E-API-SCHEMA", detail="layout já existe")
+        properties = (
+            {"source": "asset:logo"}
+            if template_kind == "image"
+            else {"text": {"binding": "item.title", "fallback": ""}}
+        )
+        candidate["layouts"][layout_id] = {
+            "source": "context.items",
+            "kind": kind,
+            "item": {"width": 120, "height": 80},
+            "gap": 12,
+            "template": {"kind": template_kind, "id": "item", "properties": properties},
+        }
+        try:
+            parsed = LayoutRecipeBook.from_dict(candidate)
+        except (ValueError, TypeError) as exc:
+            raise SteamZeroError("E-API-SCHEMA", detail=str(exc)) from exc
+        with _mutation(session):
+            session.manifest["sceneLayouts"] = parsed.to_dict()
+            session.dirty = True
+        return {
+            **_document(session),
+            "preview": self._preview(session),
+            "history": _history_state(session),
+        }
+
+    def set_source(self, session_id: str, slot: str, digest: str) -> dict[str, object]:
+        """Bind a preserved canonical source; the theme stores only its identity."""
+        from steamzero.domain.media_registry import MediaRegistry
+
+        session = self._get_session(session_id)
+        if slot not in ASSET_SLOTS_ALLOWED or slot == "bezel":
+            raise SteamZeroError("E-API-SCHEMA", detail="slot de master inválido")
+        MediaRegistry.resolve_source(paths.media_dir(), digest)
+        with _mutation(session):
+            session.assets[slot] = f"master:sha256:{digest}"
+            session.pending_assets.pop(slot, None)
+            session.manifest["assets"] = dict(session.assets)
+            session.dirty = True
+        return {
+            **_document(session),
+            "preview": self._preview(session),
+            "history": _history_state(session),
+        }
+
     def set_layout(
         self, session_id: str, layout_id: str, field: str, value: object
     ) -> dict[str, object]:
@@ -659,7 +745,42 @@ class ThemeEditorManager:
         raw_layouts = raw_book.get("layouts")
         if not isinstance(raw_layouts, dict) or layout_id not in raw_layouts:
             raise SteamZeroError("E-API-SCHEMA", detail=f"layout não encontrado: {layout_id}")
-        editable = {"columns", "gap", "maxItems", "selected", "item.width", "item.height"}
+        editable = {
+            "columns",
+            "gap",
+            "maxItems",
+            "selected",
+            "item.width",
+            "item.height",
+            "source",
+            "direction",
+            "template.properties.source",
+        }
+        editable.update(
+            f"offset.{key}"
+            for key in (
+                "scaleStep",
+                "opacityStep",
+                "minScale",
+                "minOpacity",
+                "rotationStep",
+                "maxRotation",
+                "overlap",
+            )
+        )
+        editable.update(
+            f"highlight.{key}" for key in ("scale", "opacity", "outlineWidth", "outlineColor")
+        )
+        editable.update(
+            {
+                "imageRecipes.normal",
+                "imageRecipes.focused",
+                "motion.enter",
+                "motion.exit",
+                "motion.move",
+                "motion.interruption",
+            }
+        )
         if field not in editable:
             raise SteamZeroError("E-API-SCHEMA", detail=f"campo de layout não editável: {field}")
 
@@ -667,13 +788,16 @@ class ThemeEditorManager:
         layout = candidate["layouts"][layout_id]
         if not isinstance(layout, dict):
             raise SteamZeroError("E-API-SCHEMA", detail=f"layout inválido: {layout_id}")
-        if field.startswith("item."):
-            item = layout.get("item")
-            if not isinstance(item, dict):
-                raise SteamZeroError("E-API-SCHEMA", detail="layout.item inválido")
-            item[field.split(".", 1)[1]] = value
+        target = layout
+        parts = field.split(".")
+        for part in parts[:-1]:
+            target = target.setdefault(part, {})
+            if not isinstance(target, dict):
+                raise SteamZeroError("E-API-SCHEMA", detail="estrutura de layout inválida")
+        if value is None and len(parts) > 1:
+            target.pop(parts[-1], None)
         else:
-            layout[field] = value
+            target[parts[-1]] = value
         try:
             parsed = LayoutRecipeBook.from_dict(candidate)
         except (TypeError, ValueError) as exc:
@@ -1133,6 +1257,8 @@ class ThemeEditorManager:
             "set_clip",
             "remove_clip",
             "move_clip",
+            "set_transition",
+            "remove_transition",
         }
         if op not in ops or not timeline:
             raise SteamZeroError("E-API-SCHEMA", detail=f"operação de movimento inválida: {op}")
@@ -1146,7 +1272,14 @@ class ThemeEditorManager:
         )
         timelines: dict[str, Any] = book.setdefault("timelines", {})
         try:
-            if op == "set_state":
+            if op in {"set_transition", "remove_transition"}:
+                transitions = book.setdefault("transitions", [])
+                transitions[:] = [item for item in transitions if item.get("id") != timeline]
+                if op == "set_transition":
+                    if not isinstance(value, dict):
+                        raise ValueError("transição exige objeto")
+                    transitions.append({**value, "id": timeline})
+            elif op == "set_state":
                 if not field:
                     raise ValueError("campo de keyframe obrigatório")
                 book["states"].setdefault(timeline, {})[field] = value
@@ -1320,25 +1453,28 @@ class ThemeEditorManager:
         if session.theme_dir and session.theme_dir.is_dir():
             assets_src = session.theme_dir / "assets"
             if assets_src.is_dir():
-                for entry in assets_src.iterdir():
-                    if entry.is_file():
-                        pending_assets.append((entry.name, entry.read_bytes()))
+                for entry in fs.iter_files(assets_src):
+                    relative = entry.relative_to(assets_src).as_posix()
+                    pending_assets.append((relative, entry.read_bytes()))
         # Assets enviados nesta sessão vencem os homônimos já existentes.
         uploaded = {name: data for name, data in session.pending_assets.values()}
         pending_assets = [item for item in pending_assets if item[0] not in uploaded]
         pending_assets.extend(uploaded.items())
 
-        if target.exists():
-            fs.remove_tree(target)
-
-        fs.ensure_dir(target)
-        fs.write_atomic(target / "theme.json", json.dumps(manifest_dict, indent=2).encode())
-
-        if pending_assets:
-            assets_dst = target / "assets"
-            fs.ensure_dir(assets_dst)
+        staged = target.parent / f".{theme_id}.stage.{ids.new_ulid().lower()}"
+        publishing = False
+        published = False
+        try:
+            fs.ensure_dir(staged)
+            fs.write_atomic(staged / "theme.json", json.dumps(manifest_dict, indent=2).encode())
             for name, data in pending_assets:
-                fs.write_atomic(assets_dst / name, data)
+                fs.write_atomic(staged / "assets" / name, data)
+            publishing = True
+            fs.publish_tree(staged, target, replace_existing=overwrite)
+            published = True
+        finally:
+            if staged.exists() and (not publishing or published):
+                fs.remove_tree(staged)
 
         session.theme_dir = target
         session.pending_assets.clear()
@@ -1386,6 +1522,31 @@ class ThemeEditorManager:
                             continue
                         zf.write(asset_path, arcname)
                         written.add(arcname)
+            # ZIP is an explicit portable transport. Installed themes retain
+            # only references; each source is ingested once by MediaRegistry.
+            from steamzero.domain.media_registry import MediaRegistry
+
+            digests = {
+                value[14:]
+                for value in session.assets.values()
+                if value.startswith("master:sha256:")
+            }
+            for digest in sorted(digests):
+                source = MediaRegistry.read_source(paths.media_dir(), digest)
+                if source is None:
+                    raise SteamZeroError("E-CONTENT-INCOMPLETE", detail=f"master ausente: {digest}")
+                master = MediaRegistry.resolve_source(paths.media_dir(), digest)
+                base = f"{theme_id}/media-sources/{digest}"
+                zf.writestr(base + ".json", json.dumps(source.to_dict(), ensure_ascii=False))
+                zf.writestr(base + "." + source.format, master.read_bytes())
+            if (
+                len(zf.infolist()) > 128
+                or sum(item.file_size for item in zf.infolist()) > 64 * 1024 * 1024
+            ):
+                raise SteamZeroError(
+                    "E-THEME-LIMIT",
+                    detail="exportação excede 128 arquivos ou 64 MiB; reduza a composição",
+                )
         return buf.getvalue()
 
     def cancel(self, session_id: str) -> dict[str, str]:
@@ -1423,66 +1584,7 @@ class ThemeEditorManager:
             viewport_size=viewport_size,
             scene_layout_read_model=scene_layout_read_model,
         )
-        preview["assetUris"] = self._asset_preview_uris(session)
         return preview
-
-    @staticmethod
-    def _asset_preview_uris(session: EditorSession) -> dict[str, str]:
-        """Expose only the selected recipe's validated source inside its theme root."""
-        book = _declared(session.manifest).get("assetRecipes")
-        if not isinstance(book, dict) or not isinstance(book.get("sourceSlot"), str):
-            return {}
-        source_slot = book["sourceSlot"]
-        try:
-            draft = ThemeManifest.from_dict(dict(session.manifest))
-            available = _load_manifests_for_resolution()
-            available[draft.id] = draft
-            chain = ThemeResolver(available)._build_chain(draft.id)
-        except (ValueError, TypeError, KeyError, AttributeError):
-            return {}
-
-        owner_id = ""
-        asset_path = ""
-        for item in chain:
-            if item.assets and source_slot in item.assets:
-                owner_id = item.id
-                asset_path = item.assets[source_slot]
-        relative = PurePosixPath(asset_path)
-        if (
-            not owner_id
-            or not asset_path.startswith("assets/")
-            or relative.is_absolute()
-            or ".." in relative.parts
-        ):
-            return {}
-
-        user_root = paths.themes_dir() / owner_id
-        if user_root.is_dir() and not user_root.is_symlink():
-            root = user_root.resolve()
-            candidate = user_root
-            for part in relative.parts:
-                candidate = candidate / part
-                if candidate.is_symlink():
-                    return {}
-            try:
-                resolved = candidate.resolve(strict=True)
-                resolved.relative_to(root)
-            except (OSError, ValueError):
-                return {}
-            if resolved.is_file() and resolved.suffix.lower() in _ASSET_EXTENSIONS:
-                return {source_slot: resolved.as_uri()}
-            return {}
-
-        try:
-            import importlib.resources as resources
-
-            resource = resources.files(_THEME_PACKAGE).joinpath(owner_id, *relative.parts)
-            candidate = Path(str(resource))
-            if candidate.is_file() and candidate.suffix.lower() in _ASSET_EXTENSIONS:
-                return {source_slot: candidate.resolve().as_uri()}
-        except (OSError, FileNotFoundError, ModuleNotFoundError, TypeError, ValueError):
-            return {}
-        return {}
 
 
 def _validate_save(manifest_dict: dict[str, object]) -> str | None:

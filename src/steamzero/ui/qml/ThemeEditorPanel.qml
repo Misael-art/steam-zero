@@ -180,6 +180,7 @@ Rectangle {
     property string assetRecipeBreakpointMaxWidth: ""
     property string assetRecipeBreakpointMinHeight: ""
     property string assetRecipeBreakpointMaxHeight: ""
+    property var nativeSources: []
     readonly property bool assetRecipeDemoActive:
         editorManifest.id === "org.steamzero.asset-recipes-demo"
         && Object.keys(_previewBridge.assetRecipes).length > 0
@@ -234,10 +235,12 @@ Rectangle {
     readonly property var assetRecipePreviewRecipe:
         _previewBridge.assetRecipes[assetRecipePreviewRecipeName]
             || _previewBridge.assetRecipes[assetRecipeSelection] || null
-    readonly property var sceneLayoutPreview: _previewBridge.sceneLayoutPreview.layouts
-        ? _previewBridge.sceneLayoutPreview.layouts.previewTitles : null
+    readonly property var sceneLayoutPreview: {
+        const layouts = _previewBridge.sceneLayoutPreview.layouts || ({})
+        return layouts[panel.bindingLayoutName] || layouts.previewTitles || layouts[Object.keys(layouts)[0]] || null
+    }
     readonly property bool sceneLayoutPreviewActive:
-        assetRecipeDemoActive && sceneLayoutPreview !== null
+        editorSessionId !== "" && sceneLayoutPreview !== null
     readonly property int sceneLayoutPreviewEntryCount:
         sceneLayoutPreviewActive ? sceneLayoutRepeater.entryCount : 0
 
@@ -248,15 +251,15 @@ Rectangle {
     readonly property var dynamicPalettePreview: _previewBridge.dynamicPalette.swatches
         ? _previewBridge.dynamicPalette.swatches : null
     readonly property bool dynamicPalettePreviewActive:
-        assetRecipeDemoActive && dynamicPalettePreview !== null
+        editorSessionId !== "" && dynamicPalettePreview !== null
     readonly property var glassPreview: _previewBridge.glassPreview.panels
         ? _previewBridge.glassPreview.panels.previewCard : null
     readonly property bool glassPreviewActive:
-        assetRecipeDemoActive && glassPreview !== null
+        editorSessionId !== "" && glassPreview !== null
     readonly property var sceneMotionPreview: _previewBridge.sceneMotionPreview.states
         ? _previewBridge.sceneMotionPreview : null
     readonly property bool sceneMotionPreviewActive:
-        assetRecipeDemoActive && sceneMotionPreview !== null
+        editorSessionId !== "" && sceneMotionPreview !== null
     readonly property int sceneMotionFocusDuration:
         sceneMotionPreviewActive && sceneMotionPreview.transitions
             && sceneMotionPreview.transitions.focusIn
@@ -264,7 +267,7 @@ Rectangle {
     readonly property var sceneSurfacePreview: _previewBridge.sceneSurfacePreview.slots
         ? _previewBridge.sceneSurfacePreview : null
     readonly property bool sceneSurfacePreviewActive:
-        assetRecipeDemoActive && sceneSurfacePreview !== null
+        editorSessionId !== "" && sceneSurfacePreview !== null
     readonly property int sceneSurfaceSaveCount:
         sceneSurfacePreviewActive && sceneSurfaceRepeater.saveCount
             ? sceneSurfaceRepeater.saveCount : 0
@@ -275,7 +278,7 @@ Rectangle {
     readonly property var studioGraph: _previewBridge.studioGraph.nodes
         ? _previewBridge.studioGraph : null
     readonly property bool studioGraphActive:
-        assetRecipeDemoActive && studioGraph !== null
+        editorSessionId !== "" && studioGraph !== null
     readonly property int studioGraphNodeCount:
         studioGraphActive ? studioCanvas.nodeCount : 0
     readonly property string studioGraphSelectedId:
@@ -663,6 +666,20 @@ Rectangle {
         for (var k in values)
             copy[category][k] = values[k]
         return copy
+    }
+
+    function nativeLayoutValue(field, fallback) {
+        let current = ((panel.editorDeclared.sceneLayouts || ({})).layouts || ({}))[panel.bindingLayoutName]
+        const parts = field.split(".")
+        for (let i = 0; i < parts.length; ++i) {
+            if (!current || current[parts[i]] === undefined) return fallback
+            current = current[parts[i]]
+        }
+        return current
+    }
+
+    function setNativeLayoutField(field, value) {
+        panel.requestEditorMutation("theme.editor.set-layout", {sessionId: panel.editorSessionId, layoutId: panel.bindingLayoutName, field: field, value: value})
     }
 
     function _syncAssetRecipeSelection() {
@@ -3691,12 +3708,202 @@ Rectangle {
                                 color: panel.mutedColor
                                 font.pixelSize: Math.round(11 * panel.visualScale)
                             }
+                            Label { text: qsTr("Master preservado · compartilhado entre temas"); color: panel.textColor; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: masterSlot
+                                    objectName: "nativeMasterSlot"
+                                    model: ["logo", "background", "sidebar"]
+                                    Accessible.name: qsTr("Papel da imagem no tema")
+                                }
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: masterLicense
+                                    objectName: "nativeMasterLicense"
+                                    placeholderText: qsTr("Licença da imagem")
+                                    Accessible.name: qsTr("Licença do master preservado")
+                                }
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: masterOrigin
+                                    objectName: "nativeMasterOrigin"
+                                    placeholderText: qsTr("Origem da imagem")
+                                    Accessible.name: qsTr("Origem do master preservado")
+                                }
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: masterAttribution
+                                    objectName: "nativeMasterAttribution"
+                                    placeholderText: qsTr("Crédito da imagem")
+                                    Accessible.name: qsTr("Crédito do master preservado")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterImport"
+                                    text: qsTr("Escolher imagem original")
+                                    enabled: masterLicense.text.trim() !== ""
+                                    onClicked: nativeMasterDialog.open()
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterRefresh"
+                                    text: qsTr("Consultar biblioteca")
+                                    onClicked: panel.requestEditorMutation("theme.editor.sources", {sessionId: panel.editorSessionId}, function(r) { panel.nativeSources = r.sources || [] })
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: masterPicker
+                                    objectName: "nativeMasterPicker"
+                                    Accessible.description: currentText
+                                    ToolTip.visible: hovered || activeFocus
+                                    ToolTip.text: currentText
+                                    model: panel.nativeSources.map(function(s) { return s.filename + " · " + s.width + "×" + s.height + " · " + s.provenance.license })
+                                    Accessible.name: qsTr("Master da biblioteca canônica")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterBind"
+                                    text: qsTr("Usar master")
+                                    enabled: masterPicker.currentIndex >= 0 && panel.nativeSources.length > 0
+                                    onClicked: panel.requestEditorMutation("theme.editor.set-source", {sessionId: panel.editorSessionId, slot: masterSlot.currentText, digest: panel.nativeSources[masterPicker.currentIndex].digest})
+                                }
+                            }
+                            Label { text: qsTr("Composição nativa"); color: panel.textColor }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeLayoutName
+                                    objectName: "nativeLayoutName"
+                                    placeholderText: qsTr("Nome da composição")
+                                    Accessible.name: qsTr("Nome da composição nativa")
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeLayoutKind
+                                    objectName: "nativeLayoutKind"
+                                    model: ["wheel", "grid", "list", "coverFlow", "carousel", "flow", "stack"]
+                                    Accessible.name: qsTr("Organização dos itens")
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeTemplateKind
+                                    objectName: "nativeTemplateKind"
+                                    model: ["image", "text", "badge"]
+                                    Accessible.name: qsTr("Tipo dos itens")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutCreate"
+                                    text: qsTr("Criar composição")
+                                    onClicked: {
+                                        const layoutId = nativeLayoutName.text
+                                        panel.requestEditorMutation("theme.editor.create-layout", {sessionId: panel.editorSessionId, layoutId: layoutId, kind: nativeLayoutKind.currentText, templateKind: nativeTemplateKind.currentText}, function(result) {
+                                            panel._applyEditorResult(result)
+                                            panel.bindingLayoutName = layoutId
+                                        })
+                                    }
+                                }
+                            }
+                            Flow {
+                                visible: bindingColumn.layoutNames.length > 0
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutPicker"
+                                    model: bindingColumn.layoutNames
+                                    currentIndex: model.indexOf(panel.bindingLayoutName)
+                                    Accessible.name: qsTr("Composição em edição")
+                                    onActivated: panel.bindingLayoutName = currentText
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutNormalRecipe"
+                                    model: [""].concat(Object.keys(panel.assetRecipeRecipes))
+                                    currentIndex: Math.max(0, model.indexOf(((bindingColumn.layouts[panel.bindingLayoutName] || {}).imageRecipes || {}).normal || ""))
+                                    displayText: currentText || qsTr("Laterais: fonte original")
+                                    Accessible.name: qsTr("Receita dos itens laterais")
+                                    onActivated: panel.setNativeLayoutField("imageRecipes.normal", currentText || null)
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutFocusRecipe"
+                                    model: [""].concat(Object.keys(panel.assetRecipeRecipes))
+                                    currentIndex: Math.max(0, model.indexOf(((bindingColumn.layouts[panel.bindingLayoutName] || {}).imageRecipes || {}).focused || ""))
+                                    displayText: currentText || qsTr("Centro: fonte original")
+                                    Accessible.name: qsTr("Receita do item central")
+                                    onActivated: panel.setNativeLayoutField("imageRecipes.focused", currentText || null)
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeMediaRole
+                                    objectName: "nativeLayoutMediaRole"
+                                    model: ["master:logo", "master:background", "master:sidebar", "logoUrl", "coverUrl", "fanartUrl", "iconUrl", "marqueeUrl"]
+                                    Accessible.name: qsTr("Imagem específica ou mídia contextual")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutMediaApply"
+                                    text: qsTr("Definir fonte")
+                                    onClicked: {
+                                        if (nativeMediaRole.currentText.startsWith("master:"))
+                                            panel.setNativeLayoutField("template.properties.source", "asset:" + nativeMediaRole.currentText.slice(7))
+                                        else
+                                            panel.requestEditorMutation("theme.editor.edit-binding", {sessionId: panel.editorSessionId, layoutId: panel.bindingLayoutName, prop: "source", binding: "item." + nativeMediaRole.currentText, fallback: ""})
+                                    }
+                                }
+                            }
+                            Repeater {
+                                model: bindingColumn.layoutNames.length ? [
+                                    {field: "selected", label: qsTr("Seleção"), low: 0, high: 127, step: 1},
+                                    {field: "item.width", label: qsTr("Largura"), low: 1, high: 2048, step: 1},
+                                    {field: "item.height", label: qsTr("Altura"), low: 1, high: 2048, step: 1},
+                                    {field: "gap", label: qsTr("Espaçamento"), low: 0, high: 256, step: 1},
+                                    {field: "highlight.scale", label: qsTr("Escala central"), low: 0.5, high: 2, step: 0.05},
+                                    {field: "offset.minScale", label: qsTr("Escala mínima lateral"), low: 0.25, high: 1, step: 0.05}
+                                ] : []
+                                delegate: RowLayout {
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    Label { text: modelData.label; color: panel.mutedColor; Layout.fillWidth: true }
+                                    AuthRangeSpinBox {
+                                        objectName: "nativeLayout_" + modelData.field.replace(/\./g, "_")
+                                        fieldName: modelData.label
+                                        Accessible.name: modelData.label
+                                        rangeMinimum: modelData.low
+                                        rangeMaximum: modelData.high
+                                        rangeStep: modelData.step
+                                        rangeDecimals: modelData.step < 1 ? 2 : 0
+                                        declaredValue: panel.nativeLayoutValue(modelData.field, modelData.field === "offset.minScale" ? 0.7 : modelData.field === "highlight.scale" ? 1 : 0)
+                                        onValueCommitted: function(value) { panel.setNativeLayoutField(modelData.field, value) }
+                                    }
+                                }
+                            }
+                            Label { text: qsTr("Entrada, saída e movimento"); color: panel.textColor }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionEvent; objectName: "nativeMotionEvent"; model: ["enter", "exit", "move"]; Accessible.name: qsTr("Evento da transição") }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionFrom; objectName: "nativeMotionFrom"; model: panel.motionStateOptions; Accessible.name: qsTr("Estado inicial") }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionTo; objectName: "nativeMotionTo"; model: panel.motionStateOptions; currentIndex: 1; Accessible.name: qsTr("Estado final") }
+                                AuthRangeSpinBox { width: Math.min(implicitWidth, parent.width); id: nativeMotionDuration; objectName: "nativeMotionDuration"; fieldName: qsTr("Duração em milissegundos"); rangeMinimum: 0; rangeMaximum: 2000; rangeStep: 1; rangeDecimals: 0; declaredValue: 240; property int chosen: 240; onValueCommitted: function(value) { chosen = value } }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionEasing; objectName: "nativeMotionEasing"; model: panel.editorMotionSchema.easings || ["linear", "quadOut", "cubicOut"]; Accessible.name: qsTr("Curva da transição") }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMotionApply"
+                                    text: qsTr("Aplicar transição")
+                                    enabled: panel.bindingLayoutName !== ""
+                                    onClicked: {
+                                        const name = "layout" + nativeMotionEvent.currentText
+                                        panel.editMotion("set_transition", name, {value: {from: nativeMotionFrom.currentText, to: nativeMotionTo.currentText, duration: nativeMotionDuration.chosen, easing: nativeMotionEasing.currentText}})
+                                        panel.setNativeLayoutField("motion." + nativeMotionEvent.currentText, name)
+                                    }
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMotionInterruption"
+                                    model: ["retarget", "snap"]
+                                    Accessible.name: qsTr("Interrupção durante navegação rápida")
+                                    currentIndex: model.indexOf(panel.nativeLayoutValue("motion.interruption", "retarget"))
+                                    onActivated: panel.setNativeLayoutField("motion.interruption", currentText)
+                                }
+                            }
                             Label {
                                 objectName: "bindingEmpty"
                                 visible: bindingColumn.layoutNames.length === 0
                                 Layout.fillWidth: true
                                 wrapMode: Text.WordWrap
-                                text: qsTr("Este tema não declara layouts. Crie o tema a partir de um que tenha layouts (por exemplo, a demonstração de receitas) para ligar propriedades a metadados.")
+                                text: qsTr("Crie uma composição para organizar itens e ligar imagens ou metadados públicos.")
                                 color: panel.mutedColor
                                 font.pixelSize: Math.round(11 * panel.visualScale)
                             }
@@ -3938,7 +4145,7 @@ Rectangle {
                     }
 
                     Rectangle {
-                        visible: panel.assetRecipeEditorActive || panel.assetRecipeCanInitialize
+                        visible: panel.editorSessionId !== ""
                         // Os controles desta seção usavam a paleta do estilo do sistema e
                         // destoavam do cartão; passam a herdar as cores do tema em edição.
                         palette.window: panel._previewBridge.surface
@@ -4569,35 +4776,64 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: nativeCompositionPreview
+                        readonly property var viewport: panel._previewBridge.sceneLayoutPreview.viewport
+                            || ({width: 640, height: 360})
+                        readonly property real fitScale: Math.min(1, Math.max(0, width - 24) / viewport.width)
                         visible: panel.sceneLayoutPreviewActive
                         color: panel._previewBridge.surface
                         radius: panel._previewBridge.radiusMedium
                         Layout.fillWidth: true
-                        implicitHeight: visible ? 112 : 0
+                        implicitHeight: visible ? nativePreviewTitle.implicitHeight + 36
+                            + viewport.height * fitScale : 0
                         border.color: panel._previewBridge.border
                         border.width: 1
 
                         Label {
+                            id: nativePreviewTitle
                             anchors.left: parent.left
+                            anchors.right: parent.right
                             anchors.top: parent.top
                             anchors.margins: 12
-                            text: qsTr("Grid responsivo · bindings materializados")
+                            text: qsTr("Composição nativa · %1 · prévia %2×%3")
+                                .arg(panel.bindingLayoutName).arg(nativeCompositionPreview.viewport.width)
+                                .arg(nativeCompositionPreview.viewport.height)
+                            wrapMode: Text.WordWrap
                             color: panel._previewBridge.textMuted
                             font.pixelSize: Math.round(11 * panel.visualScale)
                         }
 
-                        SceneRepeater {
-                            id: sceneLayoutRepeater
-                            objectName: "sceneLayoutRepeater"
+                        Item {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
-                            anchors.top: parent.top
+                            anchors.top: nativePreviewTitle.bottom
                             anchors.margins: 12
-                            anchors.topMargin: 32
-                            layout: panel.sceneLayoutPreview
-                            visualScale: panel.visualScale
+                            clip: true
+                            SceneRepeater {
+                                id: sceneLayoutRepeater
+                                objectName: "sceneLayoutRepeater"
+                                x: (parent.width - width * scale) / 2
+                                width: nativeCompositionPreview.viewport.width
+                                height: nativeCompositionPreview.viewport.height
+                                scale: nativeCompositionPreview.fitScale
+                                transformOrigin: Item.TopLeft
+                                layout: panel.sceneLayoutPreview
+                                visualScale: panel.visualScale
+                            }
                         }
+                    }
+
+                    Label {
+                        objectName: "nativeLayoutRenderFeedback"
+                        textFormat: Text.PlainText
+                        visible: panel.sceneLayoutPreviewActive
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: sceneLayoutRepeater.renderFeedback.map(function(item) {
+                            return item.element + ": " + item.state + (item.reason ? " · " + item.reason : "")
+                        }).join("\n")
+                        color: panel._previewBridge.textMuted
                     }
 
                     Rectangle {
@@ -4852,6 +5088,21 @@ Rectangle {
                 exportPreviewDialog.open()
             })
         }
+    }
+
+    FileDialog {
+        id: nativeMasterDialog
+        title: qsTr("Escolher master colorido preservado")
+        fileMode: FileDialog.OpenFile
+        nameFilters: [qsTr("Imagens (*.png *.jpg *.jpeg *.webp *.avif)")]
+        onAccepted: panel.requestEditorMutation("theme.editor.preserve-source", {
+            sessionId: panel.editorSessionId, slot: masterSlot.currentText,
+            source: panel.localPath(selectedFile), license: masterLicense.text.trim(),
+            origin: masterOrigin.text.trim(), attribution: masterAttribution.text.trim()
+        }, function(result) {
+            panel._applyEditorResult(result)
+            panel.requestEditorMutation("theme.editor.sources", {sessionId: panel.editorSessionId}, function(r) { panel.nativeSources = r.sources || [] })
+        })
     }
 
     FileDialog {

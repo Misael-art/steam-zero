@@ -14949,3 +14949,883 @@ Um executor no checkout/branch existentes. R2: leitor canônico sem mutação/mi
 R2 integral bruta6845 passed/3 failed/47 skipped por resíduo próprio da interrupção anterior; guard preservado e três retestes passed após remoção atribuída/saneada. R3 integral6848 passed/47 skipped exit0. Follow-up R2/year-alias7d89ab0f reproduz1999!=1985 e corrige precedência mantendo fallback; 65 focados e integral6849 passed/47 skipped exit0, 85,5115%, 1262 hashes congelados, estado real sem delta, 19 warnings preservados. Ruff/mypy/arquitetura/locks/status aprovados. Alias ainda não integrado/instalado. Sem nova branch/worktree, dependências ou perda de commits.
 
 Operador solicitou instalação imediata na única janela de senha disponível. Preservados7d89ab0f e docs462bb3f2; checkout temporariamente destacado no tip exato main59ecc2d8, limpo. Prepare/verify/install pelo controlador, CI push40083592868 oito jobs verdes e bundleprivado59ecc2d8: exit0, ok=true. Autenticação fornecida no diálogo do sistema. Instalada **2.0.0rc1-59ecc2d8f0f6** em10:19:03Z; CLI/daemon convergentes e idempotência pass, serviço/socket ativos, schema23 e integrity_check ok, zero operações pendentes. SmokeQML iniciou(5s), sem prova de gameplay/hardware/foco/controle/toque. Doctor degraded por9backups/9journals órfãos preservados, Deck não comprovado e boot sem permissão de inspeção; sem bloqueadores. Rollback3f87657c preservado, não executado; recuperação real de dados não promovida. Nenhuma senha registrada; bundle09797651 histórico não repetido. Branch restaurada. Fila única/README/item/workstream atualizados; próxima ação é PR/CI do alias e aceite funcional instalado. Não presumir outra janela de autenticação.
+
+## 2026-10-26 — Recuperação e centralização do SteamZero na coleção Projects
+
+Executor serial no checkout existente, agora `$HOME/Projects/SteamZero`;
+branch `codex/product-recovery-2026-10-16`, base main `ad742ca3` por fast-forward
+de árvore idêntica a `744d300b`. WIP preservado por rename e identidade/hash de
+3.641 entradas. Doze raízes históricas arquivadas com 85.810 entradas verificadas;
+19 refs antigas importadas e 63 commits dangling protegidos localmente. Bundle
+privado adicional preserva 855 referências existentes; não publica pesquisa.
+Backup privado de 19.613 arquivos verificado e retirado de build junto do ensaio
+de restauração. Recibos e dados ficam no destino privado oficial da coleção;
+nenhuma proteção externa privada foi confirmada.
+
+| Item | Commit funcional | Evidência de desenvolvimento |
+| --- | --- | --- |
+| Bootstrap/handoff e continuidade do Launcher R3 | `c38e74f53c1cd6bc63ae4acba377447a0932bc3c` | 29 focados bootstrap/export/readiness; 130 de isolamento/recuperação; 147 de filesystem/failure injection/10 mil arquivos; smoke nativo Btrfs |
+| Isolamento das fixtures de daemon | mesmo commit | teste de follow e 43 testes service_core com perfil offline herdado |
+
+Gates estáticos finais aprovados: lint, formato (727 arquivos), mypy (306 fontes),
+independence, boundaries, component-lock e capability-matrix. Núcleo local:
+6.484 passed, 1 failed, 48 skipped, 396 deselected em 595,15 s, cobertura 85,40%;
+a única falha foi o catálogo alterado durante a atualização documental. Resultado
+bruto exit 1 preservado. Regeneração oficial e reteste do catálogo: 13 passed em
+6,55 s; após normalização documental dos logs, o teste de consistência passou
+novamente e status-check ficou verde. Os 1.271 arquivos src/tools/tests ficaram
+congelados por hash durante a execução. Não repetir suíte pesada por documentação.
+State pessoal sem delta. Tentativas amplas interrompidas continuam não aprovadas.
+
+Ambiente herdado preservado e isolado in-place, com 47 dependências do lock e
+pip check verde; sem ownership fictício, instalação global ou novo checkout.
+Origem pública conferida, guardas de commit/push conectadas ao registro central,
+post-hooks existentes preservados. Regras, handoff e catálogo reconciliados;
+seis aceites físicos de fontes alteradas ficam históricos, sem promoção indevida.
+
+Sem instalação, release, merge, deploy, reboot ou mudança de boot nesta sessão.
+Release existente `2.0.0rc1-59ecc2d8f0f6` e suas 189 pastas instaladas preservadas;
+rollback não executado. CI visual canônico da candidata, prova instalada/física,
+adoção futura do ambiente em host vazio e backup privado externo permanecem
+pendentes independentes. PR em rascunho deve preservar esses limites; código
+recuperado pode continuar na raiz única. Próxima tarefa: reproduzir
+`GAP-LAUNCH-PREPARE-GAME-ID-AFTER-RESCAN`, conforme o handoff existente.
+
+
+## 2026-10-28 — localização Port Steam / SteamZero
+
+Pedido de localizar e centralizar Port Steam: identidade confirmada pelos
+pyproject.toml dos commits históricos de Port_Steam (pacote steamzero), pelas
+referências locais de recuperação e pelo repositório público steam-zero.
+A raiz existente Projects/SteamZero já é a consolidação de 26/10; não foi
+necessário mover ou duplicar o checkout. README e handoff passam a explicitar os
+nomes históricos e as regras já aplicáveis. Inventário administrativo da coleção
+recebe os aliases e a conferência atual. Histórico do SD preservado; nenhum dado
+pessoal, biblioteca de jogos, ambiente ou release instalada foi alterado.
+Validação desta fatia documental: referências, diff e catálogo pelo helper oficial.
+Continuidade na branch existente e PR #268; sem alteração de código de produto ou
+nova alegação de teste físico. Backup privado fora do host continua sem confirmação.
+
+Resultado desta conferência: status-check OK, 13 testes de project_status
+aprovados em 9,99 s pelo runner isolado, state pessoal sem delta; git bundle
+verify do arquivo histórico do SD aprovado. Diff restrito à documentação.
+
+
+## 2026-10-28 — R3: identidade e preparo verificado de archives
+
+Continuidade serial autorizada na raiz Projects/SteamZero, branch
+codex/product-recovery-2026-10-16, base3f010cec, PR268 existente. Fonte em
+d41923f48bd2c9a1bca32ab2dc33f5c517ac967e (manifesto v2/hash/seleção) e
+eb39b4b6f2d0b6ec4c51ffd1361ed64b08ce56c5 (loader/preflight/Launcher).
+O baseline descartava o archive ao reidratar o catálogo; não houve prova de troca
+de ID. Agora scan/preparo/rescan/reabertura mantêm origem e preferências, e o
+preflight resolve um único alvo verificado. Sem seleção arbitrária multidisco.
+
+Integral:6893passed/48skipped/1failed em2075,98s, cobertura85,573587%.
+A única falha foi a fixture de remediation fora da biblioteca permitida e com
+texto do veto antigo; ajustada a ZIP real/raiz controlada e reforçada com guarda
+contra consulta ao runtime. Reteste final:53passed em14,59s, produto inalterado
+após a integral. Resultado bruto preservado; não se declara integral local verde.
+Qt/offscreen com raiz LauncherMain e materializador real; sem gameplay instalado.
+Ruff check/format, mypy306, independence, boundaries e status-check aprovados;
+catálogo/digests/visões regenerados. Reteste documental acompanha este fechamento.
+Sem delta no estado pessoal observado pelos runners. Tentativa ampla anterior
+interrompida para eliminar releitura do manifesto, sem claim de aprovação.
+
+Nenhuma instalação, release, merge, deploy, boot ou autenticação privilegiada.
+Readlink somente: releases/2.0.0rc1-59ecc2d8f0f6; runtime e rollback não revalidados.
+Evidência: docs/09-operations/evidence/2026-10-24-r3-launch-readiness/CHECKPOINT.md.
+Publicar checkpoint coeso no PR268 e conferir SHA remoto/CI novo, sem herdar CI
+anterior. Próximo lote seguro: cartão/progresso por portas existentes; instalação,
+capturas e hardware seguem pendentes de autorização/aceite próprios.
+
+Complemento do fechamento: a validação documental inicial encontrou disputa do
+claim de remediation (12passed/1failed no módulo de status). A cessão serial foi
+reconciliada com a frente de origem, sem tocar código. Status-check final passou
+e o módulo de status foi repetido separadamente; resultado no log
+build/agent-runs/r3-archive/status-retest-final.log. Nenhuma suíte visual foi
+repetida após a alteração exclusiva de fixture/documentação.
+
+
+## 2026-10-28 — R3: prontidão no cartão e andamento na Home/Cinema
+
+Continuidade serial na branch codex/product-recovery-2026-10-16, base 52b9ebf8,
+PR #268. CI anterior 40780398054: oito jobs verdes, incluindo visual canônico.
+Handoff prospectivo de LauncherHome.qml registrado com a frente de origem.
+
+Fonte: d9d8f42ba05f09851cf81430a00866ba3d96b289 (observação limitada e somente
+leitura) e d93bae2e09e9cf1d6fad6b4494473365807ef57f (cartão, Home/Cinema e testes).
+Um observador acompanha a seleção estável com debounce de 200 ms; navegação não
+prepara jogos. A preparação permanece explícita nos detalhes. Ao voltar à Home,
+o serviço informa preparando/erro/pronto, com barra indeterminada e reducedMotion
+estático. Timeout de 8 s invalida respostas antigas. A faixa preserva título e
+atalhos do Cinema. Biblioteca removida depois do scan é recusada antes do runtime.
+
+Validação: 128 integrações do Launcher aprovadas; integral 6.894 passed, 48 skipped,
+zero failed em 2270,17 s, cobertura 85,559251%, runner exit 0. Produto e os cinco
+arquivos congelados conservaram seus hashes durante a execução. Acrescentado apenas
+um teste de custódia após a integral: reteste dirigido 111 passed. A comparação
+exploratória com a integral anterior reprovada motivou uma conferência equivalente:
+núcleo 6.498 passed, 48 skipped, 397 deselected em 680,68 s, cobertura 85,435961%
+contra 85,395819% do baseline verde de Python 3.14 do CI, mesmos denominadores.
+Artefato de cobertura de 663.174 bytes baixado, com recibo/hash nos logs locais.
+Sem alteração de limiar, goldens, skips ou código de produto para acomodar o host.
+Ruff check/format, mypy 306, independence, boundaries, status-check e 13 testes do
+catálogo passaram. Digests e visões regenerados sem promover outros aceites.
+
+PNG funcional de fixture em Qt/offscreen inspecionado em
+build/agent-runs/r3-cards/02-preparing.png; logs no mesmo diretório. Sem delta no
+estado pessoal observado pelos runners. Nenhuma instalação, release, merge, deploy,
+boot ou autenticação privilegiada. Readlink: releases/2.0.0rc1-59ecc2d8f0f6;
+runtime efetivo e rollback não revalidados. Provas instaladas/físicas pendentes.
+
+Publicar checkpoint coeso no PR #268 e conferir SHA remoto e CI novo. Próxima
+investigação segura: baseline do gap de reconexão da bridge já registrado em
+SZ-AURA-LAUNCHER, sem inventar causa ou refazer algo já entregue. Começar pelos
+testes existentes de timeout e retorno. Detalhes e limites no CHECKPOINT de R3.
+
+
+## 2026-10-29 — R3: recuperação de consulta da bridge e gate determinístico
+
+Assunção serial autorizada no checkout único e na branch
+codex/product-recovery-2026-10-16, base 2a3129b0, PR #268. Sem novos clones,
+worktrees, branches, autenticação ou ações privilegiadas. CI da base:
+40793431084, oito jobs verdes, incluindo o visual canônico.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER | b4b7196d | 128 integrações Launcher; HTTP real retido/reordenado, Qt/offscreen, retry/erro/retorno e trava ativa preservada |
+| SZ-UI-DESKTOP-AUDIT, somente fixture | 9e23c1f3 | corrida de modo reproduzida com ACK atrasado 250 ms; espera causal pelo HTTP 200, sem enfraquecer asserções |
+
+O retry mantém o último catálogo válido e o mesmo shell, seleção, página e trava
+de sessão. Geração/canal descartam resposta antiga; catálogo nulo/inválido vira
+erro acionável. O watchdog existente agora cancela o XHR expirado; cancelamento
+local não prova cancelamento do efeito remoto. Enter tenta novamente e Escape
+retorna à superfície preservada. Timeout de launch informa início não confirmado.
+
+A primeira integral registrou 6.894 passed, 48 skipped e uma falha na jornada de
+credenciais. Post de configuração assíncrono competia com o próximo clique;
+o caso sem mudança passou isolado, e atraso controlado reproduziu a mesma falha.
+Correção restrita a quatro linhas do harness, com claim reservado/liberado na
+frente serial existente. Segunda integral: 6.895 passed, 48 skipped, zero failed,
+26 warnings, 2.350,47 s, runner exit 0. Núcleo: 6.498 passed, 48 skipped,
+397 deselected, 668,57 s. Cobertura equivalente: 85,435961% >= baseline verde
+85,395819%, mesmos denominadores. Integral: 85,567853%, comparação separada.
+Seis hashes de fonte/teste preservados; nenhum golden, skip ou limiar alterado.
+Ruff check/format (728), mypy (306), independence, boundaries e status-check
+verdes. Treze testes do catálogo passaram em 6,26 s. Visões/digests regenerados
+pelos helpers oficiais, com eixos de produto preservados.
+
+Logs/recibos/capturas em build/agent-runs/r3-bridge. As capturas 02/03 foram
+inspecionadas: fonte Qt/offscreen e sessão sintética, sem spawn ou hardware.
+Estado pessoal monitorado idêntico antes/depois em todos os runners. Nenhuma
+instalação, release, merge, deploy, boot ou autenticação privilegiada. Readlink
+em 29/10: releases/2.0.0rc1-59ecc2d8f0f6; runtime efetivamente ativo e rollback
+não revalidados. Provas instaladas/físicas da bridge e prontidão continuam abertas.
+
+Fechamento documental acompanha estes commits; publicar uma vez na branch
+indicada, conferir SHA remoto e CI do novo head. Próximo lote seguro:
+baseline de GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME, POST /launch retido/perdido
+com efeito controlado, preservando requestId/recibo e serviços existentes.
+Não inferir uma tentativa pelo nome/gameId. Comandos e limites no CHECKPOINT R3
+e no handoff do host novo; não iniciar autenticação ou instalação.
+
+
+## 2026-10-29 — R3: ACK perdido com bridge viva e recuperação por teclado
+
+Lote serial no checkout único /home/misael/Projects/SteamZero, branch
+codex/product-recovery-2026-10-16, base 4c829a87 e PR #268. Continuidade de
+fonte/commit/push autorizada; sem instalação, auth, release, merge ou boot.
+CI da base: 40831063419, oito jobs verdes, incluindo visual canônico.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER | 36e01f70 | 145 integrações Launcher; 17 casos novos de HTTP/recibo/teclado, sem spawn nesses novos casos |
+
+Baseline: três falhas Qt com ACK perdido após aceitação, recusa notStarted e
+pedido que não chegou ao serviço. A UI liberava a tentativa sem prova de falha.
+O identificador criado antes do POST agora se vincula ao recibo na bridge;
+leituras correlacionadas recuperam running/notStarted sem novo POST automático.
+Um único pedido aceito fica retido nesta execução. Replay exato recupera o
+recibo sem efeito novo; IDs divergentes/invalidos e sessão externa não confirmam.
+As rotas legadas e os IDs persistentes foram preservados. O teste existente de
+canal ausente continua comprovando recusa antes de qualquer envio.
+
+Teclado real revelou foco na Home escondida após notStarted. A restauração
+agora segue a superfície visível e o botão de recuperação; Enter dispensa a
+falha, repete a tentativa e retorna ao mesmo cartão após fechamento canônico.
+Nenhum teste existente foi enfraquecido, golden/skip/limiar alterado ou ambiente
+recriado para produzir aprovação.
+
+Núcleo: 6.511 passed, 48 skipped, 401 deselected, 848,76 s, runner exit 0.
+Cobertura: 85,447227% >= baseline verde 85,398687%, mesma seleção not visual;
+os denominadores atuais incluem o código novo. Integral válida: 6.912 passed,
+48 skipped, zero failed, 19 warnings, 2.857,35 s, runner exit 0; cobertura
+85,576152%. A primeira integral foi interrompida por SIGTERM143 sem resumo:
+resultado desconhecido, log preservado e remetente não determinado. Repetiu-se
+somente a integral, separada do núcleo. Cinco hashes de fonte/teste preservados.
+Ruff check/format (729), mypy (306), independence, boundaries e status-check
+verdes; 13 testes do catálogo passaram. Digests/visões atualizados pelos helpers.
+Estado pessoal monitorado inalterado nos gates concluídos, sem escritor externo.
+
+Evidência em build/agent-runs/r3-launch-ack e no CHECKPOINT R3 existente.
+Capturas 01–04 de fonte Qt/offscreen fullscreen 800x800 inspecionadas; não são
+prova instalada, controle físico, Deck, desempenho ou jogo real. Readlink somente:
+releases/2.0.0rc1-59ecc2d8f0f6; runtime efetivo e rollback não revalidados.
+Nenhuma ação privilegiada executada. Aceites de Central/Engine/Studio preservados.
+
+Publicar o checkpoint documental com o código acima, conferir SHA remoto e CI
+novo. Próximo baseline seguro: reinício da bridge em fixture com sessão aceita.
+O contexto atual persiste somente gameId/foco e é consumido na reabertura;
+clientRequestId não é persistido. Não adotar por nome/PID/gameId nem migrar schema
+por inferência. GAP-SESSION-ACK-LIFETIME, Steam sem recibo e provas físicas seguem
+abertos, sem iniciar autenticação/instalação. Handoff do host novo atualizado.
+
+
+## 2026-10-29 — R3: retomada da sessão exata após recriar o Launcher
+
+Executor central, único checkout e branch codex/product-recovery-2026-10-16,
+base b55890b0, CI 40845684020 concluído com oito jobs verdes. Autorização vigente
+para fonte, gates, commit/push/PR #268; sem instalação/auth/release/merge/boot.
+Handoff serial prospectivo de CLI/contexto/observador/testes registrado nos
+workstreams antes das edições, sem escritor concorrente observado no projeto.
+
+Funcional b9f190f7026bc0e064096f25adc6a3ac5e74558f: contexto v2 owned com ID
+pré-alocado antes do spawn, passado pela CLI à sessão canônica existente.
+Reabertura observa ID/jogo/owner exatos com guarda de PID/start_ticks; contexto
+não é prova de execução. Ausência/divergência preserva a trava. Término canônico
+consome somente o contexto próprio e restaura o foco. V1 conserva consumo único;
+CLI antiga permanece válida e SQLite permanece no schema 23. Migração do teste de contexto
+produzido pelo Router explicitada no commit; legado v1 e prefixo --json intactos.
+
+Baseline entre processos falhou com owner/jogo vivos; correção passou 33 focados
+(28 retomada + 5 lifetime/CLI), incluindo dois Qt/HTTP com dois reinícios e zero
+novos launches. CLI/owner e jogo sintético reais, estado temporário controlado.
+Integral: 6945 passed/48 skipped/0 failed, 19 warnings, 2197,55s, runner 0.
+Núcleo: 6542/48/403, 23 warnings, 587,02s; cobertura 85,466579% >= CI verde 85,412847%
+na seleção not visual. Cobertura integral 85,583796%. Ruff check/format 730,
+mypy 306, independence/boundaries/status verdes. Treze hashes intactos e iguais
+ao commit funcional. Treze testes de status passaram em 7,17 s. Estado pessoal
+monitorado idêntico antes/depois dos gates concluídos. Goldens/skips/limiar não
+relaxados. Demais itens de status só renovam digest, sem promover eixos.
+
+Uma integral terminou com SIGTERM 143 aos 27%, sem resumo, resultado desconhecido.
+Log/recibo preservados; remetente não determinado. Acompanhamento temporário
+com progresso/siginfo passou prova curta de encaminhamento de cancelamento e
+coleta do filho. Repetição integral em PTY terminou 0, signals vazio, mesmo fonte;
+isso não identifica a causa anterior. Núcleo/estáticos não repetidos.
+Evidências locais em build/agent-runs/r3-bridge-restart e síntese no CHECKPOINT
+R3 existente. Capturas 01–03 Qt/offscreen 800x800 inspecionadas; sem alegar hardware,
+Deck, desempenho ou instalação. Readlink: releases/2.0.0rc1-59ecc2d8f0f6;
+runtime/rollback não revalidados. Nenhuma ação privilegiada executada.
+
+Publicar fechamento documental junto do funcional, conferir SHA remoto e CI do
+novo head. Próximo baseline: recusa pré-spawn com resultado perdido após morrer
+o Launcher originador, sem linha canônica. Não fabricar notStarted nem liberar
+retry pela ausência de registro. Handoff contém comando focado pelo runner
+isolado. GAP de lifetime, Steam sem recibo, owner perdido, reboot e provas
+instaladas/físicas permanecem abertos. Central/Engine/Studio/Aura preservados.
+
+
+## 2026-10-29 — R3: recusa perdida recuperável e fixture CI independente do perfil
+
+Executor central, único checkout/branch codex/product-recovery-2026-10-16,
+base c9345cf1. Autorização vigente para fonte, gates, commit/push/PR #268;
+sem instalação/auth/release/merge/deploy/boot. Escopo reservado prospectivamente
+no workstream; nenhum escritor concorrente observado neste projeto.
+
+Baseline real: CLI sem leitor de stdout recusou pré-spawn, sem jogo, mas perdeu
+seu resultado e não deixou linha canônica; 1 failed em 1,14s. Produto em
+e30bd4f98468e2077b077e97fdb9809deaab6dc5: o owner registra failed por INSERT
+canônico com ID pré-alocado livre, metadata tipada e código registrado, sem
+texto privado ou tempo de jogo observado. Não há tabela nem schema novo (23).
+Consulta exata por ID/jogo/owner valida prova terminal coerente; bridge recompõe
+o erro pelo catálogo público. Contexto restaurado sobrevive a GET perdido e
+outro reinício. Só um novo launch explícito validado consome o registro próprio
+e usa ID novo; contexto alheio/substituído/symlink é preservado. Ausência de prova,
+exceção genérica ou falha de armazenamento continua sem confirmação. Outra sessão
+ativa e identidades já usadas são preservadas. Contratos legados não ampliados.
+
+Fixture CI em aed4856afd0c69922872d635b3ab1c33359dd038: o run anterior 40878965028
+teve sete jobs verdes e dois testes reprovados no visual (389 passed/13 skipped).
+O src configurado por pytest não chegava ao intérprete filho; o perfil local
+mascarava isso. Sem PYTHONPATH, a falha foi reproduzida em 0,99s e import direto
+confirmou ModuleNotFoundError. A fixture passa src explicitamente e mostra a saída
+capturada em erro. Sem mudar CI, timeout, pacote instalado, skip ou asserção.
+
+59 focados sem PYTHONPATH inicial passaram em 22,86s, incluindo 26 casos novos,
+dois cenários antigos de retomada e cinco de lifetime. Percurso Qt/HTTP com
+processos separados: originador encerra antes da recusa, duas bridges perdem seu
+primeiro GET, mostram a recusa e não fazem outro launch. Enter dispensa, abre
+detalhes e inicia uma única tentativa com ID novo; jogo sintético/CLI/owner reais
+retornam ao mesmo cartão. 371 regressões passaram em 209,71s antes da última guarda
+e correção de ambiente; gates completos cobrem a composição final congelada.
+
+Integral: 6971 passed, 48 skipped, zero failed, 19 warnings, 2067,19s pytest.
+Núcleo: 6567/48/404, 30 warnings, 630,51s. Cobertura core 85,464311% >= 85,423695%
+do job Python 3.14 aprovado 123465044453 da base; workflow global não foi verde.
+Cobertura integral 85,585727%. Ruff check/format731, mypy306, independence,
+boundaries/status verdes; 13 testes do catálogo passaram em 5,65s. Seis hashes
+intactos coincidem com os commits. Estado pessoal monitorado idêntico antes/depois
+dos gates concluídos; nenhum eixo de outros itens promovido. Goldens/limiar intactos.
+
+Um núcleo terminou com SIGTERM 143 aos 90%, sem resumo: desconhecido, não aprovado.
+Nenhum pytest deste checkout ficou ativo. Log/recibo preservados; remetente não
+identificado. Acompanhamento temporário com progresso/siginfo passou prova de
+encaminhamento de cancelamento e coleta do filho. Repetição do núcleo e integral
+terminaram 0, signals vazio, com mesmo fonte; não se afirma a causa anterior.
+Estáticos não repetidos. Tempos de parede/monotônico divergiram na integral;
+valores e limite registrados no CHECKPOINT, sem alegação de desempenho.
+
+Capturas 01–03 inspecionadas, fonte Qt/offscreen 800x800, sem prova instalada/física,
+Deck ou GPU/FPS. Readlink releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não
+revalidados. Nenhuma ação privilegiada; Central/Engine/Studio/Aura preservados.
+Evidência em build/agent-runs/r3-refusal-restart e CHECKPOINT R3 existente.
+
+Publicar fechamento com os dois commits e conferir SHA remoto/CI novo. Próximo
+baseline: perda apenas do owner de fixture após confirmar running, jogo sintético
+preservado e leitura antes/depois do fim. Não inferir closed/notStarted por PID
+ausente nem criar outro supervisor; ler reconciliadores/contratos existentes.
+Handoff contém comando isolado sem PYTHONPATH. GAP de lifetime, prova não persistida,
+fase posterior à preparação, V1, Steam sem recibo, replay e instalação física
+seguem abertos. Não iniciar autenticação ou instalação.
+
+
+## 2026-10-29 — R3: recuperação exata após perda do owner confirmado
+
+Executor central único, raiz/branch de continuidade preservadas; base969933a1,
+CI40906842436 com oito jobs verdes. Autorização vigente cobre fonte, testes,
+commits, push e PR268; não cobre instalação/auth/release/merge/deploy/boot.
+
+| Item | Commit | Evidência da composição |
+|---|---|---|
+| SZ-AURA-LAUNCHER: owner perdido, sondagem e recuperação explícita | 116815d118dc6f26dcf7d2f0960ba9761eaae8ae | 53 novos; jogo/descendente preservados, POST perdido, Enter novo e retorno |
+| Integração compartilhada por último: CAS/argv exato/harness sem índice de botão | 7c63f4f079af0106e3d3fcb74e298a170637832d | 116 handheld+novos; integral e 17 hashes abaixo |
+
+Baseline1falha: owner termina, jogo sobrevive, depois GET unknown e registro
+running bloqueiam nova tentativa. Metadata aditiva v1 registra owner e grupo
+no mesmo boot/namespace. O serviço/CLI existentes recuperam somente o par exato
+após prova positiva, com guarda transacional; GET não reconcilia lifecycle.
+Preserva checkpoints e exit desconhecido, marca failed/E-SESSION-ORPHANED;
+sem sinal em produção, estimativa, supervisor/tabela ou lançamento automático.
+
+Integral7024 passed/48 skipped/0 failed/31 warnings em2247,58s; núcleo6619/48/405,
+26 warnings/617,84s. Runners/observadores0, signals vazio. Core85,509905% >=
+CIverde85,431457% (969933a1,40906842436,artifact12912681501); integral85,637897%
+registrada separadamente. Ruff736/mypy307/independence/boundaries/status verdes.
+13 testes de catálogo/6,14s;17 hashes intactos e estado pessoal monitorado
+idêntico antes/depois. Nenhuma promoção de eixos/gaps nem alteração de limiares.
+
+Regressão ampliada inicial sem resumo:desconhecida. Primeira integral mostrou
+um F, interrompida pelo executor com SIGINT; reprodução isolada confirmou
+harness legado confundindo retry por posição após a nova ação. Busca por nome
+mantém todas as assertivas,116 focados e integral final aprovados. O runtime e
+os 16 hashes do núcleo não mudaram; só o 17º harness visual foi corrigido.
+Claim antigo do harness na Jornada foi cedido após status-check apontar conflito;
+reserva do destino precedeu edição, cessão da origem foi posterior e ficou
+registrada, sem concorrência observada. Nenhum outro claim/estado alterado.
+
+Cinco PNGs de fonte Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT
+R3 existente; não são prova física/instalada, Deck ou GPU/FPS. Host só readlink:
+releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados. Logs/hashes e
+recibos locais em build/agent-runs/r3-owner-loss. Nenhum processo temporário de
+teste deste lote permanece ativo; dados pessoais preservados.
+
+Publicar este fechamento com os dois commits funcionais no único checkpoint
+autorizado da continuidade/PR268 e conferir remoto/CI. Próximo baseline: GET
+terminal perdido após recuperação canônica e outro reinício; observar foco,
+mensagem, contexto e zero launches automáticos antes de alterar o contrato.
+Handoff contém comando isolado. Prova sem identidades tipadas, outro boot/namespace,
+owner perdido antes de running persistido, V1, Steam sem recibo e instalação
+física seguem independentes; GAP de lifetime continua aberto. Sem iniciar auth.
+
+
+## 2026-10-29 — R3: erro órfão recuperável após GET terminal perdido e reinício
+
+Continuidade serial autorizada, mesmo checkout/branch/executor, base490b4722;
+CI40952684734 oito jobs verdes e coberturaCI85,477196%. Fonte/testes/commits/push/
+PR268 autorizados; sem instalação/auth/release/merge/deploy/boot. Claims R3 já
+abrangem os cinco paths; sem alteração de arquivos compartilhados neste lote.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: contexto/erro retidos e retry revalidado | 997c3cd9391ae88960c7ba5797413140fc5acbe8 | 84 focados,18 novos; GET perdido em duas bridges, terceira restaura erro/foco, um launch por Enter e retorno |
+
+Baseline1falha/1,04s: GET terminal apagava o contexto antes de entregar a resposta.
+Retém o contexto owned do erro E-SESSION-ORPHANED e o recibo confirmado exato
+até novo lançamento explícito validado, sem fabricar notStarted. O leitor
+bounded é read-only; contexto alheio/substituído/ilegível é preservado. Revalida
+canônico e contexto antes de consumir; arquivo ausente não é recriado por GET
+e mantém retry explicitamente validado compatível. Sem outra fonte de estado,
+writer, supervisor ou schema; sucesso closed e outros erros preservam o contrato.
+
+Integral7042 passed/48 skipped/0 failed/24 warnings em2297,92s. Núcleo6636/48/406,
+19 warnings/613,21s. Runners/observadores0, signals vazio. Core85,514477%>=
+CIverde85,477196% (490b4722/run40952684734/artifact12932966379); integral85,643825%
+separada. Ruff736/mypy307/independence/boundaries/status verdes. Cinco hashes
+coincidem com o commit; estado pessoal monitorado idêntico antes/depois.
+13 testes do catálogo/6,54s; views/digests regenerados, sem promover eixos/gaps,
+alterar goldens/skips/limiares ou repetir integral por microalterações.
+
+Cinco PNGs Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT R3 existente,
+sem prova instalada, Deck ou GPU/FPS. Logs/recibos em build/agent-runs/r3-terminal-restart.
+Host somente readlink releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados.
+Nenhuma ação privilegiada. Evidências de fonte e hardware permanecem distintas.
+
+Publicar o fechamento com o funcional em um checkpoint da continuidade/PR268 e
+conferir SHA remoto/CI terminal. Próximo baseline: sucesso closed com GET terminal
+perdido e reinício, sem encerrar prematuramente o owner de fixture, converter
+sucesso em erro ou estimar exit/tempo. Handoff contém comando isolado. V1, Steam
+sem recibo, provas/contextos ausentes, outro boot/namespace e prova física seguem
+independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Não iniciar auth.
+
+
+## 2026-10-29 — R3: retorno closed após respostas perdidas e reinício
+
+Continuidade serial autorizada, checkout/branch/executor únicos; base24b3dcb9,
+CI40966373727 aprovado após única reexecução visual. Primeira falha Saves não
+reproduzida, causa não confirmada, preservada no PR268. Fonte/testes/commits/
+push/PR autorizados; sem instalação/auth/release/merge/deploy/boot. Sete paths
+já exclusivos R3, sem alteração compartilhada de código ou escritor concorrente.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: retorno closed persistido até próximo launch validado | a9a2e8edbf85b912a8a346bd2ca19949cfbe52e1 | Baseline1falha/1,50s;122 focados,17 novos; duas perdas de GET, terceira bridge restaura cartão, um launch explícito e novo retorno |
+
+Causa: GET closed consumia contexto antes da entrega HTTP. Conserva contexto v2
+owned/recibo confirmado exatos, revalidando canônico/foco/contexto antes da
+próxima ação; não adota latest, não cria outro estado/supervisor/schema. Migração
+explícita das assertivas de consumo v2, mantendo gestos, estados, identidade,
+idempotência e contadores; v1 one-shot e outros erros permanecem independentes.
+Fixture usa transições canônicas para checkpoint de tempo, sem alterar produtor
+real para acomodar INSERT. Owner permanece até término normal, sem sinais nesse
+percurso; não converte sucesso em ORPHANED ou estima saída/tempo.
+
+Integral7.059 passed/48 skipped/0 failed/19 warnings/2.490,81s; núcleo6.652/48/407,
+19 warnings/746,04s. Runners/observadores0, signals vazio. Core85,519153% >=CIverde
+85,478942% (base24b3dcb9/run40966373727/artifact12939315169) e >=core local
+85,514477%; integral85,647076% separada. Ruff736/mypy307/independence/boundaries/
+status verdes; sete hashes intactos. Estado pessoal monitorado idêntico antes/
+depois:3 arquivos,5 diretórios,860.896 bytes e mesmo max_mtime_ns.13 testes do
+catálogo/10,06s; views/digests regenerados. Sem repetir integral por microedição
+ou alterar goldens/skips/limiares. Cinco eixos e gaps preservados.
+
+Seis PNGs Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT R3 existente,
+sem prova instalada/hardware/Deck ou GPU/FPS. Host apenas readlink:
+releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados. Logs/recibos
+em build/agent-runs/r3-closed-restart. Nenhuma ação privilegiada.
+
+Fechamento funcional/documental em commits separados, um checkpoint autorizado
+de push/PR268 e conferência de SHA remoto/CI terminal. Resultado remoto no PR,
+sem commit circular. Próximo baseline: catálogo alterado/jogo removido antes da
+reabertura após closed com GET perdido, prova exata e foco válido sem launch
+automático; observar primeiro, sem presumir defeito. Handoff contém comando
+isolado. V1, Steam sem recibo, provas/contextos ausentes, outro boot/namespace e
+prova física independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto.
+
+
+## 2026-10-30 — R3: retorno após remoção do jogo com GETs perdidos
+
+Continuidade serial autorizada, checkout/branch/executor únicos. Baseac41c04c,
+CI40981206167 com oito jobs aprovados na primeira tentativa, coreCI85,486462%.
+Fonte/testes/commits/push/PR268 autorizados; sem instalação/auth/release/merge/
+deploy/boot. Sete paths exclusivos R3, sem editar domínio reservado. Shell e
+testes app compartilhados com Diagnóstico integram em commit próprio por último.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AURA-LAUNCHER: projetar destino existente do domínio sem reescrever identidade | edcfc20256d574e068406c8ac8a15d729327e559 | Baseline1falha/6,88s;93 focados/72,00s,10 novos; Qt/HTTP/CLI e dados controlados |
+| Integração compartilhada: shell, consumidor e testes HTTP | f6738ec498ab0ccfbf6c5bccc6b4220695d8a5b2 | +9 shell/4,23s; integral certifica a árvore integrada de sete arquivos |
+
+O shell caía no início da Home quando o jogo sumia. Modelo publica returnFocus/
+returnDiagnostics pelo restore_context existente; QML aceita destino do mapa.
+returnContext/launchRecovery e bytes owned mantêm ID/foco originais, independentes
+do destino visual. Sem novo catálogo, supervisor, writer ou schema. V1 e chamadas
+sem a projeção nova preservam compatibilidade. Testes cobrem vizinho, seção
+removida, Home vazia, contexto ausente e foco válido/inválido, diagnóstico e
+leituras sem efeitos. Owner até término natural, duas perdas de GET, jogo
+removido, terceira bridge restaura vizinho, um jogo sobrevivente por gestos e
+retorno. Linha canônica anterior e contexto novo corretos; sem adoção de latest.
+
+Integral7.069 passed/48 skipped/0 failed/19 warnings/3.096,25s; runner/observador0,
+signals vazio,3.106,75s monotônicos. Integral85,650326%>=integral85,647076% da
+baseac41c04c, delta+0,003251pp. Comparação integral↔integral; core CI↔core CI
+será registrada no PR entre artefatos Python3.14 aprovados. Ruff736/mypy307,
+independence/boundaries/status verdes, sete hashes coincidem com integração.
+13 testes do catálogo/13,56s. Estado pessoal monitorado idêntico:3 arquivos,
+5 diretórios,860.896 bytes e mesmo max_mtime_ns. Views/digests regenerados, sem
+promover eixos/gaps ou relaxar goldens/skips/limiares/gestos/contadores.
+
+Primeira integral interrompida por SIGTERM143 aos2.070,80s: runner Qt-15, resumo
+parcial1 failed/2.042 passed/46 skipped. Não é gate aprovado. ES-DE original
+isolado1passed/8deselected/34,38s; nenhum produtor, teste ou timeout ES-DE foi
+alterado. Observador temporário passou a registrar ancestry/remetente e provou
+encaminhamento de cancelamento/recolhimento do filho. Retomada completa0 e
+signals vazio não prova causa do sinal nem correção de infraestrutura. Logs
+full-interrupted* e esde-ordem-interrupted.txt preservados em
+build/agent-runs/r3-removed-return. Estáticos válidos não repetidos nos mesmos bytes.
+
+Seis PNGs Qt/offscreen800x800 persistidos/inspecionados no CHECKPOINT R3 existente,
+sem emulador/acervo real, instalação/hardware/Deck ou GPU/FPS. Host apenas
+readlink releases/2.0.0rc1-59ecc2d8f0f6; runtime/rollback não revalidados.
+Nenhuma ação privilegiada. Fontes/fixtures e provas físicas continuam distintas.
+
+Publicar um checkpoint dos dois funcionais e documental na continuidade/PR268,
+conferir SHA remoto e CI terminal; resultado remoto no PR, sem commit circular.
+Próximo baseline: seção de origem inteira removida ou catálogo vazio após closed/
+GET perdido, foco utilizável e Enter na recarga existente, sem launch/recovery
+automáticos. Projeção HTTP já coberta, percurso Qt pendente; não presumir defeito.
+Handoff contém comando RTK isolado. V1, Steam sem recibo, provas/contextos
+ausentes, outro boot/namespace e hardware seguem independentes; GAP lifetime
+aberto. Episódio histórico de Saves mantém causa não confirmada.
+
+
+## 2026-10-30 — R3: seguimento determinístico do gate de cobertura
+
+Continuidade serial, mesmo checkout/branch/executor. O headf3139596 teve oito
+jobs aprovados no CI40997943230; a comparação adicional core85,485453% <85,486462%
+da baseaprovadaac41c04c reprovou por-0,001009pp. Raw/ZIP/CRC/hash originais
+preservados; nenhum rerun desse CI, arredondamento usado como aprovação ou
+baseline reduzida. Variação isolada em Linux405 (fixture sóMMC dependia do host
+para SATA) e receptor web86/110 (provider restaurado após headers antes do fim).
+
+Dois testes unitários sem claim ativo concorrente foram reservados antes de
+editar na WS R3, com evidência no SZ-AGG-TESTS. Nenhuma fonte de produção fora
+do R3 foi editada. Fonte/testes/commits/push/PR268 autorizados; sem instalação/
+auth/release/merge/deploy/boot. Estados/eixos/gaps preservados.
+
+| Item | Commit | Prova |
+|---|---|---|
+| SZ-AGG-TESTS: volumes sintéticos e HTTP com estado mantido até fim observado | 0749d8e80ad8c97e422e81883181f735ca1fdd2b | 76 focados/37,34s;9casos5x/45 aprovações;4 casos novos; integral7.073/48/0 |
+
+LinuxStoragePort observa SATA/NVMe/MMC com marca conflitante na partição para
+exigir evidência do disco-base, sem consultar o host. HTTP entrega um keep-alive
+real; falha de escrita controlada encerra SSE e verifica limpeza de writers.
+Relógio só virtualiza espera no módulo da fixture. Provider permanece no estado
+pretendido até o handler concluir, incluindo resposta JSON e ausência/presença.
+Mantém asserts anteriores, nomes, prazos5s e limiar85%; não cria novas regras
+de runtime. A primeira tentativa de reforço exigiu EOF em SSE keep-alive e teve
+2falhas/74pass; essa exigência inadequada foi corrigida para limpeza observável,
+com logs preservados. Não se alterou produção para passar o teste.
+
+Integral7.073 passed/48 skipped/0 failed/19 warnings/2.762,51s; runner/observador0,
+signals vazio,2.774,28s monotônicos. Integral85,658854%>=85,650326% da anterior,
+delta+0,008528pp, mesma seleção. Ganhos somente nos módulos-alvo: Linux+2 linhas/
++2ramos e receptor+2ramos, nenhum outro módulo perde cobertura. Arcos críticos
+e heartbeat observados. Cobertura focada91,567852% é dos dois módulos, não
+comparada ao core global. Ruff736/mypy307/independence/boundaries/status verdes.
+Digest documental obsoleto após nota foi regenerado oficialmente, sem contornar
+a falha.13 testes do catálogo/9,71s, views/digests atualizados.
+
+Nove hashes íntegros e produção idêntica ao checkpointf3139596, árvore src
+c987db69ad965f9ef344e47500337b4709d0d9e9. Sete hashes funcionais do Launcher não mudaram;
+as seis capturas Qt/offscreen existentes permanecem provas dos mesmos bytes.
+Sem novo aceite de instalação, hardware, Deck, GPU/FPS ou outras superfícies.
+Estado pessoal monitorado idêntico:3 arquivos,5 diretórios,860.896 bytes e mesmo
+max_mtime_ns. Host só readlink59ecc2d8f0f6; runtime/rollback não revalidados.
+Interrupção SIGTERM anterior e episódio Saves mantêm causas não confirmadas.
+
+Publicar um checkpoint do seguimento motivado pelo comparador reprovado, após
+fechamento documental. Conferir SHA remoto e novo CI terminal/artefato3.14
+contra a mesma baseaprovada85,486462% e exigir arcos críticos. Resultado remoto
+no PR268, sem commit circular. Não usar a base menor como atalho. Próximo
+baseline R3 segue Qt com seção de origem removida inteira ou Home vazia após
+GET perdido, foco utilizável e recarga existente por Enter, zero efeitos
+automáticos. Handoff contém comando RTK isolado; GAP lifetime permanece aberto.
+
+
+### 2026-10-30 — R3: seção/Home vazia e leitores determinísticos
+
+- Continuidade serial no checkout/branch oficiais, base remota7bb07ea7 e
+  CI41007481488 aprovados; sem nova frente, clone, worktree ou autenticação.
+- Launcher `ed6064a3f7126e1ecfd34380e5b5c3c1260e8c47`: três regressões Qt/HTTP/CLI de seção removida,
+  Home vazia e reload503/retry. Baselines passaram sem alterar runtime;60
+  focados/81,77s, captura final3/27,03s, dez PNGs800×800/240.369bytes revisados.
+  Snapshot QtTest substitui captura assíncrona não representativa; tentativas
+  inválidas e timeout3/21,12s preservados, sem atribuir defeito físico/upstream.
+- Qualidade `b399ab21ddf73d0bd129053b6bd029ff634ccb25`: JSON estrutural inválido determinístico
+  (fuzz64 intacto) e10 casos públicos de leitores padrão em proc_root sintético,
+  inclusive abertura negada/erro.40 focados/2,10s,12 casos5x/60 aprovações.
+  Preservação de bytes/árvore, classificação conservadora e sem path/marcador
+  no snapshot. Primeiros27 testes passaram, mas84,91% de módulo reprovou85%;
+  grupo completo87,59%probe/90,83%bitrot/88,79% combinada, limiar inalterado.
+- Integrais7076 e7078 passaram, mas não contaram como não regressão aprovada:
+  ambas85,65601148428728%<85,65885412965305%, primeiro bitrot336 e depois
+  resource_probe57. Históricos before-bitrot-* e before-resource-* preservados
+  com hashes. Reservas prospectivas sem claim concorrente, fontes read-only.
+- Final7088 passed/48 skipped/19 warnings/2598,81s; runner/observador0,
+  signals vazio/2611,85s. Integral85,66169677501884%>=85,65885412965305%,
+  delta+0,0028426453657885986pp. Nenhuma perda de linha/ramo por módulo;
+  somente resource_probe61/62 ganhou. Guardas antigos e novos cobertos.
+- Ruff736/mypy307/independência/fronteiras/status verdes; quatro hashes e
+  dados pessoais monitorados preservados. Produção inteira idêntica à árvore
+  c987db69ad965f9ef344e47500337b4709d0d9e9 da base7bb07ea7. Eixos/gaps
+  preservados; fonte/offscreen não promove instalação/hardware.
+- Sem instalação/auth/release/merge/deploy/boot. Readlink59ecc2d8f0f6 apenas;
+  runtime/rollback não revalidados. Fechar docs/status/handoff e push único;
+  registrar novo SHA/CI/core>=85,49540202112085% com guardas no PR268,
+  sem commit circular ou rerun de mesma fonte como loteria.
+
+Próximo baseline seguro: repetir owner loss e recuperação órfã quando o jogo ou a seção de origem já não estão no catálogo. Confirmar que a observação/recovery usa o gameId/sessionId original, que resposta perdida não libera lançamento automático e que somente um gesto posterior abre o destino válido do domínio. Reutilizar a mesma jornada Qt/HTTP/CLI e os paths existentes; não presumir defeito nem editar launcher/session.py ou navigation.py reservados sem handoff prospectivo. Após carregar .steamzero-dev/env.sh: rtk proxy env -u PYTHONPATH .venv/bin/python tools/run_tests_isolated.py tests/integration/test_launcher_owner_loss.py tests/integration/test_launcher_owner_loss_qml.py tests/integration/test_session_recovery_identity.py -q. V1, Steam sem recibo, prova/contexto ausentes, outro boot/namespace e instalação/hardware continuam independentes; GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME aberto. Sem instalação/auth/release/merge/deploy/boot.
+
+Validação documental final:13 testes/18,74s, status-check aprovado, visões/digests oficiais atualizados e estado pessoal monitorado preservado.
+
+
+## 2026-10-30 — checkpoint intermediário R3, órfão/catálogo e guardas
+
+- Continuidade serial, checkout/branch existentes, autorização de fonte/testes/
+  commit/push/PR268 mantida; sem instalação/auth/release/merge/deploy/boot.
+- Jornada Qt/HTTP/CLI em89a2c7164af614c2a078335deec517e96df9a3aa:
+  seis casos novos/13 percursos,59 focados/149,43s e6 capturas/63,96s;
+ 15 PNGs800×800/512.097bytes revisados. Leituras retidas no par original,
+  linha canônica inteira após recovery/retries/reloads, foco válido e novo
+  launch somente por gestos; Home vazia mantém recarga/503/retry.
+  Baselines já passavam com runtime fba166f8, sem defeito de produto inventado.
+- Integral7094/48/19warnings/2545,99s passou comportamento, mas comparação
+  reprovou85,65601148428728%<85,66169677501884%. Guardas perdidos em
+  emulation9045/9046 e linux_runtime397/398; fontes intactas. Registros
+  before-guard-* preservados, sem base menor/rerun da mesma fonte por sorte.
+- Seguimento em8f5f2a89e02b4b66c439695ff51a01419feff1fc:13 casos públicos
+  determinísticos para bateria ausente/inválida/limites e processos negados/
+  desaparecidos, com grupo exato do usuário deduplicado.27 focados/1,59s e
+  cinco passagens/65 aprovações; fontes e sinais do host intocados. Diagnóstico
+ 27/4,58s cobre4linhas, mas20,26%<85% restrito não conta como gate; logs
+  guards-focused-* preservados. Sem reduzir limiar/fuzz/goldens/timeout.
+- Segunda integral não iniciada: sete leituras em300s,2.408.328–2.671.244KiB
+  disponíveis<3.145.728KiB do preflight; helper75 antes do runner. Pedido ao
+  operador para liberar memória pendente; sem encerrar processo alheio,
+  ampliar swap ou remover guarda. Este é checkpoint local, não fechamento.
+- Estáticos Ruff736/mypy307/independência/fronteiras/status verdes após os
+  novos testes. Quatro hashes commitados e15imagens conferidos; produção
+  c987db69ad965f9ef344e47500337b4709d0d9e9 igual à basefba166f8. Runner
+  preservou o estado pessoal monitorado; fonte Qt6.11.2/offscreen não é
+  aceite de instalação/hardware. Eixos/gaps preservados.
+- Status/handoff/digests e visões oficiais atualizados antes deste fechamento
+  append-only. Sem push/CI novo: remoto/PR268 aindafba166f8; novos commits
+  locais não são backup GitHub. Apontador observado por readlink em
+  releases/2.0.0rc1-59ecc2d8f0f6, runtime/rollback não revalidados.
+- Próxima ação: RAM>=3GiB/disco>=8GiB, uma integral serial/nice10, comparação
+  integral>=85,66169677501884% e guardas mantidos; só então fechamento e push
+  nominal/PR268/SHA remoto, oito jobs terminais e coreCI>=85,50677260258396%.
+  GAP-AURA-LAUNCHER-SESSION-ACK-LIFETIME continua aberto. Comando exato e
+  capturas no CHECKPOINT existente; não avançar a novo item antes desse gate.
+
+Validação documental do checkpoint intermediário:13 testes/8,00s e status-check aprovados, estado pessoal monitorado preservado. WORKLOG apenas acrescido; gate integral/cobertura e publicação continuam pendentes por recursos.
+
+
+## 2026-10-30 — foco expresso no Studio, assets em subpastas
+
+- Direção do proprietário para o Studio; Launcher mantido bloqueado por recursos
+  com seus3commits e integral/cobertura/push pendentes. Um checkout/executor,
+  mesma continuidade. Handoff prospectivo theme_editor.py/test_theme_editor.py
+  de JLS para o workstream Studio existente antes dos testes/edições.
+- Defeito reproduzido:4 testes falhos/1 aprovado/0,80s. Save removia artes em
+  subpastas e deixava referências sem arquivo; upload também perdia originais.
+  Qt/HTTP real abriu a imagem, editou/undo/redo/salvou/reabriu e então perdeu
+  o preview (7QMLpass/1fail). Baseline visual final1falha/27,62s preservado.
+- Primeira corrida Qt1falha/27,20s teve diagnóstico oculto por truncagem; log
+  bruto e FAIL/Loc agora são conservados. Coleta1falha/21,26s parou no harness
+  por tratar retorno void de QtTestImage.save como booleano, apesar de PNG
+  gravado. Corrigido o uso, sem trocar golden/timeout/aceite. Não foi usada
+  como prova do defeito do produto; a baseline seguinte confirmou o preview.
+- Correção local40988da9fdf2cda16ef8256057392091dbcec23f: core.fs.iter_files
+  mantém arquivos regulares recursivos e caminho relativo; upload vence apenas
+  homônimo exato. Leitura negada de arquivo falha antes da remoção existente,
+  preserva tema/rascunho/histórico/upload e permite retry. Atomicidade de
+  diretório durante falha de escrita/crash não foi certificada; próximo baseline.
+-100 testes de domínio/7,46s e3 Qt/HTTP/30,97s aprovados. Cinco casos Python
+  novos+um percurso Qt aos cinco anteriores; metadados por gestos, undo/redo,
+  save/reopen e preview decodificado, export/import pela API pública mantendo
+  bytes/manifesto/URI. Idempotência byte a byte, mesmo basename em pastas
+  distintas, não referenciado, upload e recusa sem overwrite confirmados.
+- Dois PNGs1100×900/230.857bytes revisados no diretório de evidência existente.
+  Fonte Qt6.11.2/offscreen/software, fixtures CC0-1.0/XDG temporário; estado
+  pessoal monitorado preservado. Nenhum aceite de release/hardware/GPU/FPS.
+- Ruff check/format736, mypy307, independência/fronteiras/status aprovados.
+  Oito hashes commitados conferidos (4Studio+4Launcher), eixos/gaps intactos.
+  Visões/digests/status/handoff atualizados antes deste fechamento append-only.
+- Integral não iniciou:7 leituras/300s,2.475.856–2.837.792KiB<3.145.728KiB;
+  helper75. Não encerrados processos alheios nem alterados swap/guarda.
+  Sem push/CI novo; remoto/PR268fba166f8, fonte local ainda não é backup GitHub.
+  Sem instalação/auth/release/merge/deploy/boot, runtime/rollback não revalidados.
+- Retomar com RAM>=3GiB/disco>=8GiB: uma integral serial/nice10, comparação
+  >=85,66169677501884% e todos os guardas, então checkpoint/push nominal/PR268/
+  SHA remoto e CI terminal/core>=85,50677260258396%. Comando e capturas no
+  README de2026-10-03-journey-engine-preview; não alegar lote integral fechado.
+
+Validação documental Studio:13 testes/7,34s e status-check aprovados, dados pessoais monitorados preservados. Revisão de diff e8hashes/2PNGs conferidos; integral/push/CI novo ainda pendentes por recursos.
+
+
+### 2026-10-30 — Studio: aceite integral Aeon Nox/ES-DE baseado em fontes locais
+
+- Pedido expresso do proprietário: validar reprodução integral e autoria fluida
+  no Studio/motor SteamZero. Base6d2216ad375b85dad3d3958c14a21ec33a1fb380;
+  checkout/branch de continuidade únicos, sem agentes ou worktrees adicionais.
+- Auditoria somente leitura de385 XMLs Aeon Nox e849 XMLs dos três temas
+  Linear/Modern/Slate embutidos no AppImage local pinado. Matriz56 combinações
+  variante×proporção, somente snes/pt_BR e primeira fonte/cor. Includes resolvidos
+  nessa amostra não certificam todos os sistemas/idiomas/esquemas ou paridade.
+- Evidência própria confirma falso indicador coverage1.0: cor/evento/easing
+  podem desaparecer sem diagnóstico. Layout Aeon principal620 animações gera332
+  registros IR; descoberta da pasta inteira recusa limite64. Assets
+  compartilhados externos são recusados; não foi enfraquecido o confinamento.
+- Prova Qt/offscreen/software no SceneEsdeView real:1 teste Python/0,45s,
+  dois cenários diagnósticos. Vermelho solicitado vira#e8eef6; alpha0 vira
+  Loader.opacity1; menu/sound não desenhados; Image.Error continua counted1
+  com fallback invisível. Aprovar a observação do defeito não aprova o produto.
+- Sete aceites ampliados no README de2026-10-03-journey-engine-preview e JSON
+  agregado reproduzível com fixture própria. Autoria genérica, feedback tipado
+  por recurso, assets/receitas, eventos/mídia/interação, todas as etapas, pacote
+  único e comparação física/fluidez. A lista anterior é insuficiente; nenhuma
+  promessa de100% ou impossibilidade arquitetural foi inventada.
+- Três itens existentes ganharam cinco gaps explícitos, preservando os antigos
+  e todos os cinco eixos. Engine/Aura/plano receberam só renovação mecânica de
+  scopeDigest pela evidência compartilhada, sem novo aceite/capability. Claim
+  funcional de Engine continua com Jornada; atualização documental serial
+  registrada nos sharedPaths. Visões regeneradas antes deste append.
+- Documentação:13 testes/8,57s e status-check aprovados; diff/referências/tamanho
+  revisados. Nenhuma fonte de referência, mídia ou dado de acervo foi publicado.
+  Oito hashes congelados de fonte/testes e hashes auditados permanecem intactos.
+- Integral pendente do lote anterior iniciou com4539292KiB>=3145728KiB, mas
+  terminou143/2464,19s: SIGTERM15 registrado do pai rtk; último progresso41%,
+  sem full-result.json/cobertura válida. Não repetida por sorte nem reduzida
+  guarda/baseline. Próximo passo: diagnosticar ciclo de vida/timeout do wrapper,
+  conferir recursos e retomar integral serial observada e guardas de cobertura.
+  Nenhum processo temporário do observador/runner/probe ficou ativo.
+- Remoto conferido:fba166f8f454a0b928b1b82504613b26180987e2; mainad742ca3515f794fe285d42060708835cb09fb91.
+  Sem push por gate funcional pendente; checkpoint local não é backup GitHub.
+  Próximo checkpoint externo: push nominal/PR268/SHA remoto e CI terminal
+  somente após integral válida. Autorização de continuidade preservada.
+- Nenhuma instalação/auth/release/merge/deploy/boot, input físico ou execução
+  nativa de RetroFE/ES-DE. Link instalado observado aponta2.0.0rc1-59ecc2d8f0f6;
+  execução/rollback não revalidados. Fidelidade, áudio e desempenho físicos
+  continuam exigindo comparação autorizada na release/hardware.
+
+
+### 2026-10-30 — definição normativa completa de Studio, assets e motor de temas
+
+- Pedido expresso do proprietário esclareceu a intenção: automação, organização
+  e configurações na Central; experiência audiovisual e sessão no Launcher;
+  temas nativos primeiro, autoria visual robusta e reprodução integral dos
+  recursos RetroFE/ES-DE pelo próprio motor SteamZero. Base local a6c74b28.
+- Relatório completo consolidado na seção 22 de THEME-ENGINE-AND-STUDIO.md,
+  em 14 partes: autoridade, responsabilidades, meta nativa/compatibilidade,
+  biblioteca canônica, wheel de master único, autoria, importação/Play, consulta
+  ao motor, cobertura funcional, preview/Launcher, diagnóstico, aceites, plano
+  e continuidade. Nenhum relatório/catálogo paralelo criado.
+- Biblioteca distingue master preservado, associação/papel, arte distinta,
+  receita, referência e cache derivado. Uma fonte compartilhada sem cópia por
+  tema; qualidade/procedência/retentiva/portabilidade e economia medida. Acervo
+  pessoal RetroFE é fonte candidata futura; não foi migrado nem publicado.
+- Roteiro obrigatório de wheel lateral monocromática e centro colorido/stroke
+  usa um master, receitas e movimento configurados pela UI; conta pixels,
+  input rápido, callbacks, round-trip, dependências e consumo no Launcher.
+  Receita ainda não certificada ponta a ponta; não criada promessa fictícia.
+- Mesmo documento significa a mesma revisão lógica de tema/Jornada e seus
+  recursos no preview e Launcher; não impõe arquivo monolítico. Importação
+  converte para contratos/IR nativos, não executa helpers/código de terceiros.
+  Falta de recurso mantém o objetivo integral aberto, sem rebaixá-lo a paleta.
+- Diagnóstico datado e fundamentos existentes separados dos requisitos;
+  quadros de cobertura e aceites detalham geometria, efeitos, eventos, áudio,
+  vídeo, dados, etapas, launch/return, recuperação e criação amigável. Metas de
+  desempenho não são medições; FPS apresentado exige instrumento de compositor.
+- DIRECAO/README/PLANO e AURA-SURFACES vinculados; AGENTS exige leitura da
+  seção 22 antes de trabalhar no tema. Definições antigas de Aura/superfícies
+  explicitamente superadas sem apagar histórico/IDs. Contratos/aceites nos
+  itens existentes atualizados por handoff documental serial; claims funcionais
+  preservados. Duas lacunas novas registradas em Engine/Studio: biblioteca
+  canônica consumida ponta a ponta e wheel de master único. Eixos e gaps antigos
+  mantidos. Itens compartilhados restantes receberam só renovação de digest.
+- Validação: 51 links/âncoras locais verificados sem erro; 13 testes de
+  project_status aprovados em 6,94 s pelo runner isolado; status-check e diff
+  sem erros. Estado pessoal monitorado antes/depois idêntico. Visões/digests
+  regenerados antes deste append; ajuste final de texto sobre instrumento de
+  FPS recebeu revisão de diff e nova validação de status, sem repetir suíte.
+- Nenhuma mudança em src/tests/tools; oito hashes congelados preservados.
+  Não houve build, instalação, execução nativa das referências, entrada física,
+  autenticação nova, release, merge, deploy ou boot. Link de release previamente
+  observado 2.0.0rc1-59ecc2d8f0f6; execução e rollback não revalidados.
+- Remoto conferido fba166f8f454a0b928b1b82504613b26180987e2, main ad742ca3;
+  PR 268 existente. Checkpoint anterior de fonte continua sem integral válida
+  após SIGTERM do pai rtk (143/2464,19 s/último41%). Próximo comando de diagnóstico
+  e retomada permanece no handoff existente; não repetir por sorte ou reduzir
+  guarda/baseline. Push da composição aguarda gate funcional, sem novo CI
+  alegado. Este fechamento é documental/local, não backup GitHub nem runtime
+  certificado; prova instalada/hardware permanece independente.
+
+
+## 2026-10-30 — cancelamento do runner e fechamento do gate antes da wheel
+
+Continuidade serial na raiz oficial, branch codex/product-recovery-2026-10-16,
+base216ac710; commit funcionale7bb579cda1e549a5f287b06bb3b9731dea72f25. Baseline de cancelamento2failed/11,60s;
+regressão Cast falha após24casos aprovados por handlers vazados. Runner passa
+a encerrar/aguardar seu filho, executar a guarda e limpar isolamento; fixture
+restaura sinais por teste. Todas as assertivas antigas de estado/atribuição
+foram mantidas. Origem externa do SIGTERM histórico ao RTK não foi identificada.
+
+Primeira integral desta tarefa apresentou erros Qt por ausência de DISPLAY; foi
+interrompida deliberadamente143/1525,33s, com logs preservados e estado final
+inalterado. Reproduções focadas localizaram RHI/contexto e probe de versão. Com
+Xvfb privado já instalado,20Qt/RHI/default passaram/3,59s e65interface/autoria/
+controles passaram/569,12s;104infra/bootstrap/Cast passaram/8,00s. Integral final:
+7117passed,48skipped,19warnings/2326,94s; supervisor0,2339,29s, sem sinais,
+fontes/testes congelados e perfil inalterado. Cobertura85,70961552128492% contra
+85,66169677501884%, delta+0,047918746266077505pp; oito hashes e todos os guardas
+críticos preservados. Ruffcheck/format736,mypy307,independência/fronteiras/status
+aprovados. Recibo: docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json. Logs: build/agent-runs/studio-runner-cancellation.
+
+Gate técnico pendente resolvido no checkout; nenhuma maturidade de Studio,
+Engine, Launcher, Aura ou Cast físico foi promovida. Nenhuma instalação, nova
+autenticação, release, merge, deploy ou boot. Documentação/status/digests recebem
+fechamento separado; push/CI novos seguem checkpoint governado do PR268.
+Próximo slice elegível obrigatório: wheel22.5 nativa e genérica, master canônico
+compartilhado, receitas/movimento, persistência e mesmo Launcher. Ainda não
+implementada. Sem delegação, outro checkout/branch ou migração do acervo pessoal.
+
+
+## 2026-10-31 — Studio nativo: master compartilhado, wheel e ownership da mídia
+
+Continuidade serial na raiz e branch oficiais, base59a91da7, sem outro executor,
+checkout ou branch. Primeiro incremento nativo da seção22.5; o objetivo maior
+permanece aberto.
+
+| Incremento | Commit funcional | Prova |
+|---|---|---|
+| Registro canônico de fontes, receitas/layout/movimento, revisão lógica e publicação atômica | `686d0b7e10442fbf11d06baba7f0db7da2f4c6c8` | Fontes exatas compartilhadas, reparo/interrupção, save/reopen/export/import; suíte congelada r5 aprovada |
+| Autoria genérica e execução comum no Launcher, com diagnóstico real e ownership audiovisual | `d9392bec9d3132e58bfc0812ec0dc892014ff28d` | 11 focados/41,57s; integral final 7.181 passed, 48 skipped, 26 warnings |
+
+O Studio escolhe o original, cria composição, configura variantes e transições
+pelas ações tipadas. Preview e Launcher usam a mesma revisão e os mesmos
+SceneRepeater/SceneRecipeImage. A origem preservada mantém bytes/alpha/licença
+declarada; o tema guarda a referência e o transporte ZIP inclui cada fonte uma
+vez. Publicação completa evita apagar o pacote anterior antes da escrita íntegra.
+
+A contraprova final de visibilidade falhou1/4,16s em seis checks: Cinema e
+ancestral ocultos mantinham reprodução/owner. A correção exige visibilidade
+na fonte e na criação atrasada. Parada e retomada foram observadas com mídia
+real em grafo privado, além do PCM final880Hz, pixels e erro de decoder.
+Dois testes antigos de software passaram a exigir fallback e valores aplicados
+zerados para efeitos indisponíveis; as exigências RHI e os goldens foram mantidos.
+
+Integral final: 7.181 passed, 48 skipped, 26 warnings, 2.183,57 s; runner/supervisor0,
+sem sinais,1.294 hashes e perfil observado inalterados. Cobertura agregada com
+branches 85,72395128552097% >=85,71972259810555% da r5; guardas críticos e projeção
+inicial do modelo cobertos. Ruff check/format740, mypy307, independência,
+fronteiras e status aprovados. Tentativas anteriores e diagnóstico do relatório
+sem -x permanecem no recibo, sem aprovação retroativa ou baseline menor.
+
+Recibo: docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json.
+Logs privados: build/agent-runs/studio-native-wheel/. Capturas próprias RHI e
+saída virtual não certificam instalação, latência, áudio físico, GPU ou fluidez.
+Os eixos, gaps e aceites anteriores foram preservados.
+
+Atalho local para a produção existente criado e validado; release observada
+2.0.0rc1/59ecc2d8f0f66e27ce9aefa1dd7656451a610997. Nenhuma instalação, nova
+autenticação, release, merge, deploy ou boot; execução e rollback da release
+não foram revalidados. Integração e documentação ficam em commits separados;
+publicação segue o checkpoint do PR268, com SHA remoto e CI a conferir.
+
+Próximo incremento elegível: publicação comum dos papéis de mídia contextual
+para Studio/Launcher, reutilizando os serviços existentes. Contorno uniforme,
+decode físico/DPR, associações completas, autoria ampliada, exportação com
+herança customizada, paridade RetroFE/ES-DE e aceites físicos permanecem abertos.

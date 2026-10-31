@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP",
+  "title": "Bootstrap limpo e continuidade em host novo",
+  "domain": "governance",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "dev",
+  "operation": "unknown",
+  "distribution": "not-packaged",
+  "scopePaths": [
+    "bootstrap-dev.sh",
+    "tools/bootstrap_dev.py",
+    "tools/dev-bootstrap.lock.json",
+    "tools/export_host_handoff.py",
+    "tests/unit/test_bootstrap_dev.py",
+    "tests/unit/test_host_handoff_export.py",
+    ".gitignore",
+    "RTK.md",
+    "AGENTS.md",
+    "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+    "docs/recovery/2026-10-16/README.md",
+    "docs/09-operations/evidence/2026-10-24-new-host-handoff",
+    "README.md",
+    "docs/recovery/2026-10-16/PROMPT-EXECUCAO-CENTRALIZADA.md",
+    "tools/run_tests_isolated.py",
+    "tests/unit/test_test_state_isolation.py",
+    "src/steamzero/core/fs.py",
+    "tests/unit/test_fs.py",
+    "tests/integration/test_core_service.py",
+    "tests/unit/test_service_core.py"
+  ],
+  "dependsOn": [
+    "SZ-PRODUCT-RECOVERY-2026-10"
+  ],
+  "knownGaps": [
+    "GAP-NEW-HOST-EXTERNAL-PRIVATE-BACKUP",
+    "GAP-NEW-HOST-EMPTY-HOST-APP-INSTALL"
+  ],
+  "acceptanceCriteria": [
+    "Host vazio reconstrói um checkout e ambiente de desenvolvimento isolado sem copiar venv/caches ou instalar emuladores indiscriminadamente.",
+    "Ferramentas baixadas têm versão e hash fixos; reexecução preserva ambientes não gerenciados e dados existentes.",
+    "Plano não instala nem abre autenticação; pacote de dados usa snapshot SQLite e destino privado com manifesto verificável.",
+    "Novo agente encontra estado exato, testes efetivamente concluídos, defeitos pendentes, próxima ação e limites de prova.",
+    "Commit e PR são recuperáveis sem acesso ao disco antigo; backup externo privado exige confirmação própria."
+  ],
+  "evidence": [
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Inventario e instrucao expressa de migracao; fonte R3 preservada, resultado integral temporario perdido nao aprovado.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "2026-10-26: runner isolado bootstrap/export/readiness, 29 passed; state home pessoal sem delta. export_host_handoff.py verify confirmou19613arquivos e hash do arquivo privado. Fonte/fixtures, sem nova instalacao ou prova de hardware.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10:147testes de filesystem, failure injection, organizacao10mil e isolamento passaram em33.47s; smoke nativo Btrfs confirmou custodia/restauracao/inode/no-clobber. Cache evita repetir descoberta de libc, sem mudar recusas ou flags.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: fixture de daemon isolada do perfil offline, teste CLI follow passou com STEAMZERO_NO_DAEMON=1 herdado; sem alterar o modo offline do produto ou state pessoal. Validacao ampla local pelo perfil core do handoff, visual canonico separado no CI.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: test_service_core.py, 43 passed em 12,79 s com STEAMZERO_NO_DAEMON=1 herdado; a fixture de timeout limpa a flag apenas no seu escopo. Produto e perfil offline preservados.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: core local, 6484 passed,48 skipped,396 deselected e1 falha exclusiva de consistencia do catalogo durante atualizacao documental;85.40% de cobertura. Resultado bruto exit1, nao aprovado; reteste do catalogo apos regeneracao registrado no fechamento. 1271 fontes/tools/testes com bytes congelados; gates estaticos finais aprovados.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+      "command": "28/10: revisao de identidade Port Steam/SteamZero, raiz unica e referencias de recuperacao; nenhuma fonte de produto alterada, nenhum novo aceite instalado/fisico. Digest atualizado apenas pela mudanca documental revisada.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
+      "command": "2026-10-30: renovação mecânica do digest compartilhado por consolidação normativa da seção22 e vínculos em AGENTS/direção/plano/superfícies. Nenhuma fonte/runtime, aceite ou eixo deste item alterado; evidências anteriores não reexecutadas nem promovidas.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
+      "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
+      "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel.json",
+      "command": "2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+      "result": "recorded"
+    }
+  ],
+  "nextAction": "Checkpoint técnico e7bb579c aprovado: 7.117 testes passaram, 48 skips; cobertura 85,70961552128492% >= 85,66169677501884%, oito hashes e guardas críticos preservados, sem sinais ou delta no perfil. Publicar/conferir o fechamento documental no PR #268 com SHA remoto e novo CI; depois registrar claims prospectivos e implementar a wheel da seção 22.5: autoria nativa genérica, master canônico preservado e compartilhado, receitas/movimento, round-trip e mesmo Launcher. Wheel ainda não entregue; Studio/Engine parciais. Origem externa histórica do SIGTERM desconhecida. Sem auth, instalação, release, merge, deploy ou boot. Ownership futuro da .venv e backup privado externo mantêm pendências independentes.",
+  "activeWorkstreams": [],
+  "updatedAt": "2026-10-31",
+  "notes": "Bootstrap e ferramentas de handoff recuperados do WIP e testados por runner isolado; backup privado local verificado. Raiz e governanca alinhadas com Projects. Ambiente herdado preservado sem adocao ficticia; instalacao limpa do SO, ownership futuro, upload privado e produto instalado mantem aceites independentes. Ambiente herdado isolado in-place dos pacotes globais;13dependencias faltantes instaladas pelo lock com hashes, pip check aprovado, sem recriar ambiente nem inventar ownership. Corrigido PYTEST_DEBUG_TEMPROOT herdado no runner, com regressao de subprocesso real e130testes focados aprovados. 28/10: nomes historicos Port_Steam/Port_Steam-claude explicitados no README/handoff; revisao exclusivamente documental, estados e evidencias funcionais anteriores preservados.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
+  "scopeDigest": "ee26ac14847d9a17a566e95b53c42bc8ce8188f36e0df93abcfbbf7f376224ee"
+}

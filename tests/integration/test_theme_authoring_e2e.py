@@ -15,6 +15,7 @@ import queue
 import re
 import subprocess
 import threading
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -45,6 +46,38 @@ def test_autoria_pela_ui_real_persiste_e_resolve(
     monkeypatch.setattr(Path, "home", classmethod(lambda _cls: tmp_path))
     ready: queue.Queue[DesktopControlServer] = queue.Queue()
     dashboard = DesktopDashboard()
+    nested_theme_id = "org.steamzero.nested-assets"
+    nested_theme_dir = data / "steamzero/themes" / nested_theme_id
+    nested_theme_dir.mkdir(parents=True)
+    nested_assets = {
+        "assets/logos/platform/source.svg": (
+            ROOT / "src/steamzero/themes/org.steamzero.asset-recipes-demo/assets/source.svg"
+        ).read_bytes(),
+        "assets/backgrounds/platform/fundo.png": (
+            ROOT / "tests/fixtures/themes/esde-mini/fundo.png"
+        ).read_bytes(),
+        "assets/decorations/source.svg": b'<svg xmlns="http://www.w3.org/2000/svg"/>',
+    }
+    (nested_theme_dir / "theme.json").write_text(
+        json.dumps(
+            {
+                "id": nested_theme_id,
+                "name": "Artes em subpastas",
+                "version": "1.0.0",
+                "author": "SteamZero contributors",
+                "license": "CC0-1.0",
+                "extends": "org.steamzero.asset-recipes-demo",
+                "assets": {
+                    "logo": "assets/logos/platform/source.svg",
+                    "background": "assets/backgrounds/platform/fundo.png",
+                },
+            }
+        )
+    )
+    for relative, payload in nested_assets.items():
+        path = nested_theme_dir / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(payload)
 
     def run_server() -> None:
         store = StateStore(tmp_path / "state.db")
@@ -71,6 +104,7 @@ def test_autoria_pela_ui_real_persiste_e_resolve(
                 # Capturas só quando pedido (evidência visual); o teste normal não grava.
                 "captureDir": os.environ.get("SZ_CAPTURE_DIR", ""),
                 "runtimeCaptureDir": str(runtime_captures),
+                "nestedThemeId": nested_theme_id,
             }
         ),
         encoding="utf-8",
@@ -100,8 +134,10 @@ def test_autoria_pela_ui_real_persiste_e_resolve(
         server.shutdown()
         thread.join(timeout=3)
     output = (completed.stdout or "") + (completed.stderr or "")
+    (runtime_captures / "theme-authoring-qml.log").write_text(output)
+    failures = "\n".join(line for line in output.splitlines() if "FAIL!" in line or "Loc:" in line)
     assert completed.returncode == 0, (
-        f"jornada de autoria reprovou:\n{output[:2500]}\n...\n{output[-1200:]}"
+        f"jornada de autoria reprovou:\n{failures}\n{output[:2500]}\n...\n{output[-1200:]}"
     )
     measurements = next(
         (
@@ -121,6 +157,23 @@ def test_autoria_pela_ui_real_persiste_e_resolve(
         f"{minimum_height:.0f} px; escalas={','.join(str(scale) for scale in scales)}"
     )
     assert "FAIL" not in output, output[-5000:]
+    assert f"NESTED_ASSETS_PREVIEW={nested_theme_id}" in output, output[-5000:]
+    for relative, payload in nested_assets.items():
+        assert (nested_theme_dir / relative).read_bytes() == payload
+    nested_manifest = json.loads((nested_theme_dir / "theme.json").read_text())
+    assert nested_manifest["name"] == "Artes em subpastas editadas"
+    nested_reopened = dashboard.editor_load(nested_theme_id)
+    nested_package = tmp_path / "nested-theme.zip"
+    nested_package.write_bytes(dashboard.editor_export_zip(str(nested_reopened["sessionId"])))
+    with zipfile.ZipFile(nested_package) as archive:
+        for relative, payload in nested_assets.items():
+            assert archive.read(f"{nested_theme_id}/{relative}") == payload
+    dashboard.theme_import_zip_apply(str(nested_package), overwrite=True)
+    for relative, payload in nested_assets.items():
+        assert (nested_theme_dir / relative).read_bytes() == payload
+    nested_imported = dashboard.editor_load(nested_theme_id)
+    assert nested_imported["manifest"] == nested_reopened["manifest"]
+    assert nested_imported["preview"]["assetUris"] == nested_reopened["preview"]["assetUris"]
     found = re.search(r"THEME_ID=(\S+)", output)
     assert found, f"o harness não publicou o id do tema:\n{output[-2000:]}"
     theme_id = found.group(1)

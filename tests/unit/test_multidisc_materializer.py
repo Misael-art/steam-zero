@@ -329,3 +329,108 @@ def test_controller_exposes_single_archive_materialization_action(
         / "eboot.bin"
     )
     assert extracted.is_file()
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "bytes",
+        "missing",
+        "source",
+        "legacy",
+        "link",
+        "parent-link",
+        "identity",
+        "malformed",
+        "hashes",
+    ],
+)
+def test_archive_verification_and_recovery(tmp_path: Path, damage: str) -> None:
+    import json
+
+    source = tmp_path / "Game.zip"
+    _zip(source, {"app/eboot.bin": b"game", "app/notes.txt": b"notes"})
+    request = ArchiveMaterializationRequest(
+        "playstation-5",
+        "ps5",
+        "Game",
+        source,
+        tmp_path,
+        {
+            "media": {
+                "containerPolicy": "extract",
+                "extensions": ["bin"],
+                "formats": {"ps5dir": ["bin"]},
+            }
+        },
+    )
+    materializer = ArchiveMaterializer()
+    materializer.run(request)
+    assert materializer.inspect(request).state == "current"
+    target = materializer.launch_target(request)
+    marker_path = materializer.destination(request) / ".steamzero-archive.json"
+    marker = json.loads(marker_path.read_text())
+    if damage == "bytes":
+        target.write_bytes(b"tampered")
+    elif damage == "missing":
+        target.unlink()
+    elif damage == "source":
+        _zip(source, {"app/eboot.bin": b"new-game"})
+    elif damage == "link":
+        target.unlink()
+        target.symlink_to(source)
+    elif damage == "parent-link":
+        target.parent.rename(target.parent.with_name("original"))
+        target.parent.symlink_to(target.parent.with_name("original"), target_is_directory=True)
+    elif damage == "identity":
+        marker["platformId"] = "other"
+    elif damage == "malformed":
+        marker = []
+    elif damage == "hashes":
+        marker["entryHashes"] = {}
+    else:
+        marker["schemaVersion"] = 1
+        marker.pop("entryHashes")
+    if damage in {"identity", "malformed", "hashes", "legacy"}:
+        marker_path.write_text(json.dumps(marker))
+    assert materializer.inspect(request).state != "current"
+    with pytest.raises(SteamZeroError):
+        materializer.launch_target(request)
+    if damage in {"bytes", "missing", "source", "legacy"}:
+        materializer.run(request)
+        assert materializer.launch_target(request).read_bytes() == (
+            b"new-game" if damage == "source" else b"game"
+        )
+    else:
+        with pytest.raises(SteamZeroError):
+            materializer.run(request)
+
+
+@pytest.mark.parametrize(
+    "members",
+    [
+        {"one/eboot.bin": b"one", "two/eboot.bin": b"two"},
+        {"notes.txt": b"no game"},
+    ],
+)
+def test_archive_launch_never_guesses_an_entry(tmp_path: Path, members: dict[str, bytes]) -> None:
+    source = tmp_path / "Game.zip"
+    _zip(source, members)
+    request = ArchiveMaterializationRequest(
+        "playstation-5",
+        "ps5",
+        "Game",
+        source,
+        tmp_path,
+        {
+            "media": {
+                "containerPolicy": "extract",
+                "extensions": ["bin"],
+                "formats": {"ps5dir": ["bin"]},
+            }
+        },
+    )
+    materializer = ArchiveMaterializer()
+    materializer.run(request)
+    with pytest.raises(SteamZeroError, match="alvo único"):
+        materializer.launch_target(request)
