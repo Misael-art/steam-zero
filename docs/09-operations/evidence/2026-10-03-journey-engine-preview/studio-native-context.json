@@ -58,8 +58,8 @@
       "gap": "Ubuntu SSL smoke",
       "cause": "Historical authenticated job log accessed through existing Git credential helper without login: host Ubuntu26.04.1/image20261025.179.1 reused mounted CPython3.14.9 cache inside Ubuntu24.04.4 container with OpenSSL/libssl3t64 3.0.13-0ubuntu3.16. pip reports SSL module unavailable before fetching hatchling. The exact dlopen symbol is not present in this log.",
       "correction": "pin distro smoke runner to Ubuntu24.04; inspect Python extension linkage before ssl/sqlite/CA checks; install hash-locked build backend and build without an unverified isolation environment",
-      "proof": "Historical run41195711124/job124521335047 log retained privately; cache/distro mismatch confirmed. Previous dependency pins unchanged; hash-locked hatchling1.31.0/trove-classifiers added. Runtime .in declaration aligned to existing Pillow13 lock without upgrade. Local pip check passes.",
-      "limit": "Exact historical extension linkage/symbol remains unobserved; candidate Ubuntu smoke not yet run; no remote green claim"
+      "proof": "CI41460758888/Smoke Ubuntu24.04 completed/success for head370b59e5. CPython3.14.9, OpenSSL3.0.13, SQLite3.45.1, ldd resolves libssl/libcrypto.so3, SSL/CERT_REQUIRED/hostname/nonempty CA assertions pass before pip; hash-locked dependencies, non-editable build/install, pip check twice and smoke pass. All eight CI jobs succeeded. Synthetic merge checkoutfcfe145d has identical tree20f30053855376b16d9d43fb59668278a9c21242 to head370b59e5.",
+      "limit": "Candidate blocker closed at CI/package level. Exact historical dlopen symbol remains unobserved and depends on the intact110842162byte manual asset; version/platform match does not establish historical binary byte identity. No host activation."
     },
     {
       "gap": "Launcher regressions exposed by typed media loss",
@@ -270,9 +270,9 @@
   "remote": {
     "pr": 268,
     "state": "open draft",
-    "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
-    "checks": "7 successful CI jobs, Ubuntu smoke failed, CodeRabbit skipped",
-    "credentials": "Existing Git credential helper supplied access in memory to historical logs; no secret persisted, login initiated or authentication changed. No push yet; PR snapshot remains historical.",
+    "head": "370b59e5f77578bbb802e8a1d0804d75c749306d",
+    "checks": "CI41460758888 completed/success, all eight jobs; candidate head370b59e5, synthetic PR merge checkoutfcfe145d with identical Git tree. No PR merge performed.",
+    "credentials": "Existing Git credential helper used in memory; no secret persisted, login initiated or authentication changed. Nominal continuity ref pushed without force; PR268 remains open draft.",
     "verifiedBeforePush": {
       "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
       "main": "ad742ca3515f794fe285d42060708835cb09fb91",
@@ -281,10 +281,90 @@
       "state": "OPEN",
       "draft": true,
       "readUsing": "existing credential helper, no new login; remote refs unchanged"
+    },
+    "run": 41460758888,
+    "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888",
+    "push": "Nominal existing continuity ref accepted after HEAD alias was refused by unchanged workspace hook; no force or bypass. PR head independently verified.",
+    "jobs": [
+      {
+        "name": "Python 3.11",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868591"
+      },
+      {
+        "name": "Smoke Ubuntu 24.04",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868938"
+      },
+      {
+        "name": "Smoke Manjaro",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869024"
+      },
+      {
+        "name": "Smoke Arch Linux",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869050"
+      },
+      {
+        "name": "Python 3.12",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869092"
+      },
+      {
+        "name": "Python 3.14",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869111"
+      },
+      {
+        "name": "Gate visual QML (Linux)",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869264"
+      },
+      {
+        "name": "Wheel limpo, smoke e supply chain",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869343"
+      }
+    ],
+    "checkoutAndCoverageProof": {
+      "coverage": [
+        {
+          "run": 41460758888,
+          "artifactId": 13150366092,
+          "archiveBytes": 676259,
+          "archiveSha256": "ef0a03dc3cccf5fb5bec890e6d04cf523c04d710fa3dad7bf54d71a838565821",
+          "coverage": 85.53545616571003
+        },
+        {
+          "run": 41195711124,
+          "artifactId": 13041122168,
+          "archiveBytes": 674578,
+          "archiveSha256": "2c312f187f99709c14c7621dfb1bb6934ad764ea788c9e76ad32d9c11ed23260",
+          "coverage": 85.50828822733423
+        }
+      ],
+      "coreNonRegression": true,
+      "checkouts": {
+        "370b59e5f77578bbb802e8a1d0804d75c749306d": {
+          "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+          "parents": [
+            "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6"
+          ]
+        },
+        "fcfe145d791776453c08e85c24a32a4d8b9bff64": {
+          "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+          "parents": [
+            "ad742ca3515f794fe285d42060708835cb09fb91",
+            "370b59e5f77578bbb802e8a1d0804d75c749306d"
+          ]
+        }
+      },
+      "mergeTreeEqualsPublishedHead": true
     }
   },
   "externalDependencies": [
-    "candidate CI and exact SSL linkage evidence",
+    "Exact historical SSL dlopen symbol only: intact110842162byte manually downloaded asset with declared SHA256; current candidate CI/SSL/build/install smoke is proven green.",
     "governed installation/rollback and occupied-desktop-safe physical test window",
     "hardware, legitimate content and service credentials for corresponding product journeys",
     "external private-backup readback/restore proof; no upload or overwrite performed"
@@ -391,7 +471,7 @@
       "import hashlib,pathlib; p=pathlib.Path('build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz'); assert p.stat().st_size==110842162; assert hashlib.sha256(p.read_bytes()).hexdigest()=='4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2'; print('size and SHA256 verified')"
     ]
   },
-  "nextAction": "Final documentary closure and one authorized clean push to existing branch/PR268, then verify exact published SHA CI. Prior safe gaps remain: theme-removal consumers, search metadata literal rendering, controlled disconnected-client response, canonical associations/generic authoring and imported playback. Nine-mockup follow-up remains queued until prior request fully closes.",
+  "nextAction": "Commit validated domain/tests and shared integration last, then documentary checkpoint/status and non-editable package acceptance. One clean push to existing PR268 after acceptance. Continue original-request rollback provenance/canonical associations/composition/imported playback before nine-mockup follow-up; external host/hardware/private backup proofs remain separate.",
   "installedCaptures": {
     "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
     "level": "Non-editable wheel in owned temporary environment; synthetic profile, Qt authoring and Launcher components. No /opt release activation, live-library/gameplay or physical acceptance.",
@@ -437,5 +517,82 @@
         "meaning": "Installed package Launcher1280x800/RHI, compact-authored theme"
       }
     ]
+  },
+  "consumerIntegrity": {
+    "baseCommit": "370b59e5f77578bbb802e8a1d0804d75c749306d",
+    "state": "source/HTTP/Qt integral checkpoint passed; clean committed non-editable acceptance of this delta pending",
+    "reproductions": [
+      "Eight removal cases failed before preference/current draft/inheritance/history guards.",
+      "Four real HTTP Journey saved/draft/history/bezel consumer cases failed before actual service integration.",
+      "Launcher search metadata fetched owned loopback marker before Text.PlainText; fixed test now covers selector/popup/scene/search/package metadata and notices with zero HTTP requests.",
+      "TCP RST produced ConnectionResetError before bounded disconnected-client diagnosis; subsequent actual status request succeeds after correction.",
+      "Applying a preview after theme removal wrote a missing-theme preference; now fresh catalog ID/version verification refuses before writing.",
+      "Preference rollback accepted foreign operation and restored a removed theme before ownership/reference checks; actual reimport with explicit overwrite releases refusal and rollback is idempotent.",
+      "Actual blob GC deleted an old image still needed by a live replacement rollback; existing staging previous-theme.json now contributes to the common live_digests set before deletion."
+    ],
+    "implementation": "Existing ThemeTransaction, ThemePreferenceManager, ThemeEditorManager and JourneyStudioService supply bounded current/saved/undo/redo dependency queries. Existing bridge RLock serializes theme/Journey mutations. Unknown/corrupt/symlink/over-budget ownership refuses deletion. Native import preview distinguishes preserved directory data from an installed manifest and requires an actual confirmation click before overwrite; active preference remains unchanged.",
+    "focused": {
+      "passed": 182,
+      "seconds": 61.63,
+      "junitPrivate": "build/agent-runs/continuity-20261102/consumer-integrity-focused-junit.xml",
+      "realStateUnchanged": true
+    },
+    "static": "Ruff check and format742files, mypy307files, independence and architecture boundaries passed before frozen integral; final documentary status regeneration/check follows the evidence update (AGENTS§6).",
+    "limits": [
+      "Owned fixtures, actual HTTP/Qt components and disposable storage only; no live personal corpus or /opt activation.",
+      "Theme acquire operation identity/obsolete rollback provenance requires follow-up reconciliation before a complete recovery claim.",
+      "Generic canonical authoring/associations and integral imported playback remain open; nine mockups remain queued."
+    ],
+    "fullSuite": {
+      "exitCode": 0,
+      "seconds": 3330.0607895279973,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "coverage": {
+        "current": 85.75618340013686,
+        "baseline": 85.74876854203798,
+        "nonRegression": true,
+        "branches": 18200
+      },
+      "passed": 7260,
+      "skipped": 48,
+      "warnings": 22,
+      "testSeconds": 3310.94,
+      "frozenTrackedFiles": 3747,
+      "frozenSourceAndDocumentation": true,
+      "realStateUnchanged": true,
+      "criticalCasesPassed": 172,
+      "criticalSkipped": 0,
+      "criticalFailed": 0,
+      "sourceManifest": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-consumer-tested-files.json",
+      "sourceManifestSha256": "209fad8108edf8e0979fce01a983ac38be8682fe0e3b59a9f0de7429c1e01627",
+      "unchangedCoverageComparison": {
+        "comparedUnchangedModules": 301,
+        "lostCoveredLinesOrArcs": [
+          {
+            "module": "src/steamzero/adapters/session_control.py",
+            "lines": [],
+            "arcs": [
+              [
+                434,
+                -429
+              ]
+            ]
+          }
+        ],
+        "aggregateNonRegression": true
+      }
+    },
+    "commits": {
+      "domain": "0ab4bbc7a6eeb4c752fead3df258049a5e5b41a0",
+      "sharedIntegration": "5dbfda30e842e9a5f579efa376e8514964cfe079"
+    },
+    "documentaryStatusAfterRecording": {
+      "testsPassed": 13,
+      "seconds": 12.2,
+      "statusCheck": "passed",
+      "reason": "Only evidence/status metadata changed after frozen integral; restricted validation per AGENTS section6."
+    },
+    "committedFunctionalInputsMatchFrozenGate": true
   }
 }

@@ -102,6 +102,6 @@
   "nextAction": "A0 fechado (contratos game-record-v1/enhancement-entry-v1, ADR 0028, fixtures e matriz em SZ-AURA-CONTRACTS); abrir as frentes A1 (metadados canônicos) e A2 (pipeline de imagem) com workstreams próprios; nenhum agente edita o shell compartilhado sem workstream registrado.",
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
-  "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.",
-  "scopeDigest": "6506eebc75a36e013acef6ca406e4f7104bbc22f0bdeff729c6eac475a7fc7df"
+  "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.\n02/11/2026: lote serial de consumidores/recuperação validado por182 focados e integral7260passed/48skipped/22warnings/3310,94s; cobertura85,75618340013686%>=85,74876854203798%.3747 arquivos congelados e estado pessoal inalterados;172 casos críticos passam sem skips. Recibo studio-native-context.json explicita uma aresta incidental perdida em301módulos inalterados, sem regressão agregada. Eixos/aceites específicos anteriores preservados; pacote não editable deste delta ainda pendente.",
+  "scopeDigest": "c342064c119bc190c65e9f9b87e4a0af8cbd1871a5a5986bcee91a3dfdcbea6e"
 }

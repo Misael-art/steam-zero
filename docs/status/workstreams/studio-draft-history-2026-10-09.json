@@ -4,7 +4,7 @@
   "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
   "item": "SZ-THEME-STUDIO",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "93fdc318491f280d70568cca1cb4a2081edc6873",
+  "baseRef": "370b59e5f77578bbb802e8a1d0804d75c749306d",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -100,7 +100,16 @@
     "src/steamzero/ui/qml/ThemeScenePreview.qml",
     "tests/qml/check_theme_scene_preview.qml",
     "requirements-runtime.in",
-    "tests/qml/golden/asset-recipes"
+    "tests/qml/golden/asset-recipes",
+    "tests/integration/test_theme_catalog_routes.py",
+    "tests/integration/test_desktop_ui_bridge.py",
+    "tests/unit/test_journey_studio.py",
+    "src/steamzero/domain/theme_preferences.py",
+    "src/steamzero/ui/qml/launcher/LauncherMain.qml",
+    "tests/unit/test_theme_preferences.py",
+    "src/steamzero/ui/qml/ThemeCatalogPanel.qml",
+    "tests/qml/check_theme_catalog_panel.qml",
+    "tests/qml/check_theme_editor_import.qml"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -137,8 +146,15 @@
     "docs/status/items/recovery-r3-launcher-journey.json",
     "docs/status/items/ui-desktop-audit.json",
     "docs/01-product/CAPABILITY-MATRIX.md",
-    "docs/status/items/platform-vita-catalog.json"
+    "docs/status/items/platform-vita-catalog.json",
+    "docs/status/items/aggregate-adapters.json",
+    "docs/status/items/aggregate-core.json",
+    "docs/status/items/aggregate-domain.json",
+    "docs/status/items/aggregate-schemas.json",
+    "docs/status/items/aggregate-tests.json",
+    "docs/status/items/aura-launcher-exit.json",
+    "docs/status/items/aura-ui.json"
   ],
-  "nextAction": "Checkpoint nativo local composto concluído:CI0cfd1b62/domíniofddf91c0/referências1f6be082/integração4236bde0/docs1dbbdfa1. R3:7221pass/48skip/1falha documental,85,74876854203798%>=85,72395128552097%,171guardas;13statuspass e makecheck após correção AGENTS§6, sem falso verde da integral. Guard de seleção de backend pós-r3:4RHIpass e1softwarepass/3RHIskip, runtime inalterado. Wheel limpo1dbbdfa1,4002807bytes/d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9;9 etapas não editable passam/78,96s,644 recursos/237 módulos instalados e2jornadasQt, perfil removido/state13013 preservado. Finalizar WORKLOG append-only/digests/views e um push limpo/PR268; verificar CI SHA antes de qualquer promoção. Próximos seguros anteriores: remoção protegendo rascunhos/Jornadas/preferências (reusar dependencyIDs), reproduzir AutoText da busca Launcher e tratar BrokenPipe GET/themes observado após fechar cliente. Associações/autoria/reprodução importada permanecem. ArquivoPythonhistórico110842162bytes é download manual pendente comhash/URL. Sem host/boot/release/merge/deploy/autenticação nova/backup privado. Ler prompt nove mockups somente após fechar pedido anterior.",
+  "nextAction": "Integral congelada de consumidores/recuperação aprovada:7260passed/48skip/22warnings/3310,94s, cobertura85,7561834%>=85,7487685%,3747arquivos/estado pessoal inalterados e172guardas críticos sem skips. Ruff742/mypy307/independência/fronteiras aprovados. Fechar commits próprios de domínio/testes e integração compartilhada por último, checkpoint documental/status, aceite não editable com HTTP/Qt real e um push limpo PR268. CI anterior41460758888 success8/8, árvoremerge igual a370b59e5; não atribuir esse CI ao delta novo. Depois reconciliar proveniência de rollback/canônico/composição/playback antes dos nove mockups. Host59ecc2d8 intacto; sem agente/clone/branch extra/login/senha/merge/release/boot.",
   "updatedAt": "2026-11-02"
 }
