@@ -217,7 +217,10 @@ jobs:
 
   distro-smoke:
     name: Smoke ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    # setup-python reuses the runner's mounted tool cache before inspecting
+    # the container. Keep its ABI aligned with the oldest container target;
+    # ubuntu-latest moved to 26.04 while this Ubuntu container stays on 24.04.
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -258,9 +261,32 @@ jobs:
           python-version: "3.14"
       - name: Identificar distribuição
         run: cat /etc/os-release
+      - name: Verificar ABI Python, TLS e certificados antes do pip
+        run: |
+          python - <<'CHECK'
+          import importlib.util
+          import platform
+          import subprocess
+          import sys
+          print(sys.executable, sys.version, platform.libc_ver(), flush=True)
+          for module in ("_ssl", "_sqlite3"):
+              extension = importlib.util.find_spec(module)
+              assert extension is not None and extension.origin, module
+              subprocess.run(["ldd", extension.origin], check=True)
+          import ssl
+          import sqlite3
+          context = ssl.create_default_context()
+          assert context.verify_mode == ssl.CERT_REQUIRED
+          assert context.check_hostname
+          assert context.cert_store_stats()["x509_ca"] > 0, "CA store vazio"
+          print(sys.version, ssl.OPENSSL_VERSION, sqlite3.sqlite_version)
+          CHECK
+      - name: Dependências verificadas por hash
+        run: python -m pip install --require-hashes -r requirements-dev.lock
       - name: Construir e instalar sem editable
         run: |
-          python -m pip wheel --no-deps --wheel-dir dist .
+          python -m pip check
+          python -m pip wheel --no-build-isolation --no-deps --wheel-dir dist .
           python -m venv /tmp/steamzero-distro
           /tmp/steamzero-distro/bin/python -m pip install --require-hashes -r requirements-runtime.lock
           /tmp/steamzero-distro/bin/python -m pip install --no-deps dist/*.whl
