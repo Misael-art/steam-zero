@@ -474,6 +474,10 @@ Rectangle {
                                 ? qsTr("%1 arquivo(s) sem dono, %2 a recuperar")
                                     .arg(panel.gcPreview.orphans || 0)
                                     .arg(panel.humanBytes(panel.gcPreview.reclaimedBytes))
+                                    + ((panel.gcPreview.protectedByRollback || 0) > 0
+                                        ? qsTr("\n%1 arquivo(s) preservado(s) para permitir desfazer atualizações de temas.")
+                                            .arg(panel.gcPreview.protectedByRollback)
+                                        : "")
                                 : ""
                             color: panel.amberColor
                             font.pixelSize: Math.round(13 * panel.visualScale)

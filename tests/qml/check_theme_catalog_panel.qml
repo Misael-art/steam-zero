@@ -54,7 +54,7 @@ Item {
                 callback({"operationId": "01OPERACAO", "themeId": payload.themeId})
             else if (actionId === "theme.store.gc")
                 callback({"dryRun": payload.apply !== true, "orphans": 474,
-                          "reclaimedBytes": 69324695})
+                          "reclaimedBytes": 69324695, "protectedByRollback": 7})
             else if (actionId === "theme.apply")
                 callback({"planId": "theme-plan-1", "confirmToken": "theme-token-1",
                           "preview": "troca de aparência", "rollbackGuarantee": "disponível"})
@@ -216,6 +216,9 @@ Item {
             // A primeira chamada NÃO apaga.
             verify(calls[0].payload.apply !== true)
             verify(panel.gcPreview !== null)
+            const explanation = harness.locate(panel, "gcPreviewLabel")
+            verify(explanation.text.indexOf("7") >= 0)
+            verify(explanation.text.indexOf("desfazer") >= 0)
 
             const apply = harness.locate(panel, "gcApplyButton")
             verify(apply !== null && apply.visible, "botão de recuperar deve aparecer")

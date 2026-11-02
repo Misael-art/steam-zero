@@ -61,6 +61,308 @@ def _fake_theme(tmp_path: Path, theme_id: str, files: dict[str, bytes]) -> Theme
     )
 
 
+def _native_removal_target(dashboard: DesktopDashboard) -> tuple[str, Path, bytes]:
+    from steamzero.core import paths
+
+    session = str(dashboard.editor_create("Referenced native theme")["sessionId"])
+    saved = dashboard.editor_save(session)
+    dashboard.editor_cancel(session)
+    theme_id = saved["themeId"]
+    manifest = paths.themes_dir() / theme_id / "theme.json"
+    return theme_id, manifest, manifest.read_bytes()
+
+
+def test_removal_refuses_active_preference_and_recovers_after_switch(
+    dashboard: DesktopDashboard,
+) -> None:
+    from steamzero.domain.theme_preferences import ThemePreferenceManager
+
+    theme_id, manifest, original = _native_removal_target(dashboard)
+    manager = ThemePreferenceManager()
+    plan = manager.plan_activate(theme_id, "1.0.0")
+    assert plan is not None
+    manager.apply(plan.plan_id, plan.confirm_token)
+    preference = manager._preference_path().read_bytes()
+    with pytest.raises(SteamZeroError, match="E-THEME-ACTIVE"):
+        dashboard.theme_catalog_uninstall(theme_id)
+    assert manifest.read_bytes() == original
+    assert manager._preference_path().read_bytes() == preference
+    next_plan = manager.plan_activate("org.steamzero.default", "1.0.0")
+    assert next_plan is not None
+    manager.apply(next_plan.plan_id, next_plan.confirm_token)
+    assert dashboard.theme_catalog_uninstall(theme_id)["removed"]
+    assert manager._read_preference()["themeId"] == "org.steamzero.default"
+
+
+def test_activation_plan_refuses_a_theme_removed_after_preview(dashboard: DesktopDashboard) -> None:
+    from steamzero.core import paths
+
+    theme_id, _manifest, _original = _native_removal_target(dashboard)
+    planned = dashboard.plan_theme_apply(theme_id)
+    assert planned["status"] == "ready"
+    assert dashboard.theme_catalog_uninstall(theme_id)["removed"]
+    with pytest.raises(SteamZeroError, match=r"E-THEME-NOT-FOUND|E-TX-STALE-PLAN"):
+        dashboard.apply_theme_preference(planned["planId"], planned["confirmToken"])
+    assert not paths.theme_preference_path().exists()
+
+
+def test_activation_plan_refuses_a_version_changed_after_preview(
+    dashboard: DesktopDashboard,
+) -> None:
+    from steamzero.core import paths
+
+    theme_id, _manifest, _original = _native_removal_target(dashboard)
+    planned = dashboard.plan_theme_apply(theme_id)
+    session = str(dashboard.editor_load(theme_id)["sessionId"])
+    dashboard.editor_set_metadata(session, "version", "2.0.0")
+    dashboard.editor_save(session, overwrite=True)
+    dashboard.editor_cancel(session)
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        dashboard.apply_theme_preference(planned["planId"], planned["confirmToken"])
+    assert not paths.theme_preference_path().exists()
+
+
+def test_preference_rollback_refuses_missing_theme_and_recovers_after_reimport(
+    dashboard: DesktopDashboard, tmp_path: Path
+) -> None:
+    from steamzero.core import paths
+
+    theme_id, _manifest, _original = _native_removal_target(dashboard)
+    session = str(dashboard.editor_load(theme_id)["sessionId"])
+    package = tmp_path / "recovery.zip"
+    package.write_bytes(dashboard.editor_export_zip(session))
+    dashboard.editor_cancel(session)
+    initial_preview = dashboard.theme_import_zip_inspect(str(package))
+    assert initial_preview["alreadyInstalled"] and not initial_preview["hasPreservedData"]
+    first = dashboard.plan_theme_apply(theme_id)
+    dashboard.apply_theme_preference(first["planId"], first["confirmToken"])
+    second = dashboard.plan_theme_apply("org.steamzero.default")
+    changed = dashboard.apply_theme_preference(second["planId"], second["confirmToken"])
+    assert dashboard.theme_catalog_uninstall(theme_id)["removed"]
+    current = paths.theme_preference_path().read_bytes()
+    with pytest.raises(SteamZeroError, match=r"E-THEME-NOT-FOUND|E-TX-STALE-PLAN"):
+        dashboard.rollback_theme(changed["operationId"])
+    assert paths.theme_preference_path().read_bytes() == current
+    # Removal retains the owned directory/assets. Recovery explicitly confirms
+    # replacement rather than treating that preserved data as disposable.
+    preview = dashboard.theme_import_zip_inspect(str(package))
+    assert not preview["alreadyInstalled"] and preview["hasPreservedData"]
+    with pytest.raises(SteamZeroError):
+        dashboard.theme_import_zip_apply(str(package))
+    assert paths.theme_preference_path().read_bytes() == current
+    dashboard.theme_import_zip_apply(str(package), overwrite=True)
+    assert dashboard.rollback_theme(changed["operationId"])["status"] == "rolled-back"
+    assert json.loads(paths.theme_preference_path().read_text())["themeId"] == theme_id
+    assert dashboard.rollback_theme(changed["operationId"])["status"] == "rolled-back"
+
+
+@pytest.mark.parametrize("draft_kind", ["loaded", "child", "history"])
+def test_removal_preserves_open_drafts_and_their_undo_dependencies(
+    dashboard: DesktopDashboard, draft_kind: str
+) -> None:
+    theme_id, manifest, original = _native_removal_target(dashboard)
+    if draft_kind == "loaded":
+        session = str(dashboard.editor_load(theme_id)["sessionId"])
+    else:
+        session = str(dashboard.editor_create("Unsaved dependent", theme_id)["sessionId"])
+        if draft_kind == "history":
+            dashboard.editor_set_metadata(session, "extends", "org.steamzero.default")
+    with pytest.raises(SteamZeroError, match="rascunho"):
+        dashboard.theme_catalog_uninstall(theme_id)
+    assert manifest.read_bytes() == original
+    if draft_kind == "history":
+        restored = dashboard.editor_undo(session)
+        assert restored["manifest"]["extends"] == theme_id
+    dashboard.editor_cancel(session)
+    assert dashboard.theme_catalog_uninstall(theme_id)["removed"]
+
+
+@pytest.mark.parametrize(
+    "damaged",
+    [b"not-json", b"[]", b'{"themeId":42}', b" " * 4097],
+    ids=["malformed-json", "wrong-root", "wrong-id", "oversize"],
+)
+def test_unknown_preference_refuses_removal_without_overwriting_either_file(
+    dashboard: DesktopDashboard, damaged: bytes
+) -> None:
+    from steamzero.core import paths
+
+    theme_id, manifest, original = _native_removal_target(dashboard)
+    preference = paths.theme_preference_path()
+    preference.parent.mkdir(parents=True, exist_ok=True)
+    preference.write_bytes(damaged)
+    with pytest.raises(SteamZeroError, match="preferência"):
+        dashboard.theme_catalog_uninstall(theme_id)
+    assert manifest.read_bytes() == original
+    assert preference.read_bytes() == damaged
+    preference.unlink()
+    assert dashboard.theme_catalog_uninstall(theme_id)["removed"]
+
+
+@pytest.mark.parametrize("consumer", ["saved", "draft", "history", "bezel"])
+def test_http_removal_preserves_journey_consumers_and_recovers_after_release(
+    dashboard: DesktopDashboard, tmp_path: Path, consumer: str
+) -> None:
+    import queue
+    import threading
+    import urllib.error
+
+    from tests.integration.test_desktop_ui_bridge import Context, request_json
+
+    from steamzero.adapters.desktop_ui import DesktopControlServer
+    from steamzero.adapters.journey_studio import JourneyStudioService
+    from steamzero.core.state import StateStore
+    from steamzero.domain.desktop import ExperienceCoordinator
+
+    theme_id, manifest, original = _native_removal_target(dashboard)
+    journeys = JourneyStudioService(tmp_path / "journey-service")
+    session = str(journeys.create(name="Dependent", journey_id="org.example.consumer")["sessionId"])
+    if consumer == "bezel":
+        journeys.transact(
+            session,
+            "set-stage-bezel",
+            {
+                "stageId": "bezel",
+                "bezelResource": f"asset://bezels/{theme_id}@1.0.0-" + "a" * 64 + ".png",
+            },
+        )
+    else:
+        journeys.transact(
+            session,
+            "set-menu-appearance",
+            {"menuId": "home", "appearance": {"mode": "custom", "themeId": theme_id}},
+        )
+    if consumer == "history":
+        journeys.transact(
+            session,
+            "set-menu-appearance",
+            {"menuId": "home", "appearance": {"mode": "inherit-aura"}},
+        )
+    if consumer == "saved":
+        journeys.save(session)
+        journeys.close(session)
+    before = journeys.snapshot(session) if consumer != "saved" else None
+    saved_files = {p: p.read_bytes() for p in (tmp_path / "journey-service").glob("*.journey.json")}
+    ready: queue.Queue[DesktopControlServer] = queue.Queue()
+
+    def serve() -> None:
+        with StateStore(tmp_path / "journey-bridge.db") as store:
+            store.migrate()
+            server = DesktopControlServer(
+                ExperienceCoordinator(Context(), (), store), "consumer-test", dashboard, journeys
+            )
+            ready.put(server)
+            try:
+                server.serve_forever(poll_interval=0.02)
+            finally:
+                server.server_close()
+
+    worker = threading.Thread(target=serve, daemon=True)
+    worker.start()
+    server = ready.get(timeout=3)
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        with pytest.raises(urllib.error.HTTPError) as refused:
+            request_json(base, "consumer-test", "/theme/catalog/uninstall", {"themeId": theme_id})
+        assert refused.value.code == 409
+        failure = json.loads(refused.value.read())
+        assert "jornada" in str(failure).lower()
+        assert manifest.read_bytes() == original
+        assert all(p.read_bytes() == data for p, data in saved_files.items())
+        if before is not None:
+            assert journeys.snapshot(session) == before
+        if consumer == "saved":
+            reopened = str(journeys.load("org.example.consumer")["sessionId"])
+            journeys.transact(
+                reopened,
+                "set-menu-appearance",
+                {"menuId": "home", "appearance": {"mode": "inherit-aura"}},
+            )
+            journeys.save(reopened, overwrite=True)
+            journeys.close(reopened)
+        else:
+            journeys.close(session)
+        removed = request_json(
+            base, "consumer-test", "/theme/catalog/uninstall", {"themeId": theme_id}
+        )
+        assert removed["removed"] is True
+    finally:
+        server.shutdown()
+        worker.join(timeout=3)
+        assert not worker.is_alive()
+
+
+def test_gc_preserves_assets_owned_by_a_live_theme_rollback(
+    dashboard: DesktopDashboard, tmp_path: Path
+) -> None:
+    from steamzero.core import paths
+    from steamzero.domain.theme_assets import live_digests
+
+    source = _fake_theme(
+        tmp_path, "org.esde.iconic", {"theme.xml": b"<theme/>", "old.png": b"owned old artwork"}
+    )
+    store = dashboard._theme_store()
+    transaction = theme_acquire.ThemeTransaction(paths.themes_dir(), store)
+    initial = theme_acquire.ingest_archive(tmp_path / "org.esde.iconic.tar.gz", source, store)
+    transaction.install(source, initial)
+    manifest = paths.themes_dir() / source.id / "theme.json"
+    original = manifest.read_bytes()
+    previous = json.loads(original)
+    _fake_theme(
+        tmp_path, "org.esde.iconic", {"theme.xml": b"<theme/>", "new.png": b"owned new artwork"}
+    )
+    latest = theme_acquire.ingest_archive(tmp_path / "org.esde.iconic.tar.gz", source, store)
+    installed = transaction.install(source, latest, force=True)
+    assert (paths.staging_for(installed["operationId"]) / "previous-theme.json").is_file()
+    collected = dashboard.theme_store_gc(apply=True)
+    assert store.verify(live_digests([previous]))["ok"], (
+        "GC must preserve the real rollback's assets"
+    )
+    assert collected["protectedByRollback"] > 0
+    assert dashboard.theme_catalog_rollback(source.id, installed["operationId"])["restoredPrevious"]
+    assert manifest.read_bytes() == original
+    assert store.verify(live_digests([previous]))["ok"]
+
+
+@pytest.mark.parametrize(
+    "damage", ["invalid-json", "invalid-digest", "symlink", "count", "bytes", "total"]
+)
+def test_gc_refuses_unknown_rollback_ownership_without_deleting_blobs(
+    dashboard: DesktopDashboard, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, damage: str
+) -> None:
+    from steamzero.core import ids, paths
+
+    store = dashboard._theme_store()
+    digest = store.put("owned.png", b"owned orphan awaiting explicit collection").digest
+    blob = store.blob_path(digest)
+    original = blob.read_bytes()
+    directory = paths.staging_for(ids.new_ulid())
+    directory.mkdir(parents=True)
+    snapshot = directory / "previous-theme.json"
+    payload = json.dumps({"assets": {"old.png": {"digest": digest}}}).encode()
+    snapshot.write_bytes(payload)
+    if damage == "invalid-json":
+        snapshot.write_bytes(b"{")
+    elif damage == "invalid-digest":
+        snapshot.write_text('{"assets":{"old.png":{"digest":"unknown"}}}')
+    elif damage == "symlink":
+        outside = tmp_path / "owned-external-snapshot.json"
+        outside.write_bytes(payload)
+        snapshot.unlink()
+        snapshot.symlink_to(outside)
+    elif damage == "count":
+        monkeypatch.setattr(theme_acquire, "MAX_ROLLBACK_MANIFESTS", 0)
+    elif damage == "bytes":
+        monkeypatch.setattr(theme_acquire, "MAX_ROLLBACK_MANIFEST_BYTES", len(payload) - 1)
+    else:
+        monkeypatch.setattr(theme_acquire, "MAX_ROLLBACK_TOTAL_BYTES", len(payload) - 1)
+    before = snapshot.read_bytes()
+    with pytest.raises(SteamZeroError, match=r"E-THEME-MANIFEST|E-THEME-LIMIT"):
+        dashboard.theme_store_gc(apply=True)
+    assert blob.read_bytes() == original
+    assert snapshot.read_bytes() == before
+
+
 def test_every_catalog_action_is_declared_in_the_contract() -> None:
     actions = {action["id"] for action in handheld_ui_contracts()["actions"]}
 

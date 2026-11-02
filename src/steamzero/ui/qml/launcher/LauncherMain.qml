@@ -827,6 +827,7 @@ Window {
             Text {
                 visible: root.searchQuery.trim() !== "" && root.searchResults.length === 0
                 text: qsTr("Nenhum jogo encontrado para \"%1\"").arg(root.searchQuery)
+                textFormat: Text.PlainText
                 color: "#8b93a8"
                 font.pixelSize: 14
             }
@@ -865,6 +866,7 @@ Window {
                             anchors.rightMargin: 8
                             verticalAlignment: Text.AlignBottom
                             text: modelData.title
+                            textFormat: Text.PlainText
                             color: "#f2f6fb"
                             font.pixelSize: 13
                             wrapMode: Text.Wrap

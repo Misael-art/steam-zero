@@ -469,7 +469,9 @@ Rectangle {
                 panel.packageImportOverwrite = false
                 panel.packageImportNotice = response && response.alreadyInstalled
                     ? qsTr("Este tema já está instalado. Marque substituir somente se deseja trocar a versão atual.")
-                    : qsTr("Pacote validado. Confirme para instalar; o tema ativo não será alterado.")
+                    : response && response.hasPreservedData
+                        ? qsTr("Há dados preservados deste tema. Confirme a substituição para restaurar o pacote; o tema ativo não será alterado.")
+                        : qsTr("Pacote validado. Confirme para instalar; o tema ativo não será alterado.")
                 panel.packageImportNoticeIsError = false
             },
             function(message) {
@@ -482,6 +484,9 @@ Rectangle {
 
     function applyPackageImport() {
         if (!panel.packageImportPreview || panel.packageImportSource.trim() === "")
+            return
+        if ((panel.packageImportPreview.alreadyInstalled
+                || panel.packageImportPreview.hasPreservedData) && !panel.packageImportOverwrite)
             return
         panel.packageImportBusy = true
         panel.packageImportNotice = ""
@@ -2484,6 +2489,8 @@ Rectangle {
 
             Label {
                 visible: panel.packageImportPreview !== null
+                objectName: "packageImportPreviewLabel"
+                textFormat: Text.PlainText
                 text: panel.packageImportPreview
                     ? qsTr("%1 · v%2\nAutor: %3\nLicença: %4\nID: %5")
                         .arg(panel.packageImportPreview.name || "Tema")
@@ -2498,9 +2505,13 @@ Rectangle {
             }
 
             CheckBox {
+                objectName: "packageImportOverwriteCheck"
                 visible: panel.packageImportPreview !== null
-                    && panel.packageImportPreview.alreadyInstalled === true
-                text: qsTr("Substituir o tema instalado")
+                    && (panel.packageImportPreview.alreadyInstalled === true
+                        || panel.packageImportPreview.hasPreservedData === true)
+                text: panel.packageImportPreview && panel.packageImportPreview.hasPreservedData
+                    ? qsTr("Confirmar substituição dos dados preservados")
+                    : qsTr("Substituir o tema instalado")
                 checked: panel.packageImportOverwrite
                 Accessible.name: text
                 onToggled: panel.packageImportOverwrite = checked
@@ -2508,6 +2519,8 @@ Rectangle {
 
             Label {
                 text: panel.packageImportNotice
+                objectName: "packageImportNoticeLabel"
+                textFormat: Text.PlainText
                 visible: panel.packageImportNotice !== ""
                 color: panel.packageImportNoticeIsError ? panel.redColor : panel.greenColor
                 wrapMode: Text.WordWrap
@@ -2528,9 +2541,11 @@ Rectangle {
                 Button {
                     text: panel.packageImportBusy
                         ? qsTr("Instalando…") : qsTr("Instalar pacote")
+                    objectName: "packageImportApplyButton"
                     enabled: !panel.packageImportBusy
                         && panel.packageImportPreview !== null
-                        && (!panel.packageImportPreview.alreadyInstalled
+                        && ((!panel.packageImportPreview.alreadyInstalled
+                                && !panel.packageImportPreview.hasPreservedData)
                             || panel.packageImportOverwrite)
                     Accessible.name: text
                     Accessible.description: enabled

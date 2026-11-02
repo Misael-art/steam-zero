@@ -7,6 +7,7 @@ from __future__ import annotations
 import contextlib
 import importlib.resources
 import json
+import logging
 import math
 import os
 import re
@@ -63,6 +64,7 @@ from steamzero.domain.desktop import (
 from steamzero.ports import CaptureConsent
 
 _MAX_BODY = 64 * 1024
+_LOG = logging.getLogger(__name__)
 # A central QML precisa continuar disponível mesmo quando o driver gráfico do
 # host falha. O backend software é o mesmo caminho certificado pelo gate visual
 # e evita que um SIGSEGV do renderer encerre a unidade transitória do Plasma.
@@ -725,7 +727,8 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 self._send(HTTPStatus.BAD_REQUEST, {"error": "themeId ausente"})
                 return
             try:
-                result = self._dashboard().editor_load(theme_id)
+                with self._control_server._journey_theme_lock:
+                    result = self._dashboard().editor_load(theme_id)
             except SteamZeroError as exc:
                 self._send(HTTPStatus.NOT_FOUND, {"error": exc.to_error_object()})
                 return
@@ -761,7 +764,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            result = self._dispatch(urlparse(self.path).path, payload)
+            path = urlparse(self.path).path
+            if path.startswith(("/theme/", "/journey/studio/")):
+                # Consumers and removal share the existing theme lock. Status,
+                # launch and unrelated actions remain independently responsive.
+                with self._control_server._journey_theme_lock:
+                    result = self._dispatch(path, payload)
+            else:
+                result = self._dispatch(path, payload)
         except SteamZeroError as exc:
             status = _STATUS_BY_CODE.get(exc.code, HTTPStatus.CONFLICT)
             self._send(status, {"error": exc.to_error_object()})
@@ -1214,10 +1224,12 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             return self._dashboard().theme_catalog_rollback(
                 self._required_string(payload, "themeId"),
                 self._required_string(payload, "operationId"),
+                additional_consumers=self._control_server.journey_studio.theme_consumers,
             )
         if path == "/theme/catalog/uninstall":
             return self._dashboard().theme_catalog_uninstall(
                 self._required_string(payload, "themeId"),
+                additional_consumers=self._control_server.journey_studio.theme_consumers,
             )
         if path == "/theme/store/gc":
             # `apply` explícito: a prévia é o padrão, e apagar blob do usuário
@@ -2284,12 +2296,18 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
 
     def _send(self, status: HTTPStatus, payload: dict[str, Any]) -> None:
         encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
-        self.send_response(status.value)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(encoded)))
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers()
-        self.wfile.write(encoded)
+        try:
+            self.send_response(status.value)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(encoded)
+        except (BrokenPipeError, ConnectionResetError):
+            self.close_connection = True
+            _LOG.warning(
+                "DESKTOP-CLIENT-DISCONNECTED-001: cliente encerrou a conexão antes da resposta"
+            )
 
     def log_message(self, format: str, *args: object) -> None:
         # A bridge local não grava URLs/tokens no log HTTP padrão.

@@ -3,6 +3,7 @@
 // esquema → criar tema editável, sem aplicar silenciosamente.
 import QtQuick
 import QtQuick.Window
+import QtTest
 import "../../src/steamzero/ui/qml"
 
 Window {
@@ -21,6 +22,7 @@ Window {
     property string lastScheme: ""
     property string lastName: ""
     property bool lastPackageOverwrite: true
+    property bool preservedPackage: false
     property string lastRetrofeLayout: ""
     property string lastRetrofeSceneId: ""
     property bool lastRetrofeOverwrite: true
@@ -58,7 +60,8 @@ Window {
                 "version": "1.2.0",
                 "author": "Autor",
                 "license": "CC0-1.0",
-                "alreadyInstalled": false
+                "alreadyInstalled": false,
+                "hasPreservedData": harness.preservedPackage
             })
             return
         }
@@ -99,6 +102,7 @@ Window {
         failures += 1
         console.error("FAIL: " + message)
     }
+    TestCase { id: lookup; when: false }
 
     Component.onCompleted: {
         check(panel.editorThemeList.length === 0, "a lista inicial deve carregar")
@@ -127,6 +131,23 @@ Window {
         panel.applyPackageImport()
         check(packageApplyRequests === 1, "instalar pacote deve chamar o contrato uma vez")
         check(lastPackageOverwrite === false, "pacote novo não deve sobrescrever")
+        harness.preservedPackage = true
+        panel.inspectPackageImport()
+        const dialog = lookup.findChild(panel, "themeImportPackageDialog")
+        dialog.open()
+        const confirm = lookup.findChild(panel, "packageImportOverwriteCheck")
+        const install = lookup.findChild(panel, "packageImportApplyButton")
+        check(confirm !== null && confirm.visible, "dados preservados exigem confirmação visível")
+        check(install !== null && !install.enabled, "restaurar deve aguardar confirmação")
+        panel.applyPackageImport()
+        check(packageApplyRequests === 1, "restaurar sem confirmação não pode enviar pedido")
+        lookup.mouseClick(confirm)
+        check(panel.packageImportOverwrite === true, "clique deve confirmar substituição")
+        check(install.enabled, "confirmar deve habilitar restauração")
+        lookup.mouseClick(install)
+        check(packageApplyRequests === 2 && lastPackageOverwrite,
+              "restauração deve enviar confirmação pelo contrato existente")
+        dialog.close()
         panel.retrofeImportSource = "/tmp/retrofe"
         panel.inspectRetrofeImport()
         check(retrofeInspectRequests === 1, "examinar RetroFE deve chamar o contrato uma vez")
@@ -141,6 +162,8 @@ Window {
         check(lastRetrofeLayout === "main", "publicar RetroFE deve enviar o id do layout")
         check(lastRetrofeSceneId === "org.example.retrofe", "publicar RetroFE deve enviar o id da cena")
         check(lastRetrofeOverwrite === false, "RetroFE novo não deve sobrescrever por padrão")
+        console.log("THEME-IMPORT-RECOVERY " + JSON.stringify({failures: failures,
+            packageApplyRequests: packageApplyRequests, restoredWithConfirmation: lastPackageOverwrite}))
         Qt.exit(failures)
     }
 }

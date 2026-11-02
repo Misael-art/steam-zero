@@ -76,11 +76,39 @@ def test_media_labels_are_literal_and_never_fetch_embedded_images(tmp_path: Path
         report = json.loads(output.split("NATIVE-CONTEXT-LABEL ", 1)[1].splitlines()[0])
         assert requests == [], "metadata display must not authorize network image requests"
         assert report["literal"] and report["popupLiteral"] and report["sceneLiteral"], report
+        assert report["searchTitleLiteral"] and report["searchQueryLiteral"], report
+        assert report["importLiteral"] and report["importNoticeLiteral"], report
         assert report["text"] == label
     finally:
         server.shutdown()
         worker.join(timeout=2)
         server.server_close()
+
+
+def test_native_package_restoration_requires_the_users_confirmation() -> None:
+    runtime = shutil.which("qml6") or shutil.which("qml")
+    assert runtime is not None
+    env = dict(os.environ)
+    env.update(
+        QT_QPA_PLATFORM="offscreen",
+        QT_QUICK_BACKEND="software",
+        QT_FORCE_STDERR_LOGGING="1",
+        QT_LOGGING_RULES="",
+    )
+    completed = subprocess.run(
+        [runtime, str(ROOT / "tests/qml/check_theme_editor_import.qml")],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        check=False,
+    )
+    output = completed.stdout + completed.stderr
+    assert completed.returncode == 0, output
+    assert "THEME-IMPORT-RECOVERY " in output, output
+    report = json.loads(output.split("THEME-IMPORT-RECOVERY ", 1)[1].splitlines()[0])
+    assert report == {"failures": 0, "packageApplyRequests": 2, "restoredWithConfirmation": True}
 
 
 @pytest.mark.parametrize("dpr", [1, 1.5, 2])
