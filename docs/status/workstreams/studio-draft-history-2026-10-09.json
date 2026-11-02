@@ -109,7 +109,8 @@
     "tests/unit/test_theme_preferences.py",
     "src/steamzero/ui/qml/ThemeCatalogPanel.qml",
     "tests/qml/check_theme_catalog_panel.qml",
-    "tests/qml/check_theme_editor_import.qml"
+    "tests/qml/check_theme_editor_import.qml",
+    "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -155,6 +156,6 @@
     "docs/status/items/aura-launcher-exit.json",
     "docs/status/items/aura-ui.json"
   ],
-  "nextAction": "Integral congelada de consumidores/recuperação aprovada:7260passed/48skip/22warnings/3310,94s, cobertura85,7561834%>=85,7487685%,3747arquivos/estado pessoal inalterados e172guardas críticos sem skips. Ruff742/mypy307/independência/fronteiras aprovados. Fechar commits próprios de domínio/testes e integração compartilhada por último, checkpoint documental/status, aceite não editable com HTTP/Qt real e um push limpo PR268. CI anterior41460758888 success8/8, árvoremerge igual a370b59e5; não atribuir esse CI ao delta novo. Depois reconciliar proveniência de rollback/canônico/composição/playback antes dos nove mockups. Host59ecc2d8 intacto; sem agente/clone/branch extra/login/senha/merge/release/boot.",
+  "nextAction": "Fechamento consumidores/recuperação:domínio0ab4bbc7,integração5dbfda30,checkpoint980b477c; integral7260/48/22warnings/3310,94s e cobertura85,7561834% sem regressão,3747arquivos/state preservados,172guardas passam. Wheel980b477c680ceefb…12jornadas/9etapas/88,88s aprovado;644recursos/237módulos instalados e capturas12–13, scripts QA preservados. Fechar status/docs/WORKLOG append-only, um push limpo PR268 e registrar CI do SHA. Logo depois assumir serialmente a próxima contraprova de proveniência de rollback antes de canônico/composição/playback; nove mockups seguem posteriores ao pedido original. Host59ecc2d8 intacto; sem agentes/clone/branch extra/auth/merge/release/boot. Reconciliação documental de ownership no fechamento: RETOMADA recebeu somente o checkpoint append-only; o claim antigo NEW-HOST-HANDOFF está fechado desde26/10. O caminho foi explicitado neste registro após o append, sem escritor concorrente nem alteração de sessões anteriores.",
   "updatedAt": "2026-11-02"
 }

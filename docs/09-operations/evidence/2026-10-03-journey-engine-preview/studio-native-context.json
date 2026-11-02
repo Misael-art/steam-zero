@@ -32,7 +32,7 @@
       "cause": "ZIP omitted custom ancestors; uninstall ignored installed extends consumers",
       "correction": "bounded native bundle carries ancestry and each master once; identical dependencies reused; differing dependencies refused; handled publication failure removes only owned new dependencies; removal refuses live children; Central inspects explicit bundle primary and copying renames only the child/bundle pointer using a full ULID; dependency revisions and metadata remain intact",
       "proof": "118 focused tests pass including fresh-profile inheritance/revision, master count, conflict preservation and publication failure; final111 focused tests pass; Central inspect/copy/two-copy regression reproduced then fixed;131 security/ownership/round-trip tests pass",
-      "limit": "source fixtures; no profile migration, host update or external redistribution; removal guard currently covers installed extends consumers, not all drafts/Journey/preferences"
+      "limit": "Initial child-only removal guard superseded by consumerIntegrity: active preference, saved/open/undo/redo theme and Journey consumers now covered in source/HTTP and installed package fixtures. Complete recovery provenance and physical/profile migration qualification remain open."
     },
     {
       "gap": "RetroFE silent loss",
@@ -471,7 +471,7 @@
       "import hashlib,pathlib; p=pathlib.Path('build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz'); assert p.stat().st_size==110842162; assert hashlib.sha256(p.read_bytes()).hexdigest()=='4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2'; print('size and SHA256 verified')"
     ]
   },
-  "nextAction": "Commit validated domain/tests and shared integration last, then documentary checkpoint/status and non-editable package acceptance. One clean push to existing PR268 after acceptance. Continue original-request rollback provenance/canonical associations/composition/imported playback before nine-mockup follow-up; external host/hardware/private backup proofs remain separate.",
+  "nextAction": "One clean push of the consumer/recovery checkpoint to existing PR268 and capture the exact candidate CI run, then continue safe original-request rollback provenance, canonical associations/composition and imported playback. Review of nine mockups remains queued until the original eligible work is closed; host/hardware/private backup dependencies remain explicit.",
   "installedCaptures": {
     "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
     "level": "Non-editable wheel in owned temporary environment; synthetic profile, Qt authoring and Launcher components. No /opt release activation, live-library/gameplay or physical acceptance.",
@@ -520,7 +520,7 @@
   },
   "consumerIntegrity": {
     "baseCommit": "370b59e5f77578bbb802e8a1d0804d75c749306d",
-    "state": "source/HTTP/Qt integral checkpoint passed; clean committed non-editable acceptance of this delta pending",
+    "state": "source/HTTP/Qt integral and committed non-editable package acceptance passed; published checkpoint CI still to be verified",
     "reproductions": [
       "Eight removal cases failed before preference/current draft/inheritance/history guards.",
       "Four real HTTP Journey saved/draft/history/bezel consumer cases failed before actual service integration.",
@@ -539,7 +539,7 @@
     },
     "static": "Ruff check and format742files, mypy307files, independence and architecture boundaries passed before frozen integral; final documentary status regeneration/check follows the evidence update (AGENTS§6).",
     "limits": [
-      "Owned fixtures, actual HTTP/Qt components and disposable storage only; no live personal corpus or /opt activation.",
+      "Owned fixtures and actual non-editable installed HTTP/Qt/backend components in a disposable profile; no personal corpus or /opt activation, hardware or complete accessibility qualification.",
       "Theme acquire operation identity/obsolete rollback provenance requires follow-up reconciliation before a complete recovery claim.",
       "Generic canonical authoring/associations and integral imported playback remain open; nine mockups remain queued."
     ],
@@ -593,6 +593,154 @@
       "statusCheck": "passed",
       "reason": "Only evidence/status metadata changed after frozen integral; restricted validation per AGENTS section6."
     },
-    "committedFunctionalInputsMatchFrozenGate": true
+    "committedFunctionalInputsMatchFrozenGate": true,
+    "installedAcceptance": {
+      "sourceCommit": "980b477cdfcfda264cddc5d2b3098f604cce3932",
+      "sourceDirty": false,
+      "wheel": "build/agent-runs/continuity-20261102/consumer-integrity-package/verification-wheel/steamzero-2.0.0rc1-py3-none-any.whl",
+      "bytes": 4007822,
+      "sha256": "680ceefb55dd565e3867685b78c60cec3741eb9913b9b45dc924392d90479a3c",
+      "steps": [
+        {
+          "name": "venv",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-venv.log"
+        },
+        {
+          "name": "tls",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-tls.log"
+        },
+        {
+          "name": "runtime",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-runtime.log"
+        },
+        {
+          "name": "wheel",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-wheel.log"
+        },
+        {
+          "name": "pip-check",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-pip-check.log"
+        },
+        {
+          "name": "version",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-version.log"
+        },
+        {
+          "name": "doctor",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-doctor.log"
+        },
+        {
+          "name": "ports",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-ports.log"
+        },
+        {
+          "name": "native-qt",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-native-qt.log"
+        }
+      ],
+      "seconds": 88.87721906600927,
+      "journeys": [
+        {
+          "compactAuthoring": false,
+          "passed": true
+        },
+        {
+          "compactAuthoring": true,
+          "passed": true
+        },
+        {
+          "installedRecovery": "active-preference",
+          "passed": true
+        },
+        {
+          "installedRecovery": "stale-activation",
+          "passed": true
+        },
+        {
+          "installedRecovery": "preference-rollback-reimport",
+          "passed": true
+        },
+        {
+          "installedRecovery": "gc-rollback",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-saved",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-draft",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-history",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-bezel",
+          "passed": true
+        },
+        {
+          "installedRecovery": "package-recovery-wide",
+          "passed": true,
+          "actualQtControlsToHttpToInstalledImporter": true,
+          "preferencePreservedUntilExplicitRollback": true,
+          "capture": "/home/misael/Projects/SteamZero/build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-captures/package-recovery-wide.png"
+        },
+        {
+          "installedRecovery": "package-recovery-compact",
+          "passed": true,
+          "actualQtControlsToHttpToInstalledImporter": true,
+          "preferencePreservedUntilExplicitRollback": true,
+          "capture": "/home/misael/Projects/SteamZero/build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-captures/package-recovery-compact.png"
+        }
+      ],
+      "verifiedInstalledResources": 644,
+      "applicationModulesFromInstalledPackage": 237,
+      "temporaryEnvironmentRemoved": true,
+      "realStateUnchanged": true,
+      "hostActivated": false,
+      "captures": [
+        {
+          "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/12-installed-recovery-wide.png",
+          "bytes": 69729,
+          "sha256": "c48849254aef020f47a19c577e6b06747c36623657eebaeb0a0f8e8a311d904a",
+          "size": [
+            1280,
+            900
+          ],
+          "meaning": "Installed wheel980b477c; actual package recovery modal/wide, before confirmation. Real typing, inspect, confirmation, import and preference rollback subsequently passed. Pointer/input/fit proof, not complete accessibility or hardware certification."
+        },
+        {
+          "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/13-installed-recovery-compact.png",
+          "bytes": 63712,
+          "sha256": "2edc11c45c0983349788535e4dbf74344becca734d185699a042e50d57b0066c",
+          "size": [
+            840,
+            900
+          ],
+          "meaning": "Installed wheel980b477c; actual package recovery modal/compact, before confirmation. Real typing, inspect, confirmation, import and preference rollback subsequently passed. Pointer/input/fit proof, not complete accessibility or hardware certification."
+        }
+      ],
+      "executedQaSources": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context-qa-sources.json",
+      "executedQaSourcesSha256": "af52f33b7e25fe48308c14eac156335c094bc0a1bc5562ab22aedaa56ce95402",
+      "level": "Non-editable installed wheel980b477c, isolated synthetic profile. Actual Qt controls/HTTP/backend/disk/readback; authoring1280x900 and840x900 large text plus Launcher RHI on software OpenGL. No /opt activation, live corpus, gameplay, physical controls or complete accessibility qualification.",
+      "instrumentationHistory": "Initial aggregate exit1 and two focused exit1 attempts preserved. The extra harness clicked/typed before the TextField layout was polished (width0), so input had no focus. Await the same >=48px field geometry, center click, actual focus and exact typed path; no forced focus, handler shortcut or application/assertion threshold change. Focused wide/compact passed, then consolidated12 journeys and all9 stages passed. Controlled disconnect warning replaces the original BrokenPipe traceback."
+    },
+    "finalDocumentaryValidation": {
+      "testsPassed": 13,
+      "seconds": 13.61,
+      "realStateUnchanged": true,
+      "statusCheck": "passed; final generated-view regeneration after ownership metadata only"
+    }
   }
 }

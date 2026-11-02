@@ -917,3 +917,49 @@ BrokenPipeError na bridge, sem reprovar os dois percursos. Tratar fechamento
 controlado do cliente em próximo incremento; não apresentar transporte sem erro.
 A revisão dos nove mockups permanece posterior ao fechamento integral do pedido
 anterior. Nenhuma permissão de host foi ampliada.
+
+
+### 2026-11-02 — Consumidores, recuperação e aceite instalado do incremento
+
+Remoção e rollback que excluem um tema agora recusam preferência ativa, rascunhos
+de tema/Jornada e dependências salvas/undo/redo; contexto desconhecido ou acima
+do orçamento recusa sem apagar. GC inclui os manifestos anteriores do staging
+no mesmo conjunto de digests vivos. Prévia de importação distingue manifesto
+instalado de dados preservados, oferece confirmação explícita e permite reimportar
+antes de desfazer a preferência. Planos antigos revalidam ID/versão; rollback
+de preferência valida ownership. Busca e metadados permanecem texto literal;
+cliente desconectado recebe diagnóstico fixo sem traceback ou token.
+
+Domínio/testes0ab4bbc7, integração compartilhada5dbfda30 e documento980b477c.
+Integral oficial7260passed/48skipped/22warnings/3310,94s, exit0;3747arquivos de
+fonte/documentação e state pessoal13013arquivos inalterados. Cobertura com
+branches85,75618340013686%>=85,74876854203798%;172guardas críticos passam
+sem skips.301módulos inalterados: uma aresta incidental de saída do loop de
+sessão não exercida; sem regressão agregada. Ruff742/mypy307, independência,
+fronteiras e status passaram. Evidência/fechamento documental posterior validado
+separadamente conforme AGENTS§6; a fonte continua idêntica ao gate congelado.
+
+Wheel não editable980b477c,4.007.822bytes, SHA256
+680ceefb55dd565e3867685b78c60cec3741eb9913b9b45dc924392d90479a3c:
+9etapas e12jornadas aprovadas/88,88s,644recursos e237módulos exclusivamente
+instalados; confirmação pela UI/HTTP/importador e rollback com readback em
+1280x900 e840x900. Capturas12–13 e fontes exatas dos auxiliares preservadas no
+recibo studio-native-context. As primeiras falhas pertenciam ao roteiro que
+digitava antes do posicionamento do campo (width0); os registros permanecem,
+sem alteração da aplicação nem redução de assertivas. Perfil/venv removidos e
+state real preservado. O aviso DESKTOP-CLIENT-DISCONNECTED-001 foi observado
+no encerramento Qt sem traceback, confirmando a correção do defeito anterior.
+
+CI anterior41460758888 terminou success8/8 para head370b59e5. Checkout sintético
+fcfe145d tem a mesma árvore20f30053855376b16d9d43fb59668278a9c21242; não houve
+merge. Ubuntu SSL/CA/hashdeps/noneditable/pipcheck/smoke passou; cobertura core
+85,53545616571003%>=85,50828822733423%, arquivos de cobertura com SHA conferido.
+Isto fecha o bloqueio candidato SSL, não comprova o símbolo dlopen histórico.
+O arquivo110842162bytes continua manual e não foi baixado.
+
+Host59ecc2d8f0f6 intacto, rollback/runtime/hardware não requalificados; sem login,
+senha, instalação de host, boot, merge, release, deploy ou backup privado enviado.
+O push limpo deste incremento reutiliza PR268, e seu próprio CI ainda deve ser
+conferido. Seguem elegíveis proveniência de rollback, associações canônicas,
+composição/autoria ampliada e executor de playback importado;9mockups seguem
+posteriores ao pedido original.
