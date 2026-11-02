@@ -15829,3 +15829,45 @@ Próximo incremento elegível: publicação comum dos papéis de mídia contextu
 para Studio/Launcher, reutilizando os serviços existentes. Contorno uniforme,
 decode físico/DPR, associações completas, autoria ampliada, exportação com
 herança customizada, paridade RetroFE/ES-DE e aceites físicos permanecem abertos.
+
+
+## 2026-11-02 — Continuidade nativa: mídia contextual, herança e pacote verificável
+
+Executor serial codex-central-executor na raiz/branch de continuidade, base
+93fdc318; WIP herdado identificado e preservado. Commits:0cfd1b62CI,
+fddf91c0domínio/herança,1f6be082três referências de contorno autorizadas,
+4236bde0integração compartilhada por último,1dbbdfa1checkpoint documental.
+Papéis/identidade/revisão comuns Studio/Launcher, texto literal em seletor/cena,
+contorno por dilatação e decode escala/DPR, herança portátil/recusa de remover
+base com filhos, cor/alpha/font/layer e perdas do importador diagnosticadas.
+Não equivalem a reprodução completa de timelines/eventos/easing/menu/som.
+
+Integral r2:7219pass/48skip/3falhas apenas referências antigas. Integral r3:
+7221pass/48skip/1falha documental/22warnings em3058,56s, saída1 preservada;
+1309 entradas e state real13013 arquivos inalterados, sem sinais. Cobertura
+85,74876854203798%>=85,72395128552097%;171 guardas críticos passam.294 módulos
+inalterados comparados: duas linhas do retry SQLite não exercidas nesta rodada,
+sem regressão agregada. Atualizações documentais durante a execução causaram
+digest/visão obsoletos; exceção AGENTS§6 aplicada: regeneração e13testes/status
+aprovados/19,86s, make status-check OK, sem alegar integral verde. Pós-r3 apenas
+guard de seleção de backend do novo teste:4RHIpass/7,66s e1softwarepass+3pulos
+RHI explícitos/2,82s. Assertivas/tolerâncias mantidas. Ruff742/mypy307 e gates
+arquiteturais passaram; fonte runtime permaneceu congelada.
+
+Wheel não editable limpo1dbbdfa1:4002807bytes,
+SHA256d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9.
+9etapas TLS/hashdeps/pipcheck/CLI/portas/Qt aprovadas/78,96s,644recursos e237
+módulos exclusivamente instalados,2jornadas largo/compacto e LauncherRHI.
+Perfil/venv temporários removidos; estado real preservado.11capturas sintéticas
+revisadas e hashes/manifesto congelado preservados no recibo studio-native-context.
+BrokenPipe em GET/themes após cliente fechar ficou observado para próxima correção.
+
+Log histórico do CI confirmou host26/cachePython3.14.9/container24/OpenSSL3.0.13;
+símbolo exato não observado. Binário oficial110842162bytes exige download manual,
+origem/hash/destino/validação registrados; sem transferência. Helper Git existente
+usado em memória, sem login/senha/segredo publicado. Push nominal/CI do SHA seguem
+pendentes até fechar documentação limpa; reutilizar PR268, sem force/merge/release.
+Host59ecc2d8f0f6 intacto; rollback/runtime não requalificados, desktop ocupado
+preservado. Sem upload/restauração de backup privado. Próximos seguros: consumidores
+da remoção, busca literal/fechamento de cliente, associações/autoria e reprodução
+importada. Pedido dos nove mockups só será iniciado após fechar o anterior.

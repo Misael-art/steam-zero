@@ -141,7 +141,7 @@
       ],
       "criticalCasesPassed": 171
     },
-    "status": "Corrected documentary inconsistency: official test_project_status13passed/19.86s, real state unchanged, make status-check OK. This receipt metadata/commit-reference update receives fresh digest/render/status validation before commit.",
+    "status": "13 official project-status tests passed after r3 documentary correction; final metadata/WORKLOG/capture changes receive fresh scope/render/status check before push.",
     "nonEditableAcceptancePlan": "After final green local gate and clean committed source: hash-locked wheel build, verify embedded source identity and shader/QML resources; install non-editable in owned empty environment; pip check/version/doctor/ports with isolated HOME/XDG; reuse existing authoring/Launcher Qt journeys redirected to installed package resources, documenting any development helper used. No /opt activation or occupied-desktop interaction. Candidate remote smoke must confirm its own published SHA.",
     "canonicalRhiProbe": {
       "image": "sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd",
@@ -167,6 +167,97 @@
       "focusedSoftware": "1passed/3 explicitly skipped RHI cases in2.82s; literal metadata still tested, real state unchanged",
       "runtimeFilesChangedAfterR3": false,
       "verifiedAllOtherFrozenFilesUnchanged": true
+    },
+    "nonEditable": {
+      "wheel": {
+        "wheel": "build/agent-runs/continuity-20261102/verification-wheel/steamzero-2.0.0rc1-py3-none-any.whl",
+        "bytes": 4002807,
+        "sha256": "d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9",
+        "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+        "sourceDirty": false,
+        "newResourcesPresent": true
+      },
+      "smoke": {
+        "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+        "wheelSha256": "d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9",
+        "preflightMemoryKiB": 1830508,
+        "memoryBudgetMiB": 512,
+        "reserveMiB": 512,
+        "fullSuiteMemoryGuardUnchanged": true,
+        "steps": [
+          {
+            "name": "venv",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-venv.log"
+          },
+          {
+            "name": "tls",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-tls.log"
+          },
+          {
+            "name": "runtime",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-runtime.log"
+          },
+          {
+            "name": "wheel",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-wheel.log"
+          },
+          {
+            "name": "pip-check",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-pip-check.log"
+          },
+          {
+            "name": "version",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-version.log"
+          },
+          {
+            "name": "doctor",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-doctor.log"
+          },
+          {
+            "name": "ports",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-ports.log"
+          },
+          {
+            "name": "native-qt",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-native-qt.log"
+          }
+        ],
+        "hostActivated": false,
+        "temporaryEnvironmentRemoved": true,
+        "realStateUnchanged": true,
+        "realStateSource": "HOME-default",
+        "seconds": 78.96327763900626
+      },
+      "native": {
+        "commit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+        "nonEditable": true,
+        "verifiedInstalledResources": 644,
+        "applicationModulesFromInstalledPackage": 237,
+        "journeys": [
+          {
+            "compactAuthoring": false,
+            "passed": true
+          },
+          {
+            "compactAuthoring": true,
+            "passed": true
+          }
+        ],
+        "helpers": "Existing development pytest and tests.integration.test_native_wheel; only harness import URI/config location redirected. All application modules and QML resources come from the installed wheel.",
+        "level": "Installed non-editable package, isolated synthetic profile, Qt software authoring and RHI Launcher; no host activation or physical hardware acceptance.",
+        "temporaryProfileRemoved": true
+      },
+      "tls": "Local Arch/Manjaro runtime OpenSSL3.6.4, SQLite3.53.4; valid default CA context. This does not replace Ubuntu candidate CI.",
+      "observedNonFatalIssue": "Installed bridge logged BrokenPipeError while replying to GET/themes after Qt client teardown. Both authoring/Launcher journeys passed; review controlled disconnect handling in next eligible bridge slice, do not call this a flawless transport run."
     }
   },
   "host": {
@@ -300,5 +391,51 @@
       "import hashlib,pathlib; p=pathlib.Path('build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz'); assert p.stat().st_size==110842162; assert hashlib.sha256(p.read_bytes()).hexdigest()=='4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2'; print('size and SHA256 verified')"
     ]
   },
-  "nextAction": "Clean committed checkpoint, non-editable wheel build/install/identity/resource checks and reused installed Qt journeys, then final local documentary closure and authorized clean push/PR268/CI exact SHA. Continue prior eligible gaps before reading the nine-mockup follow-up."
+  "nextAction": "Final documentary closure and one authorized clean push to existing branch/PR268, then verify exact published SHA CI. Prior safe gaps remain: theme-removal consumers, search metadata literal rendering, controlled disconnected-client response, canonical associations/generic authoring and imported playback. Nine-mockup follow-up remains queued until prior request fully closes.",
+  "installedCaptures": {
+    "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+    "level": "Non-editable wheel in owned temporary environment; synthetic profile, Qt authoring and Launcher components. No /opt release activation, live-library/gameplay or physical acceptance.",
+    "items": [
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/08-installed-studio-wide.png",
+        "bytes": 93768,
+        "sha256": "252ee056ef15e7cd0ade2506e02d6ad5c67cd7c0c18b8aea4b94d7811ab4b087",
+        "size": [
+          1280,
+          900
+        ],
+        "meaning": "Installed package Studio1280x900/software"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/09-installed-studio-compact.png",
+        "bytes": 59775,
+        "sha256": "e9acbb15063656fa8efff86b2dcf78d9cec95c4f6ff7be0e2e0f9a39b03080b4",
+        "size": [
+          840,
+          900
+        ],
+        "meaning": "Installed package Studio840x900/large-text/software"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/10-installed-launcher-from-wide.png",
+        "bytes": 72778,
+        "sha256": "f81f1566296c36cc1ad60c8b0f19aa400ae5d1c188addba4568c586fe1ad471a",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Installed package Launcher1280x800/RHI, wide-authored theme"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/11-installed-launcher-from-compact.png",
+        "bytes": 72775,
+        "sha256": "10e5ec78a62a692d4529d219bcdb1f7333a8fba5a389f1f17104cfa0b84b3ad8",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Installed package Launcher1280x800/RHI, compact-authored theme"
+      }
+    ]
+  }
 }

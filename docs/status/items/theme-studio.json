@@ -8,8 +8,8 @@
   "integration": "feature-branch",
   "verification": "dev",
   "operation": "degraded",
-  "distribution": "not-packaged",
-  "scopeDigest": "a7b8e7fddfa072dd98b78850cc64b84072586bb8cae4e5c292bed295c4225ba2",
+  "distribution": "packaged",
+  "scopeDigest": "c6c0b1af52f6ccb5e3b9d54c9fef79f8adb89f9a3a71eab40d89366ff3805412",
   "scopePaths": [
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun",
     "docs/09-operations/evidence/2026-09-07-theme-studio-contrast",
@@ -657,9 +657,15 @@
       "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
       "command": "R3 terminou7221passed/48skipped/1failed documental/22warnings em3058,56s;1309 entradas e estado pessoal inalterados. Cobertura85,74876854203798%>=85,72395128552097%,171 guardas críticos passam.294 módulos comparados: duas linhas do retry SQLite não exercidas, sem regressão agregada. Única falha: digests/visões alterados durante a integral; corrigir e validar somente status conforme AGENTS§6. RHI focado4pass após guard de seleção de backend; nenhuma assertiva relaxada. Fonte/Qt, não instalação/hardware.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
+      "command": "Wheel limpo1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6,4002807bytes/SHA256d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9.9 etapas não editable/TLS/hash-deps/pipcheck/CLI/portas/Qt aprovadas em78,96s;644 recursos e237 módulos exclusivamente instalados,2jornadas largo/compacto com LauncherRHI; perfil descartável removido/state real inalterado. Helpers de teste existentes explicitados. Fonte empacotada, não release ativada/hardware; BrokenPipe em GET/themes após fechamento do cliente registrado como pendência.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Integração de fonte4236bde0 e herança fddf91c0; status corrigido após R3 (13pass/checkOK), sem chamar saída1 da integral de verde. Próximo: pacote não editable/Qt instalado/CI. Depois preservar consumidores de rascunhos/Jornadas/preferências na remoção, completar associações/autoria e reprodução importada. Aceites instalados no host e físicos permanecem independentes.",
+  "nextAction": "Pacote não editable1dbbdfa1 aprovado em perfil temporário:644recursos/237módulos instalados conferidos,2jornadas Qt; sem ativar host. Próximo: publicar checkpoint limpo/PR268 e validar CI do SHA. Integração de fonte4236bde0 e herança fddf91c0; status corrigido após R3 (13pass/checkOK), sem chamar saída1 da integral de verde. Depois preservar consumidores de rascunhos/Jornadas/preferências na remoção, completar associações/autoria e reprodução importada. Aceites instalados no host e físicos permanecem independentes.",
   "activeWorkstreams": [
     "WS-2026-10-STUDIO-DRAFT-HISTORY"
   ],

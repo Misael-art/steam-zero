@@ -66,7 +66,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-ESDE-SYSTEMS | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-LAUNCHBOX | 1 | 0 | 0 | none | sem evidencia registrada |
 | SZ-FRONTEND-M11-SURFACE | 5 | 4 | 3 | unit |  |
-| SZ-FRONTEND-RETROFE | 6 | 6 | 2 | dev |  |
+| SZ-FRONTEND-RETROFE | 6 | 7 | 3 | dev |  |
 | SZ-FRONTEND-SRM | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
@@ -103,16 +103,16 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RESOURCE-QML-PROBE | 7 | 3 | 2 | dev |  |
 | SZ-RETROACHIEVEMENTS | 41 | 2 | 1 | none |  |
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
-| SZ-ROADMAP-CONTINUATION | 96 | 43 | 15 | dev |  |
+| SZ-ROADMAP-CONTINUATION | 100 | 43 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 9 | 8 | dev |  |
-| SZ-THEME-ENGINE | 223 | 92 | 65 | dev |  |
+| SZ-THEME-ENGINE | 227 | 93 | 66 | dev |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 20 | 9 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 22 | 11 | hw |  |
 | SZ-THEME-IMPORT-RETROFE | 15 | 29 | 14 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 22 | 11 | unit |  |
-| SZ-THEME-STUDIO | 205 | 91 | 64 | dev |  |
+| SZ-THEME-STUDIO | 209 | 92 | 65 | dev |  |
 | SZ-UI-DESKTOP-AUDIT | 843 | 207 | 116 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |

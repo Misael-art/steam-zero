@@ -898,3 +898,22 @@ que todas as outras entradas congeladas permanecem idênticas. Integração
 compartilhada commitada por último em4236bde0f9e3f476eb9634861271ac3092b4c5dd.
 Este é checkpoint de fonte: pacote não editable/Qt instalado e CI ainda pendentes;
 WORKLOG de fechamento será acrescentado ao concluir o lote aplicável.
+
+
+Aceite adicional do pacote não editable: wheel limpo do commit
+1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6,4.002.807bytes, SHA256
+ d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9.
+TLS/defaultCA, dependências somente binárias com hashes, instalação não editable,
+pipcheck, versão, doctor, portas e2jornadas Qt passaram em78,96s.644 recursos
+empacotados batem com o manifesto testado;237 módulos de aplicação vieram
+exclusivamente do pacote instalado. Os percursos de teste existentes foram
+reutilizados com os imports QML apontando ao pacote. Perfil/venv temporários
+removidos e estado real inalterado. Quatro capturas adicionais08–11 revisadas.
+Isto comprova pacote/Qt em perfil sintético, não ativação em/opt, acervo real,
+gameplay, hardware ou desempenho. O TLS local usa OpenSSL3.6.4; Ubuntu exige CI.
+
+Observação preservada: resposta GET/themes a cliente Qt já encerrado registrou
+BrokenPipeError na bridge, sem reprovar os dois percursos. Tratar fechamento
+controlado do cliente em próximo incremento; não apresentar transporte sem erro.
+A revisão dos nove mockups permanece posterior ao fechamento integral do pedido
+anterior. Nenhuma permissão de host foi ampliada.
