@@ -502,3 +502,23 @@ def test_the_state_audit_no_longer_calls_live_rollback_data_an_orphan(
     assert replacement["operationId"] not in report.orphan_staging, (
         "o staging do rollback continua sem dono para a auditoria"
     )
+
+
+def test_uninstall_preserves_custom_inheritance_consumers(
+    themes: Path, store: ThemeAssetStore
+) -> None:
+    parent = themes / "org.example.parent"
+    child = themes / "org.example.child"
+    for directory, manifest in [
+        (parent, {"id": parent.name}),
+        (child, {"id": child.name, "extends": parent.name}),
+    ]:
+        directory.mkdir()
+        (directory / "theme.json").write_text(json.dumps(manifest))
+    original = (parent / "theme.json").read_bytes()
+    transaction = ThemeTransaction(themes, store, record_operation=lambda *_: None)
+    with pytest.raises(SteamZeroError, match=r"org\.example\.child"):
+        transaction.uninstall(parent.name)
+    assert (parent / "theme.json").read_bytes() == original
+    transaction.uninstall(child.name)
+    assert transaction.uninstall(parent.name)["removed"]

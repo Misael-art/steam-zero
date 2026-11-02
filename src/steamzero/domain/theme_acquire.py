@@ -45,7 +45,12 @@ from steamzero.core import fs, ids, log, paths
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.net import HttpClient, fetch_bytes
 from steamzero.core.safetar import SafeTarLimits, iter_members
-from steamzero.domain.theme_assets import ALLOWED_SUFFIXES, ThemeAssetStore, digest_bytes
+from steamzero.domain.theme_assets import (
+    ALLOWED_SUFFIXES,
+    ThemeAssetStore,
+    digest_bytes,
+    load_installed_manifests,
+)
 from steamzero.domain.theme_sources import ThemeSource
 
 #: Teto do tarball. O maior tema licenciado medido em 2026-09-03 (iconic) fica
@@ -368,6 +373,19 @@ class ThemeTransaction:
         if not manifest_path.is_file():
             raise SteamZeroError(
                 "E-THEME-NOT-FOUND", detail=f"tema '{theme_id}' não está instalado"
+            )
+        dependents = sorted(
+            str(manifest.get("id", "?"))
+            for manifest in load_installed_manifests(self._root)
+            if manifest.get("extends") == theme_id
+        )
+        if dependents:
+            raise SteamZeroError(
+                "E-THEME-MANIFEST",
+                detail=(
+                    f"tema usado como base por {', '.join(dependents)}; "
+                    "altere a herança desses temas antes de remover"
+                )[:400],
             )
         fs.remove_file(manifest_path)
         return {"themeId": theme_id, "removed": True, "assetsPreserved": True}

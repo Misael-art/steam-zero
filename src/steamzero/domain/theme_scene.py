@@ -343,6 +343,13 @@ def _normalize_retrofe_scene(scene: dict[str, Any]) -> dict[str, Any]:
             layout = element.get("layout")
             if not isinstance(layout, dict):
                 continue
+            appearance = element.setdefault("appearance", {})
+            if "alpha" in layout:
+                appearance["opacity"] = layout["alpha"]
+            if "layer" in layout:
+                appearance["layer"] = layout["layer"]
+            if "fontSize" in layout:
+                layout["fontSize"] /= canvas["height"]
             for keys, extent in (
                 (_RETROFE_X_KEYS, canvas["width"]),
                 (_RETROFE_Y_KEYS, canvas["height"]),

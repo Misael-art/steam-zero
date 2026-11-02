@@ -7,9 +7,62 @@ from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote, unquote, urlparse
 
 from steamzero.core import fs
 from steamzero.core.errors import SteamZeroError
+
+# Public semantic roles, independent of storage aliases such as box2d/hero.
+# Publishers and authoring use this vocabulary rather than copying field lists.
+MEDIA_ROLE_URL_FIELDS = {
+    "logo": "logoUrl",
+    "cover": "coverUrl",
+    "fanart": "fanartUrl",
+    "icon": "iconUrl",
+    "marquee": "marqueeUrl",
+    "video": "videoUrl",
+    "screenshot": "screenshotUrl",
+}
+MEDIA_FIELD_TYPES = {
+    **{field: "string" for field in MEDIA_ROLE_URL_FIELDS.values()},
+    "screenshotUrls": "string[]",
+}
+IMAGE_MEDIA_FIELDS = frozenset(
+    field for role, field in MEDIA_ROLE_URL_FIELDS.items() if role != "video"
+)
+
+
+def local_media_uri(value: object) -> str | None:
+    """Encode a local reference already authorized by its media publisher."""
+    if (
+        not isinstance(value, str)
+        or not value.startswith("/")
+        or value.startswith("//")
+        or len(value) > 4096
+        or "\x00" in value
+        or ".." in value.split("/")
+    ):
+        return None
+    return "file://" + quote(value, safe="/")
+
+
+def public_media_uri(value: object) -> str | None:
+    """Validate local/package URI shape without granting filesystem custody.
+
+    The publisher still resolves its owned files. A textual field or template
+    literal cannot acquire that authority merely by containing this URI.
+    Network URLs never cross the image/player boundary through metadata.
+    """
+    if not isinstance(value, str) or not value or "\x00" in value or len(value) > 4096:
+        return None
+    if value.startswith(("asset://", "qrc:/", "data:image/")):
+        return value
+    if value.startswith("file://"):
+        parsed = urlparse(value)
+        if parsed.netloc not in {"", "localhost"}:
+            return None
+        return local_media_uri(unquote(parsed.path))
+    return local_media_uri(value)
 
 
 @dataclass(frozen=True)

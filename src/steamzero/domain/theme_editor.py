@@ -32,6 +32,7 @@ from steamzero.domain.media_recipes import (
     media_recipes_to_dict,
     parse_media_recipes,
 )
+from steamzero.domain.media_registry import MEDIA_ROLE_URL_FIELDS
 from steamzero.domain.scene_containers import ContainerBounds, resolve_scene_containers
 from steamzero.domain.scene_layout import LayoutBounds, LayoutRecipeBook, resolve_scene_layouts
 from steamzero.domain.scene_motion import MotionBook, motion_editor_schema, resolve_scene_motion
@@ -389,6 +390,7 @@ def _document(session: EditorSession) -> dict[str, object]:
         "assetRecipeSchema": asset_recipe_editor_schema(),
         "effectSchema": effect_editor_schema(),
         "motionSchema": motion_editor_schema(),
+        "bindingSchema": binding_editor_schema(),
     }
 
 
@@ -453,6 +455,9 @@ def _to_preview_object(
             else None,
         ).to_qml_object()
         layout_preview["viewport"] = {"width": bounds.width, "height": bounds.height}
+        layout_preview["contextSource"] = (
+            "example" if scene_layout_read_model is None else "published"
+        )
         preview["sceneLayoutPreview"] = layout_preview
     extracted = None
     if resolved.dynamic_palette is not None:
@@ -503,14 +508,19 @@ BINDING_FIELDS = (
     "region",
     "language",
     "series",
-    "logoUrl",
-    "coverUrl",
-    "fanartUrl",
-    "iconUrl",
-    "marqueeUrl",
-    "videoUrl",
+    *MEDIA_ROLE_URL_FIELDS.values(),
 )
 _MEDIA_RECIPE_FIELDS = {"fit", "orientation", "alignH", "alignV", "focalX", "focalY"}
+
+
+def binding_editor_schema() -> dict[str, object]:
+    return {
+        "fields": list(BINDING_FIELDS),
+        "mediaFields": {
+            field: "video" if role == "video" else "image"
+            for role, field in MEDIA_ROLE_URL_FIELDS.items()
+        },
+    }
 
 
 def _capture(session: EditorSession) -> dict[str, Any]:
@@ -608,6 +618,7 @@ class ThemeEditorManager:
             "assetRecipeSchema": asset_recipe_editor_schema(),
             "effectSchema": effect_editor_schema(),
             "motionSchema": motion_editor_schema(),
+            "bindingSchema": binding_editor_schema(),
         }
 
     def create(
@@ -642,6 +653,7 @@ class ThemeEditorManager:
             "assetRecipeSchema": asset_recipe_editor_schema(),
             "effectSchema": effect_editor_schema(),
             "motionSchema": motion_editor_schema(),
+            "bindingSchema": binding_editor_schema(),
         }
 
     def set_tokens(
@@ -1485,6 +1497,15 @@ class ThemeEditorManager:
         session = self._get_session(session_id)
         manifest = ThemeManifest.from_dict(session.manifest)
         theme_id = manifest.id
+        available = _load_manifests_for_resolution()
+        available[manifest.id] = manifest
+        try:
+            chain = ThemeResolver(available)._build_chain(manifest.id)
+        except ValueError as exc:
+            raise SteamZeroError("E-THEME-MANIFEST", detail=str(exc)) from exc
+        dependencies = [
+            item for item in chain[:-1] if (paths.themes_dir() / item.id / "theme.json").is_file()
+        ]
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
             tokens = {}
@@ -1512,8 +1533,12 @@ class ThemeEditorManager:
                 written.add(arcname)
             if session.theme_dir and session.theme_dir.is_dir():
                 assets_dir = session.theme_dir / "assets"
+                if assets_dir.is_symlink():
+                    raise SteamZeroError("E-THEME-UNSAFE", detail="pasta de assets é symlink")
                 if assets_dir.is_dir():
                     for asset_path in sorted(assets_dir.rglob("*")):
+                        if asset_path.is_symlink():
+                            raise SteamZeroError("E-THEME-UNSAFE", detail="asset do tema é symlink")
                         if not asset_path.is_file():
                             continue
                         rel = asset_path.relative_to(session.theme_dir)
@@ -1522,13 +1547,45 @@ class ThemeEditorManager:
                             continue
                         zf.write(asset_path, arcname)
                         written.add(arcname)
+            dependency_assets: list[str] = []
+            if dependencies:
+                zf.writestr(
+                    "theme-bundle.json",
+                    json.dumps(
+                        {
+                            "schemaVersion": 1,
+                            "kind": "steamzero-theme-bundle-v1",
+                            "primary": theme_id,
+                            "themes": [item.id for item in dependencies] + [theme_id],
+                        }
+                    ),
+                )
+                for dependency in dependencies:
+                    directory = paths.themes_dir() / dependency.id
+                    if directory.is_symlink() or (directory / "assets").is_symlink():
+                        raise SteamZeroError("E-THEME-UNSAFE", detail="dependência é symlink")
+                    zf.writestr(
+                        f"{dependency.id}/theme.json", json.dumps(dependency.to_dict(), indent=2)
+                    )
+                    dependency_assets.extend(dependency.assets.values())
+                    for asset_path in sorted((directory / "assets").rglob("*")):
+                        if asset_path.is_symlink():
+                            raise SteamZeroError(
+                                "E-THEME-UNSAFE", detail="asset dependente é symlink"
+                            )
+                        if not asset_path.is_file():
+                            continue
+                        zf.write(
+                            asset_path,
+                            f"{dependency.id}/{asset_path.relative_to(directory).as_posix()}",
+                        )
             # ZIP is an explicit portable transport. Installed themes retain
             # only references; each source is ingested once by MediaRegistry.
             from steamzero.domain.media_registry import MediaRegistry
 
             digests = {
                 value[14:]
-                for value in session.assets.values()
+                for value in [*session.assets.values(), *dependency_assets]
                 if value.startswith("master:sha256:")
             }
             for digest in sorted(digests):

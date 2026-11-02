@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from steamzero.domain.media_registry import IMAGE_MEDIA_FIELDS, public_media_uri
+
 DIAG_LAYOUT_SOURCE = "THEME-LAYOUT-SOURCE-001"
 DIAG_LAYOUT_LIMIT = "THEME-LAYOUT-LIMIT-002"
 
@@ -1112,7 +1114,44 @@ def resolve_scene_layouts(
                     if isinstance(declared_source, Mapping) and "binding" in declared_source
                     else None
                 )
-                from_public_model = bound_source is not None and bound_source != ""
+                has_binding = isinstance(declared_source, Mapping) and "binding" in declared_source
+                from_public_model = False
+                if isinstance(declared_source, Mapping) and has_binding:
+                    binding = str(declared_source["binding"])
+                    media_field = binding[5:] if binding.startswith("item.") else ""
+                    authorized = media_field in IMAGE_MEDIA_FIELDS
+                    bound_uri = public_media_uri(bound_source) if authorized else None
+                    if bound_uri is not None:
+                        node["source"] = source = bound_uri
+                        from_public_model = True
+                    else:
+                        missing = authorized and (bound_source is None or bound_source == "")
+                        message = (
+                            "Arte contextual indisponível; escolha outra mídia "
+                            "ou defina uma imagem alternativa."
+                            if missing
+                            else "O campo ou a referência não publica mídia autorizada; "
+                            "escolha um papel de imagem disponível."
+                        )
+                        fallback = declared_source.get("fallback", "")
+                        explicit_asset = isinstance(fallback, str) and (
+                            fallback.startswith("assets/")
+                            or (
+                                fallback.startswith("asset:")
+                                and not fallback.startswith("asset://")
+                            )
+                        )
+                        node["source"] = source = fallback if explicit_asset else ""
+                        node["resourceDegraded"] = True
+                        node["resourceDiagnostic"] = message
+                        diagnostics.append(
+                            LayoutDiagnostic(
+                                "THEME-LAYOUT-MEDIA-007" if missing else "THEME-LAYOUT-MEDIA-008",
+                                layout_id,
+                                f"item {node['key']}, {binding}: {message}",
+                                "explicit-asset" if explicit_asset else "missing",
+                            )
+                        )
                 if (source is not None and not isinstance(source, str)) or (
                     source
                     and not from_public_model
@@ -1157,6 +1196,10 @@ def resolve_scene_layouts(
                     slot = source[6:]
                     node["source"] = (asset_uris or {}).get(slot, "")
                     if not node["source"]:
+                        node["resourceDegraded"] = True
+                        node["resourceDiagnostic"] = (
+                            "Master indisponível; restaure ou vincule a fonte."
+                        )
                         diagnostics.append(
                             LayoutDiagnostic(
                                 "THEME-LAYOUT-ASSET-004",
@@ -1166,7 +1209,7 @@ def resolve_scene_layouts(
                                 "missing",
                             )
                         )
-                if "recipe" in node and not node.get("source"):
+                if "recipe" in node and not node.get("source") and not declared_source:
                     slot = node["recipe"].get("source", "")
                     node["source"] = (asset_uris or {}).get(slot, "")
             if recipe.motion:

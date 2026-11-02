@@ -178,6 +178,15 @@
           "type": "string",
           "maxLength": 512
         },
+        "appearance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "color": {"type": "string", "pattern": "^[a-fA-F0-9]{6}([a-fA-F0-9]{2})?$"},
+            "opacity": {"type": "number", "minimum": 0, "maximum": 1},
+            "layer": {"type": "integer", "minimum": 0, "maximum": 32}
+          }
+        },
         "binding": {
           "$ref": "#/$defs/binding"
         },
