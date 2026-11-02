@@ -514,3 +514,235 @@ def test_native_authoring_payloads_match_published_action_contracts(
     jsonschema.validate({"sessionId": "fixture", **payload}, schema)
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate({"sessionId": "fixture", **payload, "execute": "arbitrary"}, schema)
+
+
+def test_custom_inheritance_bundle_is_portable_and_never_overwrites_a_dependency(
+    editor: ThemeEditorManager,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import io
+    import zipfile
+
+    from tests.unit.test_media_sources import source_bytes
+
+    from steamzero.adapters.theme_catalog import ThemeCatalog, validate_theme_directory
+    from steamzero.core import paths
+    from steamzero.domain.media_pipeline import MediaPipeline
+    from steamzero.domain.media_registry import Provenance
+    from steamzero.domain.theme_install import ThemeInstaller
+
+    master = MediaPipeline(paths.media_dir()).preserve_source(
+        source_bytes(), "original.png", Provenance("fixture", "", "CC0-1.0")
+    )
+    base = editor.create("Custom parent")["sessionId"]
+    editor.set_source(base, "logo", master.digest)
+    parent = editor.save(base)["themeId"]
+    child_session = editor.create("Child", extends=parent)["sessionId"]
+    editor.create_layout(child_session, "games", "wheel", "image")
+    child = editor.save(child_session)["themeId"]
+    revision = ThemeCatalog().resolve(child).logical_revision
+    payload = editor.export_zip(child_session)
+    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+        assert "theme-bundle.json" in archive.namelist()
+        assert parent + "/theme.json" in archive.namelist()
+        assert sum(name.endswith(".png") for name in archive.namelist()) == 1
+    package = tmp_path / "bundle.zip"
+    package.write_bytes(payload)
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "destination"))
+    installer = ThemeInstaller(validate=validate_theme_directory)
+    assert installer.install(str(package))["themeId"] == child
+    assert ThemeCatalog().resolve(child).logical_revision == revision
+    parent_path = paths.themes_dir() / parent / "theme.json"
+    before = parent_path.stat()
+    installer.install(str(package), force=True)
+    assert parent_path.stat().st_mtime_ns == before.st_mtime_ns
+    assert len(list((paths.media_dir() / "masters").rglob("*.png"))) == 1
+    modified = ThemeEditorManager()
+    opened = modified.load(parent)["sessionId"]
+    modified.set_metadata(opened, "name", "Locally edited parent")
+    modified.save(opened, overwrite=True)
+    preserved = parent_path.read_bytes()
+    with pytest.raises(SteamZeroError, match="outra revisão"):
+        installer.install(str(package), force=True)
+    assert parent_path.read_bytes() == preserved
+
+
+def test_failed_bundle_publication_removes_only_its_own_new_dependencies(
+    editor: ThemeEditorManager,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from steamzero.core import fs, paths
+    from steamzero.domain.theme_install import ThemeInstaller
+
+    parent = editor.save(editor.create("Parent")["sessionId"])["themeId"]
+    child_session = editor.create("Child", extends=parent)["sessionId"]
+    child = editor.save(child_session)["themeId"]
+    package = tmp_path / "bundle.zip"
+    package.write_bytes(editor.export_zip(child_session))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "fresh"))
+    original = fs.publish_tree
+
+    def fail_primary(staged: Path, target: Path, *, replace_existing: bool = False) -> None:
+        if target.name == child:
+            raise OSError("controlled primary publication failure")
+        original(staged, target, replace_existing=replace_existing)
+
+    monkeypatch.setattr(fs, "publish_tree", fail_primary)
+    with pytest.raises(OSError, match="controlled primary"):
+        ThemeInstaller().install(str(package))
+    assert not (paths.themes_dir() / parent).exists()
+    assert not (paths.themes_dir() / child).exists()
+
+
+def test_central_inspects_bundle_primary_and_copies_only_the_child(
+    editor: ThemeEditorManager,
+    tmp_path: Path,
+) -> None:
+    import io
+    import zipfile
+
+    from steamzero.adapters.desktop_dashboard import DesktopDashboard
+    from steamzero.core import paths
+
+    parent = editor.save(editor.create("Parent")["sessionId"])["themeId"]
+    session = editor.create("Child", extends=parent)["sessionId"]
+    child = editor.save(session)["themeId"]
+    original = editor.export_zip(session)
+    package = tmp_path / "bundle.zip"
+    # Physical ZIP ordering cannot decide the theme's public identity.
+    with zipfile.ZipFile(io.BytesIO(original)) as source, zipfile.ZipFile(package, "w") as target:
+        for name in sorted(source.namelist(), key=lambda name: not name.startswith(parent + "/")):
+            target.writestr(name, source.read(name))
+    parent_path = paths.themes_dir() / parent / "theme.json"
+    before = parent_path.read_bytes()
+    dashboard = DesktopDashboard()
+    assert dashboard.theme_import_zip_inspect(str(package))["themeId"] == child
+    copied = dashboard.theme_import_zip_apply(str(package), as_copy=True)["themeId"]
+    assert copied != child
+    assert parent_path.read_bytes() == before
+    assert dashboard._theme_catalog.resolve(copied).id == copied
+    second = dashboard.theme_import_zip_apply(str(package), as_copy=True)["themeId"]
+    assert second != copied
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        "version",
+        "kind",
+        "empty",
+        "duplicate",
+        "traversal",
+        "primary",
+        "oversize",
+        "identity",
+        "unrelated",
+    ],
+)
+def test_bundle_rejects_invalid_dependency_documents_before_publishing(
+    editor: ThemeEditorManager,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    corruption: str,
+) -> None:
+    import io
+    import json
+    import zipfile
+
+    from steamzero.core import paths
+    from steamzero.domain.theme_install import ThemeInstaller
+
+    parent = editor.save(editor.create("Parent")["sessionId"])["themeId"]
+    session = editor.create("Child", extends=parent)["sessionId"]
+    child = editor.save(session)["themeId"]
+    with zipfile.ZipFile(io.BytesIO(editor.export_zip(session))) as source:
+        files = {name: source.read(name) for name in source.namelist()}
+    marker = json.loads(files["theme-bundle.json"])
+    if corruption == "version":
+        marker["schemaVersion"] = 2
+    elif corruption == "kind":
+        marker["kind"] = "unknown"
+    elif corruption == "empty":
+        marker["themes"] = []
+    elif corruption == "duplicate":
+        marker["themes"].append(parent)
+    elif corruption == "traversal":
+        marker["themes"].append("../outside")
+    elif corruption == "primary":
+        marker["primary"] = "org.missing.primary"
+    elif corruption == "oversize":
+        marker["padding"] = "x" * 8192
+    elif corruption == "identity":
+        doc = json.loads(files[parent + "/theme.json"])
+        doc["id"] = "org.different.identity"
+        files[parent + "/theme.json"] = json.dumps(doc).encode()
+    elif corruption == "unrelated":
+        doc = json.loads(files[parent + "/theme.json"])
+        doc["id"] = "org.unrelated.theme"
+        files[doc["id"] + "/theme.json"] = json.dumps(doc).encode()
+        marker["themes"].append(doc["id"])
+    files["theme-bundle.json"] = json.dumps(marker).encode()
+    package = tmp_path / "hostile.zip"
+    with zipfile.ZipFile(package, "w") as target:
+        for name, payload in files.items():
+            target.writestr(name, payload)
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "empty"))
+    with pytest.raises(SteamZeroError):
+        ThemeInstaller().install(str(package))
+    assert not (paths.themes_dir() / parent).exists()
+    assert not (paths.themes_dir() / child).exists()
+
+
+def test_uncertain_primary_publication_preserves_its_dependency_and_allows_recovery(
+    editor: ThemeEditorManager,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from steamzero.adapters.theme_catalog import ThemeCatalog
+    from steamzero.core import fs, paths
+    from steamzero.domain.theme_install import ThemeInstaller
+
+    parent = editor.save(editor.create("Parent")["sessionId"])["themeId"]
+    session = editor.create("Child", extends=parent)["sessionId"]
+    child = editor.save(session)["themeId"]
+    package = tmp_path / "bundle.zip"
+    package.write_bytes(editor.export_zip(session))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "fresh"))
+    original = fs.publish_tree
+
+    def interrupted(staged: Path, target: Path, *, replace_existing: bool = False) -> None:
+        original(staged, target, replace_existing=replace_existing)
+        if target.name == child:
+            raise OSError("publication durability uncertain")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(fs, "publish_tree", interrupted)
+        with pytest.raises(OSError, match="uncertain"):
+            ThemeInstaller().install(str(package))
+    assert (paths.themes_dir() / parent / "theme.json").is_file()
+    assert ThemeCatalog().resolve(child).id == child
+    assert ThemeInstaller().install(str(package), force=True)["themeId"] == child
+
+
+@pytest.mark.parametrize("kind", ["file", "directory"])
+def test_export_refuses_symlink_assets_without_reading_the_target(
+    editor: ThemeEditorManager,
+    tmp_path: Path,
+    kind: str,
+) -> None:
+    session = editor.create("Preserved source")["sessionId"]
+    directory = Path(editor.save(session)["path"])
+    private = tmp_path / "outside-owned-fixture"
+    private.mkdir()
+    (private / "private.svg").write_text("must never be exported")
+    assets = directory / "assets"
+    if kind == "directory":
+        assets.symlink_to(private, target_is_directory=True)
+    else:
+        assets.mkdir()
+        (assets / "private.svg").symlink_to(private / "private.svg")
+    with pytest.raises(SteamZeroError, match="symlink"):
+        editor.export_zip(session)
+    assert (private / "private.svg").read_text() == "must never be exported"

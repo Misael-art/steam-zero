@@ -281,7 +281,7 @@ Item {
                     return ""
                 const total = preview.currentView ? preview.currentView.elements.length : 0
                 return qsTr("%1 de %2 elementos desenhados nesta view · %3 assets resolvidos")
-                    .arg(sceneView.drawnCount).arg(total)
+                    .arg(sceneView.renderedCount).arg(total)
                     .arg(preview.rendered.assets ? preview.rendered.assets.resolved : 0)
             }
         }

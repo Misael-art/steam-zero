@@ -65,6 +65,32 @@ import "../../src/steamzero/ui/qml"
         name: "SceneEsdeView"
         when: windowShown
 
+        function test_decode_failure_is_not_a_rendered_element() {
+            const previous = view.viewData
+            view.viewData = {id: "invalid", elements: [
+                {id: "missing", kind: "image", source: "qrc:/missing-owned-fixture.png",
+                 layout: {width: 0.5, height: 0.2}},
+                {id: "hidden", kind: "text", text: "Hidden", appearance: {opacity: 0},
+                 layout: {width: 0.5, height: 0.2}}]}
+            tryVerify(function() { return view.renderObservations.length === 2
+                && view.renderObservations[0].state === "decodeFailed" })
+            compare(view.renderedCount, 0)
+            compare(view.renderObservations[1].state, "hidden")
+            view.viewData = previous
+        }
+
+        function test_imported_timelines_are_explicitly_unavailable() {
+            const previous = view.viewData
+            view.viewData = {id: "motion", elements: [{id: "probe", kind: "text", text: "Probe",
+                layout: {width: 0.5, height: 0.2},
+                on: {enter: [{duration: 1, animations: [{property: "alpha", to: 1}]}]}}]}
+            compare(view.unsupportedTimelines.length, 1)
+            compare(view.unsupportedTimelines[0].id, "probe")
+            compare(view.unsupportedTimelines[0].event, "enter")
+            verify(view.unsupportedTimelines[0].reason.length > 0)
+            view.viewData = previous
+        }
+
         function test_an_element_without_geometry_is_not_drawn() {
             // Desenhá-lo no tamanho natural em (0,0) inventaria layout e, na
             // medição real, cobria a cena inteira com uma arte esticada.

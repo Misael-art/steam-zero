@@ -6,9 +6,13 @@ from __future__ import annotations
 
 import json
 import math
+from collections.abc import Mapping
 from functools import cache
 from pathlib import Path
 from typing import Any
+
+from steamzero.domain.media_registry import MEDIA_FIELD_TYPES
+from steamzero.launcher.cinema import cinema_metadata
 
 PUBLIC_GAME_RECORD_FIELDS = frozenset(
     {
@@ -79,6 +83,7 @@ def journey_public_field_types() -> dict[str, str]:
         "year": "integer",
         "genre": "string",
         **game_record_public_field_types(),
+        **MEDIA_FIELD_TYPES,
     }
 
 
@@ -95,6 +100,16 @@ def safe_public_value(value: Any, field_type: str) -> object:
     if field_type == "string[]" and isinstance(value, list):
         return [item[:512] for item in value[:64] if isinstance(item, str)]
     return None
+
+
+def project_public_media(media: Mapping[str, Any]) -> dict[str, Any]:
+    """Project resolved media without copying private record fields or URLs."""
+    safe = cinema_metadata(media)
+    result = {field: safe[field] for field in MEDIA_FIELD_TYPES if field in safe}
+    screenshots = result.get("screenshotUrls")
+    if not result.get("screenshotUrl") and isinstance(screenshots, list) and screenshots:
+        result["screenshotUrl"] = screenshots[0]
+    return result
 
 
 def project_game_row(record: dict[str, Any], *, source: str) -> dict[str, Any] | None:

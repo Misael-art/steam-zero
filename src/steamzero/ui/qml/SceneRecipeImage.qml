@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Trusted consumer of resolved native layout, recipe and motion contracts.
 import QtQuick
+import QtQuick.Window
 
 Item {
     id: root
@@ -9,8 +10,9 @@ Item {
     objectName: String(model.id || "")
     readonly property int sourceStatus: artwork.sourceStatus
     readonly property int sourceDecodeCount: artwork.sourceDecodeCount
+    readonly property size decodeDemand: artwork.decodeSize
     readonly property bool softwareEffectsUnavailable: GraphicsInfo.api === GraphicsInfo.Software
-        && model.recipe && (model.recipe.nodes || []).length > 0
+        && !!model.recipe && (model.recipe.nodes || []).length > 0
     readonly property bool fallbackActive: artwork.fallbackActive || softwareEffectsUnavailable || model.resourceDegraded === true
     readonly property string renderState: !visible || opacity <= 0 ? "hidden" : sourceStatus === Image.Error ? "decodeFailed"
         : sourceStatus !== Image.Ready ? "missing" : fallbackActive ? "partial" : "decoded"
@@ -129,7 +131,15 @@ Item {
         transitionDuration: root._duration
         transitionEasing: root._easing
         transitionBezier: root._bezier
-        decodeSize: Qt.size(Math.ceil(root.width), Math.ceil(root.height))
+        // Size in physical pixels, including scale contributed by ancestors.
+        // The engine's dimension cap remains in force during animations.
+        decodeSize: {
+            let factor = Math.max(0.01, Math.abs(root._targetScale)) * Screen.devicePixelRatio
+            for (let ancestor = root.parent; ancestor !== null; ancestor = ancestor.parent)
+                factor *= Math.max(0.01, Math.abs(ancestor.scale))
+            return Qt.size(Math.min(8192, Math.ceil(root.width * factor)),
+                           Math.min(8192, Math.ceil(root.height * factor)))
+        }
     }
     Text {
         anchors.fill: parent

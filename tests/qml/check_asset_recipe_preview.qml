@@ -12,8 +12,8 @@ Window {
 
     property int failures: 0
     property int captureIndex: 0
-    property real thinScale: 0
-    property real thickScale: 0
+    property real thinWidth: 0
+    property real thickWidth: 0
     readonly property var captureNames: [
         "original", "colored", "grayscale", "black", "white",
         "outlineThin", "outlineThick", "outlinedGlow", "outlinedShadow"
@@ -101,8 +101,8 @@ Window {
     function finish() {
         check(preview.sourceDecodeCount === 1,
               "trocar receita não pode decodificar a fonte novamente")
-        check(thickScale > thinScale,
-              "contorno grosso precisa ter escala visual maior que o fino")
+        check(thickWidth > thinWidth,
+              "contorno grosso precisa ter largura maior que o fino")
         Qt.exit(failures === 0 ? 0 : 1)
     }
 
@@ -114,9 +114,9 @@ Window {
         const name = captureNames[captureIndex]
         preview.recipe = recipes[name]
         if (name === "outlineThin")
-            thinScale = preview.outlineScale
+            thinWidth = preview.outlineWidth
         if (name === "outlineThick")
-            thickScale = preview.outlineScale
+            thickWidth = preview.outlineWidth
         captureTimer.restart()
     }
 

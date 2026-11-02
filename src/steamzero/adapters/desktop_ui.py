@@ -34,13 +34,19 @@ from steamzero.adapters.desktop_kde import (
     logout_desktop_session,
     toggle_virtual_keyboard,
 )
-from steamzero.adapters.journey_public import game_record_public_field_types, project_game_row
+from steamzero.adapters.journey_public import (
+    game_record_public_field_types,
+    journey_public_field_types,
+    project_game_row,
+    project_public_media,
+)
 from steamzero.adapters.journey_studio import (
     JOURNEY_TEMPLATES,
     MAX_PREVIEW_ROWS,
     MAX_PUBLIC_RECORDS,
     JourneyStudioService,
 )
+from steamzero.adapters.launcher_media import launcher_media_metadata
 from steamzero.adapters.steam_session import readiness as session_readiness
 from steamzero.adapters.steam_session import request_target
 from steamzero.adapters.theme_catalog import list_bezel_resources
@@ -238,15 +244,7 @@ def _project_journey_game(
 def _journey_game_field_types(field_types: Mapping[str, str]) -> dict[str, str]:
     return {
         **field_types,
-        "id": "string",
-        "gameId": "string",
-        "title": "string",
-        "name": "string",
-        "source": "string",
-        "platformId": "string",
-        "platformName": "string",
-        "year": "integer",
-        "genre": "string",
+        **journey_public_field_types(),
     }
 
 
@@ -377,6 +375,17 @@ def _project_journey_catalog(
             platform_rows[platform_id] = bucket
         bucket["gameCount"] += 1
     over_budget = raw_count > MAX_PUBLIC_RECORDS
+    if not over_budget:
+        registry_media = launcher_media_metadata(
+            media_root=paths.media_dir(),
+            platform_by_game={
+                row["gameId"]: row["platformId"]
+                for row in rows
+                if isinstance(row.get("platformId"), str) and row["platformId"]
+            },
+        )
+        for row in rows:
+            row.update(project_public_media(registry_media.get(row["gameId"], {})))
     return {
         "library.games": {
             "rows": None if over_budget else rows,

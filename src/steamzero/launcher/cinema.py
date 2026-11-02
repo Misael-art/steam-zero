@@ -11,8 +11,12 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import quote, unquote, urlparse
 
+from steamzero.domain.media_registry import (
+    MEDIA_ROLE_URL_FIELDS,
+    local_media_uri,
+    public_media_uri,
+)
 from steamzero.domain.scene_layout import (
     LayoutBounds,
     LayoutRecipe,
@@ -21,42 +25,9 @@ from steamzero.domain.scene_layout import (
 )
 from steamzero.domain.scene_motion import resolve_scene_motion
 
-
-def _local_asset_url(value: object) -> str | None:
-    """Return a safe local asset URL without widening the QML trust boundary."""
-    if (
-        not isinstance(value, str)
-        or not value.startswith("/")
-        or value.startswith("//")
-        or len(value) > 4096
-        or "\x00" in value
-        or ".." in value.split("/")
-    ):
-        return None
-    return "file://" + quote(value, safe="/")
-
-
-def _public_asset_url(value: object) -> str | None:
-    """Keep only local/package media URLs safe for the QML boundary.
-
-    Catalog imports may already have resolved a managed media path to a
-    ``file://`` URL, while older records still carry an absolute path.  Treat
-    both forms identically and allow only package URLs from trusted providers;
-    arbitrary HTTP URLs would turn a metadata field into a network side
-    channel for the launcher.
-    """
-
-    if not isinstance(value, str) or not value or "\x00" in value or len(value) > 4096:
-        return None
-    if value.startswith(("asset://", "qrc:/", "data:image/")):
-        return value
-    if value.startswith("file://"):
-        parsed = urlparse(value)
-        decoded = unquote(parsed.path)
-        if parsed.netloc not in {"", "localhost"}:
-            return None
-        return _local_asset_url(decoded)
-    return _local_asset_url(value)
+# Preserve the former internal names while sharing one URI contract.
+_local_asset_url = local_media_uri
+_public_asset_url = public_media_uri
 
 
 _PALETTE_KEYS = (
@@ -135,10 +106,10 @@ def cinema_metadata(record: Mapping[str, Any]) -> dict[str, Any]:
         ]
         if screenshots:
             result["screenshotUrls"] = screenshots
-    for role in ("cover", "fanart", "logo", "icon", "marquee", "video"):
-        direct = _public_asset_url(record.get(role + "Url"))
+    for field in MEDIA_ROLE_URL_FIELDS.values():
+        direct = _public_asset_url(record.get(field))
         if direct is not None:
-            result[role + "Url"] = direct
+            result[field] = direct
     palette = _public_palette(record.get("palette"))
     if palette:
         result["palette"] = palette

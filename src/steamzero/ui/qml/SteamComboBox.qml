@@ -20,6 +20,7 @@ ComboBox {
         leftPadding: 0
         rightPadding: 0
         text: control.displayText
+        textFormat: Text.PlainText
         color: control.enabled ? control.textColor : control.mutedColor
         font: control.font
         verticalAlignment: Text.AlignVCenter
@@ -72,6 +73,7 @@ ComboBox {
         // pintam o texto com a cor do tema do sistema sobre o popup escuro.
         contentItem: Text {
             text: parent.text
+            textFormat: Text.PlainText
             color: control.textColor
             font: control.font
             verticalAlignment: Text.AlignVCenter

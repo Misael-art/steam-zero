@@ -24,6 +24,38 @@ Item {
 
     readonly property var elements: viewData && viewData.elements ? viewData.elements : []
     readonly property string viewId: viewData && viewData.id ? String(viewData.id) : ""
+    // Imported timelines are retained in IR but this consumer cannot execute
+    // them yet. Parser coverage must never imply motion playback.
+    readonly property var unsupportedTimelines: {
+        const out = []
+        for (const element of elements) {
+            for (const event of Object.keys(element.on || ({})))
+                out.push({id: element.id, event: event, reason: "Timeline importada sem executor neste renderer"})
+        }
+        return out
+    }
+    function elementAt(index) {
+        const loader = elementRepeater.itemAt(index)
+        return loader ? loader.item : null
+    }
+    readonly property var renderObservations: {
+        const out = []
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (!loader) continue
+            const item = loader.item
+            let state = !loader.visible || loader.opacity <= 0 ? "hidden"
+                : !item || loader.width <= 0 || loader.height <= 0 ? "notDrawn" : "rendered"
+            if (state === "rendered" && loader.modelData.kind === "image")
+                state = item.sourceStatus === Image.Ready ? "rendered"
+                    : item.sourceStatus === Image.Error ? "decodeFailed" : "loading"
+            out.push({id: loader.modelData.id, kind: loader.modelData.kind, state: state})
+        }
+        return out
+    }
+    readonly property int renderedCount: renderObservations.filter(function(row) {
+        return row.state === "rendered"
+    }).length
 
     // Conteúdo publicado pelo dashboard. A cena continua sendo declarativa:
     // este modelo só contém valores já projetados (jogos, mídia e ações), e
@@ -379,6 +411,7 @@ Item {
     }
 
     Repeater {
+        id: elementRepeater
         model: view.elements
 
         delegate: Loader {
@@ -434,6 +467,7 @@ Item {
             Component {
                 id: imageComponent
                 Item {
+                    readonly property int sourceStatus: artwork.status
                     Image {
                         id: artwork
                         anchors.fill: parent
@@ -448,11 +482,12 @@ Item {
                     }
                     Rectangle {
                         anchors.fill: parent
-                        visible: !artwork.visible
+                        visible: artwork.status === Image.Error || !artwork.visible
                         color: view.highContrast ? "#000000" : "#172532"
                         border.color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#5d7182")
                         border.width: view.highContrast ? 2 : 1
                         Text {
+                            textFormat: Text.PlainText
                             anchors.centerIn: parent
                             width: parent.width - 12
                             text: qsTr("Arte indisponível")
@@ -513,6 +548,7 @@ Item {
                                     visible: source.toString().length > 0
                                 }
                                 Text {
+                                    textFormat: Text.PlainText
                                     anchors.centerIn: parent
                                     width: parent.width - 10
                                     text: item.name || item.title || qsTr("Sem capa")
@@ -559,6 +595,7 @@ Item {
                         color: view.esdeColor(app.color, "#0b1118")
                         visible: !videoHost.multimediaReady
                         Text {
+                            textFormat: Text.PlainText
                             anchors.centerIn: parent
                             text: videoHost.player === null
                                 ? qsTr("vídeo indisponível")
@@ -623,6 +660,7 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
+                                textFormat: Text.PlainText
                                 id: helpText
                                 text: String(modelData)
                                 color: view.esdeColor(app.textColor, "#cccccc")
@@ -638,6 +676,7 @@ Item {
             Component {
                 id: textComponent
                 Text {
+                    textFormat: Text.PlainText
                     text: view.textFor(modelData, view.selectedItem,
                                        modelData.binding ? qsTr("Sem dados") : "")
                     color: view.highContrast ? "#ffffff" : view.esdeColor(app.color, "#e8eef6")
@@ -653,11 +692,13 @@ Item {
                 Row {
                     spacing: 3
                     Text {
+                        textFormat: Text.PlainText
                         text: "★"
                         color: view.esdeColor(app.color, "#f4c542")
                         font.pixelSize: Math.max(12, view.numberOr(lay, "fontSize", 0.03) * view.height)
                     }
                     Text {
+                        textFormat: Text.PlainText
                         text: view.selectedItem.rating || view.selectedItem.score || qsTr("Sem avaliação")
                         color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#e8eef6")
                         font.pixelSize: Math.max(10, view.numberOr(lay, "fontSize", 0.03) * view.height)
@@ -681,6 +722,7 @@ Item {
                             border.width: 1
                             radius: 4
                             Text {
+                                textFormat: Text.PlainText
                                 id: badgeText
                                 anchors.centerIn: parent
                                 text: String(modelData)
@@ -695,6 +737,7 @@ Item {
             Component {
                 id: systemStatusComponent
                 Text {
+                    textFormat: Text.PlainText
                     text: view.runtimeModel.status && view.runtimeModel.status.label
                         ? String(view.runtimeModel.status.label) : qsTr("Estado indisponível")
                     color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#e8eef6")
@@ -741,6 +784,7 @@ Item {
                                 visible: source.toString().length > 0
                             }
                             Text {
+                                textFormat: Text.PlainText
                                 anchors.centerIn: parent
                                 text: modelData.name || modelData.title || qsTr("Sem capa")
                                 visible: parent.children[0].visible === false
@@ -776,6 +820,7 @@ Item {
             Component {
                 id: gameSelectorComponent
                 Text {
+                    textFormat: Text.PlainText
                     text: view.selectedItem.name || view.selectedItem.title || qsTr("Selecione um jogo")
                     color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#e8eef6")
                     font.pixelSize: Math.max(10, view.numberOr(lay, "fontSize", 0.03) * view.height)

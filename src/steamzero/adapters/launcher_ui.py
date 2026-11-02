@@ -1176,7 +1176,9 @@ class LauncherBridge:
                     **dict(row),
                     "id": game_id or str(row.get("id", "")),
                     "title": str(title or ""),
-                    "coverUrl": self._covers.get(game_id, "") or metadata.get("coverUrl", ""),
+                    "coverUrl": row.get("coverUrl")
+                    or self._covers.get(game_id, "")
+                    or metadata.get("coverUrl", ""),
                     "journeyRecordId": str(row.get("id", "")),
                 }
             )
@@ -1211,8 +1213,15 @@ class LauncherBridge:
         }:
             tier = "balanced"
         result = resolve_cinema_covers(recipe, items, selected, bounds=bounds, theme=theme)
+        result["resourceResolutionState"] = "partial" if result["diagnostics"] else "resolved"
         if result["diagnostics"]:
-            layout_state = "partial"
+            # Missing catalog artwork does not change which authored layout
+            # was selected. Keep its resource loss explicit and independent.
+            if any(
+                diagnostic["code"] != "THEME-LAYOUT-MEDIA-007"
+                for diagnostic in result["diagnostics"]
+            ):
+                layout_state = "partial"
             layout_diagnostic = "; ".join(
                 str(diagnostic["reason"]) for diagnostic in result["diagnostics"]
             )

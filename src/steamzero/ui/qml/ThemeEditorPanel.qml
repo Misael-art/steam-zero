@@ -112,6 +112,24 @@ Rectangle {
     property var editorEffectSchema: ({})
     property var editorMotionSchema: ({})
     property var editorAssetRecipeSchema: ({nodeTypes: [], nodes: ({})})
+    property var editorBindingSchema: ({fields: [], mediaFields: ({})})
+    property string nativeMediaRoleValue: "master:logo"
+    readonly property var nativeMediaRoleOptions: {
+        const options = [
+            {value: "master:logo", label: qsTr("Imagem específica · logotipo")},
+            {value: "master:background", label: qsTr("Imagem específica · fundo")},
+            {value: "master:sidebar", label: qsTr("Imagem específica · barra lateral")}
+        ]
+        const fields = editorBindingSchema.mediaFields || ({})
+        const labels = {
+            logoUrl: qsTr("Logotipo do jogo"), coverUrl: qsTr("Capa do jogo"),
+            fanartUrl: qsTr("Arte de fundo do jogo"), iconUrl: qsTr("Ícone do jogo"),
+            marqueeUrl: qsTr("Marquise do jogo"), screenshotUrl: qsTr("Captura de tela do jogo")
+        }
+        for (const field of Object.keys(fields))
+            if (fields[field] === "image") options.push({value: field, label: labels[field] || field})
+        return options
+    }
     property string authoringNotice: ""
     // Sobe quando uma edição é recusada: os campos reconstroem e voltam ao valor
     // declarado, em vez de continuar exibindo o texto rejeitado.
@@ -856,6 +874,8 @@ Rectangle {
             panel.editorMotionSchema = r.motionSchema
         if (r.assetRecipeSchema)
             panel.editorAssetRecipeSchema = r.assetRecipeSchema
+        if (r.bindingSchema)
+            panel.editorBindingSchema = r.bindingSchema
         panel._syncAssetRecipeSelection()
         panel.authoringNotice = ""
         if (r.history) {
@@ -1276,7 +1296,7 @@ Rectangle {
     }
 
     function _openEditor(sessionId, manifest, preview, declared, effectSchema, motionSchema,
-                         assetRecipeSchema, readOnly) {
+                         assetRecipeSchema, readOnly, bindingSchema) {
         panel.editorLoadGeneration += 1
         panel.editorMutationGeneration += 1
         // O cancelamento de uma sessão descartada ainda pode estar na fila atrás de
@@ -1289,6 +1309,8 @@ Rectangle {
         panel.editorEffectSchema = effectSchema || ({})
         panel.editorMotionSchema = motionSchema || ({})
         panel.editorAssetRecipeSchema = assetRecipeSchema || ({nodeTypes: [], nodes: ({})})
+        panel.editorBindingSchema = bindingSchema || ({fields: [], mediaFields: ({})})
+        panel.nativeMediaRoleValue = "master:logo"
         panel.authoringNotice = ""
         panel.editorHistory = ({canUndo: false, canRedo: false})
         panel.editorManifest = manifest
@@ -1347,7 +1369,7 @@ Rectangle {
                 return
             panel._openEditor(r.sessionId, r.manifest, r.preview, r.declared,
                               r.effectSchema, r.motionSchema, r.assetRecipeSchema,
-                              r.readOnly)
+                              r.readOnly, r.bindingSchema)
         }, function(message) {
             if (generation === panel.editorLoadGeneration)
                 panel.notice = String(message)
@@ -1418,7 +1440,8 @@ Rectangle {
                 if (generation !== panel.editorLoadGeneration)
                     return
                 panel._openEditor(r.sessionId, r.manifest, r.preview, r.declared,
-                                  r.effectSchema, r.motionSchema, r.assetRecipeSchema)
+                                  r.effectSchema, r.motionSchema, r.assetRecipeSchema,
+                                  r.readOnly, r.bindingSchema)
             }, function(message) {
                 if (generation === panel.editorLoadGeneration)
                     panel.notice = String(message)
@@ -3830,17 +3853,23 @@ Rectangle {
                                 AuthCombo { width: Math.min(implicitWidth, parent.width)
                                     id: nativeMediaRole
                                     objectName: "nativeLayoutMediaRole"
-                                    model: ["master:logo", "master:background", "master:sidebar", "logoUrl", "coverUrl", "fanartUrl", "iconUrl", "marqueeUrl"]
-                                    Accessible.name: qsTr("Imagem específica ou mídia contextual")
+                                    model: panel.nativeMediaRoleOptions
+                                    textRole: "label"
+                                    valueRole: "value"
+                                    currentIndex: model.findIndex(function(option) { return option.value === panel.nativeMediaRoleValue })
+                                    onActivated: panel.nativeMediaRoleValue = String(currentValue)
+                                    Accessible.name: qsTr("Fonte de imagem a aplicar")
                                 }
                                 AuthButton { width: Math.min(implicitWidth, parent.width)
                                     objectName: "nativeLayoutMediaApply"
                                     text: qsTr("Definir fonte")
+                                    enabled: nativeMediaRole.currentIndex >= 0
                                     onClicked: {
-                                        if (nativeMediaRole.currentText.startsWith("master:"))
-                                            panel.setNativeLayoutField("template.properties.source", "asset:" + nativeMediaRole.currentText.slice(7))
+                                        const role = String(nativeMediaRole.currentValue)
+                                        if (role.startsWith("master:"))
+                                            panel.setNativeLayoutField("template.properties.source", "asset:" + role.slice(7))
                                         else
-                                            panel.requestEditorMutation("theme.editor.edit-binding", {sessionId: panel.editorSessionId, layoutId: panel.bindingLayoutName, prop: "source", binding: "item." + nativeMediaRole.currentText, fallback: ""})
+                                            panel.requestEditorMutation("theme.editor.edit-binding", {sessionId: panel.editorSessionId, layoutId: panel.bindingLayoutName, prop: "source", binding: "item." + role, fallback: ""})
                                     }
                                 }
                             }
@@ -3938,7 +3967,9 @@ Rectangle {
                                     objectName: "bindingField"
                                     requestedImplicitHeight: 40
                                     Accessible.name: qsTr("Metadado")
-                                    model: ["title", "year", "developer", "publisher", "genre", "description", "rating", "players", "region", "language", "series"]
+                                    model: panel.bindingPropName === "source"
+                                        ? Object.keys(panel.editorBindingSchema.mediaFields || ({})).filter(function(field) { return panel.editorBindingSchema.mediaFields[field] === "image" })
+                                        : ["title", "year", "developer", "publisher", "genre", "description", "rating", "players", "region", "language", "series"]
                                 }
                                 AuthField {
                                     id: bindingFallbackField
@@ -4795,8 +4826,11 @@ Rectangle {
                             anchors.right: parent.right
                             anchors.top: parent.top
                             anchors.margins: 12
-                            text: qsTr("Composição nativa · %1 · prévia %2×%3")
-                                .arg(panel.bindingLayoutName).arg(nativeCompositionPreview.viewport.width)
+                            text: qsTr("Composição nativa · %1 · %2 · prévia %3×%4")
+                                .arg(panel.bindingLayoutName)
+                                .arg(panel._previewBridge.sceneLayoutPreview.contextSource === "published"
+                                    ? qsTr("Dados publicados") : qsTr("Dados de exemplo"))
+                                .arg(nativeCompositionPreview.viewport.width)
                                 .arg(nativeCompositionPreview.viewport.height)
                             wrapMode: Text.WordWrap
                             color: panel._previewBridge.textMuted

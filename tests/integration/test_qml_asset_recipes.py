@@ -53,7 +53,7 @@ def rendered(tmp_path_factory: pytest.TempPathFactory) -> Path:
     # MultiEffect é um node RHI; o backend software não executa shaders. OpenGL
     # offscreen usa a implementação Mesa disponível e permanece uma categoria
     # distinta dos goldens de texto em software.
-    environment["QT_QUICK_BACKEND"] = "opengl"
+    environment["QT_QUICK_BACKEND"] = "rhi"
     environment["QSG_RHI_BACKEND"] = "opengl"
     completed = subprocess.run(
         [runtime, str(HARNESS), "--", f"--output-dir={output}"],

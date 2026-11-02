@@ -176,7 +176,7 @@ def _rewrite_theme_package_as_copy(source: str, scratch: Path) -> Path:
     old_id = str(manifest.get("id", ""))
     if not THEME_ID_RE.fullmatch(old_id):
         raise SteamZeroError("E-THEME-MANIFEST", detail="id do pacote inválido para cópia")
-    new_id = f"{old_id}.copy{ids.new_ulid().casefold()[:6]}"
+    new_id = f"{old_id}.copy{ids.new_ulid().casefold()}"
     if not THEME_ID_RE.fullmatch(new_id):
         raise SteamZeroError("E-THEME-MANIFEST", detail="id de cópia inválido")
     target = scratch / "copy.zip"
@@ -195,11 +195,18 @@ def _rewrite_theme_package_as_copy(source: str, scratch: Path) -> Path:
                 if parts[0] == old_id:
                     parts[0] = new_id
                 data = package.read(info)
-                if parts[-1] == "theme.json" and len(parts) <= 2:
+                if name in {"theme.json", f"{old_id}/theme.json"}:
                     doc = json.loads(data)
                     doc["id"] = new_id
                     doc["name"] = f"{doc.get('name', old_id)} (cópia)"
                     data = json.dumps(doc, indent=2).encode("utf-8")
+                elif name == "theme-bundle.json":
+                    bundle = json.loads(data)
+                    bundle["primary"] = new_id
+                    bundle["themes"] = [
+                        new_id if key == old_id else key for key in bundle["themes"]
+                    ]
+                    data = json.dumps(bundle, indent=2).encode("utf-8")
                 out.writestr("/".join(parts), data)
     return target
 
@@ -239,6 +246,27 @@ def _peek_theme_manifest(source: str) -> dict[str, Any]:
                 raise SteamZeroError("E-THEME-MANIFEST", detail="o pacote não contém um theme.json")
             # Manifesto da raiz vence: um tema aninhado não pode se passar por outro.
             entry = min(entries, key=lambda name: name.count("/"))
+            if "theme-bundle.json" in package.namelist():
+                marker = package.getinfo("theme-bundle.json")
+                if marker.file_size > 8192:
+                    raise SteamZeroError(
+                        "E-THEME-MANIFEST", detail="manifesto de pacote excede 8 KiB"
+                    )
+                try:
+                    bundle = json.loads(package.read(marker))
+                    primary = bundle["primary"]
+                    if (
+                        bundle.get("schemaVersion") != 1
+                        or bundle.get("kind") != "steamzero-theme-bundle-v1"
+                        or not isinstance(primary, str)
+                        or not THEME_ID_RE.fullmatch(primary)
+                    ):
+                        raise ValueError("identidade primária do pacote inválida")
+                    entry = f"{primary}/theme.json"
+                    if entry not in entries:
+                        raise ValueError("manifesto primário ausente")
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise SteamZeroError("E-THEME-MANIFEST", detail=str(exc)[:400]) from exc
             info = package.getinfo(entry)
             if info.file_size > _THEME_MANIFEST_MAX_BYTES:
                 raise SteamZeroError(

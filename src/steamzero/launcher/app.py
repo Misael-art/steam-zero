@@ -27,6 +27,7 @@ from typing import Any, cast
 from steamzero.adapters.journey_public import (
     journey_public_field_types,
     project_game_row,
+    project_public_media,
 )
 from steamzero.adapters.launcher_catalog import (
     CatalogGame,
@@ -773,6 +774,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             source="steam" if kind_by_game_id.get(game_id) == "steam" else "emulation",
         )
         if row is not None:
+            row.update(project_public_media(metadata.get(game_id, {})))
             journey_rows.append(row)
     platform_rows_by_id: dict[str, dict[str, Any]] = {}
     for game in catalog:

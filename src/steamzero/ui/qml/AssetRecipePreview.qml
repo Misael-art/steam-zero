@@ -21,7 +21,6 @@ Item {
     readonly property int sourceStatus: sourceImage.status
     readonly property int sourceDecodeCount: root._sourceDecodeCount
     readonly property real outlineWidth: outlineNode ? Number(outlineNode.parameters.width) : 0
-    readonly property real outlineScale: 1 + (2 * outlineWidth / Math.max(1, Math.min(width, height)))
     // Degradação tem duas origens e as duas precisam chegar ao consumidor:
     // a receita pode ter perdido nós ainda no domínio (chega vazia, com
     // ``degraded``), ou o runtime pode não conseguir instanciar o node de cor.
@@ -32,6 +31,7 @@ Item {
     readonly property bool rendererUnavailable: softwareBackend && recipe && (recipe.nodes || []).length > 0
     readonly property bool fallbackActive: unsupportedNodeCount > 0
         || recipeDegraded || colorTransform.unsupported || rendererUnavailable
+        || outlineLayer.status === ShaderEffect.Error
     readonly property int unsupportedNodeCount: {
         const supported = ["recolor", "grayscale", "silhouette", "outline",
                            "glow", "shadow", "invert", "hueRotate", "saturation"]
@@ -95,24 +95,20 @@ Item {
 
     // Uma única textura é compartilhada entre preenchimento, outline e
     // glow/shadow. Trocar a receita não muda ``source`` nem abre outro Image.
-    MultiEffect {
+    AssetOutline {
         id: outlineLayer
-        anchors.fill: parent
         source: sourceImage
         visible: root.outlineNode !== null && !root.fallbackActive
-        colorization: 1
-        colorizationColor: root.outlineNode
+        radius: root.outlineWidth || 1
+        outlineColor: root.outlineNode
             ? root.outlineNode.parameters.color : "#ffffff"
         opacity: root.outlineNode ? root.outlineNode.parameters.opacity : 0
-        shadowEnabled: visible
-        shadowColor: root.outlineNode
-            ? root.outlineNode.parameters.color : "#ffffff"
-        shadowOpacity: root.outlineNode ? root.outlineNode.parameters.opacity : 0
-        shadowBlur: 0
-        shadowHorizontalOffset: 0
-        shadowVerticalOffset: 0
-        shadowScale: root.outlineScale
-       Behavior on shadowScale { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
+        paintedRect: root.fillMode === Image.Stretch
+            ? Qt.rect(0, 0, root.width, root.height)
+            : Qt.rect((root.width - sourceImage.paintedWidth) / 2,
+                      (root.height - sourceImage.paintedHeight) / 2,
+                      sourceImage.paintedWidth, sourceImage.paintedHeight)
+       Behavior on radius { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
        Behavior on opacity { NumberAnimation { duration: root.transitionDuration; easing.type: root.transitionEasing; easing.bezierCurve: root.transitionBezier } }
     }
 
