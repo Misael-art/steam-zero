@@ -5,7 +5,7 @@
   "title": "Vertical slice e declaracoes RetroFE",
   "domain": "frontends",
   "implementation": "complete",
-  "integration": "integrated",
+  "integration": "feature-branch",
   "verification": "dev",
   "operation": "degraded",
   "distribution": "not-packaged",
@@ -17,7 +17,7 @@
     "tests/unit/test_scene_retrofe.py",
     "tests/unit/test_theme_migration_audit.py"
   ],
-  "scopeDigest": "0ae01c5c068bcf47212ee402a2f942491c8cfae00c8cc24de5c1dcadb6d2c7a8",
+  "scopeDigest": "afaeb71d835a5cde021b0b736d3dc43b6ff0782ddbfa574b1370bbbc0464cf99",
   "dependsOn": [],
   "knownGaps": [
     "GAP-G54",
@@ -57,10 +57,16 @@
       "reference": "docs/01-product/THEME-ENGINE-AND-STUDIO.md",
       "command": "2026-10-30: esclarecimento expresso do proprietário consolidado na seção22: nativo primeiro, biblioteca/master canônico compartilhado, receitas não destrutivas e wheel de fonte única; paridade RetroFE/ES-DE pelo mesmo motor, autoria visual, consulta de capacidades e preview/Launcher equivalentes. Contrato/relatório documental, não teste de runtime ou certificação física.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
+      "command": "R3 terminou7221passed/48skipped/1failed documental/22warnings em3058,56s;1309 entradas e estado pessoal inalterados. Cobertura85,74876854203798%>=85,72395128552097%,171 guardas críticos passam.294 módulos comparados: duas linhas do retry SQLite não exercidas, sem regressão agregada. Única falha: digests/visões alterados durante a integral; corrigir e validar somente status conforme AGENTS§6. RHI focado4pass após guard de seleção de backend; nenhuma assertiva relaxada. Fonte/Qt, não instalação/hardware.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Aeon Nox agora disponível para auditoria local: 385 XMLs compilados individualmente; descoberta integral recusa limite64. Resolver assets compartilhados com confinamento, eventos idle/menuIdle, easing, menus e consumo runtime por contratos existentes. Compor essas primitivas no Studio e comparar etapas/visual/transições/áudio/retorno pelo motor SteamZero; não executar o frontend original como substituto. Aceite e hashes na matriz 2026-10-30; sem instalação autorizada nesta recuperação.",
+  "nextAction": "Cor/alpha/layer/font chegam ao consumidor comum; perdas onIdle/easing/limites16/32 explícitas. Fonte emfddf91c0/4236bde0,57 focados e casos integrais passaram; R3 falhou somente em status depois corrigido. Próximo funcional: executor comum de timelines/eventos/easing, menus/som/assets compartilhados. Parser não certifica reprodução ou Aeon Nox integral.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-30",
-  "notes": "O slice declarativo está integrado no repositório: layer atravessa declarations → ElementContract.zIndex → ResolvedTextNode → QmlTextRenderModel.z, com round-trip e invalidação cobertos. O host não tem pacote RetroFE disponível para lançamento e a camada de frontend M11 ainda não está ligada às superfícies; manter operação degraded até existir fixture instalada e jornada real.\n\n2026-10-30: a declaração histórica de ausência de pacote descreve o host da auditoria anterior. A referência local Aeon Nox foi agora inspecionada, sem execução nativa nem publicação de mídia. Complete continua restrito ao slice declarativo original, não certifica este tema nem paridade integral. Layout principal620 animações→332 registros IR; métricas não são porcentagens visuais. Nova lacuna integral registrada.\n\n2026-10-30, consolidação expressa: seção22 de THEME-ENGINE-AND-STUDIO é a referência normativa de produto, autoria, biblioteca canônica e compatibilidade integral. Aceites ampliados não habilitam recursos nem promovem eixos. Dados e acervo pessoal não foram migrados."
+  "updatedAt": "2026-11-02",
+  "notes": "O slice declarativo está integrado no repositório: layer atravessa declarations → ElementContract.zIndex → ResolvedTextNode → QmlTextRenderModel.z, com round-trip e invalidação cobertos. O host não tem pacote RetroFE disponível para lançamento e a camada de frontend M11 ainda não está ligada às superfícies; manter operação degraded até existir fixture instalada e jornada real.\n\n2026-10-30: a declaração histórica de ausência de pacote descreve o host da auditoria anterior. A referência local Aeon Nox foi agora inspecionada, sem execução nativa nem publicação de mídia. Complete continua restrito ao slice declarativo original, não certifica este tema nem paridade integral. Layout principal620 animações→332 registros IR; métricas não são porcentagens visuais. Nova lacuna integral registrada.\n\n2026-10-30, consolidação expressa: seção22 de THEME-ENGINE-AND-STUDIO é a referência normativa de produto, autoria, biblioteca canônica e compatibilidade integral. Aceites ampliados não habilitam recursos nem promovem eixos. Dados e acervo pessoal não foram migrados.\n\n02/11/2026: reconciliação serial após testes focados contexto/Qt25, importador/renderer57 e tema/herança118 (rodada final111). Recibo studio-native-context.json separa fonte, CI e instalação. Integral inicial cancelada para corrigir integração UI identificada por revisão; sem aprovação parcial. Goldens preservados. Provas instaladas/físicas anteriores são históricas e não certificam esta candidata.\n02/11: Central primary/copy e duas regressões Launcher corrigidas;54 focados aprovados.131 testes de segurança/tema e127 Dashboard/bootstrap/Qt/renderer aprovados. Integral final pendente; sem alterar goldens.\n02/11 atualização corrente: r2 concluída7219/48/3 somente imagens antigas; três referências autorizadas/revisadas em1f6be082,22 focados verdes, r3 final em execução. Notas anteriores de espera de autorização/log403 descrevem etapas superadas; recibo atual distingue log histórico acessível via helper existente sem login de símbolo SSL ainda não observado. Nenhuma promoção instalada/física.\n02/11 resultado r3:7221pass/48skip/1falha documental, cobertura85,74876854203798% acima da base e171 guardas passam. Falha por atualização documental durante execução; resultado original preservado e correção restrita de status conforme AGENTS§6. Sem selo de integral verde nem novo aceite instalado."
 }

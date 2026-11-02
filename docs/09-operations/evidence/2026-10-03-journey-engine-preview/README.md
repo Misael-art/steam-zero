@@ -768,3 +768,133 @@ nos papéis contextuais publicados, associações canônicas completas, autoria
 ampliada, contorno fiel, decode físico/DPR e paridade RetroFE/ES-DE. Nenhum eixo,
 gap ou aceite físico foi promovido. A produção e o atalho continuam no contexto
 já descrito; sem instalação, release, nova autenticação, merge, deploy ou boot.
+
+
+#### Continuidade nativa — 02/11/2026, fonte em validação
+
+O [recibo de mídia contextual e herança](studio-native-context.json) registra
+causas, provas e limites por lacuna, preservando os recibos anteriores. O WIP de
+31/10 foi assumido serialmente na branch existente, sem checkout ou executor
+paralelo. As provas focadas cobrem papéis canônicos nos dois consumidores,
+texto literal sem requisição HTTP, fonte/revisão no round-trip, dependências de
+herança e preservação dos consumidores na remoção. A primeira integral foi encerrada de modo controlado para corrigir a seleção/cópia
+do tema primário no bundle da Central. A rodada r2 validou a fonte corrigida,
+com cobertura, mas reprovou somente nas três referências antigas de contorno;
+a rodada final r3 está em execução.
+
+| Classe do achado | Incremento ou pendência |
+|---|---|
+| Defeito reproduzido | Rótulo interpretado como markup buscava imagem HTTP; cor/alpha eram perdidos; limites do compilador omitiam perdas |
+| Implementação parcial | WIP de mídia contextual reconciliado com registro/projetor e fronteiras existentes; papéis sem mídia mantêm diagnóstico |
+| Integração ausente | Timelines importadas ainda não têm executor no consumidor comum; eventos/easing não suportados permanecem lacunas, agora explícitas |
+| Validação instalada/física | Candidata não instalada; sessões Qt/fixtures e pixels não certificam gameplay, input, áudio físico ou fluidez |
+| Planejamento sem implementação | Capacidades componíveis e experiências seguem seus itens C0–C6; nenhum catálogo de plataformas foi promovido |
+| Hipótese em investigação | Log histórico confirma host26.04/cachePython3.14.9/container24.04/OpenSSL3.0.13; símbolo exato do carregamento de `_ssl` não consta no log |
+
+Contorno uniforme substitui ampliação da máscara por dilatação limitada de
+alpha; demanda de decode considera escala e DPR. Os casos DPR1/1,5/2 passaram,
+as três referências revistas foram atualizadas em `1f6be082` após a orientação
+do operador para prosseguir. As imagens anteriores permanecem no Git; nenhuma
+tolerância ou assertiva de comparação foi relaxada. O backend de efeitos é RHI com OpenGL
+selecionado em QSG_RHI_BACKEND; a configuração legada QT_QUICK_BACKEND=opengl
+foi reproduzida como timeout e corrigida no harness, sem aumentar timeout.
+O contrato de teste do contorno verifica largura, em lugar da antiga escala da
+máscara; as tolerâncias de pixels não foram reduzidas.
+
+Publicação, CI novo, aceites instalados e backup privado externo permanecem
+separados. Produção59ecc2d8 não foi alterada; nenhuma autenticação, ação de
+boot, merge, release ou upload privado foi executada.
+
+
+A revisão de integração reproduziu escolha do tema errado quando a ordem física
+no ZIP trazia o pai primeiro. A Central agora lê a identidade primária explícita;
+“importar como cópia” renomeia somente o filho e o ponteiro do bundle, preserva
+os pais e usa ULID completo para não colidir no mesmo instante. São131 testes
+de tema/segurança,54 de integração contexto/Launcher e127 de Dashboard/bootstrap/
+Qt/renderização aprovados em baterias focadas, sem somar essas contagens como
+uma suíte única. Recusas de pacote malformado, symlinks, revisão conflitante e
+publicação interrompida têm prova própria. Havendo publicação incerta do filho,
+suas dependências são preservadas para recuperação.
+
+A rodada inicial da integral durou1157,71s, foi cancelada pelo próprio executor,
+e manteve1308 hashes e o state home pessoal observado(13013 arquivos) inalterados;
+não é aprovação parcial. As duas regressões Launcher identificadas nessa rodada
+foram corrigidas sem remover suas assertivas: ausência de capa não muda a seleção
+do layout autorado, mas publica resourceResolutionState parcial e diagnóstico;
+o guard de receita no renderer software sempre produz booleano. A r2 foi iniciada
+às04:05:01UTC de02/11 pelo mesmo supervisor/runner, com novo manifesto congelado.
+
+O bundle com herança exige o leitor desta candidata; nenhuma equivalência com a
+release instalada antiga foi certificada. A proteção de remoção implementada
+cobre filhos instalados que declaram extends; referências de rascunhos, jornadas
+e preferências ainda exigem integração/aceites próprios. A reprodução integral
+de timelines/eventos/easing/menu/som importados e a matriz de hardware permanecem
+abertas, mesmo quando o diagnóstico do parser melhora.
+
+
+Resultado r2: **7.219 passed,48 skipped,3 failed,22 warnings/2.989,55s**,
+saída1,1308 hashes congelados e estado pessoal observados inalterados. As únicas
+falhas foram outlineThin/outlineThick/outlinedShadow. Cobertura com branches
+**85,75578539652244%>=85,72395128552097%**;294 módulos com fonte inalterada
+não perderam linhas/arcos cobertos e171 casos críticos passaram. R2 não constitui
+gate integral aprovado. Após a revisão das referências,22 testes de pixels e
+contagem passaram em6,43s. O rótulo real de fidelidade também passou a usar
+renderedCount; a contraprova Qt falhou antes e33 focados passaram depois.
+
+R3 iniciada09:27:20UTC02/11:1309 entradas congeladas, supervisor existente,
+uma suíte serial/nice10 com software OpenGL e limites de threads. Resultado,
+coverage e hashes ainda devem ser conferidos. Os registros ignorados ficam em
+build/agent-runs/studio-native-wheel/full-20261102-continuity-r3*; manifesto em
+build/agent-runs/continuity-20261102/tested-files-r3.json. Não editar fonte nem
+repetir a suíte durante a execução.
+
+O log histórico do CI foi obtido pelo helper Git já disponível, sem login novo,
+e confirma o cache Python3.14.9 do hostUbuntu26.04.1 usado no contêiner24.04.4,
+com OpenSSL3.0.13 instalado. O símbolo exato de `_ssl` não está nesse log.
+A candidata ainda precisa do smoke remoto verde; `0cfd1b62` registra a correção
+de ambiente/dependências, `fddf91c0` a camada de domínio e `1f6be082` as imagens
+revisadas. A integração compartilhada aguarda os gates finais.
+
+A revisão visual dos nove mockups foi solicitada como etapa posterior ao
+fechamento integral do pedido anterior. Seu prompt não foi iniciado, respeitando
+a ordem e a exclusividade do executor. Pendências executáveis anteriores seguem
+nos itens e workstream existentes.
+
+
+Sete capturas sintéticas foram revisadas e preservadas em
+[studio-native-context/](studio-native-context/), total302.741bytes, com dimensões
+reais e SHA256 no recibo. Studio1280×900 e840×900 com texto ampliado; as duas
+variantes de autoria chegam ao Launcher1280×800. Não são duas resoluções do
+Launcher. As três provas independentes de contorno correspondem a DPR1/1,5/2.
+São capturas da fonte em Qt isolado, não da release instalada.
+
+![Studio: controles reais em1280×900](studio-native-context/01-studio-wide.png)
+
+![Launcher: tema autorado consumido pelo motor comum em1280×800](studio-native-context/03-launcher-from-wide-authoring.png)
+
+
+Atualização após R3: **7.221 passed,48 skipped,1 failed documental,22 warnings/
+3.058,56s**, saída1, sem sinais,1309 entradas congeladas e estado pessoal
+inalterados. Cobertura85,74876854203798%>=85,72395128552097%;171 casos críticos
+passaram. Em294 módulos inalterados, duas linhas de retry SQLite(cache84/85)
+não foram exercidas nesta rodada; não houve regressão agregada. A única falha
+é test_committed_catalog_and_generated_views_are_consistent: atualizações desta
+própria documentação durante a execução tornaram digests/visões obsoletos.
+Corrigir e repetir somente a validação de status, conforme exceção explícita do
+AGENTS§6; manter o resultado integral com saída1, sem chamar essa rodada de verde.
+
+Depois da integral, o novo teste exclusivo de pixels RHI recebeu o mesmo guard
+de seleção por backend dos testes RHI anteriores. A imagem canônica8b832 é de
+software; sonda mínima nela reproduziu falha de inicialização OpenGL, sem baixar
+imagem nova. Todas as assertivas e tolerâncias de pixels permanecem. Quatro
+focados RHI passaram em7,66s com estado real preservado. Nenhuma fonte de runtime
+mudou após R3. Manifesto público studio-native-context-tested-files-r3.json e
+recibo discriminam o delta exclusivo de teste e os limites da prova.
+
+A falha documental foi corrigida:13 testes oficiais de status passaram em19,86s,
+estado pessoal inalterado, make status-check OK. RHI4pass/7,66s e software1pass/
+3pulos explícitos/2,82s após o único delta de teste. Conferência pós-R3 confirma
+que todas as outras entradas congeladas permanecem idênticas. Integração
+compartilhada commitada por último em4236bde0f9e3f476eb9634861271ac3092b4c5dd.
+Este é checkpoint de fonte: pacote não editable/Qt instalado e CI ainda pendentes;
+WORKLOG de fechamento será acrescentado ao concluir o lote aplicável.

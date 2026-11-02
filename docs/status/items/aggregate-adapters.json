@@ -42,11 +42,17 @@
       "reference": "docs/09-operations/evidence/2026-10-16-r0-r1-central/35-performance-status-reconciliation.json",
       "command": "Reconciliação de escopo R0/R1: sondagem de instalação compartilhada somente na composição/thread; oito testes novos e 261 regressões passaram, snapshot real 1145 jogos em 13,725 s. Eixos históricos preservados; novo diff ainda não homologado no host.",
       "result": "recorded"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
+      "command": "R3 terminou7221passed/48skipped/1failed documental/22warnings em3058,56s;1309 entradas e estado pessoal inalterados. Cobertura85,74876854203798%>=85,72395128552097%,171 guardas críticos passam.294 módulos comparados: duas linhas do retry SQLite não exercidas, sem regressão agregada. Única falha: digests/visões alterados durante a integral; corrigir e validar somente status conforme AGENTS§6. RHI focado4pass após guard de seleção de backend; nenhuma assertiva relaxada. Fonte/Qt, não instalação/hardware.",
+      "result": "recorded"
     }
   ],
   "nextAction": "Promover a itens proprios os adapters com ciclo transacional e evidencia dedicada.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-10-19",
-  "notes": "Item AGREGADOR: existe para que nenhum arquivo de codigo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto do diretorio. Promover um recorte deste escopo a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.",
-  "scopeDigest": "e8f0da9ffeec0bc3f0e8234ff6ad2095b693e26d1e9ed02a8b5f9f1cef5a4fad"
+  "updatedAt": "2026-11-02",
+  "notes": "Item AGREGADOR: existe para que nenhum arquivo de codigo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto do diretorio. Promover um recorte deste escopo a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.\n\n02/11/2026: escopo compartilhado reconciliado serialmente após testes focados de contexto/Qt(25), importador/renderer(57) e tema/herança(118; rodada final111). Recibo studio-native-context.json separa fonte, execução isolada, CI e instalação. Integral atual ainda em execução; goldens antigos preservados. Eixos instalados/físicos anteriores são históricos, não certificam a candidata desta tarefa.\n02/11: Central primary/copy e duas regressões Launcher corrigidas;54 focados aprovados.131 testes de segurança/tema e127 Dashboard/bootstrap/Qt/renderer aprovados. Integral final pendente; sem alterar goldens.\n02/11 atualização corrente: r2 concluída7219/48/3 somente imagens antigas; três referências autorizadas/revisadas em1f6be082,22 focados verdes, r3 final em execução. Notas anteriores de espera de autorização/log403 descrevem etapas superadas; recibo atual distingue log histórico acessível via helper existente sem login de símbolo SSL ainda não observado. Nenhuma promoção instalada/física.\n02/11 resultado r3:7221pass/48skip/1falha documental, cobertura85,74876854203798% acima da base e171 guardas passam. Falha por atualização documental durante execução; resultado original preservado e correção restrita de status conforme AGENTS§6. Sem selo de integral verde nem novo aceite instalado.",
+  "scopeDigest": "376e960d6b10c190ec0a9d67cd6d81fccfd6a226eaed474c4292772b4d8aec64"
 }

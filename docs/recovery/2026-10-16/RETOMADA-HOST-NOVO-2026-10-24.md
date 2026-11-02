@@ -596,3 +596,107 @@ existente não foi certificado por este lote de paths/leitura.
 Checkpoint local Studio 40988da9fdf2cda16ef8256057392091dbcec23f:103 focados aprovados (100 domínio/7,46s+3 Qt/30,97s),2PNG230.857bytes revisados,8hashes commitados incluindo4 Launcher pendentes. Integral não iniciada:7 leituras/300s,2475856–2837792KiB<3145728KiB, helper75. Retomar após MemAvailable>=3GiB/disco>=8GiB: uma integral serial/nice10 no runner isolado, cobertura>=85,66169677501884% e guardas antigos/novos presentes, então checkpoint documental e um push nominal da continuidade/PR268/SHA remoto, CI terminal/core>=85,50677260258396%. Sem instalação/auth/release/merge/deploy/boot ou novo aceite físico. Próximo baseline só depois desse gate: falhas de escrita/publicação preservando tema anterior.
 
 [Prova, capturas e comando exato](../../09-operations/evidence/2026-10-03-journey-engine-preview/README.md).
+
+
+## Continuidade de02/11/2026 — mídia contextual, herança e publicação técnica
+
+Executor serial na raiz canônica/branch de continuidade, base93fdc318, PR268
+aberto em rascunho no snapshot público. O WIP de31/10 foi identificado pelo
+workstream codex-central-executor e preservado na assunção; as correções desta
+rodada não autorizam tratar sua origem como implementação nova do sucessor.
+O [recibo atual](../../09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json)
+e a seção final do README dessa evidência discriminam causa, correção, testes e
+limites por recurso. Reutilizar os itens existentes e WS-STUDIO-DRAFT-HISTORY.
+
+Foram implementados papéis comuns de mídia e fronteira de bindings/URIs,
+texto literal sem fetch HTTP por markup, cor/alpha normalizados no renderer,
+diagnóstico dos cortes16/32 e de eventos/easing não traduzidos, contorno nativo
+por dilatação de alpha e demanda física de decode, transporte de herança
+personalizada e recusa de apagar base com filhos instalados. A Central lê o
+primário explícito do bundle e copia só o filho, preservando pais/revisões.
+As baterias finais focadas foram131,54 e127 testes aprovados, com escopos e
+sobreposição explícitos; não são um total de suíte integral.
+
+A primeira integral foi cancelada controladamente em1157,71s para corrigir a
+integração descoberta em revisão; exit143,1308 fontes e state pessoal13013
+arquivos inalterados. A r2 terminou7219passed/48skipped/3failed/22warnings em
+2989,55s: somente as três referências antigas de contorno falharam. Cobertura
+85,75578539652244%>=85,72395128552097%;294 módulos inalterados sem perda de
+linhas/arcos e171 guardas críticos aprovados. Essa rodada não é gate verde.
+
+A orientação posterior do operador para prosseguir tratando pendências foi
+registrada como autorização das três referências revisadas: commit1f6be082,
+com imagens anteriores no histórico e mesmas tolerâncias/assertivas.22 testes
+finais de pixels/contagem/contexto passaram em6,43s. Após r2, um teste Qt
+reproduziu o rótulo usando contagem estimada apesar de falha de decode; a UI
+passou a mostrar renderedCount (33 focados/2,33s). requirements-runtime.in foi
+alinhado ao Pillow13 já pinado no lock; não houve upgrade de runtime.
+
+R3 iniciada09:27:20UTC02/11 pelo supervisor existente, manifesto privado
+build/agent-runs/continuity-20261102/tested-files-r3.json com1309 entradas.
+Conferir resultado/coverage e hashes antes de fechar; não editar fontes nem
+repetir a execução enquanto ativa. Commits locais:0cfd1b62CI,
+fddf91c0domínio/herança/mídia,1f6be082referências. Integração compartilhada
+aguarda gate final; nenhum desses commits foi enviado ainda.
+
+O helper Git existente permitiu ler o log histórico sem iniciar login ou
+persistir credencial: hostUbuntu26.04.1/image20261025.179.1 reutilizou
+Python3.14.9 do cache montado dentro do container24.04.4 com
+OpenSSL/libssl3t64 3.0.13-0ubuntu3.16. pip informa módulo SSL indisponível;
+o log não traz o símbolo dlopen exato. A candidata fixa runner24.04 e verifica
+ldd/ssl/sqlite/CA antes do pip, com backend pinado/hash-locked. CI candidato e
+inspeção binária histórica continuam pendentes; não atribuir símbolo não visto.
+
+A release apontada continua2.0.0rc1-59ecc2d8f0f6; nenhuma instalação, rollback,
+boot, merge, deploy, release ou interação no desktop ocupado foi executada.
+Convergência de daemon/sessão e rollback não foram requalificados. Os dois
+pacotes novos do lock de desenvolvimento entraram na .venv existente; nenhum
+pacote global ou marcador fictício foi instalado. Backup privado externo segue
+sem readback/restore comprovados, sem upload ou restauração por esta tarefa.
+
+Após o checkpoint, conferir SHA/commits e resultado real no recibo antes de
+publicar. Autorizações de instalação/boot não foram ampliadas. Reprodução de
+timelines/eventos/easing/menu/som importados, associações integrais, todos os
+consumidores de remoção, capacidades C0–C6 e aceites instalados/físicos continuam
+nos itens respectivos, sem selo de paridade por cobertura de parser.
+
+A orientação posterior exige fechar integralmente o pedido anterior antes de
+ler/executar prompt-pos-entrega-revisao-visual.txt e adotar os nove mockups.
+Essa revisão está enfileirada, sem frente concorrente. O fechamento deste lote
+não encerra todas as lacunas do programa; prosseguir nas próximas elegíveis.
+
+A inspeção exata do binário histórico tem dependência externa delimitada: asset
+oficial Python3.14.9/linux26.04/x64,110.842.162bytes, SHA256
+4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2.
+URL, destino e comando de validação estão em historicalPythonBinary no recibo.
+Nenhum download do arquivo foi iniciado: supera70.000.000bytes e deve ser
+manual pelo operador; não fragmentar nem extrair por streaming para contornar
+o limite. O hash do cache efetivamente usado no job antigo não foi registrado,
+portanto versão/plataforma não certificam identidade byte a byte desse cache.
+
+
+Atualização após R3: **7.221 passed,48 skipped,1 failed documental,22 warnings/
+3.058,56s**, saída1, sem sinais,1309 entradas congeladas e estado pessoal
+inalterados. Cobertura85,74876854203798%>=85,72395128552097%;171 casos críticos
+passaram. Em294 módulos inalterados, duas linhas de retry SQLite(cache84/85)
+não foram exercidas nesta rodada; não houve regressão agregada. A única falha
+é test_committed_catalog_and_generated_views_are_consistent: atualizações desta
+própria documentação durante a execução tornaram digests/visões obsoletos.
+Corrigir e repetir somente a validação de status, conforme exceção explícita do
+AGENTS§6; manter o resultado integral com saída1, sem chamar essa rodada de verde.
+
+Depois da integral, o novo teste exclusivo de pixels RHI recebeu o mesmo guard
+de seleção por backend dos testes RHI anteriores. A imagem canônica8b832 é de
+software; sonda mínima nela reproduziu falha de inicialização OpenGL, sem baixar
+imagem nova. Todas as assertivas e tolerâncias de pixels permanecem. Quatro
+focados RHI passaram em7,66s com estado real preservado. Nenhuma fonte de runtime
+mudou após R3. Manifesto público studio-native-context-tested-files-r3.json e
+recibo discriminam o delta exclusivo de teste e os limites da prova.
+
+A falha documental foi corrigida:13 testes oficiais de status passaram em19,86s,
+estado pessoal inalterado, make status-check OK. RHI4pass/7,66s e software1pass/
+3pulos explícitos/2,82s após o único delta de teste. Conferência pós-R3 confirma
+que todas as outras entradas congeladas permanecem idênticas. Integração
+compartilhada commitada por último em4236bde0f9e3f476eb9634861271ac3092b4c5dd.
+Este é checkpoint de fonte: pacote não editable/Qt instalado e CI ainda pendentes;
+WORKLOG de fechamento será acrescentado ao concluir o lote aplicável.

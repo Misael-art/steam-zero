@@ -4,7 +4,7 @@
   "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
   "item": "SZ-THEME-STUDIO",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "d9392bec9d3132e58bfc0812ec0dc892014ff28d",
+  "baseRef": "93fdc318491f280d70568cca1cb4a2081edc6873",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -72,7 +72,35 @@
     "src/steamzero/ui/qml/SceneMediaPlayer.qml",
     "tests/qml/check_native_wheel_runtime.qml",
     "tests/integration/test_native_wheel_audio.py",
-    "tests/qml/check_native_wheel_audio.qml"
+    "tests/qml/check_native_wheel_audio.qml",
+    "src/steamzero/adapters/journey_public.py",
+    "src/steamzero/adapters/launcher_media.py",
+    "src/steamzero/launcher/app.py",
+    "tests/unit/test_native_context_contract.py",
+    "tests/integration/test_native_context_media.py",
+    "tests/qml/check_native_context_media.qml",
+    "src/steamzero/ui/qml/SteamComboBox.qml",
+    ".github/workflows/ci.yml",
+    "src/steamzero/domain/scene_retrofe.py",
+    "tests/unit/test_scene_retrofe.py",
+    "src/steamzero/domain/theme_scene.py",
+    "src/steamzero/domain/theme_acquire.py",
+    "tests/unit/test_theme_acquire.py",
+    "src/steamzero/ui/qml/AssetOutline.qml",
+    "src/steamzero/ui/qml/shaders",
+    "src/steamzero/ui/qml/SceneEsdeView.qml",
+    "tests/integration/test_scene_esde_view.py",
+    "tests/qml/check_scene_esde_view.qml",
+    "requirements-dev.in",
+    "requirements-dev.lock",
+    "src/steamzero/schemas/ir-scene-v1.schema.json",
+    "tests/qml/check_asset_outline.qml",
+    "tests/integration/test_qml_asset_recipes.py",
+    "hatch_build.py",
+    "src/steamzero/ui/qml/ThemeScenePreview.qml",
+    "tests/qml/check_theme_scene_preview.qml",
+    "requirements-runtime.in",
+    "tests/qml/golden/asset-recipes"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -111,6 +139,6 @@
     "docs/01-product/CAPABILITY-MATRIX.md",
     "docs/status/items/platform-vita-catalog.json"
   ],
-  "nextAction": "Primeiro incremento nativo da seção22.5 concluído na fonte: domínio686d0b7e, integração compartilhada finald9392bec;7181passed/48skipped/26warnings/2183,57s, cobertura85,72395128552097%>=85,71972259810555%, guardas e1294hashes/perfil preservados. Recibo studio-native-wheel.json registra falhas, correções, capturas RHI e PCM virtual, incluindo ocultação/retomada2/2. Após o push governado, conferir SHA/CI do PR268. Próximo: reservar claims prospectivos e reproduzir/publicar papéis de mídia contextual pelo mesmo projetor/registro, mantendo fonte canônica e perdas explícitas. Autoria integral, contorno fiel, decode físico/DPR, associação completa e paridade RetroFE/ES-DE continuam abertos. Produção2.0.0rc1/59ecc2d8f0f6 inalterada; atalho pessoal validado. Sem auth, instalação, release, merge, deploy ou boot.",
-  "updatedAt": "2026-10-31"
+  "nextAction": "Serial/base93fdc318/WIP preservado. Commits0cfd1b62CI/fddf91c0domínio/1f6be082referências. R3 terminou7221passed/48skipped/1failed documental/22warnings em3058,56s,1309entradas/state13013 inalterados, sem sinais. Cobertura85,74876854203798%>=85,72395128552097%;171guardas passam;294módulos comparados com2linhas de retry SQLite não exercidas. Digests/visões corrigidos conforme AGENTS§6:13testes de status/19,86s e make status-check passam; integração4236bde0, sem chamar integral saída1 de verde. Pós-r3 só teste: seleção explícita software/RHI,4focadosRHI/7,66s e1pass+3skipsoftware/2,82s, mesmaassertivas; runtime inalterado. Integração compartilhada4236bde0 concluída por último; próximo checkpoint documental, build não editable limpo/identidade/recursos, pipcheck/doctor/Qt instalado e um push limpo/PR268/CI SHA. Wrapper de aceite instalado reutiliza percursos existentes em build/agent-runs/continuity-20261102. LogSSL histórico confirma host26/cache3.14.9/container24/OpenSSL3.0.13; arquivo para símbolo exato110842162bytes/hash/URL registrados, download manual pendente. Sem host/boot/release/merge/deploy/backup privado. Próximos anteriores: guard de remoção com preferências/rascunhos/Jornadas (reusar dependency IDs existentes), comprovar texto da busca Launcher ainda AutoText, associações/autoria e reprodução importada. Ler prompt dos nove mockups somente após fechar integralmente pedido anterior.",
+  "updatedAt": "2026-11-02"
 }

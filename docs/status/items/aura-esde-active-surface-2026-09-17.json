@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "unknown",
   "distribution": "not-packaged",
-  "scopeDigest": "1643600b15bd56fd3d069ab69f2ccd8fc7229608f264f82d7cf93ec35dc82780",
+  "scopeDigest": "b87be43df954f1b8fede508bda16b1daa3addbf20fdd8824f5cb3f79ec3b4de2",
   "scopePaths": [
     "src/steamzero/adapters/desktop_dashboard.py",
     "src/steamzero/domain/theme_import_esde.py",
@@ -115,5 +115,5 @@
     "WS-2026-09-ESDE-ACTIVE-SURFACE"
   ],
   "updatedAt": "2026-10-31",
-  "notes": "A ponte técnica agora preserva background estático, permite aplicar o tema pela rota transacional existente e renderiza a camada ativa com fallback. A prova física requer release instalada; decoder de vídeo e read model de jogo ainda não foram promovidos.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado."
+  "notes": "A ponte técnica agora preserva background estático, permite aplicar o tema pela rota transacional existente e renderiza a camada ativa com fallback. A prova física requer release instalada; decoder de vídeo e read model de jogo ainda não foram promovidos.\n\n2026-10-20: scopeDigest renovado por mudança alheia a este item (commit 7ab1b76e, lote R0/R1): Emulation.qml/Main.qml/SteamComboBox.qml corrigem viewport, legibilidade do seletor, contraste sobre ciano e subtítulo do cabeçalho compacto achados no aceite instalado em 1280×800. Revalidação de escopo, não carimbo; nenhum eixo deste item promovido nem evidência reexecutada.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.\n02/11 atualização corrente: r2 concluída7219/48/3 somente imagens antigas; três referências autorizadas/revisadas em1f6be082,22 focados verdes, r3 final em execução. Notas anteriores de espera de autorização/log403 descrevem etapas superadas; recibo atual distingue log histórico acessível via helper existente sem login de símbolo SSL ainda não observado. Nenhuma promoção instalada/física.\n02/11 resultado r3:7221pass/48skip/1falha documental, cobertura85,74876854203798% acima da base e171 guardas passam. Falha por atualização documental durante execução; resultado original preservado e correção restrita de status conforme AGENTS§6. Sem selo de integral verde nem novo aceite instalado."
 }

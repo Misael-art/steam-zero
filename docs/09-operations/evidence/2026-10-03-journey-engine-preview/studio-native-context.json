@@ -1,0 +1,304 @@
+{
+  "date": "2026-11-02",
+  "kind": "source-checkpoint",
+  "baseCommit": "93fdc318491f280d70568cca1cb4a2081edc6873",
+  "branch": "codex/product-recovery-2026-10-16",
+  "owner": "codex-central-executor",
+  "inheritedWip": "11 modified files plus 3 untracked tests, retained and serially assumed; fingerprints remain private in build/agent-runs/continuity-20261102/inherited-wip.json",
+  "changes": [
+    {
+      "gap": "contextual media",
+      "cause": "different public field lists, discarded resolved cover and implicit recipe master substitution",
+      "correction": "shared MediaRegistry role vocabulary and URI contract, shared projection, typed image binding and explicit missing-resource diagnostic",
+      "proof": "13 inherited unit tests pass; 25 final context/Qt tests pass, including source and logical revision after save/reopen/export/import and common Launcher resolver",
+      "limit": "controlled fixtures and source/Qt; no installed acceptance"
+    },
+    {
+      "gap": "markup in metadata",
+      "cause": "Text.AutoText in selector and common scene renderer",
+      "correction": "Text.PlainText on metadata consumers",
+      "proof": "loopback HTTP marker was fetched before selector correction; final Qt test observes zero HTTP requests and literal text in selector, popup and scene",
+      "limit": "owned local fixture; no personal metadata read"
+    },
+    {
+      "gap": "nonuniform outline and decode demand",
+      "cause": "outline implemented by scaling alpha; decode size ignored scale and DPR",
+      "correction": "engine-owned bounded disk alpha dilation; decode demand includes target scale, ancestor scales and DPR, capped at8192",
+      "proof": "Independent four-edge/inner-hole and DPR1/1.5/2 properties pass. Operator continuation treated as authorization for three reviewed reference updates in1f6be082; former images remain in Git history.22 focused pixel/count/context tests pass in6.43s; all image tolerances and assertions retained.",
+      "limit": "Qt/RHI using software OpenGL; verified target scale, ancestor Item.scale and DPR1/1.5/2, capped8192. This does not qualify animation overshoot, arbitrary transform stacks, hardware, FPS, VRAM or performance. Final global checkpoint in progress."
+    },
+    {
+      "gap": "custom inheritance export and removal",
+      "cause": "ZIP omitted custom ancestors; uninstall ignored installed extends consumers",
+      "correction": "bounded native bundle carries ancestry and each master once; identical dependencies reused; differing dependencies refused; handled publication failure removes only owned new dependencies; removal refuses live children; Central inspects explicit bundle primary and copying renames only the child/bundle pointer using a full ULID; dependency revisions and metadata remain intact",
+      "proof": "118 focused tests pass including fresh-profile inheritance/revision, master count, conflict preservation and publication failure; final111 focused tests pass; Central inspect/copy/two-copy regression reproduced then fixed;131 security/ownership/round-trip tests pass",
+      "limit": "source fixtures; no profile migration, host update or external redistribution; removal guard currently covers installed extends consumers, not all drafts/Journey/preferences"
+    },
+    {
+      "gap": "RetroFE silent loss",
+      "cause": "color, unknown on* events and animation attributes omitted; slices of16 animations/32 blocks lacked diagnostics; common model ignored alpha/layer/font size units",
+      "correction": "color retained; alpha/layer/font normalized; explicit loss diagnostics at bounds, unsupported events/tween and merged-holder overflow; consumer exposes unsupported timelines and actual decode/visibility observations",
+      "proof": "57 importer/common-consumer tests pass; known counterexamples now reduce parser coverage; source and Qt tests",
+      "limit": "onIdle/easing/timeline playback remain unimplemented, explicitly diagnosed; integral Aeon Nox/ES-DE fidelity remains open",
+      "counterexamples": {
+        "baseline": "build/agent-runs/diagnostic-20261101-mb1wehe4/compiler-probes.json",
+        "regression": "tests/unit/test_scene_retrofe.py::test_losses_are_diagnosed_instead_of_full_parser_coverage",
+        "normalization": "tests/unit/test_scene_retrofe.py::test_retrofe_alpha_color_layer_and_font_reach_the_common_render_model",
+        "consumer": "tests/qml/check_scene_esde_view.qml",
+        "lossesRemainOpen": [
+          "onIdle",
+          "unsupported easing attributes",
+          "timeline playback",
+          "menus",
+          "sound"
+        ]
+      }
+    },
+    {
+      "gap": "Ubuntu SSL smoke",
+      "cause": "Historical authenticated job log accessed through existing Git credential helper without login: host Ubuntu26.04.1/image20261025.179.1 reused mounted CPython3.14.9 cache inside Ubuntu24.04.4 container with OpenSSL/libssl3t64 3.0.13-0ubuntu3.16. pip reports SSL module unavailable before fetching hatchling. The exact dlopen symbol is not present in this log.",
+      "correction": "pin distro smoke runner to Ubuntu24.04; inspect Python extension linkage before ssl/sqlite/CA checks; install hash-locked build backend and build without an unverified isolation environment",
+      "proof": "Historical run41195711124/job124521335047 log retained privately; cache/distro mismatch confirmed. Previous dependency pins unchanged; hash-locked hatchling1.31.0/trove-classifiers added. Runtime .in declaration aligned to existing Pillow13 lock without upgrade. Local pip check passes.",
+      "limit": "Exact historical extension linkage/symbol remains unobserved; candidate Ubuntu smoke not yet run; no remote green claim"
+    },
+    {
+      "gap": "Launcher regressions exposed by typed media loss",
+      "cause": "missing-cover diagnostics changed layout selection state; software recipe check could evaluate to undefined",
+      "correction": "separate resourceResolutionState from successful authored-layout selection, retain explicit missing-media diagnostic; boolean recipe guard",
+      "proof": "54 bundle/context/Launcher tests pass, including structured D-08 error and native journey flows; existing assertions preserved",
+      "limit": "isolated HTTP/Qt; no installed session proof"
+    },
+    {
+      "gap": "observed render count label",
+      "cause": "ThemeScenePreview label used estimated drawnCount after image decode failed",
+      "correction": "Use common renderer renderedCount in visible fidelity label",
+      "proof": "Qt regression failed before correction (expected0 of1); corrected33 focused tests pass in2.33s",
+      "limit": "source/Qt fixture; no installed qualification"
+    }
+  ],
+  "validation": {
+    "focused": "passed as specified per change",
+    "fullSuite": "Initial full-20261102-continuity cancelled by owned supervisor SIGTERM after1157.71s to correct a newly identified Central bundle integration gap; exit143, frozen1308 source hashes unchanged, real state13013 files unchanged. Partial execution is not approval. Five failure node IDs recovered from progress/collection; three are unchanged golden differences and two Launcher journey regressions require focused diagnosis.",
+    "static": "Final frozen source: Ruff check and format742files, mypy307files, independence and architectural boundaries passed; git diff --check passed. Status regeneration/check follows documentary reconciliation; global suite r3 still running.",
+    "focusedFinal": {
+      "bundleSecurity": {
+        "passed": 131,
+        "seconds": 7.84
+      },
+      "bundleAndLauncher": {
+        "passed": 54,
+        "seconds": 11.05
+      },
+      "dashboardBootstrapNativeRenderer": {
+        "passed": 127,
+        "seconds": 85.34
+      },
+      "realState": "13013 files unchanged"
+    },
+    "fullSuiteR2": {
+      "exitCode": 1,
+      "passed": 7219,
+      "skipped": 48,
+      "failed": 3,
+      "warnings": 22,
+      "testSeconds": 2989.55,
+      "sourceHashesUnchanged": true,
+      "realStateUnchanged": true,
+      "failures": "Only outlineThin/outlineThick/outlinedShadow prior reference differences; this is not a green full gate",
+      "coverage": 85.75578539652244,
+      "baselineCoverage": 85.72395128552097,
+      "unchangedModulesCompared": 294,
+      "lostCoveredLinesOrArcsInUnchangedModules": 0,
+      "criticalCasesPassed": 171
+    },
+    "fullSuiteR3": {
+      "exitCode": 1,
+      "seconds": 3079.6816157560024,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "state": "finished",
+      "passed": 7221,
+      "skipped": 48,
+      "failed": 1,
+      "warnings": 22,
+      "testSeconds": 3058.56,
+      "coverage": 85.74876854203798,
+      "baselineCoverage": 85.72395128552097,
+      "aggregateNonRegression": true,
+      "realStateUnchanged": true,
+      "failure": "tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent; documentation was edited during full execution, making digests and generated views stale. This run has exit1, not a green full-suite result.",
+      "unchangedModulesCompared": 294,
+      "unchangedCoverageLosses": [
+        {
+          "file": "src/steamzero/adapters/scraping/cache.py",
+          "lines": [
+            84,
+            85
+          ],
+          "arcs": [],
+          "interpretation": "Existing SQLite WAL contention retry path was not exercised in r3; application source is unchanged. Aggregate coverage remains above baseline. No claim of zero line losses."
+        }
+      ],
+      "criticalCasesPassed": 171
+    },
+    "status": "Corrected documentary inconsistency: official test_project_status13passed/19.86s, real state unchanged, make status-check OK. This receipt metadata/commit-reference update receives fresh digest/render/status validation before commit.",
+    "nonEditableAcceptancePlan": "After final green local gate and clean committed source: hash-locked wheel build, verify embedded source identity and shader/QML resources; install non-editable in owned empty environment; pip check/version/doctor/ports with isolated HOME/XDG; reuse existing authoring/Launcher Qt journeys redirected to installed package resources, documenting any development helper used. No /opt activation or occupied-desktop interaction. Candidate remote smoke must confirm its own published SHA.",
+    "canonicalRhiProbe": {
+      "image": "sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd",
+      "download": false,
+      "level": "bounded ephemeral container, no network, read-only root, tmpfs64MiB,384MiB RAM,0.5CPU,LP_NUM_THREADS1",
+      "initialAttempt": "Repository bind mount did not expose the new untracked harness to the Docker daemon; qml reported file missing. This is not product failure.",
+      "minimalProbe": "QML window sent over stdin, QtQuick/OpenGL RHI: QRhiGles2 failed context creation, Failed to initialize graphics backend for OpenGL, exit250",
+      "existingContract": "Canonical image declares QT_QUICK_BACKEND=software; existing RHI goldens/native wheel tests skip explicitly there. New DPR outline test currently forces RHI and must be routed consistently.",
+      "nextAction": "Backend selection guard implemented after r3; local focused RHI4passed. Software selection/result separately recorded. Remote canonical gate validates software only, not RHI pixels."
+    },
+    "historicalExit137": {
+      "observation": "Prior isolated tests/unit/test_native_context_contract.py attempt ended137 with empty log",
+      "rootCause": "Not established; lack of historical kernel/process evidence does not justify an OOM claim",
+      "response": "Resources inspected before serial rerun;13 inherited tests passed, then later focused suites and full r2 completed without signal. Full r3 is under resource preflight and owned signal-recording supervisor. These successes do not identify the historical cause."
+    },
+    "closureRule": "AGENTS.md section6: when only generated views/digests became stale, regenerate and run applicable status validation. Preserve full r3 exit1 and correct only the documentary defect; do not repeat full suite for generated metadata. Application files remain exactly as frozen. Post-r3 test-only backend routing is separately proven.",
+    "postR3TestOnlyDelta": {
+      "path": "tests/integration/test_native_context_media.py",
+      "before": "3bce4658d0155468c69c487829afdccc40b99f2c1ce53e74f78b3de9fab033c5",
+      "after": "bf48c9c9dae24b7602a9ec9963c4e2b1f94bad70768e1d0167a653eee4b31364",
+      "change": "Only explicit software-backend skip guard consistent with existing RHI tests; every pixel assertion and tolerance retained.",
+      "focusedRhi": "4passed/7.66s, real state unchanged",
+      "focusedSoftware": "1passed/3 explicitly skipped RHI cases in2.82s; literal metadata still tested, real state unchanged",
+      "runtimeFilesChangedAfterR3": false,
+      "verifiedAllOtherFrozenFilesUnchanged": true
+    }
+  },
+  "host": {
+    "mutations": [],
+    "rollback": "not activated or requalified; old release directories do not prove usable rollback",
+    "actions": "read-only release link, processes/resources and disposable test/container sessions; two hash-locked development packages added in existing .venv; no global host dependency install",
+    "pointedRelease": "2.0.0rc1-59ecc2d8f0f6",
+    "runtimeConvergence": "Not requalified; release symlink read-only does not certify the executing daemon/session"
+  },
+  "remote": {
+    "pr": 268,
+    "state": "open draft",
+    "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
+    "checks": "7 successful CI jobs, Ubuntu smoke failed, CodeRabbit skipped",
+    "credentials": "Existing Git credential helper supplied access in memory to historical logs; no secret persisted, login initiated or authentication changed. No push yet; PR snapshot remains historical.",
+    "verifiedBeforePush": {
+      "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
+      "main": "ad742ca3515f794fe285d42060708835cb09fb91",
+      "pr": 268,
+      "url": "https://github.com/Misael-art/steam-zero/pull/268",
+      "state": "OPEN",
+      "draft": true,
+      "readUsing": "existing credential helper, no new login; remote refs unchanged"
+    }
+  },
+  "externalDependencies": [
+    "candidate CI and exact SSL linkage evidence",
+    "governed installation/rollback and occupied-desktop-safe physical test window",
+    "hardware, legitimate content and service credentials for corresponding product journeys",
+    "external private-backup readback/restore proof; no upload or overwrite performed"
+  ],
+  "commits": {
+    "ci": "0cfd1b62",
+    "domain": "fddf91c0",
+    "reviewedOutlineReferences": "1f6be082",
+    "integration": "4236bde0f9e3f476eb9634861271ac3092b4c5dd"
+  },
+  "sequence": "Complete prior request before reading/executing prompt-pos-entrega-revisao-visual.txt and adopting nine final mockups. No parallel front.",
+  "captures": {
+    "level": "Source/isolated Qt only; synthetic original fixture; no installed or hardware acceptance",
+    "items": [
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/01-studio-wide.png",
+        "bytes": 93646,
+        "sha256": "11acdbfd2dd1acaa20a6d683d4727eb12809bdaceb50d2268d93eb0ff69c6d8f",
+        "size": [
+          1280,
+          900
+        ],
+        "meaning": "Studio controls, wide viewport, software backend"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/02-studio-compact-large-text.png",
+        "bytes": 59509,
+        "sha256": "76efddd86434ce0f555f5bd91f2a0e986b985d4cefd7f1f42b6a55b9962441b6",
+        "size": [
+          840,
+          900
+        ],
+        "meaning": "Studio controls, compact viewport with larger text, software backend"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/03-launcher-from-wide-authoring.png",
+        "bytes": 73001,
+        "sha256": "233006fd7fcf0cb34bbddbdfee733e4cc0df9e22d7536e622d21162972a7fd5e",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Launcher RHI consumption of wide-authored theme; Launcher viewport1280x800"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/04-launcher-from-compact-authoring.png",
+        "bytes": 73116,
+        "sha256": "cf3925cca2dd2732affbd089d3cf4410c88cf8e22e328fba035470ff3d90afa5",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Launcher RHI consumption of compact-authored theme; Launcher viewport1280x800"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/05-outline-dpr1.png",
+        "bytes": 527,
+        "sha256": "f36befbe58d09b2fc03bd6abe13c60d91a0178d589e7afb154047548fdad682c",
+        "size": [
+          200,
+          100
+        ],
+        "meaning": "Independent uniform-edge/hole fixture at DPR1"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/06-outline-dpr1_5.png",
+        "bytes": 1254,
+        "sha256": "44f2a31598bcc7c6e2abc6029dcfc2e5412dde4ef64cc30fd42d128d5b491abd",
+        "size": [
+          300,
+          150
+        ],
+        "meaning": "Independent uniform-edge/hole fixture at DPR1.5"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/07-outline-dpr2.png",
+        "bytes": 1688,
+        "sha256": "a4110bac04a7ed35540e5fe3590c077f89711eab81daa672cbeeae9a5eaef202",
+        "size": [
+          400,
+          200
+        ],
+        "meaning": "Independent uniform-edge/hole fixture at DPR2"
+      }
+    ],
+    "fixtureArtworkLicense": "Original synthetic artwork declared CC0-1.0 in existing fixtures; UI screenshots are evidence of the SteamZero application, not replacement mockups."
+  },
+  "historicalPythonBinary": {
+    "releaseMetadata": "https://api.github.com/repos/actions/python-versions/releases/tags/3.14.9-39619022138",
+    "asset": {
+      "name": "python-3.14.9-linux-26.04-x64.tar.gz",
+      "size": 110842162,
+      "digest": "sha256:4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2",
+      "browser_download_url": "https://github.com/actions/python-versions/releases/download/3.14.9-39619022138/python-3.14.9-linux-26.04-x64.tar.gz"
+    },
+    "downloaded": false,
+    "reason": "Asset exceeds operator manual-download threshold70,000,000bytes. Do not split or stream selected members to circumvent it.",
+    "destination": "build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz",
+    "identityLimit": "Version/platform match historical host cache; the historical cache binary hash itself was not logged.",
+    "nextAction": "Operator may download the intact asset manually; verify full SHA256/size from this receipt before bounded owned extraction and read-only linkage inspection in pinned Ubuntu24.04. Never replace host Python or TLS libraries.",
+    "validationArgv": [
+      "python3",
+      "-c",
+      "import hashlib,pathlib; p=pathlib.Path('build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz'); assert p.stat().st_size==110842162; assert hashlib.sha256(p.read_bytes()).hexdigest()=='4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2'; print('size and SHA256 verified')"
+    ]
+  },
+  "nextAction": "Clean committed checkpoint, non-editable wheel build/install/identity/resource checks and reused installed Qt journeys, then final local documentary closure and authorized clean push/PR268/CI exact SHA. Continue prior eligible gaps before reading the nine-mockup follow-up."
+}
