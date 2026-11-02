@@ -12,6 +12,7 @@ from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import dataclass, field
+from itertools import chain
 from pathlib import Path
 from typing import Any
 
@@ -568,6 +569,27 @@ def _mutation(session: EditorSession) -> Iterator[None]:
 class ThemeEditorManager:
     def __init__(self) -> None:
         self._sessions: dict[str, EditorSession] = {}
+
+    def theme_consumers(self, theme_id: str) -> list[str]:
+        """Preserve open documents and every reachable undo/redo dependency."""
+        consumers: list[str] = []
+        remaining = 4096
+        for session in tuple(self._sessions.values()):
+            remaining -= 1 + len(session.undo_stack) + len(session.redo_stack)
+            if remaining < 0:
+                raise SteamZeroError(
+                    "E-THEME-LIMIT", detail="muitos rascunhos para verificar; remoção recusada"
+                )
+            snapshots = chain(
+                ({"manifest": session.manifest},), session.undo_stack, session.redo_stack
+            )
+            if any(
+                snapshot["manifest"].get("id") == theme_id
+                or snapshot["manifest"].get("extends") == theme_id
+                for snapshot in snapshots
+            ):
+                consumers.append(f"rascunho {session.session_id}")
+        return consumers
 
     def load(self, theme_id: str) -> dict[str, object]:
         import importlib.resources as _res

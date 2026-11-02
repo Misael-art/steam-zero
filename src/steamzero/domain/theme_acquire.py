@@ -36,6 +36,8 @@ contrariar a medição.
 from __future__ import annotations
 
 import json
+import os
+import stat
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -49,6 +51,7 @@ from steamzero.domain.theme_assets import (
     ALLOWED_SUFFIXES,
     ThemeAssetStore,
     digest_bytes,
+    live_digests,
     load_installed_manifests,
 )
 from steamzero.domain.theme_sources import ThemeSource
@@ -57,6 +60,75 @@ from steamzero.domain.theme_sources import ThemeSource
 #: bem abaixo; o teto existe para que um endereço trocado não vire download sem
 #: fim, não para apertar os temas conhecidos.
 MAX_ARCHIVE_BYTES = 320 * 1024 * 1024
+
+MAX_ROLLBACK_MANIFESTS = 256
+MAX_ROLLBACK_MANIFEST_BYTES = 16 * 1024 * 1024
+MAX_ROLLBACK_TOTAL_BYTES = 64 * 1024 * 1024
+
+
+def rollback_live_digests() -> set[str]:
+    """Protect assets in owned undo snapshots before any garbage collection.
+
+    Staging already holds the previous manifests; derive ownership there rather
+    than maintaining another registry. An unreadable or oversized snapshot must
+    stop collection, never silently shrink the set of protected assets.
+    """
+    protected: set[str] = set()
+    count = total = 0
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        root_fd = os.open(paths.staging_dir(), directory_flags)
+    except FileNotFoundError:
+        return protected
+    except OSError as exc:
+        raise SteamZeroError("E-THEME-MANIFEST", detail="staging de recuperação ilegível") from exc
+    try:
+        for name in os.listdir(root_fd):
+            if not ids.ULID_RE.fullmatch(name):
+                continue
+            operation_fd = os.open(name, directory_flags, dir_fd=root_fd)
+            try:
+                try:
+                    fd = os.open(
+                        "previous-theme.json",
+                        os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                        dir_fd=operation_fd,
+                    )
+                except FileNotFoundError:
+                    continue
+                with os.fdopen(fd, "rb") as stream:
+                    if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                        raise ValueError("snapshot não é arquivo regular")
+                    count += 1
+                    if count > MAX_ROLLBACK_MANIFESTS:
+                        raise SteamZeroError(
+                            "E-THEME-LIMIT", detail="muitos snapshots de recuperação"
+                        )
+                    data = stream.read(MAX_ROLLBACK_MANIFEST_BYTES + 1)
+                total += len(data)
+                if len(data) > MAX_ROLLBACK_MANIFEST_BYTES or total > MAX_ROLLBACK_TOTAL_BYTES:
+                    raise SteamZeroError(
+                        "E-THEME-LIMIT", detail="snapshots de recuperação excedem o limite"
+                    )
+                manifest = json.loads(data)
+                if not isinstance(manifest, dict) or not isinstance(manifest.get("assets"), dict):
+                    raise ValueError("snapshot sem assets reconhecidos")
+                digests = live_digests([manifest])
+                for asset in manifest["assets"].values():
+                    digest = asset.get("digest") if isinstance(asset, dict) else asset
+                    if not isinstance(digest, str) or digest not in digests:
+                        raise ValueError("snapshot com digest inválido")
+                protected.update(digests)
+            finally:
+                os.close(operation_fd)
+    except (OSError, ValueError) as exc:
+        raise SteamZeroError(
+            "E-THEME-MANIFEST", detail="snapshot de recuperação inválido; limpeza recusada"
+        ) from exc
+    finally:
+        os.close(root_fd)
+    return protected
+
 
 _INGEST_LIMITS = SafeTarLimits(
     max_entries=20_000,
@@ -254,9 +326,11 @@ class ThemeTransaction:
         store: ThemeAssetStore,
         *,
         record_operation: OperationRecorder | None = None,
+        removal_guard: Callable[[str], None] | None = None,
     ) -> None:
         self._root = themes_root
         self._store = store
+        self._removal_guard = removal_guard
         # O registro é padrão, e não algo que o adaptador liga: uma operação que
         # deixa dado de rollback em disco SEM linha no banco parece órfã para o
         # resto do sistema — o doctor a acusa e o `state cleanup` a coloca em
@@ -347,6 +421,8 @@ class ThemeTransaction:
             restored = True
         else:
             # Não havia versão anterior: desfazer é voltar a não ter o tema.
+            if manifest_path.exists():
+                self._assert_removable(theme_id)
             fs.remove_file(manifest_path)
             restored = False
 
@@ -374,6 +450,11 @@ class ThemeTransaction:
             raise SteamZeroError(
                 "E-THEME-NOT-FOUND", detail=f"tema '{theme_id}' não está instalado"
             )
+        self._assert_removable(theme_id)
+        fs.remove_file(manifest_path)
+        return {"themeId": theme_id, "removed": True, "assetsPreserved": True}
+
+    def _assert_removable(self, theme_id: str) -> None:
         dependents = sorted(
             str(manifest.get("id", "?"))
             for manifest in load_installed_manifests(self._root)
@@ -387,8 +468,8 @@ class ThemeTransaction:
                     "altere a herança desses temas antes de remover"
                 )[:400],
             )
-        fs.remove_file(manifest_path)
-        return {"themeId": theme_id, "removed": True, "assetsPreserved": True}
+        if self._removal_guard is not None:
+            self._removal_guard(theme_id)
 
 
 def acquire_and_install(

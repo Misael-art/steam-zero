@@ -522,3 +522,61 @@ def test_uninstall_preserves_custom_inheritance_consumers(
     assert (parent / "theme.json").read_bytes() == original
     transaction.uninstall(child.name)
     assert transaction.uninstall(parent.name)["removed"]
+
+
+def test_first_install_rollback_refuses_live_children_and_preserves_blobs(
+    tmp_path: Path, themes: Path, store: ThemeAssetStore
+) -> None:
+    source = _source()
+    report = ingest_archive(
+        _tarball(tmp_path / "rollback.tar.gz", {"theme.xml": b"<theme/>"}), source, store
+    )
+    recorded: list[str] = []
+    transaction = ThemeTransaction(
+        themes, store, record_operation=lambda _id, state: recorded.append(state)
+    )
+    installed = transaction.install(source, report)
+    manifest = themes / source.id / "theme.json"
+    original = manifest.read_bytes()
+    child = themes / "org.example.child"
+    child.mkdir()
+    (child / "theme.json").write_text(json.dumps({"id": child.name, "extends": source.id}))
+    usage = store.usage()
+    with pytest.raises(SteamZeroError, match=r"org\.example\.child"):
+        transaction.rollback(source.id, installed["operationId"])
+    assert manifest.read_bytes() == original
+    assert recorded == []
+    assert store.usage() == usage
+    transaction.uninstall(child.name)
+    assert transaction.rollback(source.id, installed["operationId"])["restoredPrevious"] is False
+    assert store.usage() == usage
+    assert recorded == ["rolled-back"]
+
+
+def test_version_restore_does_not_use_the_removal_guard(
+    tmp_path: Path, themes: Path, store: ThemeAssetStore
+) -> None:
+    source = _source()
+    first = ingest_archive(
+        _tarball(tmp_path / "first.tar.gz", {"theme.xml": b"<theme/>"}), source, store
+    )
+    called: list[str] = []
+
+    def refuse_removal(theme_id: str) -> None:
+        called.append(theme_id)
+        raise SteamZeroError("E-THEME-ACTIVE", detail="owned active consumer")
+
+    transaction = ThemeTransaction(
+        themes, store, record_operation=lambda *_: None, removal_guard=refuse_removal
+    )
+    transaction.install(source, first)
+    manifest = themes / source.id / "theme.json"
+    original = manifest.read_bytes()
+    second = ingest_archive(
+        _tarball(tmp_path / "second.tar.gz", {"theme.xml": b"<theme changed='1'/>"}), source, store
+    )
+    replaced = transaction.install(source, second, force=True)
+    assert manifest.read_bytes() != original
+    assert transaction.rollback(source.id, replaced["operationId"])["restoredPrevious"] is True
+    assert manifest.read_bytes() == original
+    assert called == []
