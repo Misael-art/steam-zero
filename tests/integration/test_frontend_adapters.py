@@ -62,6 +62,163 @@ def _run(capsys: pytest.CaptureFixture[str], args: list[str]) -> tuple[int, dict
     return code, json.loads(out)
 
 
+@pytest.mark.parametrize("target", ["srm", "esde"])
+@pytest.mark.parametrize("kind", ["emulator.config", "theme.acquire"])
+def test_frontend_rollback_refuses_a_foreign_operation_without_changing_its_files(
+    capsys: pytest.CaptureFixture[str], isolated: tuple[Path, Path, Path], target: str, kind: str
+) -> None:
+    from steamzero.core import fs, transaction
+
+    root, _state, _config = isolated
+    unrelated = root / "owned-unrelated.cfg"
+    fs.write_atomic(unrelated, b"before")
+    plan = transaction.plan_write_files({unrelated: b"after"}, root=root, kind=kind)
+    applied = transaction.apply(plan.plan_id, plan.confirm_token)
+    code, result = _run(
+        capsys,
+        [
+            "frontends",
+            "rollback",
+            "--target",
+            target,
+            "--operation-id",
+            applied.operation_id,
+            "--json",
+        ],
+    )
+    assert code != 0, result
+    assert unrelated.read_bytes() == b"after"
+    assert transaction.rollback(applied.operation_id).status == "rolled-back"
+    assert unrelated.read_bytes() == b"before"
+
+
+@pytest.mark.parametrize("producer", ["srm", "esde"])
+def test_frontend_rollback_refuses_the_other_frontends_operation(
+    capsys: pytest.CaptureFixture[str], isolated: tuple[Path, Path, Path], producer: str
+) -> None:
+    root, _state, config = isolated
+    spec = _spec_path(root)
+    code, preview = _run(capsys, ["frontends", "plan", "--spec", str(spec), "--json"])
+    assert code == 0
+    plan = preview["data"][producer]
+    code, applied = _run(
+        capsys,
+        [
+            "frontends",
+            "apply",
+            "--target",
+            producer,
+            "--plan-id",
+            plan["planId"],
+            "--confirm",
+            plan["confirmToken"],
+            "--json",
+        ],
+    )
+    assert code == 0
+    owned = config / (
+        "ES-DE/custom_systems/es_systems.xml"
+        if producer == "esde"
+        else "steam-rom-manager/userData/manifests/steamzero-manifest-switch.json"
+    )
+    before = owned.read_bytes()
+    other = "esde" if producer == "srm" else "srm"
+    code, result = _run(
+        capsys,
+        [
+            "frontends",
+            "rollback",
+            "--target",
+            other,
+            "--operation-id",
+            applied["data"]["operationId"],
+            "--json",
+        ],
+    )
+    assert code != 0, result
+    assert owned.read_bytes() == before
+
+
+@pytest.mark.parametrize("target", ["srm", "esde"])
+def test_frontend_rollback_refuses_its_kind_at_an_unrelated_root(
+    capsys: pytest.CaptureFixture[str], isolated: tuple[Path, Path, Path], target: str
+) -> None:
+    from steamzero.core import fs, transaction
+
+    root, _state, _config = isolated
+    unrelated = (
+        root
+        / "another-profile"
+        / ("es_systems.xml" if target == "esde" else "steamzero-manifest-switch.json")
+    )
+    fs.write_atomic(unrelated, b"before")
+    kind = "frontend.esde-systems.sync" if target == "esde" else "frontend.srm-manifests.sync"
+    plan = transaction.plan_write_files({unrelated: b"after"}, root=unrelated.parent, kind=kind)
+    applied = transaction.apply(plan.plan_id, plan.confirm_token)
+    code, result = _run(
+        capsys,
+        [
+            "frontends",
+            "rollback",
+            "--target",
+            target,
+            "--operation-id",
+            applied.operation_id,
+            "--json",
+        ],
+    )
+    assert code != 0, result
+    assert unrelated.read_bytes() == b"after"
+
+
+def test_esde_rollback_accepts_a_large_valid_foreign_section_preserved_by_the_adapter(
+    capsys: pytest.CaptureFixture[str], isolated: tuple[Path, Path, Path]
+) -> None:
+    root, _state, config = isolated
+    owned = config / "ES-DE/custom_systems/es_systems.xml"
+    owned.parent.mkdir(parents=True)
+    original = (
+        "<systemList><system><name>foreign</name><label>"
+        + "x" * (3 * 1024 * 1024)
+        + "</label></system></systemList>"
+    ).encode()
+    owned.write_bytes(original)
+    spec = _spec_path(root, only="esde")
+    code, preview = _run(capsys, ["frontends", "plan", "--spec", str(spec), "--json"])
+    assert code == 0
+    plan = preview["data"]["esde"]
+    code, applied = _run(
+        capsys,
+        [
+            "frontends",
+            "apply",
+            "--target",
+            "esde",
+            "--plan-id",
+            plan["planId"],
+            "--confirm",
+            plan["confirmToken"],
+            "--json",
+        ],
+    )
+    assert code == 0
+    assert b"x" * (3 * 1024 * 1024) in owned.read_bytes()
+    code, result = _run(
+        capsys,
+        [
+            "frontends",
+            "rollback",
+            "--target",
+            "esde",
+            "--operation-id",
+            applied["data"]["operationId"],
+            "--json",
+        ],
+    )
+    assert code == 0, result
+    assert owned.read_bytes() == original
+
+
 def test_frontends_plan_then_apply_then_verify_then_rollback(
     capsys: pytest.CaptureFixture[str], isolated: tuple[Path, Path, Path]
 ) -> None:

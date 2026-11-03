@@ -35,6 +35,72 @@ def _committed(root: Path) -> tuple[str, Path]:
     return result.operation_id, target
 
 
+def test_theme_acquisition_requires_the_catalogs_contextual_rollback(history_home: Path) -> None:
+    from tests.unit.test_theme_acquire import _source
+
+    from steamzero.domain.theme_acquire import AcquisitionReport, ThemeTransaction
+    from steamzero.domain.theme_assets import ThemeAssetStore
+
+    paths.themes_dir().mkdir(parents=True)
+    assets = ThemeAssetStore(paths.theme_assets_dir())
+    source = _source()
+    asset = assets.put("theme.xml", b"<theme/>")
+    result = ThemeTransaction(paths.themes_dir(), assets).install(
+        source, AcquisitionReport(theme_id=source.id, assets={"theme.xml": asset.digest})
+    )
+    manifest = paths.themes_dir() / source.id / "theme.json"
+    before = manifest.read_bytes()
+    history = OperationHistory()
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        history.plan_rollback(result["operationId"])
+    item = history.get(result["operationId"])["operation"]
+    assert item["kind"] == "theme.acquire"
+    assert not item["rollback"]["available"]
+    assert "tema" in item["rollback"]["reason"].lower()
+    assert manifest.read_bytes() == before
+
+
+def test_theme_preference_and_pending_legacy_history_plan_require_theme_context(
+    history_home: Path,
+) -> None:
+    from typing import Any
+
+    from steamzero.domain.theme_preferences import ThemePreferenceManager
+
+    del history_home
+    preferences = ThemePreferenceManager()
+    planned = preferences.plan_activate("org.steamzero.default", "1.0.0")
+    assert planned is not None
+    applied = preferences.apply(planned.plan_id, planned.confirm_token)
+    operation_id = applied.operation_id
+    before = paths.theme_preference_path().read_bytes()
+    history = OperationHistory()
+    item = history.get(operation_id)["operation"]
+    assert item["kind"].startswith("theme.preference.")
+    assert not item["rollback"]["available"]
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        history.plan_rollback(operation_id)
+
+    class PreviousHistoryClassification(OperationHistory):
+        # Reproduce a pending preview created by the previous classification;
+        # the operation, journal and persisted confirmation are real.
+        def _item(self, row: dict[str, Any]) -> dict[str, Any]:
+            previous = super()._item(row)
+            previous["rollback"]["available"] = True
+            previous["rollback"]["reason"] = ""
+            return previous
+
+    pending = PreviousHistoryClassification().plan_rollback(operation_id)["plan"]
+    journal_before = paths.journal_path(operation_id).read_bytes()
+    pending_before = paths.plan_path(pending["planId"]).read_bytes()
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        history.apply_rollback(pending["planId"], pending["confirmToken"])
+    assert paths.theme_preference_path().read_bytes() == before
+    assert paths.journal_path(operation_id).read_bytes() == journal_before
+    assert paths.plan_path(pending["planId"]).read_bytes() == pending_before
+    assert preferences.rollback(operation_id).status == "rolled-back"
+
+
 def test_history_preview_confirm_apply_and_verify_rollback(history_home: Path) -> None:
     operation_id, target = _committed(history_home)
     history = OperationHistory()

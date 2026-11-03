@@ -230,6 +230,334 @@ def test_rollback_of_a_first_install_removes_the_theme(
     assert undone["assetsPreserved"] is True
 
 
+@pytest.mark.parametrize("operation_kind", ["unknown", "other-theme"])
+def test_install_rollback_refuses_unknown_or_foreign_operation_without_mutation(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path, operation_kind: str
+) -> None:
+    from steamzero.core import ids
+
+    archive = _tarball(tmp_path / "owned.tar.gz", {"theme.xml": b"<theme/>"})
+    transaction = ThemeTransaction(themes, store)
+    transaction.install(_source(), ingest_archive(archive, _source(), store))
+    operation_id = ids.new_ulid()
+    if operation_kind == "other-theme":
+        other = _source("org.esde.other")
+        operation_id = transaction.install(other, ingest_archive(archive, other, store))[
+            "operationId"
+        ]
+    before = {path: path.read_bytes() for path in themes.glob("*/theme.json")}
+    blobs = {digest: store.read(digest) for digest, _ in store.iter_blobs()}
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        transaction.rollback(_source().id, operation_id)
+    assert {path: path.read_bytes() for path in themes.glob("*/theme.json")} == before
+    assert {digest: store.read(digest) for digest, _ in store.iter_blobs()} == blobs
+
+
+def test_install_rollback_refuses_a_version_superseded_by_another_install(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path
+) -> None:
+    from steamzero.core import paths
+
+    old = _tarball(tmp_path / "old.tar.gz", {"theme.xml": b"<theme>old</theme>"})
+    new = _tarball(tmp_path / "new.tar.gz", {"theme.xml": b"<theme>new</theme>"})
+    transaction = ThemeTransaction(themes, store)
+    first = transaction.install(_source(), ingest_archive(old, _source(), store))
+    replacement = transaction.install(_source(), ingest_archive(new, _source(), store), force=True)
+    manifest = themes / _source().id / "theme.json"
+    undo = paths.staging_for(replacement["operationId"]) / "previous-theme.json"
+    before, previous = manifest.read_bytes(), undo.read_bytes()
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        transaction.rollback(_source().id, first["operationId"])
+    assert manifest.read_bytes() == before
+    assert undo.read_bytes() == previous
+    assert store.verify(live_digests([json.loads(before), json.loads(previous)]))["ok"]
+
+
+def test_repeated_replacement_rollback_preserves_the_restored_theme_and_result(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path
+) -> None:
+    old = _tarball(tmp_path / "old.tar.gz", {"theme.xml": b"<theme>old</theme>"})
+    new = _tarball(tmp_path / "new.tar.gz", {"theme.xml": b"<theme>new</theme>"})
+    transaction = ThemeTransaction(themes, store)
+    transaction.install(_source(), ingest_archive(old, _source(), store))
+    manifest = themes / _source().id / "theme.json"
+    before = manifest.read_bytes()
+    replacement = transaction.install(_source(), ingest_archive(new, _source(), store), force=True)
+    first = transaction.rollback(_source().id, replacement["operationId"])
+    assert first["restoredPrevious"] is True
+    assert manifest.read_bytes() == before
+    second = transaction.rollback(_source().id, replacement["operationId"])
+    assert second == first
+    assert manifest.read_bytes() == before
+    assert store.verify(live_digests([json.loads(before)]))["ok"]
+
+
+def test_unproven_legacy_snapshot_is_preserved_without_replacing_the_current_theme(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path
+) -> None:
+    from steamzero.core import ids, paths
+
+    archive = _tarball(tmp_path / "current.tar.gz", {"theme.xml": b"<theme>current</theme>"})
+    publisher = ThemeTransaction(themes, store)
+    publisher.install(_source(), ingest_archive(archive, _source(), store))
+    manifest = themes / _source().id / "theme.json"
+    current = manifest.read_bytes()
+    operation_id = ids.new_ulid()
+    directory = paths.staging_for(operation_id)
+    directory.mkdir(parents=True)
+    snapshot = directory / "previous-theme.json"
+    legacy = b'{"assets": {}, "id": "org.esde.unknown"}'
+    snapshot.write_bytes(legacy)
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        publisher.rollback(_source().id, operation_id)
+    assert manifest.read_bytes() == current
+    assert snapshot.read_bytes() == legacy
+    assert not paths.journal_path(operation_id).exists()
+
+
+@pytest.mark.parametrize("action", ["install", "uninstall", "rollback"])
+def test_theme_directory_alias_cannot_change_another_theme_or_bypass_its_consumer(
+    store: ThemeAssetStore, themes: Path, action: str
+) -> None:
+    from steamzero.core import paths
+
+    source = _source("org.esde.actual")
+    asset = store.put("theme.xml", b"<theme/>")
+    report = AcquisitionReport(theme_id=source.id, assets={"theme.xml": asset.digest})
+    guarded: list[str] = []
+    active = True
+
+    def consumer(theme_id: str) -> None:
+        guarded.append(theme_id)
+        if active and theme_id == source.id:
+            raise SteamZeroError("E-THEME-ACTIVE", detail="owned active consumer")
+
+    publisher = ThemeTransaction(themes, store, removal_guard=consumer)
+    installed = publisher.install(source, report)
+    manifest = themes / source.id / "theme.json"
+    original = manifest.read_bytes()
+    operation_id = installed["operationId"]
+    journal = paths.journal_path(operation_id).read_bytes()
+    alias = themes / "org.esde.alias"
+    alias.symlink_to(manifest.parent, target_is_directory=True)
+    with pytest.raises(SteamZeroError, match="E-THEME-UNSAFE"):
+        if action == "install":
+            publisher.install(
+                _source(alias.name),
+                AcquisitionReport(theme_id=alias.name, assets=report.assets),
+                force=True,
+            )
+        elif action == "uninstall":
+            publisher.uninstall(alias.name)
+        else:
+            publisher.rollback(alias.name, operation_id)
+    assert guarded == []
+    assert alias.is_symlink()
+    assert manifest.read_bytes() == original
+    assert paths.journal_path(operation_id).read_bytes() == journal
+    assert store.verify([asset.digest])["ok"]
+    alias.unlink()
+    if action == "install":
+        own = publisher.install(
+            _source(alias.name), AcquisitionReport(theme_id=alias.name, assets=report.assets)
+        )
+        assert manifest.read_bytes() == original
+        assert not publisher.rollback(alias.name, own["operationId"])["restoredPrevious"]
+        assert manifest.read_bytes() == original
+    else:
+        with pytest.raises(SteamZeroError, match="E-THEME-ACTIVE"):
+            if action == "uninstall":
+                publisher.uninstall(source.id)
+            else:
+                publisher.rollback(source.id, operation_id)
+        assert manifest.read_bytes() == original
+        active = False
+        if action == "uninstall":
+            assert publisher.uninstall(source.id)["removed"]
+        else:
+            assert not publisher.rollback(source.id, operation_id)["restoredPrevious"]
+        assert not manifest.exists()
+    assert store.verify([asset.digest])["ok"]
+
+
+@pytest.mark.parametrize("failure", ["compatibility-copy", "state-recorder"])
+def test_failed_recovery_mirror_restores_the_previous_theme_and_allows_retry(
+    store: ThemeAssetStore,
+    themes: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str,
+) -> None:
+    from steamzero.core import fs, journal, paths
+
+    source = _source()
+    old = ingest_archive(_tarball(tmp_path / "old.tar.gz", {"old.xml": b"<old/>"}), source, store)
+    new = ingest_archive(_tarball(tmp_path / "new.tar.gz", {"new.xml": b"<new/>"}), source, store)
+    publisher = ThemeTransaction(themes, store)
+    publisher.install(source, old)
+    manifest = themes / source.id / "theme.json"
+    previous = manifest.read_bytes()
+    before = set(paths.journal_dir().glob("*.jsonl"))
+    stage_bytes = fs.stage_bytes
+
+    def fail_copy(operation_id: str, name: str, payload: bytes) -> Path:
+        if name == "previous-theme.json":
+            raise OSError("owned recovery mirror fault")
+        return stage_bytes(operation_id, name, payload)
+
+    def fail_recorder(_operation_id: str, _state: str) -> None:
+        raise OSError("owned operation recorder fault")
+
+    with monkeypatch.context() as patch:
+        faulty = publisher
+        if failure == "compatibility-copy":
+            patch.setattr(fs, "stage_bytes", fail_copy)
+        else:
+            faulty = ThemeTransaction(themes, store, record_operation=fail_recorder)
+        with pytest.raises(OSError, match="owned"):
+            faulty.install(source, new, force=True)
+    assert manifest.read_bytes() == previous
+    created = set(paths.journal_dir().glob("*.jsonl")) - before
+    assert len(created) == 1
+    operation_id = created.pop().stem
+    assert journal.has_type(journal.read_records(operation_id), journal.ROLLBACK)
+    assert not paths.staging_for(operation_id).exists()
+    assert store.verify(set(old.assets.values()) | set(new.assets.values()))["ok"]
+    retried = publisher.install(source, new, force=True)
+    assert publisher.rollback(source.id, retried["operationId"])["restoredPrevious"]
+    assert manifest.read_bytes() == previous
+
+
+def test_stale_install_preview_preserves_the_concurrent_write_and_can_be_replanned(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from steamzero.core import paths, transaction
+
+    source = _source()
+    report = ingest_archive(
+        _tarball(tmp_path / "theme.tar.gz", {"theme.xml": b"<t/>"}), source, store
+    )
+    publisher = ThemeTransaction(themes, store)
+    publisher.install(source, report)
+    manifest = themes / source.id / "theme.json"
+    concurrent = manifest.read_bytes() + b"\n"
+    original_plan = transaction.plan_write_files
+    before = set(paths.journal_dir().glob("*.jsonl"))
+
+    def concurrent_write(*args: object, **kwargs: object) -> transaction.Plan:
+        # Actual disk write between the domain's before-image read and the
+        # Core's real plan. This is a race fixture, not a replacement executor.
+        manifest.write_bytes(concurrent)
+        return original_plan(*args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(transaction, "plan_write_files", concurrent_write)
+        with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+            publisher.install(source, report, force=True)
+    assert manifest.read_bytes() == concurrent
+    assert set(paths.journal_dir().glob("*.jsonl")) == before
+    retried = publisher.install(source, report, force=True)
+    assert publisher.rollback(source.id, retried["operationId"])["restoredPrevious"]
+    assert manifest.read_bytes() == concurrent
+
+
+@pytest.mark.parametrize("damage", ["symlink", "directory"])
+def test_unsafe_current_manifest_refuses_rollback_until_the_owned_file_is_repaired(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path, damage: str
+) -> None:
+    from steamzero.core import paths
+
+    source = _source()
+    report = ingest_archive(
+        _tarball(tmp_path / "theme.tar.gz", {"theme.xml": b"<t/>"}), source, store
+    )
+    publisher = ThemeTransaction(themes, store)
+    installed = publisher.install(source, report)
+    operation_id = installed["operationId"]
+    manifest = themes / source.id / "theme.json"
+    current = manifest.read_bytes()
+    foreign = tmp_path / "unowned.json"
+    foreign.write_bytes(current)
+    manifest.unlink()
+    if damage == "symlink":
+        manifest.symlink_to(foreign)
+    else:
+        manifest.mkdir()
+    recorded = paths.journal_path(operation_id).read_bytes()
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        publisher.rollback(source.id, operation_id)
+    assert paths.journal_path(operation_id).read_bytes() == recorded
+    assert foreign.read_bytes() == current
+    if damage == "symlink":
+        assert manifest.is_symlink()
+        manifest.unlink()
+    else:
+        assert manifest.is_dir()
+        manifest.rmdir()
+    manifest.write_bytes(current)
+    assert not publisher.rollback(source.id, operation_id)["restoredPrevious"]
+    assert not manifest.exists()
+    assert foreign.read_bytes() == current
+
+
+def test_hash_owned_opaque_beforeimage_is_restored_byte_exactly(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path
+) -> None:
+    source = _source()
+    report = ingest_archive(
+        _tarball(tmp_path / "theme.tar.gz", {"theme.xml": b"<t/>"}), source, store
+    )
+    manifest = themes / source.id / "theme.json"
+    manifest.parent.mkdir()
+    opaque = b"legacy damaged manifest bytes\xff\x00"
+    manifest.write_bytes(opaque)
+    publisher = ThemeTransaction(themes, store)
+    installed = publisher.install(source, report, force=True)
+    assert manifest.read_bytes() != opaque
+    assert publisher.rollback(source.id, installed["operationId"])["restoredPrevious"]
+    assert manifest.read_bytes() == opaque
+    assert store.verify(report.assets.values())["ok"]
+
+
+def test_rollback_refuses_missing_old_asset_and_recovers_after_reingestion(
+    store: ThemeAssetStore, themes: Path, tmp_path: Path
+) -> None:
+    from steamzero.core import journal, paths
+
+    old_art = b"owned previous artwork"
+    old = _tarball(tmp_path / "old.tar.gz", {"theme.xml": b"<theme/>", "old.png": old_art})
+    new = _tarball(tmp_path / "new.tar.gz", {"theme.xml": b"<theme/>", "new.png": b"new"})
+    transaction = ThemeTransaction(themes, store)
+    initial = ingest_archive(old, _source(), store)
+    transaction.install(_source(), initial)
+    manifest = themes / _source().id / "theme.json"
+    original = manifest.read_bytes()
+    replacement = transaction.install(_source(), ingest_archive(new, _source(), store), force=True)
+    operation_id = replacement["operationId"]
+    current = manifest.read_bytes()
+    before_journal = journal.read_records(operation_id)
+    snapshot = paths.staging_for(operation_id) / "previous-theme.json"
+    store.blob_path(initial.assets["old.png"]).unlink()
+    with pytest.raises(SteamZeroError, match="E-CONTENT-INCOMPLETE"):
+        transaction.rollback(_source().id, operation_id)
+    assert manifest.read_bytes() == current
+    assert snapshot.read_bytes() == original
+    assert journal.read_records(operation_id) == before_journal
+    assert store.put("old.png", old_art).digest == initial.assets["old.png"]
+    assert transaction.rollback(_source().id, operation_id)["restoredPrevious"]
+    assert manifest.read_bytes() == original
+
+
+def test_first_install_creates_its_owned_theme_root(store: ThemeAssetStore, tmp_path: Path) -> None:
+    root = tmp_path / "fresh-profile" / "themes"
+    archive = _tarball(tmp_path / "first.tar.gz", {"theme.xml": b"<theme/>"})
+    transaction = ThemeTransaction(root, store)
+    result = transaction.install(_source(), ingest_archive(archive, _source(), store))
+    assert result["replaced"] is False
+    assert json.loads((root / _source().id / "theme.json").read_bytes())["id"] == _source().id
+    assert transaction.rollback(_source().id, result["operationId"])["restoredPrevious"] is False
+
+
 def test_uninstall_never_touches_blobs(
     store: ThemeAssetStore, themes: Path, tmp_path: Path
 ) -> None:

@@ -12,6 +12,10 @@ from __future__ import annotations
 
 import io
 import json
+import os
+import signal
+import subprocess
+import sys
 import tarfile
 from pathlib import Path
 
@@ -104,6 +108,84 @@ def test_activation_plan_refuses_a_theme_removed_after_preview(dashboard: Deskto
     with pytest.raises(SteamZeroError, match=r"E-THEME-NOT-FOUND|E-TX-STALE-PLAN"):
         dashboard.apply_theme_preference(planned["planId"], planned["confirmToken"])
     assert not paths.theme_preference_path().exists()
+
+
+def test_http_directory_alias_preserves_the_active_theme_then_allows_explicit_recovery(
+    dashboard: DesktopDashboard, tmp_path: Path
+) -> None:
+    import queue
+    import threading
+    import urllib.error
+
+    from tests.integration.test_desktop_ui_bridge import Context, request_json
+
+    from steamzero.adapters.desktop_ui import DesktopControlServer
+    from steamzero.core import paths
+    from steamzero.core.state import StateStore
+    from steamzero.domain.desktop import ExperienceCoordinator
+
+    theme_id, manifest, original = _native_removal_target(dashboard)
+    alias = paths.themes_dir() / "org.example.directory-alias"
+    alias.symlink_to(manifest.parent, target_is_directory=True)
+    ready: queue.Queue[DesktopControlServer] = queue.Queue()
+
+    def serve() -> None:
+        with StateStore(tmp_path / "alias-http-state.db") as state:
+            state.migrate()
+            server = DesktopControlServer(
+                ExperienceCoordinator(Context(), (), state), "owned-alias-token", dashboard
+            )
+            ready.put(server)
+            try:
+                server.serve_forever(poll_interval=0.02)
+            finally:
+                server.server_close()
+
+    worker = threading.Thread(target=serve, daemon=True)
+    worker.start()
+    server = ready.get(timeout=5)
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        planned = request_json(base, "owned-alias-token", "/theme/apply", {"themeId": theme_id})
+        request_json(
+            base,
+            "owned-alias-token",
+            "/theme/apply/confirm",
+            {"planId": planned["planId"], "confirmToken": planned["confirmToken"]},
+        )
+        preference = paths.theme_preference_path().read_bytes()
+        for selected, code in [(alias.name, "E-THEME-UNSAFE"), (theme_id, "E-THEME-ACTIVE")]:
+            with pytest.raises(urllib.error.HTTPError) as exc:
+                request_json(
+                    base, "owned-alias-token", "/theme/catalog/uninstall", {"themeId": selected}
+                )
+            assert json.loads(exc.value.read())["error"]["code"] == code
+            assert manifest.read_bytes() == original
+            assert paths.theme_preference_path().read_bytes() == preference
+        assert alias.is_symlink()
+        alias.unlink()
+        planned = request_json(
+            base, "owned-alias-token", "/theme/apply", {"themeId": "org.steamzero.default"}
+        )
+        request_json(
+            base,
+            "owned-alias-token",
+            "/theme/apply/confirm",
+            {"planId": planned["planId"], "confirmToken": planned["confirmToken"]},
+        )
+        removed = request_json(
+            base, "owned-alias-token", "/theme/catalog/uninstall", {"themeId": theme_id}
+        )
+        assert removed["removed"]
+        assert not manifest.exists()
+        assert (
+            json.loads(paths.theme_preference_path().read_text())["themeId"]
+            == "org.steamzero.default"
+        )
+    finally:
+        server.shutdown()
+        worker.join(timeout=3)
+        assert not worker.is_alive()
 
 
 def test_activation_plan_refuses_a_version_changed_after_preview(
@@ -292,8 +374,9 @@ def test_http_removal_preserves_journey_consumers_and_recovers_after_release(
         assert not worker.is_alive()
 
 
+@pytest.mark.parametrize("compatibility_snapshot", [True, False])
 def test_gc_preserves_assets_owned_by_a_live_theme_rollback(
-    dashboard: DesktopDashboard, tmp_path: Path
+    dashboard: DesktopDashboard, tmp_path: Path, compatibility_snapshot: bool
 ) -> None:
     from steamzero.core import paths
     from steamzero.domain.theme_assets import live_digests
@@ -313,7 +396,12 @@ def test_gc_preserves_assets_owned_by_a_live_theme_rollback(
     )
     latest = theme_acquire.ingest_archive(tmp_path / "org.esde.iconic.tar.gz", source, store)
     installed = transaction.install(source, latest, force=True)
-    assert (paths.staging_for(installed["operationId"]) / "previous-theme.json").is_file()
+    snapshot = paths.staging_for(installed["operationId"]) / "previous-theme.json"
+    assert snapshot.is_file()
+    if not compatibility_snapshot:
+        # The core journal/backup owns recovery even if the compatibility view
+        # was not published before an interruption, or was removed afterwards.
+        snapshot.unlink()
     collected = dashboard.theme_store_gc(apply=True)
     assert store.verify(live_digests([previous]))["ok"], (
         "GC must preserve the real rollback's assets"
@@ -322,6 +410,247 @@ def test_gc_preserves_assets_owned_by_a_live_theme_rollback(
     assert dashboard.theme_catalog_rollback(source.id, installed["operationId"])["restoredPrevious"]
     assert manifest.read_bytes() == original
     assert store.verify(live_digests([previous]))["ok"]
+
+
+@pytest.mark.parametrize("stage", ["apply.backup", "apply.verify", "apply.after-commit"])
+def test_interrupted_theme_publication_recovers_from_the_core_backup(
+    dashboard: DesktopDashboard, stage: str
+) -> None:
+    from tests.unit.test_theme_acquire import _source
+
+    from steamzero.core import paths, transaction
+    from steamzero.domain.theme_assets import live_digests
+
+    store = dashboard._theme_store()
+    source = _source()
+    old = store.put("theme.xml", b"<theme>previous</theme>")
+    new = store.put("theme.xml", b"<theme>replacement</theme>")
+    publisher = theme_acquire.ThemeTransaction(paths.themes_dir(), store)
+    publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": old.digest}),
+    )
+    manifest = paths.themes_dir() / source.id / "theme.json"
+    original = manifest.read_bytes()
+    previous = json.loads(original)
+    before = set(paths.journal_dir().glob("*.jsonl"))
+    code = """
+from tests.unit.test_theme_acquire import _source
+from steamzero.core import paths
+from steamzero.domain.theme_acquire import AcquisitionReport, ThemeTransaction
+from steamzero.domain.theme_assets import ThemeAssetStore
+import sys
+source = _source()
+ThemeTransaction(paths.themes_dir(), ThemeAssetStore(paths.theme_assets_dir())).install(
+    source, AcquisitionReport(theme_id=source.id, assets={'theme.xml': sys.argv[1]}), force=True
+)
+"""
+    crashed = subprocess.run(
+        [sys.executable, "-c", code, new.digest],
+        env={
+            **os.environ,
+            "STEAMZERO_CRASH_AT": stage,
+            "PYTHONPATH": os.pathsep.join(sys.path),
+        },
+        capture_output=True,
+        timeout=20,
+        check=False,
+    )
+    assert crashed.returncode == -signal.SIGKILL, crashed.stderr.decode(errors="replace")
+    created = set(paths.journal_dir().glob("*.jsonl")) - before
+    assert len(created) == 1
+    operation_id = created.pop().stem
+    assert not (paths.staging_for(operation_id) / "previous-theme.json").exists()
+    dashboard.theme_store_gc(apply=True)
+    assert store.verify(live_digests([previous]))["ok"]
+    recovered = transaction.recover_operation(operation_id)
+    if stage == "apply.after-commit":
+        assert recovered.outcome == "kept"
+        assert manifest.read_bytes() != original
+        assert publisher.rollback(source.id, operation_id)["restoredPrevious"]
+    else:
+        assert recovered.outcome == "rolled-back"
+    assert manifest.read_bytes() == original
+    assert transaction.recover_operation(operation_id).outcome == "already-terminal"
+    assert store.verify(live_digests([previous]))["ok"]
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "bytes",
+        "symlink",
+        "directory",
+        "journal",
+        "empty-journal",
+        "journal-header",
+        "journal-identity",
+        "journal-kind",
+    ],
+)
+def test_damaged_core_recovery_refuses_collection_and_restoration_then_recovers(
+    dashboard: DesktopDashboard, tmp_path: Path, damage: str
+) -> None:
+    from tests.unit.test_theme_acquire import _source
+
+    from steamzero.core import journal, paths
+
+    source = _source()
+    store = dashboard._theme_store()
+    old = store.put("theme.xml", b"<theme>before</theme>")
+    new = store.put("theme.xml", b"<theme>after</theme>")
+    orphan = store.put("orphan.png", b"retained until ownership is known")
+    publisher = theme_acquire.ThemeTransaction(paths.themes_dir(), store)
+    publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": old.digest}),
+    )
+    manifest = paths.themes_dir() / source.id / "theme.json"
+    original = manifest.read_bytes()
+    replaced = publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": new.digest}),
+        force=True,
+    )
+    operation_id = replaced["operationId"]
+    current = manifest.read_bytes()
+    (paths.staging_for(operation_id) / "previous-theme.json").unlink()
+    intent = next(r for r in journal.read_records(operation_id) if r["type"] == "action.intent")
+    backup = paths.backup_for(operation_id) / intent["actionId"]
+    selected = paths.journal_path(operation_id) if "journal" in damage else backup
+    preserved = selected.read_bytes()
+    selected.unlink()
+    if damage == "symlink":
+        foreign = tmp_path / "unowned.json"
+        foreign.write_bytes(preserved)
+        selected.symlink_to(foreign)
+    elif damage == "directory":
+        selected.mkdir()
+    elif damage in {"journal-header", "journal-identity", "journal-kind"}:
+        records = [json.loads(line) for line in preserved.splitlines()]
+        if damage == "journal-header":
+            records[0]["padding"] = "x" * 4096
+        elif damage == "journal-identity":
+            records[0]["operationId"] = "0" * 26
+        else:
+            records[0]["kind"] = None
+        selected.write_bytes(b"".join(json.dumps(record).encode() + b"\n" for record in records))
+    else:
+        selected.write_bytes(b"" if damage == "empty-journal" else b"invalid recovery bytes")
+    with pytest.raises(SteamZeroError):
+        dashboard.theme_store_gc(apply=True)
+    with pytest.raises(SteamZeroError):
+        publisher.rollback(source.id, operation_id)
+    assert manifest.read_bytes() == current
+    assert store.blob_path(orphan.digest).read_bytes() == b"retained until ownership is known"
+    if damage == "directory":
+        selected.rmdir()
+    else:
+        selected.unlink()
+    selected.write_bytes(preserved)
+    if damage == "symlink":
+        assert foreign.read_bytes() == preserved
+    assert publisher.rollback(source.id, operation_id)["restoredPrevious"]
+    assert manifest.read_bytes() == original
+    assert publisher.rollback(source.id, operation_id)["restoredPrevious"]
+
+
+def test_gc_shares_the_core_journal_without_claiming_other_domains_or_reopening_undo(
+    dashboard: DesktopDashboard, tmp_path: Path
+) -> None:
+    from tests.unit.test_theme_acquire import _source
+
+    from steamzero.core import paths, transaction
+
+    source = _source()
+    store = dashboard._theme_store()
+    old = store.put("theme.xml", b"<theme>previous</theme>")
+    new = store.put("theme.xml", b"<theme>replacement</theme>")
+    publisher = theme_acquire.ThemeTransaction(paths.themes_dir(), store)
+    publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": old.digest}),
+    )
+    replacement = publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": new.digest}),
+        force=True,
+    )
+    foreign = tmp_path / "other-domain.cfg"
+    foreign.write_bytes(b"before")
+    plan = transaction.plan_write_files({foreign: b"after"}, root=tmp_path, kind="emulator.config")
+    applied = transaction.apply(plan.plan_id, plan.confirm_token)
+    note = paths.journal_dir() / "unowned-note.txt"
+    note.write_bytes(b"preserve this unrelated file")
+    assert dashboard.theme_store_gc(apply=True)["protectedByRollback"] > 0
+    assert foreign.read_bytes() == b"after"
+    assert publisher.rollback(source.id, replacement["operationId"])["restoredPrevious"]
+    dashboard.theme_store_gc(apply=True)
+    assert store.verify([old.digest])["ok"]
+    assert not store.blob_path(new.digest).exists()
+    assert foreign.read_bytes() == b"after"
+    assert note.read_bytes() == b"preserve this unrelated file"
+    assert transaction.rollback(applied.operation_id).status == "rolled-back"
+    assert foreign.read_bytes() == b"before"
+
+
+@pytest.mark.parametrize(
+    ("budget", "remaining"),
+    [
+        ("MAX_THEME_JOURNAL_BYTES", 64),
+        ("MAX_THEME_JOURNAL_RECORDS", 1),
+        ("MAX_THEME_JOURNAL_SCAN_ENTRIES", 1),
+        ("MAX_THEME_JOURNAL_SCAN_BYTES", 1),
+        ("MAX_ROLLBACK_MANIFEST_BYTES", 1),
+        ("MAX_ROLLBACK_MANIFESTS", 0),
+        ("MAX_ROLLBACK_TOTAL_BYTES", 1),
+    ],
+)
+def test_exhausted_core_recovery_budget_preserves_data_and_releases_gc_after_retry(
+    dashboard: DesktopDashboard,
+    monkeypatch: pytest.MonkeyPatch,
+    budget: str,
+    remaining: int,
+) -> None:
+    from tests.unit.test_theme_acquire import _source
+
+    from steamzero.core import paths
+
+    source = _source()
+    store = dashboard._theme_store()
+    old = store.put("theme.xml", b"<theme>previous</theme>")
+    new = store.put("theme.xml", b"<theme>replacement</theme>")
+    orphan = store.put("orphan.png", b"unreferenced but not disposable before the audit")
+    publisher = theme_acquire.ThemeTransaction(paths.themes_dir(), store)
+    publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": old.digest}),
+    )
+    manifest = paths.themes_dir() / source.id / "theme.json"
+    original = manifest.read_bytes()
+    replaced = publisher.install(
+        source,
+        theme_acquire.AcquisitionReport(theme_id=source.id, assets={"theme.xml": new.digest}),
+        force=True,
+    )
+    operation_id = replaced["operationId"]
+    (paths.staging_for(operation_id) / "previous-theme.json").unlink()
+    current = manifest.read_bytes()
+    journal = paths.journal_path(operation_id).read_bytes()
+    with monkeypatch.context() as patch:
+        # A deliberately exhausted allowance exercises the real producer's
+        # Core backups; production limits and application assertions stay fixed.
+        patch.setattr(theme_acquire, budget, remaining)
+        with pytest.raises(SteamZeroError, match=r"E-THEME-(LIMIT|MANIFEST)"):
+            dashboard.theme_store_gc(apply=True)
+    assert manifest.read_bytes() == current
+    assert paths.journal_path(operation_id).read_bytes() == journal
+    assert store.verify([old.digest, new.digest, orphan.digest])["ok"]
+    assert dashboard.theme_store_gc(apply=True)["protectedByRollback"] > 0
+    assert not store.blob_path(orphan.digest).exists()
+    assert store.verify([old.digest, new.digest])["ok"]
+    assert publisher.rollback(source.id, operation_id)["restoredPrevious"]
+    assert manifest.read_bytes() == original
 
 
 @pytest.mark.parametrize(

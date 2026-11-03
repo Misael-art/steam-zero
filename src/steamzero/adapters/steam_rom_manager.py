@@ -241,14 +241,7 @@ class SteamRomManager:
             files, root=directory.parent, kind=_KIND, removals=removals, skip_unchanged=True
         )
 
-    def apply(
-        self,
-        plan_id: str,
-        confirm_token: str,
-        *,
-        smoke: Callable[[], None] | None = None,
-    ) -> transaction.ApplyResult:
-        plan = transaction.load_plan(plan_id)
+    def _validate_plan(self, plan: transaction.Plan) -> None:
         directory = Path(os.path.realpath(self._dir()))
         if plan.kind != _KIND or Path(plan.root) != directory.parent:
             raise SteamZeroError("E-TX-STALE-PLAN", detail="plano não pertence aos manifests SRM")
@@ -264,11 +257,28 @@ class SteamRomManager:
                     "E-TX-STALE-PLAN", detail="plano não pertence aos manifests SRM"
                 )
 
+    def apply(
+        self,
+        plan_id: str,
+        confirm_token: str,
+        *,
+        smoke: Callable[[], None] | None = None,
+    ) -> transaction.ApplyResult:
+        plan = transaction.load_plan(plan_id)
+        self._validate_plan(plan)
+        directory = Path(os.path.realpath(self._dir()))
+
         def default_smoke() -> None:
             if any(action.kind == "write" for action in plan.actions):
                 self._load_published(directory)
 
         return transaction.apply(plan_id, confirm_token, smoke=smoke or default_smoke)
+
+    def rollback(self, operation_id: str) -> transaction.RollbackResult:
+        from steamzero.domain.operation_history import OperationHistory
+
+        self._validate_plan(OperationHistory().transaction_plan(operation_id))
+        return transaction.rollback(operation_id, reason="frontend-srm")
 
     def verify(self, collections: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         plan = self.plan(collections)
