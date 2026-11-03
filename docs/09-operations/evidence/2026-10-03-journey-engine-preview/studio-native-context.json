@@ -1083,5 +1083,108 @@
       "activationQualified": false,
       "hardwareQualified": false
     }
+  },
+  "canonicalAssignments": {
+    "state": "source gates reconciled after generated capability-matrix update. Committed wheel acceptance pending.",
+    "baseCommit": "84534364560168f36b0c1d94a73c8137b21650e2",
+    "baseCi": {
+      "id": 41643626678,
+      "head_sha": "84534364560168f36b0c1d94a73c8137b21650e2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678",
+      "jobs": [
+        {
+          "name": "Gate visual QML (Linux)",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137157"
+        },
+        {
+          "name": "Smoke Ubuntu 24.04",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137466"
+        },
+        {
+          "name": "Wheel limpo, smoke e supply chain",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137492"
+        },
+        {
+          "name": "Python 3.14",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137566"
+        },
+        {
+          "name": "Python 3.12",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137616"
+        },
+        {
+          "name": "Smoke Manjaro",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137647"
+        },
+        {
+          "name": "Python 3.11",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137660"
+        },
+        {
+          "name": "Smoke Arch Linux",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137703"
+        }
+      ],
+      "coverage": {
+        "artifactId": 13235316103,
+        "sha256": "0a884d6c1d80c960adc6802dbf40a57d13fc3a7007856b4e0ea08c2ef4e52823",
+        "current": 85.57966677338085,
+        "baseline": 85.55647109757972,
+        "nonRegression": true
+      },
+      "checkout": "de3c8d47b001bf747cc9eab270c52d78bb09ed97",
+      "trees": {
+        "84534364560168f36b0c1d94a73c8137b21650e2": "c99d9e5ec4954ef2b0281eb64da81e56938d319e",
+        "de3c8d47b001bf747cc9eab270c52d78bb09ed97": "c99d9e5ec4954ef2b0281eb64da81e56938d319e"
+      },
+      "treeMatchesHead": true
+    },
+    "changes": [
+      "Studio searches canonical Launcher games, selects a preserved image and a role, shows a preview, and waits for confirmation.",
+      "MediaRegistry reuses assignments-v1.json, validates the master by digest, preserves other roles and opaque fields, and publishes through Core with original fingerprint and editor/game context.",
+      "Launcher and Studio consume the same role aliases and registry paths. A changed registry invalidates the Studio journey projection, including after History rollback.",
+      "Existing video assignments remain readable. The new authoring action supports the six image roles."
+    ],
+    "proof": {
+      "baseline": "1 failed because no preserved-master assignment operation existed",
+      "domainFinal": "114 passed / 7.92s. Targeted MediaRegistry and Launcher media coverage87.16%, not the global value.",
+      "contractCorrection": "Broad focused run165 pass and one route-inventory failure. Grouped membership was replaced with explicit existing dispatch style. Route inventory plus live HTTP then passed2 cases.",
+      "qt": "2 real authoring+Launcher Qt cases passed33.81s with actual canonical cover association and contextual source binding. Final broad focused run also exercised those Qt cases.",
+      "qtHarnessCorrection": "Earlier run failed to enter the intended multi-word filter through the Qt key helper. Platform query checks actual input text and selection. Preserved full prior visual assertions and exercised real selected master in Launcher.",
+      "realStateUnchanged": true
+    },
+    "limits": [
+      "Disposable libraries and actual Qt source execution. Package acceptance pending.",
+      "Associations require a valid bounded registry and catalog. Snapshot/confirmation detects drift and fails closed. Legacy direct collection writers and broad global master deduplication need separate convergence.",
+      "Hardware, full accessibility, personal profiles, and imported playback retain their separate status."
+    ],
+    "fullSource": {
+      "rawExitCode": 1,
+      "passed": 7317,
+      "skipped": 48,
+      "warnings": 26,
+      "failed": 1,
+      "pytestSeconds": 2203.56,
+      "supervisorSeconds": 2215.97566845,
+      "soleFailure": "tests/unit/test_capability_matrix.py::test_committed_matrix_matches_the_code",
+      "correction": "Official generator updated the published action count159→162. The only frozen tracked file changed by this correction was the generated capability matrix. Code and tests remain identical. Verify regenerated views under AGENTS section6.",
+      "coverage": 85.84020432525472,
+      "baseline": 85.7842796097045,
+      "branches": 18324,
+      "testedFiles": 3755,
+      "testedManifest": "studio-native-assignment-tested-files.json",
+      "testedManifestSha256": "d2fb0accae816cf8f76d25c18397abb109fecd25d2e59e8d266871d4fa0ee526",
+      "realStateUnchanged": true
+    }
   }
 }

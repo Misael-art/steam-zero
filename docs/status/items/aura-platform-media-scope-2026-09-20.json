@@ -14,7 +14,7 @@
     "tests/unit/test_launcher_media.py",
     "docs/09-operations/evidence/2026-09-20-aura-platform-media"
   ],
-  "scopeDigest": "5e5e0b0cfd77df24d5e3de5f3c7a5f9014bdcf321f95be8a80d2a331eecfcfbe",
+  "scopeDigest": "dcc84b2994079332bf22a64fd3753327055b06f13f054213dd807c844b587b0a",
   "dependsOn": [
     "SZ-AURA-RICH-MEDIA-PROJECTION",
     "SZ-AURA-SEARCH-CONTRACT"

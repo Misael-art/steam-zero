@@ -4,7 +4,7 @@
   "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
   "item": "SZ-THEME-STUDIO",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+  "baseRef": "84534364560168f36b0c1d94a73c8137b21650e2",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -167,8 +167,9 @@
     "docs/status/items/frontend-esde-systems.json",
     "docs/status/items/frontend-m11-surface.json",
     "docs/status/items/frontend-srm.json",
-    "docs/status/items/gamemode-readiness-g29.json"
+    "docs/status/items/gamemode-readiness-g29.json",
+    "docs/status/items/aura-platform-media-scope-2026-09-20.json"
   ],
-  "nextAction": "Proveniência de rollback validada na fonte e no pacote b183a3fe. R4 7308 pass, 48 skips, cobertura 85.7842796%, 3751 arquivos e state real preservados. Pacote 9 etapas, 58 casos, 644 recursos e 242 módulos instalados. Publicar este checkpoint uma vez no PR268 e seguir para as associações canônicas no Studio e Launcher usando MediaRegistry. Retomada de snapshots legados sem vínculo verificável exige revisão própria. A revisão dos nove mockups sucede o pedido original.",
+  "nextAction": "Associação canônica passou na fonte, HTTP e Qt. R1 com 7317 aprovados e 48 skips. Cobertura global85.8402043% sobre85.7842796%. Única falha de matriz gerada159→162, corrigida pelo gerador mantendo todos os arquivos de aplicação e testes idênticos. Validação específica de documentação conforme AGENTS§6. CI do checkpoint de recuperação84534364 success8/8, árvore e cobertura conferidas. Próximo passo wheel limpo e61 casos em perfil descartável.",
   "updatedAt": "2026-11-03"
 }

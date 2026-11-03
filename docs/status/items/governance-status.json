@@ -38,7 +38,7 @@
     "hatch_build.py",
     "requirements-runtime.in"
   ],
-  "scopeDigest": "b106d174bafb083ac7f3294bad36d9cf6a2d27fdb20c30dd8a50c48e81e71a11",
+  "scopeDigest": "ce17a28c3523abf9510a821eca6f8171ee28351fb9580d0a21a1d4a455e934f6",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
