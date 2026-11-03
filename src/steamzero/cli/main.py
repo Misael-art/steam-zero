@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any
 
 from steamzero import CONTRACT_VERSION, __version__
 from steamzero.api.envelope import build_envelope, status_from_checks
-from steamzero.core import ids, log, transaction
+from steamzero.core import ids, log
 from steamzero.core.errors import LaunchNotStartedError, SteamZeroError, build_error
 from steamzero.core.state import StateStore
 from steamzero.diagnostics.doctor import run_doctor
@@ -1633,7 +1633,8 @@ def _cmd_frontends_rollback(args: list[str], correlation_id: str) -> tuple[dict[
     operation_id = _flag_value(args, "--operation-id")
     if operation_id is None:
         raise SteamZeroError("E-API-SCHEMA", detail="use --operation-id <id>")
-    result = transaction.rollback(operation_id, reason="manual")
+    srm, esde = _frontends_adapters()
+    result = (srm if target == "srm" else esde).rollback(operation_id)
     data = {
         "target": target,
         "status": result.status,
