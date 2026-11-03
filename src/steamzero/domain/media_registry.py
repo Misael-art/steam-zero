@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote, urlparse
 
-from steamzero.core import fs
+from steamzero.core import fs, transaction
 from steamzero.core.errors import SteamZeroError
 
 # Public semantic roles, independent of storage aliases such as box2d/hero.
@@ -30,6 +32,18 @@ MEDIA_FIELD_TYPES = {
 IMAGE_MEDIA_FIELDS = frozenset(
     field for role, field in MEDIA_ROLE_URL_FIELDS.items() if role != "video"
 )
+IMAGE_ASSIGNMENT_KINDS = {
+    "logo": ("logo",),
+    "cover": ("box2d", "boxart", "grid"),
+    "fanart": ("hero", "fanart"),
+    "icon": ("icon",),
+    "marquee": ("marquee",),
+    "screenshot": ("screenshot",),
+}
+SOURCE_ASSIGNMENT_KIND = "media.source-assignment"
+ASSIGNMENTS_RELATIVE_PATH = "registry/assignments-v1.json"
+_ASSIGNMENTS_LIMIT = 2 * 1024 * 1024
+_ASSIGNMENTS_MAX_RECORDS = 4096
 
 
 def local_media_uri(value: object) -> str | None:
@@ -257,6 +271,45 @@ class MediaMasterEntry:
         )
 
 
+def _assignment_snapshot(target: Path) -> tuple[dict[str, Any], str | None]:
+    try:
+        fd = os.open(target, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK)
+    except FileNotFoundError:
+        return {"entries": []}, None
+    except OSError as exc:
+        raise SteamZeroError("E-CONTENT-INCOMPLETE", detail="associações inacessíveis") from exc
+    try:
+        with os.fdopen(fd, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_size > _ASSIGNMENTS_LIMIT:
+                raise ValueError("arquivo de associações inválido ou acima do limite")
+            data = stream.read(_ASSIGNMENTS_LIMIT + 1)
+        if len(data) > _ASSIGNMENTS_LIMIT:
+            raise ValueError("arquivo de associações acima do limite")
+        payload = json.loads(data)
+        entries = payload.get("entries") if isinstance(payload, dict) else None
+        if not isinstance(entries, list) or len(entries) > _ASSIGNMENTS_MAX_RECORDS:
+            raise ValueError("lista de associações inválida ou acima do limite")
+        seen: set[str] = set()
+        for row in entries:
+            game_id = row.get("gameId") if isinstance(row, dict) else None
+            if not isinstance(game_id, str) or not game_id or game_id in seen:
+                raise ValueError("identidade ausente ou duplicada no registro")
+            seen.add(game_id)
+        return payload, fs.hash_bytes(data)
+    except (OSError, ValueError) as exc:
+        raise SteamZeroError("E-CONTENT-INCOMPLETE", detail=str(exc)) from exc
+
+
+def _assignment_identity(game: MediaMasterEntry) -> dict[str, str]:
+    return {
+        "gameId": game.game_id,
+        "platformId": game.platform_id,
+        "titleId": game.title_id,
+        "fingerprint": game.fingerprint,
+    }
+
+
 @dataclass
 class MediaRegistry:
     platforms: dict[str, PlatformEntry] = field(default_factory=dict)
@@ -340,9 +393,114 @@ class MediaRegistry:
         return source
 
     @staticmethod
+    def plan_source_assignment(
+        root: Path, game: MediaMasterEntry, role: str, digest: str, *, session_id: str
+    ) -> tuple[transaction.Plan | None, bool]:
+        """Reference one verified master in the existing canonical registry."""
+        kinds = IMAGE_ASSIGNMENT_KINDS.get(role)
+        if kinds is None or not game.game_id or not game.platform_id or not session_id:
+            raise SteamZeroError("E-API-SCHEMA", detail="jogo, sessão ou papel de imagem inválido")
+        source = MediaRegistry.resolve_source(root, digest).relative_to(root.resolve()).as_posix()
+        target = _source_path(root, ASSIGNMENTS_RELATIVE_PATH)
+        payload, fingerprint = _assignment_snapshot(target)
+        entries = payload["entries"]
+        row = next((entry for entry in entries if entry["gameId"] == game.game_id), None)
+        if row is None:
+            row = game.to_dict()
+            entries.append(row)
+        for key, expected in _assignment_identity(game).items():
+            if expected and row.get(key) not in (None, "", expected):
+                raise SteamZeroError("E-TX-STALE-PLAN", detail="identidade do jogo divergente")
+        masters = row.get("masters", {})
+        if not isinstance(masters, dict):
+            raise SteamZeroError("E-CONTENT-INCOMPLETE", detail="papéis de mídia inválidos")
+        previous = {kind: masters[kind] for kind in kinds if kind in masters}
+        if previous == {kinds[0]: source} and row.get("platformId") == game.platform_id:
+            return None, False
+        row["platformId"] = game.platform_id
+        row["masters"] = {
+            **{key: value for key, value in masters.items() if key not in kinds},
+            kinds[0]: source,
+        }
+        encoded = (json.dumps(payload, ensure_ascii=False, indent=2) + "\n").encode()
+        if len(entries) > _ASSIGNMENTS_MAX_RECORDS or len(encoded) > _ASSIGNMENTS_LIMIT:
+            raise SteamZeroError(
+                "E-CONTENT-LIMIT", detail="limite de associações canônicas atingido"
+            )
+        plan = transaction.plan_write_files(
+            {target: encoded},
+            root=root,
+            kind=SOURCE_ASSIGNMENT_KIND,
+            requirements_extra={
+                "sourceAssignment": {
+                    **_assignment_identity(game),
+                    "role": role,
+                    "digest": digest,
+                    "sessionId": session_id,
+                }
+            },
+        )
+        if plan.preconditions[0].fingerprint != fingerprint:
+            transaction.abort(plan.plan_id, plan.confirm_token)
+            raise SteamZeroError("E-TX-STALE-PLAN", detail="associações mudaram; examine novamente")
+        return plan, bool(previous)
+
+    @staticmethod
+    def apply_source_assignment(
+        root: Path,
+        plan: transaction.Plan,
+        confirm_token: str,
+        game: MediaMasterEntry,
+        *,
+        session_id: str,
+    ) -> transaction.ApplyResult:
+        target = _source_path(root, ASSIGNMENTS_RELATIVE_PATH).resolve()
+        context = plan.requirements.get("sourceAssignment")
+        if (
+            plan.kind != SOURCE_ASSIGNMENT_KIND
+            or plan.root != str(root.resolve())
+            or len(plan.actions) != 1
+            or plan.actions[0].kind != "write"
+            or Path(plan.actions[0].target) != target
+            or not isinstance(context, dict)
+            or context.get("sessionId") != session_id
+            or any(context.get(key) != value for key, value in _assignment_identity(game).items())
+        ):
+            raise SteamZeroError(
+                "E-TX-STALE-PLAN", detail="prévia não pertence ao jogo ou à sessão"
+            )
+        role, digest = context.get("role"), context.get("digest")
+        if (
+            not isinstance(role, str)
+            or role not in IMAGE_ASSIGNMENT_KINDS
+            or not isinstance(digest, str)
+        ):
+            raise SteamZeroError("E-TX-STALE-PLAN", detail="prévia de mídia inválida")
+        master = MediaRegistry.resolve_source(root, digest)
+        kind = IMAGE_ASSIGNMENT_KINDS[role][0]
+
+        def verify() -> None:
+            payload, _ = _assignment_snapshot(target)
+            row = next(
+                (entry for entry in payload["entries"] if entry["gameId"] == game.game_id), None
+            )
+            relative = (
+                MediaRegistry.resolve_source(root, digest).relative_to(root.resolve()).as_posix()
+            )
+            if (
+                row is None
+                or row.get("platformId") != game.platform_id
+                or row.get("masters", {}).get(kind) != relative
+                or master != root.resolve() / relative
+            ):
+                raise SteamZeroError("E-STATE-INTEGRITY", detail="associação gravada não confere")
+
+        return transaction.apply(plan.plan_id, confirm_token, smoke=verify)
+
+    @staticmethod
     def load(root: Path) -> MediaRegistry:
         reg_path = root / "registry" / "platforms-v1.json"
-        entries_path = root / "registry" / "assignments-v1.json"
+        entries_path = root / ASSIGNMENTS_RELATIVE_PATH
         registry = MediaRegistry()
         if reg_path.is_file():
             data = json.loads(reg_path.read_text(encoding="utf-8"))
@@ -372,7 +530,7 @@ class MediaRegistry:
         )
         entries_list = [e.to_dict() for e in self.entries.values()]
         fs.write_atomic_text(
-            reg_path / "assignments-v1.json",
+            root / ASSIGNMENTS_RELATIVE_PATH,
             json.dumps({"entries": entries_list}, indent=2, ensure_ascii=False),
         )
 

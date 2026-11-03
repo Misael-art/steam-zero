@@ -12,7 +12,7 @@ from PIL import Image
 
 from steamzero.core.errors import SteamZeroError
 from steamzero.domain.media_pipeline import MediaPipeline
-from steamzero.domain.media_registry import MediaRegistry, Provenance
+from steamzero.domain.media_registry import MediaMasterEntry, MediaRegistry, Provenance
 
 
 def source_bytes() -> bytes:
@@ -41,6 +41,51 @@ def test_preserved_source_reuses_exact_bytes_and_survives_cache_cleanup(tmp_path
     assert MediaRegistry.resolve_source(tmp_path, first.digest) == (tmp_path / first.path).resolve()
 
 
+def test_preserved_master_assignment_keeps_the_existing_game_identity_and_rolls_back(
+    tmp_path: Path,
+) -> None:
+    import json
+
+    from steamzero.adapters.launcher_media import launcher_media_metadata
+    from steamzero.core import transaction
+
+    source = MediaPipeline(tmp_path).preserve_source(
+        source_bytes(), "original.png", Provenance("fixture", "", "CC0-1.0")
+    )
+    game = MediaMasterEntry("game-1", "TITLE-1", "fingerprint-1", "Game", "nes-famicom")
+    old = replace(
+        game, aliases=("Alternate name",), masters={"boxart": "masters/legacy.png", "video": "old"}
+    ).to_dict()
+    old["futureField"] = {"keep": True}
+    target = tmp_path / "registry/assignments-v1.json"
+    previous = json.dumps({"entries": [old], "extra": "keep"}).encode()
+    target.write_bytes(previous)
+    plan, replacing = MediaRegistry.plan_source_assignment(
+        tmp_path, game, "cover", source.digest, session_id="owned-editor"
+    )
+    assert plan is not None and replacing
+    assert target.read_bytes() == previous
+    applied = MediaRegistry.apply_source_assignment(
+        tmp_path, plan, plan.confirm_token, game, session_id="owned-editor"
+    )
+    updated = json.loads(target.read_bytes())
+    assert updated == {
+        "entries": [{**old, "masters": {"box2d": source.path, "video": "old"}}],
+        "extra": "keep",
+    }
+    expected_uri = (tmp_path / source.path).as_uri()
+    assert (
+        launcher_media_metadata(
+            media_root=tmp_path, platform_by_game={game.game_id: game.platform_id}
+        )[game.game_id]["coverUrl"]
+        == expected_uri
+    )
+    assert len(list((tmp_path / "masters/sources").iterdir())) == 1
+    assert transaction.rollback(applied.operation_id).status == "rolled-back"
+    assert target.read_bytes() == previous
+    assert (tmp_path / source.path).read_bytes() == source_bytes()
+
+
 def test_source_metadata_is_immutable_and_invalid_media_never_publishes(tmp_path: Path) -> None:
     pipeline = MediaPipeline(tmp_path)
     provenance = Provenance("local-import", "", "CC0-1.0")
@@ -54,6 +99,153 @@ def test_source_metadata_is_immutable_and_invalid_media_never_publishes(tmp_path
     (tmp_path / first.path).write_bytes(b"corrupt")
     with pytest.raises(SteamZeroError):
         MediaRegistry.resolve_source(tmp_path, first.digest)
+
+
+def test_source_assignment_preserves_a_newer_publication_and_recovers_missing_master(
+    tmp_path: Path,
+) -> None:
+    original = source_bytes()
+    provenance = Provenance("fixture", "", "CC0-1.0")
+    pipeline = MediaPipeline(tmp_path)
+    master = pipeline.preserve_source(original, "original.png", provenance)
+    first = MediaMasterEntry("game-1", "", "", "Game 1", "nes-famicom")
+    second = MediaMasterEntry("game-2", "", "", "Game 2", "amiga")
+    stale, _ = MediaRegistry.plan_source_assignment(
+        tmp_path, first, "cover", master.digest, session_id="editor"
+    )
+    newer, _ = MediaRegistry.plan_source_assignment(
+        tmp_path, second, "logo", master.digest, session_id="editor"
+    )
+    assert stale is not None and newer is not None
+    MediaRegistry.apply_source_assignment(
+        tmp_path, newer, newer.confirm_token, second, session_id="editor"
+    )
+    target = tmp_path / "registry/assignments-v1.json"
+    saved = target.read_bytes()
+    with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+        MediaRegistry.apply_source_assignment(
+            tmp_path, stale, stale.confirm_token, first, session_id="editor"
+        )
+    assert target.read_bytes() == saved
+    plan, _ = MediaRegistry.plan_source_assignment(
+        tmp_path, first, "cover", master.digest, session_id="editor"
+    )
+    assert plan is not None
+    (tmp_path / master.path).unlink()
+    with pytest.raises(SteamZeroError, match="E-CONTENT-INCOMPLETE"):
+        MediaRegistry.apply_source_assignment(
+            tmp_path, plan, plan.confirm_token, first, session_id="editor"
+        )
+    assert target.read_bytes() == saved
+    assert pipeline.preserve_source(original, "original.png", provenance) == master
+    MediaRegistry.apply_source_assignment(
+        tmp_path, plan, plan.confirm_token, first, session_id="editor"
+    )
+    assert set(MediaRegistry.load(tmp_path).entries) == {first.game_id, second.game_id}
+    assert len(list((tmp_path / "masters/sources").iterdir())) == 1
+
+
+@pytest.mark.parametrize(
+    ("payload", "error"),
+    [
+        (b"invalid-json", "E-CONTENT-INCOMPLETE"),
+        (b'{"entries":{}}', "E-CONTENT-INCOMPLETE"),
+        (b'{"entries":[{"gameId":"game"},{"gameId":"game"}]}', "E-CONTENT-INCOMPLETE"),
+        (b'{"entries":[{"gameId":"game","masters":[]}]}', "E-CONTENT-INCOMPLETE"),
+        (b'{"entries":[{"gameId":"game","platformId":"amiga"}]}', "E-TX-STALE-PLAN"),
+    ],
+)
+def test_source_assignment_refuses_unverified_registry_without_losing_bytes(
+    tmp_path: Path, payload: bytes, error: str
+) -> None:
+    master = MediaPipeline(tmp_path).preserve_source(
+        source_bytes(), "original.png", Provenance("fixture", "", "CC0-1.0")
+    )
+    target = tmp_path / "registry/assignments-v1.json"
+    target.write_bytes(payload)
+    game = MediaMasterEntry("game", "", "", "Game", "nes-famicom")
+    with pytest.raises(SteamZeroError, match=error):
+        MediaRegistry.plan_source_assignment(
+            tmp_path, game, "cover", master.digest, session_id="editor"
+        )
+    assert target.read_bytes() == payload
+    with pytest.raises(SteamZeroError, match="E-API-SCHEMA"):
+        MediaRegistry.plan_source_assignment(
+            tmp_path, game, "video", master.digest, session_id="editor"
+        )
+    assert target.read_bytes() == payload
+
+
+def test_source_assignment_refuses_registry_growth_and_keeps_existing_data(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from steamzero.domain import media_registry
+
+    master = MediaPipeline(tmp_path).preserve_source(
+        source_bytes(), "original.png", Provenance("fixture", "", "CC0-1.0")
+    )
+    game = MediaMasterEntry("game", "", "", "Game", "nes-famicom")
+    target = tmp_path / "registry/assignments-v1.json"
+    original = b'{"entries": [], "preserved": true}'
+    target.write_bytes(original)
+    with monkeypatch.context() as patch:
+        patch.setattr(media_registry, "_ASSIGNMENTS_LIMIT", len(original) - 1)
+        with pytest.raises(SteamZeroError, match="E-CONTENT-INCOMPLETE"):
+            MediaRegistry.plan_source_assignment(
+                tmp_path, game, "cover", master.digest, session_id="editor"
+            )
+        assert target.read_bytes() == original
+        patch.setattr(media_registry, "_ASSIGNMENTS_LIMIT", len(original))
+        with pytest.raises(SteamZeroError, match="E-CONTENT-LIMIT"):
+            MediaRegistry.plan_source_assignment(
+                tmp_path, game, "cover", master.digest, session_id="editor"
+            )
+    assert target.read_bytes() == original
+    plan, _ = MediaRegistry.plan_source_assignment(
+        tmp_path, game, "cover", master.digest, session_id="editor"
+    )
+    assert plan is not None
+    MediaRegistry.apply_source_assignment(
+        tmp_path, plan, plan.confirm_token, game, session_id="editor"
+    )
+    assert MediaRegistry.load(tmp_path).entries[game.game_id].masters["box2d"] == master.path
+
+
+def test_source_assignment_detects_a_write_between_snapshot_and_plan(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json
+
+    from steamzero.core import transaction
+
+    master = MediaPipeline(tmp_path).preserve_source(
+        source_bytes(), "original.png", Provenance("fixture", "", "CC0-1.0")
+    )
+    game = MediaMasterEntry("game", "", "", "Game", "nes-famicom")
+    target = tmp_path / "registry/assignments-v1.json"
+    target.write_bytes(b'{"entries": []}')
+    concurrent = b'{"entries": [], "otherWriter": true}'
+    original_plan = transaction.plan_write_files
+
+    def concurrent_write(*args: object, **kwargs: object) -> transaction.Plan:
+        target.write_bytes(concurrent)
+        return original_plan(*args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(transaction, "plan_write_files", concurrent_write)
+        with pytest.raises(SteamZeroError, match="E-TX-STALE-PLAN"):
+            MediaRegistry.plan_source_assignment(
+                tmp_path, game, "cover", master.digest, session_id="editor"
+            )
+    assert target.read_bytes() == concurrent
+    retry, _ = MediaRegistry.plan_source_assignment(
+        tmp_path, game, "cover", master.digest, session_id="editor"
+    )
+    assert retry is not None
+    MediaRegistry.apply_source_assignment(
+        tmp_path, retry, retry.confirm_token, game, session_id="editor"
+    )
+    assert json.loads(target.read_bytes())["otherWriter"] is True
 
 
 def test_source_write_interruption_leaves_no_false_registry_success(
