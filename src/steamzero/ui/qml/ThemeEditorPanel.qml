@@ -3801,6 +3801,15 @@ Rectangle {
                                     enabled: masterPicker.currentIndex >= 0 && panel.nativeSources.length > 0
                                     onClicked: panel.requestEditorMutation("theme.editor.set-source", {sessionId: panel.editorSessionId, slot: masterSlot.currentText, digest: panel.nativeSources[masterPicker.currentIndex].digest})
                                 }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterAssignGame"
+                                    text: qsTr("Associar imagem a jogo")
+                                    enabled: masterPicker.currentIndex >= 0
+                                        && masterPicker.currentIndex < panel.nativeSources.length
+                                        && panel.nativeSources[masterPicker.currentIndex].available === true
+                                    Accessible.description: enabled ? "" : qsTr("Escolha uma imagem preservada disponível.")
+                                    onClicked: sourceAssignmentDialog.begin(panel.nativeSources[masterPicker.currentIndex])
+                                }
                             }
                             Label { text: qsTr("Composição nativa"); color: panel.textColor }
                             Flow {
@@ -5152,6 +5161,211 @@ Rectangle {
             panel._applyEditorResult(result)
             panel.requestEditorMutation("theme.editor.sources", {sessionId: panel.editorSessionId}, function(r) { panel.nativeSources = r.sources || [] })
         })
+    }
+
+    ThemedDialog {
+        id: sourceAssignmentDialog
+        objectName: "nativeSourceAssignmentDialog"
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
+        title: qsTr("Associar imagem a jogo")
+        modal: true
+        width: Math.min(Math.max(panel.width - 32, 1), 620)
+        x: (panel.width - width) / 2
+        y: Math.max((panel.height - height) / 2, 0)
+        standardButtons: Dialog.NoButton
+        closePolicy: busy ? Popup.NoAutoClose : Popup.CloseOnEscape
+
+        property var master: null
+        property var games: []
+        property var roles: []
+        property var plan: null
+        property string notice: ""
+        property bool busy: false
+        property int generation: 0
+        readonly property string editBlockedReason: busy ? qsTr("Aguarde a resposta da biblioteca.")
+            : plan ? qsTr("Confirme a associação ou feche a revisão.")
+            : qsTr("Nenhuma opção está disponível.")
+        readonly property var filteredGames: {
+            const query = assignmentSearch.text.trim().toLocaleLowerCase()
+            return games.filter(function(game) {
+                return !query || (game.title + " " + game.platformName).toLocaleLowerCase().indexOf(query) >= 0
+            })
+        }
+
+        function roleLabel(role) {
+            switch (role) {
+            case "logo": return qsTr("Logotipo")
+            case "cover": return qsTr("Capa")
+            case "fanart": return qsTr("Arte de fundo")
+            case "icon": return qsTr("Ícone")
+            case "marquee": return qsTr("Letreiro")
+            case "screenshot": return qsTr("Captura de tela")
+            default: return ""
+            }
+        }
+
+        function request(actionId, payload, success) {
+            const activeGeneration = generation
+            busy = true
+            panel.requestEditorMutation(actionId,
+                Object.assign({sessionId: panel.editorSessionId}, payload), function(result) {
+                    if (generation !== activeGeneration)
+                        return
+                    busy = false
+                    success(result)
+                }, function(message) {
+                    if (generation !== activeGeneration)
+                        return
+                    busy = false
+                    plan = null
+                    notice = String(message)
+                })
+        }
+
+        function begin(source) {
+            master = source
+            games = []
+            roles = []
+            plan = null
+            assignmentSearch.text = ""
+            notice = qsTr("Consultando jogos…")
+            open()
+            request("theme.editor.source-assignment.targets", {}, function(result) {
+                games = result.games || []
+                roles = result.roles || []
+                notice = games.length ? "" : qsTr("A biblioteca ainda não tem jogos disponíveis para associar.")
+                assignmentSearch.forceActiveFocus()
+            })
+        }
+
+        function review() {
+            const game = filteredGames[assignmentGame.currentIndex]
+            const role = roles[assignmentRole.currentIndex]
+            if (!game || !role || !master)
+                return
+            notice = ""
+            request("theme.editor.source-assignment.plan", {gameId: game.gameId, platformId: game.platformId,
+                role: role, digest: master.digest}, function(result) {
+                if (result.status === "unchanged") {
+                    notice = qsTr("Esta imagem já está associada ao jogo e ao papel escolhidos.")
+                    return
+                }
+                plan = {gameId: game.gameId, platformId: game.platformId,
+                    planId: result.planId, confirmToken: result.confirmToken}
+                notice = (result.replacing
+                    ? qsTr("Substituir %1 em %2?") : qsTr("Associar %1 a %2?"))
+                    .arg(roleLabel(role)).arg(result.title)
+                assignmentConfirm.forceActiveFocus()
+            })
+        }
+
+        onClosed: {
+            generation += 1
+            busy = false
+            plan = null
+        }
+
+        Connections {
+            target: panel
+            function onEditorSessionIdChanged() { sourceAssignmentDialog.close() }
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 10
+            Label {
+                Layout.fillWidth: true
+                text: sourceAssignmentDialog.master ? sourceAssignmentDialog.master.filename : ""
+                textFormat: Text.PlainText
+                elide: Text.ElideRight
+                color: panel.textColor
+                font.pixelSize: Math.round(13 * panel.visualScale)
+            }
+            Label {
+                Layout.fillWidth: true
+                text: qsTr("A associação é compartilhada pelos temas que usam a imagem do jogo.")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                color: panel.mutedColor
+                font.pixelSize: Math.round(13 * panel.visualScale)
+            }
+            AuthField {
+                id: assignmentSearch
+                objectName: "nativeSourceAssignmentSearch"
+                Layout.fillWidth: true
+                placeholderText: qsTr("Buscar jogo ou plataforma")
+                Accessible.name: placeholderText
+                enabled: !sourceAssignmentDialog.busy && !sourceAssignmentDialog.plan
+                Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+            }
+            AuthCombo {
+                id: assignmentGame
+                objectName: "nativeSourceAssignmentGame"
+                Layout.fillWidth: true
+                model: sourceAssignmentDialog.filteredGames.map(function(game) {
+                    return game.title + " · " + game.platformName
+                })
+                Accessible.name: qsTr("Jogo da biblioteca")
+                enabled: count > 0 && !sourceAssignmentDialog.busy && !sourceAssignmentDialog.plan
+                Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+            }
+            AuthCombo {
+                id: assignmentRole
+                objectName: "nativeSourceAssignmentRole"
+                Layout.fillWidth: true
+                model: sourceAssignmentDialog.roles.map(sourceAssignmentDialog.roleLabel)
+                Accessible.name: qsTr("Papel da imagem no jogo")
+                enabled: count > 0 && !sourceAssignmentDialog.busy && !sourceAssignmentDialog.plan
+                Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+            }
+            Label {
+                objectName: "nativeSourceAssignmentNotice"
+                Layout.fillWidth: true
+                text: sourceAssignmentDialog.notice
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                color: panel.textColor
+                font.pixelSize: Math.round(13 * panel.visualScale)
+                visible: text.length > 0
+                Accessible.name: text
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                AuthButton {
+                    objectName: "nativeSourceAssignmentClose"
+                    Layout.fillWidth: true
+                    text: qsTr("Fechar")
+                    enabled: !sourceAssignmentDialog.busy
+                    Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+                    onClicked: sourceAssignmentDialog.close()
+                }
+                AuthButton {
+                    id: assignmentConfirm
+                    objectName: "nativeSourceAssignmentConfirm"
+                    Layout.fillWidth: true
+                    text: sourceAssignmentDialog.plan ? qsTr("Confirmar associação") : qsTr("Revisar associação")
+                    enabled: !sourceAssignmentDialog.busy && assignmentGame.currentIndex >= 0
+                        && assignmentRole.currentIndex >= 0
+                    Accessible.description: enabled ? "" : sourceAssignmentDialog.busy
+                        ? sourceAssignmentDialog.editBlockedReason : qsTr("Escolha um jogo e um papel para a imagem.")
+                    onClicked: {
+                        if (!sourceAssignmentDialog.plan) {
+                            sourceAssignmentDialog.review()
+                            return
+                        }
+                        sourceAssignmentDialog.request("theme.editor.source-assignment.apply", sourceAssignmentDialog.plan, function(_result) {
+                            sourceAssignmentDialog.plan = null
+                            sourceAssignmentDialog.notice = qsTr("Imagem associada. O Histórico permite desfazer a operação.")
+                        })
+                    }
+                }
+            }
+        }
     }
 
     FileDialog {

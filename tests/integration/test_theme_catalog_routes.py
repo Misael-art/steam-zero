@@ -204,6 +204,148 @@ def test_activation_plan_refuses_a_version_changed_after_preview(
     assert not paths.theme_preference_path().exists()
 
 
+def test_studio_assigns_one_master_to_canonical_games_and_history_can_restore(
+    dashboard: DesktopDashboard, tmp_path: Path
+) -> None:
+    import queue
+    import threading
+    import urllib.error
+
+    from tests.integration.test_desktop_ui_bridge import Context, request_json
+    from tests.unit.test_media_sources import source_bytes
+
+    from steamzero.adapters.desktop_ui import DesktopControlServer
+    from steamzero.adapters.launcher_media import launcher_media_metadata
+    from steamzero.core import paths
+    from steamzero.core.state import StateStore
+    from steamzero.domain.desktop import ExperienceCoordinator
+    from steamzero.launcher.app import canonical_library_path
+
+    library = canonical_library_path()
+    records = [
+        {
+            "id": "owned-nes",
+            "name": "Owned NES",
+            "platform": "nes-famicom",
+            "titleId": "NES-OWNED",
+            "fingerprint": "owned-fingerprint",
+        },
+        {"id": "owned-amiga", "name": "Owned Amiga", "platform": "amiga"},
+        {"id": "owned-update", "name": "Update", "platform": "switch", "contentKind": "update"},
+    ]
+    library.write_text(json.dumps({"games": records}))
+    image = tmp_path / "owned-original.png"
+    image.write_bytes(source_bytes())
+    ready: queue.Queue[DesktopControlServer] = queue.Queue()
+
+    def serve() -> None:
+        with StateStore(tmp_path / "assignment-http-state.db") as state:
+            state.migrate()
+            server = DesktopControlServer(
+                ExperienceCoordinator(Context(), (), state), "owned-assignment-token", dashboard
+            )
+            ready.put(server)
+            try:
+                server.serve_forever(poll_interval=0.02)
+            finally:
+                server.server_close()
+
+    worker = threading.Thread(target=serve, daemon=True)
+    worker.start()
+    server = ready.get(timeout=5)
+
+    def post(path: str, payload: dict) -> dict:
+        return request_json(
+            f"http://127.0.0.1:{server.server_port}", "owned-assignment-token", path, payload
+        )
+
+    route = "/theme/editor/source-assignment/"
+    target = paths.media_dir() / "registry/assignments-v1.json"
+    try:
+        session = {"sessionId": post("/theme/editor/create", {"name": "Owner"})["sessionId"]}
+        other = {"sessionId": post("/theme/editor/create", {"name": "Other"})["sessionId"]}
+        source = post(
+            "/theme/editor/preserve-source",
+            {
+                **session,
+                "slot": "logo",
+                "source": str(image),
+                "license": "CC0-1.0",
+            },
+        )["source"]
+        targets = post(route + "targets", session)
+        assert {game["gameId"] for game in targets["games"]} == {"owned-nes", "owned-amiga"}
+        assert "cover" in targets["roles"] and "video" not in targets["roles"]
+        server.publish_journey_read_models({})
+        assert server.journey_read_models() is not None
+        intent = {
+            **session,
+            "gameId": "owned-nes",
+            "platformId": "nes-famicom",
+            "role": "cover",
+            "digest": source["digest"],
+        }
+        planned = post(route + "plan", intent)
+        assert planned["status"] == "ready" and not target.exists()
+        confirmation = {key: intent[key] for key in ("sessionId", "gameId", "platformId")}
+        confirmation.update({key: planned[key] for key in ("planId", "confirmToken")})
+        with pytest.raises(urllib.error.HTTPError):
+            post(route + "apply", {**confirmation, **other})
+        assert not target.exists()
+        library.write_text(json.dumps({"games": records[1:]}))
+        with pytest.raises(urllib.error.HTTPError):
+            post(route + "apply", confirmation)
+        assert not target.exists()
+        library.write_text(json.dumps({"games": records}))
+        post(route + "apply", confirmation)
+        assert server.journey_read_models() is None, (
+            "a published model must not hide the new assignment"
+        )
+        assert post(route + "plan", intent) == {"status": "unchanged"}
+        previous = target.read_bytes()
+        row = json.loads(previous)["entries"][0]
+        assert row["titleId"] == "NES-OWNED" and row["fingerprint"] == "owned-fingerprint"
+        intent = {**intent, "gameId": "owned-amiga", "platformId": "amiga", "role": "logo"}
+        planned = post(route + "plan", intent)
+        applied = post(
+            route + "apply",
+            {
+                **{key: intent[key] for key in ("sessionId", "gameId", "platformId")},
+                **{key: planned[key] for key in ("planId", "confirmToken")},
+            },
+        )
+        uri = (paths.media_dir() / source["path"]).as_uri()
+        assert launcher_media_metadata(
+            media_root=paths.media_dir(),
+            platform_by_game={"owned-nes": "nes-famicom", "owned-amiga": "amiga"},
+        ) == {"owned-nes": {"coverUrl": uri}, "owned-amiga": {"logoUrl": uri}}
+        server.publish_journey_read_models({})
+        models = server.journey_read_models()
+        assert models is not None
+        rows = {row["gameId"]: row for row in models["library.games"]["rows"]}
+        assert rows["owned-nes"]["coverUrl"] == rows["owned-amiga"]["logoUrl"] == uri
+        undo = post("/system/operations/rollback/plan", {"operationId": applied["operationId"]})[
+            "plan"
+        ]
+        post(
+            "/system/operations/rollback/apply",
+            {
+                "planId": undo["planId"],
+                "confirmToken": undo["confirmToken"],
+            },
+        )
+        assert target.read_bytes() == previous
+        assert server.journey_read_models() is None, (
+            "rollback must invalidate the former media projection"
+        )
+        assert len(list((paths.media_dir() / "masters/sources").iterdir())) == 1
+        assert (paths.media_dir() / source["path"]).read_bytes() == image.read_bytes()
+    finally:
+        server.shutdown()
+        worker.join(timeout=3)
+        assert not worker.is_alive()
+
+
 def test_preference_rollback_refuses_missing_theme_and_recovers_after_reimport(
     dashboard: DesktopDashboard, tmp_path: Path
 ) -> None:

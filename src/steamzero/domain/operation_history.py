@@ -43,6 +43,7 @@ _TITLES = {
     "library.convert": "Conversão de jogo",
     "library.organize": "Organização da biblioteca",
     "media.reconcile": "Organização de mídia",
+    "media.source-assignment": "Associação de imagem a jogo",
     "steam.media-package": "Arte da biblioteca Steam",
     "steam.cloud-shortcuts.sync": "Atalhos cloud na Steam",
     "steam.shortcuts.sync": "Atalhos não-Steam",

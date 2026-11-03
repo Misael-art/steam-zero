@@ -319,16 +319,41 @@ def _launcher_journey_catalog() -> list[dict[str, Any]] | None:
         return None
     if not emulation:
         return None
-    steam_rows: list[dict[str, Any]] = []
+    return [*emulation, *_steam_catalog_records()]
+
+
+def _steam_catalog_records() -> list[dict[str, Any]]:
     try:
         from steamzero.adapters.launcher_steam import steam_catalog_games
 
-        steam_rows.extend(
-            _public_launcher_record(game, None, kind="steam") for game in steam_catalog_games()
-        )
+        return [_public_launcher_record(game, None, kind="steam") for game in steam_catalog_games()]
     except Exception:
-        steam_rows = []
-    return [*emulation, *steam_rows]
+        return []
+
+
+def _media_assignment_catalog() -> dict[str, dict[str, Any]]:
+    catalog = _launcher_journey_catalog() or _steam_catalog_records()
+    if len(catalog) > MAX_PUBLIC_RECORDS:
+        raise SteamZeroError("E-CONTENT-LIMIT", detail="biblioteca acima do limite de associação")
+    games: dict[str, dict[str, Any]] = {}
+    ambiguous: set[str] = set()
+    for row in catalog:
+        game_id = row["id"]
+        if game_id in games:
+            ambiguous.add(game_id)
+        games[game_id] = row
+    return {game_id: row for game_id, row in games.items() if game_id not in ambiguous}
+
+
+def _media_assignment_stamp() -> tuple[str, int, int, int] | None:
+    from steamzero.domain.media_registry import ASSIGNMENTS_RELATIVE_PATH
+
+    target = paths.media_dir() / ASSIGNMENTS_RELATIVE_PATH
+    try:
+        info = target.stat()
+    except OSError:
+        return None
+    return str(target), info.st_ino, info.st_ctime_ns, info.st_size
 
 
 def _snapshot_with_launcher_catalog(dashboard_snapshot: Mapping[str, Any]) -> dict[str, Any]:
@@ -594,6 +619,7 @@ class DesktopControlServer(ThreadingHTTPServer):
         self.dashboard = dashboard
         self.journey_studio = journey_studio or JourneyStudioService(paths.data_home() / "journeys")
         self._journey_read_models: dict[str, dict[str, Any]] | None = None
+        self._journey_media_stamp: tuple[str, int, int, int] | None = None
         self._journey_read_models_lock = threading.RLock()
         self._journey_theme_lock = threading.RLock()
         self.session_plans = {}
@@ -605,13 +631,17 @@ class DesktopControlServer(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), DesktopControlHandler)
 
     def publish_journey_read_models(self, dashboard_snapshot: Mapping[str, Any]) -> None:
+        media_stamp = _media_assignment_stamp()
         snapshot = _snapshot_with_launcher_catalog(dashboard_snapshot)
         projected = _project_journey_read_models(snapshot)
         with self._journey_read_models_lock:
             self._journey_read_models = projected
+            self._journey_media_stamp = media_stamp
 
     def journey_read_models(self) -> dict[str, dict[str, Any]] | None:
         with self._journey_read_models_lock:
+            if self._journey_media_stamp != _media_assignment_stamp():
+                return None
             return self._journey_read_models
 
     @property
@@ -1302,6 +1332,12 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             )
         if path == "/theme/editor/sources":
             return self._dashboard().editor_sources(self._required_string(payload, "sessionId"))
+        if path == "/theme/editor/source-assignment/targets":
+            return self._editor_source_assignment("targets", payload)
+        if path == "/theme/editor/source-assignment/plan":
+            return self._editor_source_assignment("plan", payload)
+        if path == "/theme/editor/source-assignment/apply":
+            return self._editor_source_assignment("apply", payload)
         if path == "/theme/editor/set-source":
             return self._dashboard().editor_set_source(
                 self._required_string(payload, "sessionId"),
@@ -1918,6 +1954,92 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
         if path == "/theme/apply/rollback":
             return self._dashboard().rollback_theme(self._required_string(payload, "operationId"))
         raise SteamZeroError("E-API-UNKNOWN-ACTION", detail=f"ação não permitida: {path}")
+
+    def _editor_source_assignment(self, step: str, payload: dict[str, Any]) -> dict[str, Any]:
+        from steamzero.adapters.launcher_catalog import catalog_games
+        from steamzero.domain.media_registry import (
+            IMAGE_ASSIGNMENT_KINDS,
+            MediaMasterEntry,
+            MediaRegistry,
+        )
+        from steamzero.launcher.app import _read_library_payload
+
+        keys = {"sessionId"}
+        if step != "targets":
+            keys.update({"gameId", "platformId"})
+            keys.update({"role", "digest"} if step == "plan" else {"planId", "confirmToken"})
+        self._require_exact_keys(payload, keys)
+        session_id = self._required_string(payload, "sessionId")
+        self._dashboard().editor_preview(session_id, high_contrast=False, reduced_motion=False)
+        catalog = _media_assignment_catalog()
+        if step == "targets":
+            return {
+                "games": [
+                    {
+                        "gameId": row["id"],
+                        "platformId": row["platformId"],
+                        "title": row["title"],
+                        "platformName": row.get("platformLabel", row["platformId"]),
+                    }
+                    for row in catalog.values()
+                ],
+                "roles": list(IMAGE_ASSIGNMENT_KINDS),
+            }
+        game_id = self._required_string(payload, "gameId")
+        platform = self._required_string(payload, "platformId")
+        row = catalog.get(game_id)
+        if row is None or row["platformId"] != platform:
+            raise SteamZeroError("E-TX-STALE-PLAN", detail="jogo ou plataforma fora da biblioteca")
+        identity: Mapping[str, Any] = {}
+        if row["source"] == "emulation":
+            records, _ = _read_library_payload(None)
+            matching = [record for record in records if record.get("id") == game_id]
+            current = catalog_games(matching)
+            if len(matching) != 1 or len(current) != 1 or current[0].platform != platform:
+                raise SteamZeroError("E-TX-STALE-PLAN", detail="identidade do jogo mudou")
+            identity = matching[0]
+        title_id = identity.get("titleId")
+        fingerprint = identity.get("fingerprint")
+        game = MediaMasterEntry(
+            game_id,
+            title_id if isinstance(title_id, str) else "",
+            fingerprint if isinstance(fingerprint, str) else "",
+            row["title"],
+            platform,
+            steam_appid=int(game_id)
+            if row["source"] == "steam"
+            and game_id.isascii()
+            and game_id.isdecimal()
+            and len(game_id) <= 10
+            else None,
+        )
+        root = paths.media_dir()
+        if step == "plan":
+            plan, replacing = MediaRegistry.plan_source_assignment(
+                root,
+                game,
+                self._required_string(payload, "role"),
+                self._required_string(payload, "digest"),
+                session_id=session_id,
+            )
+            if plan is None:
+                return {"status": "unchanged"}
+            return {
+                "status": "ready",
+                "planId": plan.plan_id,
+                "confirmToken": plan.confirm_token,
+                "replacing": replacing,
+                "title": game.canonical_name,
+            }
+        plan = transaction.load_plan(self._required_string(payload, "planId"))
+        result = MediaRegistry.apply_source_assignment(
+            root,
+            plan,
+            self._required_string(payload, "confirmToken"),
+            game,
+            session_id=session_id,
+        )
+        return {"status": result.status, "operationId": result.operation_id}
 
     _SESSION_TARGETS = frozenset({"steam", "gamepadui"})
 

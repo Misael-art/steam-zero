@@ -223,6 +223,7 @@ def test_wheel_authoring_controls_use_real_bridge_and_persist(
     from steamzero.core import paths
     from steamzero.core.state import StateStore
     from steamzero.domain.desktop import ExperienceCoordinator
+    from steamzero.launcher.app import canonical_library_path
 
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
@@ -231,6 +232,20 @@ def test_wheel_authoring_controls_use_real_bridge_and_persist(
         _original_master_bytes(),
         ("CC0-" + "original" * 24 + ".png") if compact else "CC0-original.png",
         Provenance("fixture", "", "CC0-1.0"),
+    )
+    canonical_library_path().write_text(
+        json.dumps(
+            {
+                "games": [
+                    {
+                        "id": "c",
+                        "name": "Game C",
+                        "platform": "nes-famicom",
+                    },
+                    {"id": "owned-other-game", "name": "Other game", "platform": "amiga"},
+                ]
+            }
+        )
     )
     dashboard = DesktopDashboard()
     created = dashboard.editor_create("Native wheel through controls")
@@ -312,6 +327,10 @@ def test_wheel_authoring_controls_use_real_bridge_and_persist(
         "normal": "side",
         "focused": "original",
     }
+    assert manifest["sceneLayouts"]["layouts"]["games"]["template"]["properties"]["source"] == {
+        "binding": "item.coverUrl",
+        "fallback": "",
+    }
     assert manifest["assetRecipes"]["recipes"]["side"]["nodes"][0]["type"] == "grayscale"
     assert manifest["assetRecipes"]["recipes"]["original"]["nodes"][0]["width"] == 3
     assert manifest["assetRecipes"]["recipes"]["muted"]["nodes"][0]["amount"] == 0.5
@@ -324,15 +343,27 @@ def test_wheel_authoring_controls_use_real_bridge_and_persist(
     assert len(list((paths.media_dir() / "masters").rglob("*.png"))) == 1
     assert not list(paths.themes_dir().rglob("*.png"))
 
+    from steamzero.adapters.launcher_media import launcher_media_metadata
     from steamzero.adapters.launcher_ui import LauncherBridge
     from steamzero.domain.scene_layout import LayoutBounds
+
+    media = launcher_media_metadata(
+        media_root=paths.media_dir(), platform_by_game={"c": "nes-famicom"}
+    )
+    original_uri = (paths.media_dir() / master.path).as_uri()
+    assert media == {"c": {"coverUrl": original_uri}}
 
     bridge = LauncherBridge(
         sections=(), context_path=tmp_path / "context.json", on_launch=lambda _id: None
     )
     runtime_theme = ThemeCatalog().resolve(identity[1]).to_theme_qml_object()
     records = [
-        {"id": key, "gameId": key, "title": "Game " + key.upper()}
+        {
+            "id": key,
+            "gameId": key,
+            "title": "Game " + key.upper(),
+            **media.get(key, {"coverUrl": original_uri}),
+        }
         for key in ("a", "b", "c", "d", "e", "f", "g", "h", "i")
     ]
     scenes = []

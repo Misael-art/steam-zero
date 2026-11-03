@@ -14,9 +14,21 @@ from collections.abc import Mapping
 from pathlib import Path
 from urllib.parse import quote
 
+from steamzero.domain.media_registry import (
+    ASSIGNMENTS_RELATIVE_PATH,
+    IMAGE_ASSIGNMENT_KINDS,
+    MEDIA_ROLE_URL_FIELDS,
+)
+
 _MAX_GAMES = 4096
 _MAX_SCREENSHOTS = 8
 _MAX_RELATIVE_PATH = 512
+_MEDIA_FIELD_BY_KIND = {
+    kind: MEDIA_ROLE_URL_FIELDS[role]
+    for role, kinds in IMAGE_ASSIGNMENT_KINDS.items()
+    if role != "screenshot"
+    for kind in kinds
+} | {"video": MEDIA_ROLE_URL_FIELDS["video"]}
 
 
 def launcher_media_metadata(
@@ -35,7 +47,7 @@ def launcher_media_metadata(
     inheriting the historical Switch default.  A malformed registry degrades
     to an empty projection.
     """
-    registry_path = assignments_path or (media_root / "registry" / "assignments-v1.json")
+    registry_path = assignments_path or (media_root / ASSIGNMENTS_RELATIVE_PATH)
     try:
         payload = json.loads(registry_path.read_text(encoding="utf-8"))
     except (OSError, ValueError, UnicodeError):
@@ -76,20 +88,10 @@ def launcher_media_metadata(
             url = _managed_media_url(resolved_root, value)
             if url is None:
                 continue
-            if kind in {"box2d", "boxart", "grid"} and "coverUrl" not in projected:
-                projected["coverUrl"] = url
-            elif kind in {"hero", "fanart"} and "fanartUrl" not in projected:
-                projected["fanartUrl"] = url
-            elif _is_screenshot_kind(kind) and len(screenshot_urls) < _MAX_SCREENSHOTS:
+            if _is_screenshot_kind(kind) and len(screenshot_urls) < _MAX_SCREENSHOTS:
                 screenshot_urls.append(url)
-            elif kind == "logo" and "logoUrl" not in projected:
-                projected["logoUrl"] = url
-            elif kind == "icon" and "iconUrl" not in projected:
-                projected["iconUrl"] = url
-            elif kind == "marquee" and "marqueeUrl" not in projected:
-                projected["marqueeUrl"] = url
-            elif kind == "video" and "videoUrl" not in projected:
-                projected["videoUrl"] = url
+            elif field := _MEDIA_FIELD_BY_KIND.get(kind):
+                projected.setdefault(field, url)
         if screenshot_urls:
             projected["screenshotUrls"] = screenshot_urls
         if projected:
