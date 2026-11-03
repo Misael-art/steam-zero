@@ -963,3 +963,28 @@ O push limpo deste incremento reutiliza PR268, e seu próprio CI ainda deve ser
 conferido. Seguem elegíveis proveniência de rollback, associações canônicas,
 composição/autoria ampliada e executor de playback importado;9mockups seguem
 posteriores ao pedido original.
+
+
+## 2026-11-03 — proveniência da recuperação de temas e frontends
+
+O catálogo vincula o desfazer à operação, ao tema e ao conteúdo publicado. A
+publicação usa o journal e o backup do Core. A limpeza preserva os arquivos
+necessários ao desfazer e recusa registros ou backups que não pode verificar.
+Links de diretório são recusados na instalação, remoção e recuperação. O
+Histórico direciona operações de tema ao catálogo. A CLI confere o frontend
+e seu destino antes de desfazer. Os commits funcionais são f7d2d2cc e eb41577f.
+
+O R4 aprovou 7.308 testes com 48 skips e cobertura de 85,7842796% sobre
+85,7561834%. Os 3.751 arquivos congelados e o estado real observado ficaram
+idênticos. O recibo conserva a recusa de cobertura do R1, o cancelamento
+diagnosticado do R2 e a recusa de isolamento do R3 após início da instalação
+de produção durante a janela. [Recibo e limites](studio-native-context.json)
+
+O wheel b183a3fe passou em nove etapas e 58 casos em perfis descartáveis.
+A prova inclui interrupções do processo, falhas controladas de recuperação,
+recusas pela CLI e HTTP, e confirmação pelo painel Qt com leitura de volta.
+A origem instalada foi conferida para 644 recursos e 242 módulos.
+
+![Recuperação no pacote instalado em 1280 × 900](studio-native-context/14-installed-rollback-recovery-wide.png)
+
+![Recuperação no pacote instalado em 840 × 900](studio-native-context/15-installed-rollback-recovery-compact.png)

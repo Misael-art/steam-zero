@@ -824,7 +824,7 @@
     }
   },
   "rollbackProvenance": {
-    "state": "frozen source checkpoint accepted; committed wheel acceptance pending",
+    "state": "source and installed package accepted, local evidence closed for the existing PR268",
     "baseCommit": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
     "changes": [
       "Theme publication delegates to the existing Core transaction, durable journal and hash-verified backup; compatibility undoPath retained.",
@@ -973,6 +973,115 @@
       "sameFrozenTreeAsR3": true,
       "realStateUnchanged": true,
       "realStateFiles": 13013
+    },
+    "installedAcceptance": {
+      "sourceCommit": "b183a3feb469ae4d9646762d5f74eceb40da6231",
+      "sourceDirty": false,
+      "bytes": 4010573,
+      "sha256": "ed5af599058e84bb150009cae20c777a35b10f8eca48b0a0874a3a5b381e629a",
+      "steps": 9,
+      "seconds": 58.84485215300083,
+      "cases": 58,
+      "installedResources": 644,
+      "installedModules": 242,
+      "caseNames": [
+        "native-authoring-wide",
+        "native-authoring-compact",
+        "active-preference",
+        "stale-activation",
+        "preference-rollback-reimport",
+        "gc-rollback-with-compatibility",
+        "gc-rollback-core-only",
+        "http-journey-saved",
+        "http-journey-draft",
+        "http-journey-history",
+        "http-journey-bezel",
+        "interrupted-apply.backup",
+        "interrupted-apply.verify",
+        "interrupted-apply.after-commit",
+        "damaged-bytes",
+        "damaged-symlink",
+        "damaged-directory",
+        "damaged-journal",
+        "damaged-empty-journal",
+        "damaged-journal-header",
+        "damaged-journal-identity",
+        "damaged-journal-kind",
+        "history-theme-context",
+        "history-pending-preference",
+        "legacy-snapshot-preserved",
+        "missing-old-asset",
+        "rollback-idempotent",
+        "superseded-install",
+        "frontend-large-beforeimage",
+        "frontend-foreign-srm-emulator.config",
+        "frontend-foreign-srm-theme.acquire",
+        "frontend-other-srm",
+        "frontend-root-srm",
+        "frontend-foreign-esde-emulator.config",
+        "frontend-foreign-esde-theme.acquire",
+        "frontend-other-esde",
+        "frontend-root-esde",
+        "frontend-positive-cli",
+        "publication-fault-compatibility-copy",
+        "publication-fault-state-recorder",
+        "publication-concurrent-write",
+        "current-manifest-symlink",
+        "current-manifest-directory",
+        "opaque-owned-beforeimage",
+        "budget-max_theme_journal_bytes",
+        "budget-max_theme_journal_records",
+        "budget-max_theme_journal_scan_entries",
+        "budget-max_theme_journal_scan_bytes",
+        "budget-max_rollback_manifest_bytes",
+        "budget-max_rollback_manifests",
+        "budget-max_rollback_total_bytes",
+        "shared-core-journal",
+        "directory-alias-install",
+        "directory-alias-uninstall",
+        "directory-alias-rollback",
+        "http-active-directory-alias",
+        "package-recovery-wide",
+        "package-recovery-compact"
+      ],
+      "captures": [
+        {
+          "file": "studio-native-context/14-installed-rollback-recovery-wide.png",
+          "width": 1280,
+          "height": 900,
+          "bytes": 68770,
+          "sha256": "ccc87ab6592ae4dd1d9fcab321e7275d139d7903baca9bafc73cd0ef50747c8a",
+          "reviewed": true
+        },
+        {
+          "file": "studio-native-context/15-installed-rollback-recovery-compact.png",
+          "width": 840,
+          "height": 900,
+          "bytes": 63920,
+          "sha256": "58e4bb794107622eae25c9190d4045ea0491993fbb5fbd3a2b8f74d140fb8caa",
+          "reviewed": true
+        }
+      ],
+      "qaSources": "studio-native-rollback-qa-sources.json",
+      "qaSourcesSha256": "f55879445e00048fc289a67efc4d0fed42820733c9736c8d5556a6e245c2ecfd",
+      "profileRemoved": true,
+      "realStateUnchanged": true,
+      "level": "Installed non-editable package, isolated synthetic profiles and controlled fault injection, Qt software authoring and RHI Launcher; no host activation, personal-profile migration, full catalog-download UI or physical hardware acceptance.",
+      "failedAttempt": {
+        "successfulCasesBeforeHarnessFailure": 22,
+        "cause": "History fixture found a directory pre-created by the package harness. Relative evidence path also resolved beneath the temporary child working directory.",
+        "recovery": "Select History fixture before creating a dashboard, use an absolute evidence path, and type an anonymous temporary ZIP path in Qt. Same wheel and assertions."
+      }
+    },
+    "host": {
+      "activeRelease": "2.0.0rc1-59ecc2d8f0f6",
+      "actions": [
+        "read active release symlink",
+        "read scoped user journal for R3 attribution",
+        "run disposable package profiles"
+      ],
+      "activationQualified": false,
+      "hardwareQualified": false
     }
   }
 }

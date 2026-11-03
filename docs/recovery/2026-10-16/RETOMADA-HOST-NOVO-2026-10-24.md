@@ -765,3 +765,18 @@ O push limpo deste incremento reutiliza PR268, e seu próprio CI ainda deve ser
 conferido. Seguem elegíveis proveniência de rollback, associações canônicas,
 composição/autoria ampliada e executor de playback importado;9mockups seguem
 posteriores ao pedido original.
+
+
+## 2026-11-03 — recuperação com vínculo à operação
+
+Fonte f7d2d2cc e integração CLI eb41577f. O checkpoint R4 aprovou 7.308
+testes, com 48 skips e cobertura de 85,7842796%. O wheel b183a3fe passou
+em nove etapas e 58 casos com perfis descartáveis, incluindo a aplicação
+Qt e leitura de volta. A release observada em /opt permanece
+2.0.0rc1-59ecc2d8f0f6. Ativação e hardware aguardam aceite próprio.
+[Recibo e evidências](../../09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json)
+
+O próximo lote do pedido original é o vínculo de fontes canônicas a jogo e
+papel de mídia pelo Studio, com leitura no Launcher e recuperação pela
+transação existente. O catálogo de mídia e os masters preservados já existem.
+Os nove mockups pertencem à revisão posterior.

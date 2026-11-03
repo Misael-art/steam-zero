@@ -15917,3 +15917,30 @@ O push limpo deste incremento reutiliza PR268, e seu próprio CI ainda deve ser
 conferido. Seguem elegíveis proveniência de rollback, associações canônicas,
 composição/autoria ampliada e executor de playback importado;9mockups seguem
 posteriores ao pedido original.
+
+
+## 2026-11-03 — codex-central-executor — proveniência da recuperação
+
+A publicação de tema usa o journal e backup do Core. O catálogo valida
+operação, destino, conteúdo e arquivos anteriores. A limpeza preserva
+backups ativos. Links de diretório, operações alheias e planos antigos do
+Histórico são recusados antes de mutar dados. A CLI usa a guarda do
+frontend escolhido. Domínio e testes f7d2d2cc, integração eb41577f.
+
+R4 integral com 7.308 testes aprovados, 48 skips, 22 avisos e 2.311,17 s.
+Cobertura 85,7842796% sobre 85,7561834%. Os 3.751 arquivos congelados e o
+estado pessoal observado permaneceram idênticos. O recibo retém a recusa
+de cobertura do R1, o cancelamento do R2 por falha de identidade reproduzida
+e a recusa do R3 por gravação da instalação de produção durante a janela.
+Ruff, mypy, independência, fronteiras e status aprovados.
+
+Wheel b183a3fe instalado em ambiente descartável. Nove etapas e 58 casos
+aprovados em 58,84 s. Origem conferida para 644 recursos e 242 módulos.
+Capturas 14 e 15 registram a confirmação em Qt e acompanham o recibo
+studio-native-context. A primeira execução do roteiro falhou na preparação
+do caso de Histórico. O ajuste do roteiro reutilizou o mesmo wheel e as
+mesmas assertivas. Perfis e ambiente temporários removidos.
+
+A release ativa observada foi 2.0.0rc1-59ecc2d8f0f6. Ativação, migração
+de perfis pessoais e hardware mantêm aceites próprios. O checkpoint segue
+para o PR268. O próximo lote funcional é a associação canônica de mídia.
