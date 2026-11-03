@@ -4,7 +4,7 @@
   "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
   "item": "SZ-THEME-STUDIO",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "370b59e5f77578bbb802e8a1d0804d75c749306d",
+  "baseRef": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -110,7 +110,14 @@
     "src/steamzero/ui/qml/ThemeCatalogPanel.qml",
     "tests/qml/check_theme_catalog_panel.qml",
     "tests/qml/check_theme_editor_import.qml",
-    "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md"
+    "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+    "src/steamzero/domain/operation_history.py",
+    "tests/integration/test_operation_history.py",
+    "src/steamzero/adapters/steam_rom_manager.py",
+    "src/steamzero/adapters/es_de.py",
+    "tests/integration/test_frontend_adapters.py",
+    "tests/unit/test_steam_rom_manager.py",
+    "tests/unit/test_es_de.py"
   ],
   "sharedPaths": [
     "docs/STATUS.md",
@@ -154,8 +161,14 @@
     "docs/status/items/aggregate-schemas.json",
     "docs/status/items/aggregate-tests.json",
     "docs/status/items/aura-launcher-exit.json",
-    "docs/status/items/aura-ui.json"
+    "docs/status/items/aura-ui.json",
+    "src/steamzero/cli/main.py",
+    "docs/status/items/emulation-long-operations.json",
+    "docs/status/items/frontend-esde-systems.json",
+    "docs/status/items/frontend-m11-surface.json",
+    "docs/status/items/frontend-srm.json",
+    "docs/status/items/gamemode-readiness-g29.json"
   ],
-  "nextAction": "Fechamento consumidores/recuperação:domínio0ab4bbc7,integração5dbfda30,checkpoint980b477c; integral7260/48/22warnings/3310,94s e cobertura85,7561834% sem regressão,3747arquivos/state preservados,172guardas passam. Wheel980b477c680ceefb…12jornadas/9etapas/88,88s aprovado;644recursos/237módulos instalados e capturas12–13, scripts QA preservados. Fechar status/docs/WORKLOG append-only, um push limpo PR268 e registrar CI do SHA. Logo depois assumir serialmente a próxima contraprova de proveniência de rollback antes de canônico/composição/playback; nove mockups seguem posteriores ao pedido original. Host59ecc2d8 intacto; sem agentes/clone/branch extra/auth/merge/release/boot. Reconciliação documental de ownership no fechamento: RETOMADA recebeu somente o checkpoint append-only; o claim antigo NEW-HOST-HANDOFF está fechado desde26/10. O caminho foi explicitado neste registro após o append, sem escritor concorrente nem alteração de sessões anteriores.",
-  "updatedAt": "2026-11-02"
+  "nextAction": "Checkpoint de fonte da proveniência aprovado no R4. 7308 testes, 48 skips, cobertura85.7842796% sobre baseline85.7561834%. 3751 arquivos congelados e state real inalterados. R3 teve testes e cobertura aprovados, mas o guard de estado recusou a execução após início da instalação de produção durante a janela. Commit funcional f7d2d2cc e integração CLI eb41577f. Validar wheel de árvore limpa com os58 casos planejados, fechar evidências e publicar uma vez no PR268. A revisão dos nove mockups sucede o fechamento do pedido funcional original.",
+  "updatedAt": "2026-11-03"
 }

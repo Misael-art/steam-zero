@@ -103,5 +103,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
   "notes": "Plano de governança e execução derivado da auditoria do repositório, da especificação anexada e da direção visual Aura/RetroFE/BigBox. O plano não prova implementação, release, instalação ou performance física. O inventário de superfícies foi alinhado ao sidecar de jornadas; esta alteração documental não muda o plano nem certifica capabilities de plataforma.\n02/11/2026: lote serial de consumidores/recuperação validado por182 focados e integral7260passed/48skipped/22warnings/3310,94s; cobertura85,75618340013686%>=85,74876854203798%.3747 arquivos congelados e estado pessoal inalterados;172 casos críticos passam sem skips. Recibo studio-native-context.json explicita uma aresta incidental perdida em301módulos inalterados, sem regressão agregada. Eixos/aceites específicos anteriores preservados; pacote não editable deste delta ainda pendente.",
-  "scopeDigest": "cb3ff369b3dc11036e5a88b0b4627f1cb248bd47a3a5ec5044f46ce0a653739d"
+  "scopeDigest": "11b05c04e733106d4a788c871801f99d1a7410567b5675b207826f92c6a73248"
 }

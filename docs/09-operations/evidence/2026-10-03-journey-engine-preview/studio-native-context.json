@@ -25,7 +25,7 @@
       "cause": "outline implemented by scaling alpha; decode size ignored scale and DPR",
       "correction": "engine-owned bounded disk alpha dilation; decode demand includes target scale, ancestor scales and DPR, capped at8192",
       "proof": "Independent four-edge/inner-hole and DPR1/1.5/2 properties pass. Operator continuation treated as authorization for three reviewed reference updates in1f6be082; former images remain in Git history.22 focused pixel/count/context tests pass in6.43s; all image tolerances and assertions retained.",
-      "limit": "Qt/RHI using software OpenGL; verified target scale, ancestor Item.scale and DPR1/1.5/2, capped8192. This does not qualify animation overshoot, arbitrary transform stacks, hardware, FPS, VRAM or performance. Final global checkpoint in progress."
+      "limit": "Qt/RHI using software OpenGL; verified target scale, ancestor Item.scale and DPR1/1.5/2, capped8192. This does not qualify animation overshoot, arbitrary transform stacks, hardware, FPS, VRAM or performance. Later full and installed checkpoints are recorded below with their own validity limits."
     },
     {
       "gap": "custom inheritance export and removal",
@@ -79,7 +79,7 @@
   "validation": {
     "focused": "passed as specified per change",
     "fullSuite": "Initial full-20261102-continuity cancelled by owned supervisor SIGTERM after1157.71s to correct a newly identified Central bundle integration gap; exit143, frozen1308 source hashes unchanged, real state13013 files unchanged. Partial execution is not approval. Five failure node IDs recovered from progress/collection; three are unchanged golden differences and two Launcher journey regressions require focused diagnosis.",
-    "static": "Final frozen source: Ruff check and format742files, mypy307files, independence and architectural boundaries passed; git diff --check passed. Status regeneration/check follows documentary reconciliation; global suite r3 still running.",
+    "static": "Historical original source checkpoint: Ruff check/format742 files, mypy307 source files, independence and boundaries passed. The original r3 run subsequently finished as documented below. Consumer-integrity and rollback-provenance checkpoints have separate validation records.",
     "focusedFinal": {
       "bundleSecurity": {
         "passed": 131,
@@ -270,93 +270,173 @@
   "remote": {
     "pr": 268,
     "state": "open draft",
-    "head": "370b59e5f77578bbb802e8a1d0804d75c749306d",
-    "checks": "CI41460758888 completed/success, all eight jobs; candidate head370b59e5, synthetic PR merge checkoutfcfe145d with identical Git tree. No PR merge performed.",
-    "credentials": "Existing Git credential helper used in memory; no secret persisted, login initiated or authentication changed. Nominal continuity ref pushed without force; PR268 remains open draft.",
-    "verifiedBeforePush": {
-      "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
-      "main": "ad742ca3515f794fe285d42060708835cb09fb91",
+    "head": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+    "run": 41544196561,
+    "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561",
+    "checks": "CI41544196561 terminal success8/8; published head2d2b9c59 and synthetic merge36108899 have identical Git treefa59c3f7893687d024f9dbc7c3616c36c115195f. No merge performed.",
+    "push": "Existing nominal continuity ref, no force or hook bypass; head and PR independently verified.",
+    "previousCheckpoint": {
       "pr": 268,
-      "url": "https://github.com/Misael-art/steam-zero/pull/268",
-      "state": "OPEN",
-      "draft": true,
-      "readUsing": "existing credential helper, no new login; remote refs unchanged"
+      "state": "open draft",
+      "head": "370b59e5f77578bbb802e8a1d0804d75c749306d",
+      "checks": "CI41460758888 completed/success, all eight jobs; candidate head370b59e5, synthetic PR merge checkoutfcfe145d with identical Git tree. No PR merge performed.",
+      "credentials": "Existing Git credential helper used in memory; no secret persisted, login initiated or authentication changed. Nominal continuity ref pushed without force; PR268 remains open draft.",
+      "verifiedBeforePush": {
+        "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
+        "main": "ad742ca3515f794fe285d42060708835cb09fb91",
+        "pr": 268,
+        "url": "https://github.com/Misael-art/steam-zero/pull/268",
+        "state": "OPEN",
+        "draft": true,
+        "readUsing": "existing credential helper, no new login; remote refs unchanged"
+      },
+      "run": 41460758888,
+      "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888",
+      "push": "Nominal existing continuity ref accepted after HEAD alias was refused by unchanged workspace hook; no force or bypass. PR head independently verified.",
+      "jobs": [
+        {
+          "name": "Python 3.11",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868591"
+        },
+        {
+          "name": "Smoke Ubuntu 24.04",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868938"
+        },
+        {
+          "name": "Smoke Manjaro",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869024"
+        },
+        {
+          "name": "Smoke Arch Linux",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869050"
+        },
+        {
+          "name": "Python 3.12",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869092"
+        },
+        {
+          "name": "Python 3.14",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869111"
+        },
+        {
+          "name": "Gate visual QML (Linux)",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869264"
+        },
+        {
+          "name": "Wheel limpo, smoke e supply chain",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869343"
+        }
+      ],
+      "checkoutAndCoverageProof": {
+        "coverage": [
+          {
+            "run": 41460758888,
+            "artifactId": 13150366092,
+            "archiveBytes": 676259,
+            "archiveSha256": "ef0a03dc3cccf5fb5bec890e6d04cf523c04d710fa3dad7bf54d71a838565821",
+            "coverage": 85.53545616571003
+          },
+          {
+            "run": 41195711124,
+            "artifactId": 13041122168,
+            "archiveBytes": 674578,
+            "archiveSha256": "2c312f187f99709c14c7621dfb1bb6934ad764ea788c9e76ad32d9c11ed23260",
+            "coverage": 85.50828822733423
+          }
+        ],
+        "coreNonRegression": true,
+        "checkouts": {
+          "370b59e5f77578bbb802e8a1d0804d75c749306d": {
+            "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+            "parents": [
+              "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6"
+            ]
+          },
+          "fcfe145d791776453c08e85c24a32a4d8b9bff64": {
+            "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+            "parents": [
+              "ad742ca3515f794fe285d42060708835cb09fb91",
+              "370b59e5f77578bbb802e8a1d0804d75c749306d"
+            ]
+          }
+        },
+        "mergeTreeEqualsPublishedHead": true
+      }
     },
-    "run": 41460758888,
-    "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888",
-    "push": "Nominal existing continuity ref accepted after HEAD alias was refused by unchanged workspace hook; no force or bypass. PR head independently verified.",
     "jobs": [
-      {
-        "name": "Python 3.11",
-        "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868591"
-      },
-      {
-        "name": "Smoke Ubuntu 24.04",
-        "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868938"
-      },
-      {
-        "name": "Smoke Manjaro",
-        "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869024"
-      },
-      {
-        "name": "Smoke Arch Linux",
-        "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869050"
-      },
-      {
-        "name": "Python 3.12",
-        "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869092"
-      },
-      {
-        "name": "Python 3.14",
-        "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869111"
-      },
       {
         "name": "Gate visual QML (Linux)",
         "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869264"
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630330"
       },
       {
         "name": "Wheel limpo, smoke e supply chain",
         "conclusion": "success",
-        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869343"
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630615"
+      },
+      {
+        "name": "Python 3.12",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630627"
+      },
+      {
+        "name": "Smoke Ubuntu 24.04",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630628"
+      },
+      {
+        "name": "Python 3.11",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630637"
+      },
+      {
+        "name": "Smoke Manjaro",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630641"
+      },
+      {
+        "name": "Python 3.14",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630836"
+      },
+      {
+        "name": "Smoke Arch Linux",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630893"
       }
     ],
     "checkoutAndCoverageProof": {
-      "coverage": [
-        {
-          "run": 41460758888,
-          "artifactId": 13150366092,
-          "archiveBytes": 676259,
-          "archiveSha256": "ef0a03dc3cccf5fb5bec890e6d04cf523c04d710fa3dad7bf54d71a838565821",
-          "coverage": 85.53545616571003
-        },
-        {
-          "run": 41195711124,
-          "artifactId": 13041122168,
-          "archiveBytes": 674578,
-          "archiveSha256": "2c312f187f99709c14c7621dfb1bb6934ad764ea788c9e76ad32d9c11ed23260",
-          "coverage": 85.50828822733423
-        }
-      ],
-      "coreNonRegression": true,
+      "run": 41544196561,
+      "head": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+      "allEightJobsSuccessful": true,
+      "coverage": {
+        "artifactId": 13188277498,
+        "archiveSha256": "8705e0d53ee4963013a2e2c069ac02a2afd4ee784248ee308f3314a3bd3b9e3f",
+        "bytes": 678847,
+        "current": 85.55647109757972,
+        "baseline": 85.53545616571003,
+        "nonRegression": true
+      },
       "checkouts": {
-        "370b59e5f77578bbb802e8a1d0804d75c749306d": {
-          "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+        "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e": {
+          "tree": "fa59c3f7893687d024f9dbc7c3616c36c115195f",
           "parents": [
-            "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6"
+            "980b477cdfcfda264cddc5d2b3098f604cce3932"
           ]
         },
-        "fcfe145d791776453c08e85c24a32a4d8b9bff64": {
-          "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+        "36108899db1c99532d0b2aeacc9d91e3af788d8e": {
+          "tree": "fa59c3f7893687d024f9dbc7c3616c36c115195f",
           "parents": [
             "ad742ca3515f794fe285d42060708835cb09fb91",
-            "370b59e5f77578bbb802e8a1d0804d75c749306d"
+            "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e"
           ]
         }
       },
@@ -520,7 +600,7 @@
   },
   "consumerIntegrity": {
     "baseCommit": "370b59e5f77578bbb802e8a1d0804d75c749306d",
-    "state": "source/HTTP/Qt integral and committed non-editable package acceptance passed; published checkpoint CI still to be verified",
+    "state": "source/HTTP/Qt integral and non-editable package acceptance passed; clean checkpoint2d2b9c59 published and CI41544196561 terminal success8/8.",
     "reproductions": [
       "Eight removal cases failed before preference/current draft/inheritance/history guards.",
       "Four real HTTP Journey saved/draft/history/bezel consumer cases failed before actual service integration.",
@@ -741,6 +821,158 @@
       "seconds": 13.61,
       "realStateUnchanged": true,
       "statusCheck": "passed; final generated-view regeneration after ownership metadata only"
+    }
+  },
+  "rollbackProvenance": {
+    "state": "frozen source checkpoint accepted; committed wheel acceptance pending",
+    "baseCommit": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+    "changes": [
+      "Theme publication delegates to the existing Core transaction, durable journal and hash-verified backup; compatibility undoPath retained.",
+      "Catalog rollback validates operation identity, kind, target, current fingerprint and old assets before mutation; unknown/foreign/stale operations refuse, consumed rollback is idempotent.",
+      "GC derives rollback ownership from bounded Core backups as well as legacy compatibility snapshots, including interrupted publication; damaged or empty journals refuse collection.",
+      "Generic History refuses theme acquisition/preference rollback, including previously pending confirmation plans; owning theme services preserve their reference checks.",
+      "Frontend CLI rollback reuses each adapters existing kind/root/target validation; unrelated operations refuse without mutation. Valid3MiB ES-DE before-image remains byte-exactly recoverable.",
+      "Theme directory symlink is refused before publication/removal/rollback so aliases cannot turn a foreign operation into an owned one or bypass the actual active consumer."
+    ],
+    "baselines": {
+      "identity": "4 failed/1.10s",
+      "coreAssets": "2 failed/2.20s",
+      "context": "7 failed,1 passed/5.22s; fresh-root producer already worked and was retained",
+      "validFrontendSize": "Candidate regression: new domain reader initially refused a valid3MiB ES-DE before-image (1 failed/1.17s); corrected before R1 without changing generic History4MiB bound.",
+      "emptyJournal": "Candidate fault: new Core producer/graph initially allowed GC after journal truncation (1 failed/1.37s); corrected before R1.",
+      "directoryAlias": "1 actual isolated test failed in0.50s: alias directory resolves to another theme, so its operation was accepted and deleted the real manifest. Baseline retained in build/agent-runs/continuity-20261102/rollback-theme-alias-baseline.xml."
+    },
+    "focused": {
+      "passed": 154,
+      "seconds": 12.41,
+      "junit": "build/agent-runs/continuity-20261102/rollback-provenance-focused-junit.xml",
+      "realStateUnchanged": true
+    },
+    "crashRecovery": "Real isolated child receives SIGKILL at apply.backup, apply.verify and apply.after-commit; Core recover rolls back uncommitted and keeps committed publication; GC retains prior assets with compatibility snapshot absent; domain undo restores committed replacement byte-exactly.",
+    "limits": [
+      "Controlled source fixtures and actual isolated child processes; no new installed or hardware acceptance yet.",
+      "Unproven legacy snapshots are retained and refused; historical explicit migration/recovery remains open.",
+      "No cross-process writer/GC atomicity qualification; same-app bridge serialization is not proof for simultaneous CLI writers.",
+      "Host release, personal profile, boot and privileged state remain unchanged.",
+      "Domain-owned original transaction plan read is bounded32MiB; generic History keeps4MiB bound. Valid3MiB ES-DE before-image is tested; arbitrary aggregate plan sizes are not qualified."
+    ],
+    "fullSuiteR1": {
+      "pytestExitCode": 0,
+      "supervisorExitCode": 88,
+      "passed": 7287,
+      "skipped": 48,
+      "warnings": 21,
+      "pytestSeconds": 3052.1,
+      "supervisorSeconds": 3080.0800253579946,
+      "testedFiles": 3751,
+      "testedFilesUnchanged": true,
+      "signals": [],
+      "realStateUnchanged": true,
+      "coverage": {
+        "current": 85.72721072338294,
+        "requiredBaseline": 85.75618340013686,
+        "nonRegression": false
+      },
+      "frozenManifestSha256": "f2ea5caf6072e1559746a9b27be625e08df8881c58ffca83bd56ca8b0637992a",
+      "prefix": "build/agent-runs/studio-native-wheel/full-20261102-rollback-provenance-r1",
+      "acceptance": "refused; passing tests alone do not close a coverage failure"
+    },
+    "additionalFaultProof": {
+      "passed": 87,
+      "seconds": 41.11,
+      "coveredModule": "steamzero.domain.theme_acquire",
+      "moduleCoverage": 88.56502242152466,
+      "notGlobalApplicationCoverage": true,
+      "junit": "build/agent-runs/continuity-20261102/rollback-fault-proof-r2-junit.xml",
+      "applicationSourceChangedAfterR1": false,
+      "proofs": [
+        "Controlled recovery-copy I/O and operation-recording callback failures trigger Core rollback, preserve the original manifest and assets, and permit retry.",
+        "Concurrent write at real plan creation is preserved, operation refuses before publication and replanning succeeds.",
+        "Symlink/directory current manifest refuses before mutation; repaired owned file unlocks rollback.",
+        "Hash-owned opaque legacy before-image restores exact bytes, without claiming semantic validity.",
+        "Each exhausted journal/backup budget refuses GC without deleting orphan or live assets; restored allowance unlocks actual collection and byte-exact rollback.",
+        "Malformed/oversized/foreign-identity journal refuses GC and rollback until repaired.",
+        "Shared Core journal skips unrelated domains, preserves unowned notes and releases media only after verified terminal undo."
+      ],
+      "intermediate": "76 tests passed, but targeted module coverage82.74% failed the unchanged85% threshold; raw report retained. No threshold or assertion changed."
+    },
+    "harnessCorrections": "Initial crash/context harness attempts had4 failures, then1 failure from missing child import path and dataclass access. Instrumentation corrected; raw JUnit retained. Final focused154 pass before R1.",
+    "fullSuiteR2": {
+      "state": "cancelled, not acceptance",
+      "supervisorExitCode": 143,
+      "childExitCode": -15,
+      "seconds": 910.1929193370015,
+      "signals": [
+        {
+          "signal": 15,
+          "seconds": 908.8048320779926
+        }
+      ],
+      "testedFiles": 3751,
+      "testedFilesUnchanged": true,
+      "frozenManifestSha256": "f6b0d17fd1fba042e7ae4c9681ac41cc76f993a04d94a53583b96492849b57bf",
+      "reason": "Owned supervisor received SIGTERM only after isolated real baseline proved an in-root directory symlink could use another themes operation to delete its manifest. No tracked file changed until the supervisor returned; following focused runner confirms personal state unchanged.",
+      "receipt": "build/agent-runs/studio-native-wheel/full-20261102-rollback-provenance-r2-result.json"
+    },
+    "directoryAliasCorrection": {
+      "cause": "Logical theme directory alias was resolved to the target before ownership comparison; requested alias could also bypass the real targets consumer guard.",
+      "correction": "Shared ThemeTransaction manifest-path validation refuses a symlink directory before install/uninstall/rollback. Existing root containment and target/hash guards remain.",
+      "applicationDeltaAfterR2": "One condition in theme_acquire.py; no Core executor, lock, journal or transaction source changed.",
+      "focused": {
+        "passed": 174,
+        "seconds": 9.75,
+        "themeAcquireCoverage": 88.56502242152466,
+        "junit": "build/agent-runs/continuity-20261102/rollback-alias-final-focused-junit.xml"
+      },
+      "additionalHttp": {
+        "passed": 1,
+        "seconds": 1.85,
+        "proof": "Actual loopback HTTP activates a native theme, alias uninstall refuses E-THEME-UNSAFE, real active target refuses E-THEME-ACTIVE, preference/manifest unchanged; explicit HTTP switch to default unlocks removal, readback confirms default.",
+        "junit": "build/agent-runs/continuity-20261102/rollback-http-alias-focused.xml"
+      },
+      "realStateUnchanged": true
+    },
+    "staticR3": {
+      "ruff": "All src/tools/tests passed;742 files formatted. Final subsequently added HTTP test file also passed Ruff and format.",
+      "mypy": "307 source files passed after the alias correction.",
+      "architecture": "Runtime independence and boundaries passed with0 violations after the alias correction.",
+      "baseline": "Unchanged consumer-integrity full coverage85.75618340013686, never lowered."
+    },
+    "functionalCommits": {
+      "domain": "f7d2d2cc76b48be7d043c5c1091f0539404b2e24",
+      "cliIntegration": "eb41577f4a8d1e97b888a8807e1acef4ca6a85c1"
+    },
+    "fullSuiteR3": {
+      "passed": 7308,
+      "skipped": 48,
+      "pytestSeconds": 2666.59,
+      "supervisorExitCode": 86,
+      "coverage": 85.77731998942137,
+      "acceptance": "refused by state guard after production application started during the window",
+      "testedFilesUnchanged": true,
+      "diagnosis": "User journal locates the production desktop and QML in the desktop app systemd unit. The user manager activated the installed daemon within the same window. No inference about who initiated the desktop launch. Raw process log remains private."
+    },
+    "fullSuiteR4": {
+      "exitCode": 0,
+      "seconds": 2326.212450559,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "coverage": {
+        "current": 85.7842796097045,
+        "baseline": 85.75618340013686,
+        "nonRegression": true,
+        "branches": 18274
+      },
+      "passed": 7308,
+      "skipped": 48,
+      "warnings": 22,
+      "pytestSeconds": 2311.17,
+      "testedFiles": 3751,
+      "testedManifest": "studio-native-rollback-tested-files.json",
+      "testedManifestSha256": "c87947309b6a377c947fb171a6bf1fa8faeb33f1d72f380b56e7fe5d3ad659b8",
+      "sameFrozenTreeAsR3": true,
+      "realStateUnchanged": true,
+      "realStateFiles": 13013
     }
   }
 }
