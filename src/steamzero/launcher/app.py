@@ -745,11 +745,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             ),
         )
 
-    metadata = {}
     registry_media = launcher_media_metadata(
         media_root=paths.media_dir(),
         platform_by_game={game.id: game.platform for game in catalog},
     )
+    metadata = {game_id: dict(fields) for game_id, fields in registry_media.items()}
     for record in library:
         game_id = record.get("id")
         if not game_id:
@@ -763,6 +763,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             cover_url = projected.get("coverUrl")
             if isinstance(cover_url, str) and cover_url:
                 covers[str(game_id)] = cover_url
+    for game_id, fields in registry_media.items():
+        cover_url = fields.get("coverUrl")
+        if isinstance(cover_url, str) and cover_url:
+            covers[game_id] = cover_url
 
     catalog_records = _search_catalog_records(catalog, library)
     kind_by_game_id = {game.id: game.kind for game in catalog}

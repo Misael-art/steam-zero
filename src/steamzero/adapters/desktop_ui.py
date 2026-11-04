@@ -316,23 +316,24 @@ def _launcher_journey_catalog() -> list[dict[str, Any]] | None:
     try:
         emulation = _emulation_catalog_records()
     except Exception:
-        return None
-    if not emulation:
-        return None
-    return [*emulation, *_steam_catalog_records()]
+        emulation = []
+    return [*emulation, *_steam_catalog_records()] or None
 
 
 def _steam_catalog_records() -> list[dict[str, Any]]:
     try:
         from steamzero.adapters.launcher_steam import steam_catalog_games
 
-        return [_public_launcher_record(game, None, kind="steam") for game in steam_catalog_games()]
+        return [
+            {**_public_launcher_record(game, None, kind="steam"), "coverUrl": game.cover_url}
+            for game in steam_catalog_games()
+        ]
     except Exception:
         return []
 
 
 def _media_assignment_catalog() -> dict[str, dict[str, Any]]:
-    catalog = _launcher_journey_catalog() or _steam_catalog_records()
+    catalog = _launcher_journey_catalog() or []
     if len(catalog) > MAX_PUBLIC_RECORDS:
         raise SteamZeroError("E-CONTENT-LIMIT", detail="biblioteca acima do limite de associação")
     games: dict[str, dict[str, Any]] = {}
@@ -385,6 +386,8 @@ def _project_journey_catalog(
         projected = project_game_row(dict(record), source=source_name)
         if projected is None:
             continue
+        if source_name == "steam":
+            projected.update(project_public_media(record))
         rows.append(projected)
         platform_id = projected.get("platformId")
         if not isinstance(platform_id, str) or not platform_id:

@@ -346,6 +346,77 @@ def test_studio_assigns_one_master_to_canonical_games_and_history_can_restore(
         assert not worker.is_alive()
 
 
+def test_steam_only_library_uses_the_assigned_cover_in_both_consumers(
+    dashboard: DesktopDashboard, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tests.integration.test_desktop_ui_bridge import Context
+    from tests.unit.test_media_sources import source_bytes
+
+    from steamzero.adapters.desktop_ui import DesktopControlServer
+    from steamzero.core import paths, transaction
+    from steamzero.core.state import StateStore
+    from steamzero.domain.desktop import ExperienceCoordinator
+    from steamzero.domain.media_pipeline import MediaPipeline
+    from steamzero.domain.media_registry import MediaMasterEntry, MediaRegistry, Provenance
+    from steamzero.launcher.app import canonical_library_path, main
+
+    monkeypatch.setattr(Path, "home", classmethod(lambda _cls: tmp_path))
+    steam = tmp_path / ".local/share/Steam"
+    app_id = "270128"
+    (steam / "steamapps").mkdir(parents=True)
+    (steam / f"steamapps/appmanifest_{app_id}.acf").write_text(
+        f'"AppState"\n{{\n\t"appid" "{app_id}"\n\t"name" "Owned Steam title"\n}}\n'
+    )
+    previous = steam / f"appcache/librarycache/{app_id}_library_600x900.jpg"
+    previous.parent.mkdir(parents=True)
+    previous.write_bytes(b"existing Steam library cover")
+    root = paths.media_dir()
+    master = MediaPipeline(root).preserve_source(
+        source_bytes(), "canonical.png", Provenance("fixture", "", "CC0-1.0")
+    )
+    game = MediaMasterEntry(app_id, "", "", "Owned Steam title", "steam", steam_appid=int(app_id))
+    plan, _ = MediaRegistry.plan_source_assignment(
+        root, game, "cover", master.digest, session_id="owned-editor"
+    )
+    assert plan is not None
+    applied = MediaRegistry.apply_source_assignment(
+        root, plan, plan.confirm_token, game, session_id="owned-editor"
+    )
+    assert not canonical_library_path().exists()
+
+    def studio_cover():
+        with StateStore(tmp_path / "steam-only.db") as state:
+            state.migrate()
+            with DesktopControlServer(
+                ExperienceCoordinator(Context(), (), state), "owned-steam-token", dashboard
+            ) as server:
+                server.publish_journey_read_models({})
+                models = server.journey_read_models()
+                assert models is not None
+                rows = models["library.games"]["rows"] or []
+                return next((row.get("coverUrl") for row in rows if row["gameId"] == app_id), None)
+
+    observed = []
+
+    def capture(bridge):
+        observed.append(bridge.model()["sections"][0]["items"][0])
+        return 0
+
+    monkeypatch.setattr("steamzero.launcher.app._host_accessibility", lambda: {})
+    monkeypatch.setattr("steamzero.adapters.launcher_ui.launch_launcher_ui", capture)
+    assert main([]) == 0
+    assert observed[0]["id"] == app_id
+    expected = (root / master.path).as_uri()
+    assert {"studio": studio_cover(), "launcher": observed[0]["coverUrl"]} == {
+        "studio": expected,
+        "launcher": expected,
+    }
+    assert transaction.rollback(applied.operation_id).status == "rolled-back"
+    assert main([]) == 0
+    assert studio_cover() == observed[-1]["coverUrl"] == previous.as_uri()
+    assert previous.read_bytes() == b"existing Steam library cover"
+
+
 def test_preference_rollback_refuses_missing_theme_and_recovers_after_reimport(
     dashboard: DesktopDashboard, tmp_path: Path
 ) -> None:
