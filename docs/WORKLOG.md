@@ -15944,3 +15944,22 @@ mesmas assertivas. Perfis e ambiente temporários removidos.
 A release ativa observada foi 2.0.0rc1-59ecc2d8f0f6. Ativação, migração
 de perfis pessoais e hardware mantêm aceites próprios. O checkpoint segue
 para o PR268. O próximo lote funcional é a associação canônica de mídia.
+
+
+## 2026-11-03 — codex-central-executor — associação canônica de mídia
+
+Studio e Launcher compartilham a associação de masters a jogos. A aplicação
+revalida catálogo, sessão e origem antes de escrever. O Histórico restaura
+a associação anterior. O caminho exclusivamente Steam preserva a capa
+anterior como fallback. Domínio da147340, integração 27acfbef e correção
+compartilhada e37c7275. A verificação focada final da projeção aprovou 120 testes.
+
+A integral R6 aprovou 7.319 testes com 48 skips e cobertura de 85,8459403%
+sobre 85,7842796%. A tentativa R2 foi interrompida, R3 e R5 falharam nos casos
+de SIGINT e R4 foi recusada no preflight de memória. A inicialização R6
+restaurou o tratamento padrão de SIGINT antes de executar o mesmo código.
+
+O wheel 50fe36ba instalado em ambiente descartável passou em nove etapas e
+62 casos. O recibo reúne os hashes e as capturas 16–18. A validação usa
+Qt e HTTP reais em perfis controlados. A convergência dos coletores legados,
+os aceites físicos e o movimento importado seguem como trabalho separado.

@@ -171,6 +171,6 @@
     "docs/status/items/aura-platform-media-scope-2026-09-20.json",
     "docs/status/items/recovery-r2-game-data.json"
   ],
-  "nextAction": "A associação passou no pacote inicial 0c231b66 com 61 casos. Verificação adicional reproduziu o caso Steam-only, no qual o Studio omitia a linha e o Launcher preferia a capa anterior. Corrigidos leitores e precedência da capa. 120 testes focados aprovados incluindo rollback ao arquivo anterior. Congelar e repetir suíte integral com baseline rollback R4 85.7842796%, depois validar pacote final com62 casos. O digest recovery-r2-game-data é compartilhado para reconciliar app.py; teste da frente R2 preservado.",
+  "nextAction": "Associação canônica validada na integral R6 com 7319 aprovados, 48 skips e cobertura 85,8459403%. Pacote 50fe36ba aprovado em 9 etapas e 62 casos. Conferir CI do SHA publicado no PR 268. Próximo incremento do executor central é reproduzir a lacuna de movimento importado no SceneEsdeView e validar o subconjunto aceito no IR e no Qt compartilhado. Confirmar claims antes da edição. Os nove mockups seguem após o fechamento do pedido original.",
   "updatedAt": "2026-11-03"
 }

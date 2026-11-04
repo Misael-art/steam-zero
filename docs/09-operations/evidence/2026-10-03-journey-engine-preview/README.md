@@ -988,3 +988,24 @@ A origem instalada foi conferida para 644 recursos e 242 módulos.
 ![Recuperação no pacote instalado em 1280 × 900](studio-native-context/14-installed-rollback-recovery-wide.png)
 
 ![Recuperação no pacote instalado em 840 × 900](studio-native-context/15-installed-rollback-recovery-compact.png)
+
+## 2026-11-03 — associação canônica de imagens
+
+O Studio associa um master preservado ao jogo e papel de imagem escolhidos.
+O Launcher consome essa associação, inclusive em bibliotecas exclusivamente
+Steam. O Histórico restaura a associação e a capa anterior. Os commits
+funcionais são da147340, 27acfbef e e37c7275.
+
+A execução integral R6 aprovou 7.319 testes, com 48 skips e cobertura de
+85,8459403% sobre 85,7842796%. O pacote 50fe36ba passou em nove etapas e
+62 casos com perfis descartáveis. A validação inclui confirmação no Studio
+pela interface Qt e pela ponte HTTP, leitura e renderização no Launcher,
+e recuperação da capa anterior após desfazer. A comprovação de hardware
+e a convergência dos coletores legados permanecem abertas.
+[Recibo, tentativas anteriores e manifesto](studio-native-context.json)
+
+![Confirmação no Studio em 1280 × 900](studio-native-context/16-installed-canonical-assignment-wide.png)
+
+![Confirmação no Studio em 840 × 900](studio-native-context/17-installed-canonical-assignment-compact.png)
+
+![Imagem associada e renderizada pelo Launcher instalado](studio-native-context/18-installed-canonical-assignment-launcher.png)

@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "packaged",
-  "scopeDigest": "200df209e09a2212312aefa8969b262691cc3b6064ee58d9bd2268accebd1693",
+  "scopeDigest": "0ce01022f790c9ab8b2efdc612dc94f3117c5a0722b446a8a7a178a41a55a7d6",
   "scopePaths": [
     "docs/09-operations/evidence/2026-09-01-ux-release-audit-rerun",
     "docs/09-operations/evidence/2026-09-07-theme-studio-contrast",
@@ -671,7 +671,7 @@
       "result": "passed"
     }
   ],
-  "nextAction": "Publicar checkpoint limpo de consumidores/recuperação na branch existente/PR268 e registrar run do SHA exato. Integral7260/48 aprovada e pacote980b477c12jornadas aprovado; recibo preserva fontes/erros/recuperação. Continuar proveniência de rollback, associações canônicas/composição/autoria ampliada e playback importado do pedido original antes dos nove mockups. Host/hardware/backup privado e símbolo histórico exato continuam dependências separadas.",
+  "nextAction": "Recibo studio-native-context registra a associação canônica no Studio e Launcher, inclusive Steam-only e desfazer. Conferir CI do checkpoint no PR 268. Reproduzir movimento importado no motor compartilhado, mantendo perdas explícitas e o limite de confiança do IR. Composição, convergência dos coletores, aceites físicos, backup externo e símbolo histórico continuam com verificação própria.",
   "activeWorkstreams": [
     "WS-2026-10-STUDIO-DRAFT-HISTORY"
   ],

@@ -1085,7 +1085,27 @@
     }
   },
   "canonicalAssignments": {
-    "state": "Steam-only correction passed the complete frozen source gate. Final installed acceptance pending.",
+    "state": "Complete frozen source gate and final isolated installed acceptance passed.",
+    "finalInstalledAcceptance": {
+      "sourceCommit": "50fe36ba0df7849174d2ff7998f0390929e9ba70",
+      "sourceDirty": false,
+      "bytes": 4015598,
+      "sha256": "13d12e2987e16153fb167ae668eb0047e3199cf53600141ef6a5f033b25776d6",
+      "steps": 9,
+      "cases": 62,
+      "seconds": 68.85583283300002,
+      "installedResources": 644,
+      "installedModules": 247,
+      "realStateUnchanged": true,
+      "temporaryEnvironmentRemoved": true,
+      "qaSources": "studio-native-assignment-qa-sources.json",
+      "captures": [
+        "studio-native-context/16-installed-canonical-assignment-wide.png",
+        "studio-native-context/17-installed-canonical-assignment-compact.png",
+        "studio-native-context/18-installed-canonical-assignment-launcher.png"
+      ],
+      "harnessCorrection": "The first invocation stopped before installation because the wheel path was relative to the evidence folder. The runner expects a path relative to the checkout. The corrected receipt reused the same wheel and assertions."
+    },
     "finalSourceGate": {
       "functionalCommit": "e37c7275",
       "run": "full-20261103-canonical-assignment-r6",
@@ -1176,7 +1196,7 @@
       "realStateUnchanged": true
     },
     "limits": [
-      "Disposable libraries and actual Qt source execution. Package acceptance pending.",
+      "Source and installed runs used disposable libraries. Studio Qt software and Launcher Qt RHI exercised the real bridge, persistence and rendering in isolated profiles.",
       "Associations require a valid bounded registry and catalog. Snapshot/confirmation detects drift and fails closed. Legacy direct collection writers and broad global master deduplication need separate convergence.",
       "Hardware, full accessibility, personal profiles, and imported playback retain their separate status."
     ],
