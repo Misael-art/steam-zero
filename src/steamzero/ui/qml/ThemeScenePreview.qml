@@ -17,6 +17,8 @@ Item {
 
     property var requestAction: function(_id, _payload, _cb, _ecb) {}
     property string themeId: ""
+    property bool importedScene: false
+    property int importedRequestGeneration: 0
     property color surfaceColor: "#0d1924"
     property color borderColor: "#2a3a49"
     property color textColor: "#f2f6fb"
@@ -102,6 +104,29 @@ Item {
     function render() {
         if (!themeId)
             return
+        if (preview.importedScene) {
+            const generation = ++preview.importedRequestGeneration
+            preview.rendered = null
+            preview.loading = true
+            preview.errorText = ""
+            const dispatched = preview.requestAction("theme.scene.render-imported",
+                {sceneId: preview.themeId, synthetic: true}, function(result) {
+                    if (generation !== preview.importedRequestGeneration)
+                        return
+                    preview.loading = false
+                    preview.rendered = result
+                }, function(error) {
+                    if (generation !== preview.importedRequestGeneration)
+                        return
+                    preview.loading = false
+                    preview.errorText = String((error && error.detail) || error || qsTr("Falha ao abrir a cena"))
+                })
+            if (dispatched === false && preview.loading) {
+                preview.loading = false
+                preview.errorText = qsTr("Aguarde a leitura anterior e tente novamente.")
+            }
+            return
+        }
         preview.loading = true
         preview.errorText = ""
         preview.requestAction("theme.scene.render", {
@@ -137,7 +162,12 @@ Item {
 
     onThemeIdChanged: {
         preview.selectionDefaultsApplied = false
-        if (preview.themeId)
+        if (preview.importedScene) {
+            ++preview.importedRequestGeneration
+            preview.rendered = null
+            preview.errorText = ""
+            preview.loading = false
+        } else if (preview.themeId)
             Qt.callLater(preview.render)
     }
 
@@ -147,7 +177,7 @@ Item {
             Qt.callLater(preview.render)
     }
 
-    Component.onCompleted: if (preview.themeId) preview.render()
+    Component.onCompleted: if (preview.themeId && !preview.importedScene) preview.render()
 
     ColumnLayout {
         anchors.fill: parent
@@ -159,7 +189,7 @@ Item {
         Flow {
             id: previewControls
             objectName: "previewControls"
-            visible: !preview.immersive
+            visible: !preview.immersive && !preview.importedScene
             Layout.fillWidth: true
             spacing: 8
 
@@ -217,6 +247,7 @@ Item {
 
         Label {
             objectName: "previewError"
+            textFormat: Text.PlainText
             visible: preview.errorText !== ""
             text: preview.errorText
             color: "#ff6b73"
@@ -289,7 +320,8 @@ Item {
         Label {
             objectName: "notDrawnLine"
             Layout.fillWidth: true
-            visible: !preview.immersive && sceneView.notDrawn.length > 0
+            visible: !preview.immersive
+                && (sceneView.notDrawn.length > 0 || sceneView.unsupportedTimelines.length > 0)
             wrapMode: Text.WordWrap
             color: preview.mutedColor
             text: {
@@ -298,10 +330,16 @@ Item {
                     const reason = sceneView.notDrawn[i].reason
                     counts[reason] = (counts[reason] || 0) + 1
                 }
-                const parts = []
+                const reasons = []
                 for (const reason in counts)
-                    parts.push(counts[reason] + "× " + reason)
-                return qsTr("Não desenhados: ") + parts.join(" · ")
+                    reasons.push(counts[reason] + "× " + reason)
+                const lines = []
+                if (reasons.length)
+                    lines.push(qsTr("Não desenhados: ") + reasons.join(" · "))
+                if (sceneView.unsupportedTimelines.length)
+                    lines.push(qsTr("Animações sem suporte nesta cena: %1")
+                        .arg(sceneView.unsupportedTimelines.length))
+                return lines.join("\n")
             }
         }
     }

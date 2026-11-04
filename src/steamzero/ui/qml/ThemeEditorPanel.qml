@@ -20,6 +20,7 @@ Rectangle {
     property color amberColor: "#ff9f1a"
     property color redColor: "#ff6b73"
     property real visualScale: 1.0
+    property bool reducedMotion: false
     readonly property int minimumInteractiveTarget: 48
     readonly property int titlePixelSize: editorTitle.font.pixelSize
 
@@ -2107,7 +2108,7 @@ Rectangle {
         height: Math.min(panel.height - 24, 650)
         x: (panel.width - width) / 2
         y: (panel.height - height) / 2
-        title: qsTr("Importar cena RetroFE")
+        title: qsTr("Importar ou reproduzir cena RetroFE")
         standardButtons: Dialog.NoButton
         onOpened: retrofeImportSourceField.forceActiveFocus()
         onClosed: panel.resetRetrofeImport()
@@ -2149,7 +2150,7 @@ Rectangle {
                 spacing: 10
 
                 Label {
-                    text: qsTr("Examine primeiro. A cena é compilada para o IR comum, assets são copiados para o store por conteúdo e nada é ativado automaticamente.")
+                    text: qsTr("Examine uma pasta ou XML para importar. Para abrir uma cena salva, informe o ID e escolha Reproduzir.")
                     color: panel.mutedColor
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -2282,12 +2283,12 @@ Rectangle {
                 }
 
                 GridLayout {
+                    id: retrofeSceneFields
+                    readonly property bool hasLayouts: panel.retrofeImportLayouts.length > 0
                     columns: 2
-                    visible: panel.retrofeImportLayouts.length > 0
                     Layout.fillWidth: true
                     columnSpacing: 10
                     rowSpacing: 8
-
                     Label { text: qsTr("ID da cena"); color: panel.mutedColor }
                     TextField {
                         id: retrofeImportSceneIdField
@@ -2298,9 +2299,10 @@ Rectangle {
                         Layout.fillWidth: true
                         onTextChanged: panel.retrofeImportSceneId = text
                     }
-                    Label { text: qsTr("Nome"); color: panel.mutedColor }
+                    Label { text: qsTr("Nome"); color: panel.mutedColor; visible: retrofeSceneFields.hasLayouts }
                     TextField {
                         id: retrofeImportNameField
+                        visible: retrofeSceneFields.hasLayouts
                         objectName: "themeImportRetrofeName"
                         text: panel.retrofeImportName
                         placeholderText: qsTr("Nome da cena")
@@ -2308,9 +2310,10 @@ Rectangle {
                         Layout.fillWidth: true
                         onTextChanged: panel.retrofeImportName = text
                     }
-                    Label { text: qsTr("Autor"); color: panel.mutedColor }
+                    Label { text: qsTr("Autor"); color: panel.mutedColor; visible: retrofeSceneFields.hasLayouts }
                     TextField {
                         id: retrofeImportAuthorField
+                        visible: retrofeSceneFields.hasLayouts
                         objectName: "themeImportRetrofeAuthor"
                         text: panel.retrofeImportAuthor
                         placeholderText: qsTr("Autor do tema")
@@ -2318,9 +2321,10 @@ Rectangle {
                         Layout.fillWidth: true
                         onTextChanged: panel.retrofeImportAuthor = text
                     }
-                    Label { text: qsTr("Licença"); color: panel.mutedColor }
+                    Label { text: qsTr("Licença"); color: panel.mutedColor; visible: retrofeSceneFields.hasLayouts }
                     TextField {
                         id: retrofeImportLicenseField
+                        visible: retrofeSceneFields.hasLayouts
                         objectName: "themeImportRetrofeLicense"
                         text: panel.retrofeImportLicense
                         placeholderText: qsTr("SPDX, por exemplo CC0-1.0")
@@ -2358,6 +2362,18 @@ Rectangle {
                 Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 onClicked: retrofeImportDialog.close()
             }
+            Button {
+                objectName: "themeImportRetrofePlay"
+                text: qsTr("Reproduzir")
+                enabled: !panel.retrofeImportBusy && panel.retrofeImportSceneId.trim() !== ""
+                Accessible.name: qsTr("Reproduzir cena RetroFE salva")
+                Accessible.description: qsTr("Abre uma cena pelo ID com dados de exemplo")
+                Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
+                onClicked: {
+                    retrofePlaybackDialog.sceneId = panel.retrofeImportSceneId.trim()
+                    retrofePlaybackDialog.open()
+                }
+            }
             Item { Layout.fillWidth: true }
             Button {
                 id: retrofeImportApplyButton
@@ -2376,6 +2392,39 @@ Rectangle {
                 Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 onClicked: panel.applyRetrofeImport()
             }
+        }
+    }
+
+    ThemedDialog {
+        id: retrofePlaybackDialog
+        objectName: "themeRetrofePlaybackDialog"
+        property string sceneId: ""
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
+        anchors.centerIn: parent
+        width: Math.min(panel.width - 24, 1000)
+        height: Math.min(panel.height - 24, 750)
+        title: qsTr("Reprodução RetroFE com dados de exemplo")
+        modal: true
+        standardButtons: Dialog.Close
+        onOpened: retrofePlayback.render()
+        onClosed: sceneId = ""
+        contentItem: ThemeScenePreview {
+            id: retrofePlayback
+            importedScene: true
+            themeId: retrofePlaybackDialog.sceneId
+            requestAction: panel.requestAction
+            reducedMotion: panel.reducedMotion
+            surfaceColor: panel.surfaceColor
+            borderColor: panel.borderColor
+            textColor: panel.textColor
+            mutedColor: panel.mutedColor
+            focusColor: panel.cyanColor
         }
     }
 

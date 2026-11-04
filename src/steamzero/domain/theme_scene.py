@@ -25,6 +25,7 @@ import contextlib
 import copy
 import dataclasses
 import json
+import math
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
@@ -328,6 +329,19 @@ _RETROFE_X_KEYS = ("x", "width", "maxWidth", "xOffset")
 _RETROFE_Y_KEYS = ("y", "height", "maxHeight", "yOffset")
 
 
+def _retrofe_fraction(value: object, extent: float) -> object:
+    if isinstance(value, int | float) and not isinstance(value, bool):
+        normalized = value / extent
+    elif isinstance(value, str) and value.endswith("%"):
+        try:
+            normalized = float(value[:-1]) / 100.0
+        except ValueError:
+            return value
+    else:
+        return value
+    return normalized if math.isfinite(normalized) else value
+
+
 def _normalize_retrofe_scene(scene: dict[str, Any]) -> dict[str, Any]:
     """Converte pixels/percentuais do IR RetroFE nas frações que o renderizador de cena lê.
 
@@ -355,13 +369,22 @@ def _normalize_retrofe_scene(scene: dict[str, Any]) -> dict[str, Any]:
                 (_RETROFE_Y_KEYS, canvas["height"]),
             ):
                 for key in keys:
-                    value = layout.get(key)
-                    if isinstance(value, bool):
+                    if key in layout:
+                        layout[key] = _retrofe_fraction(layout[key], extent)
+            events = element.get("on")
+            entry = events.get("enter") if isinstance(events, dict) else None
+            for block in entry if isinstance(entry, list) else ():
+                clips = block.get("animations") if isinstance(block, dict) else None
+                for clip in clips if isinstance(clips, list) else ():
+                    if not isinstance(clip, dict):
                         continue
-                    if isinstance(value, int | float):
-                        layout[key] = float(value) / extent
-                    elif isinstance(value, str) and value.endswith("%"):
-                        layout[key] = float(value[:-1]) / 100.0
+                    axis = clip.get("property")
+                    if axis not in ("x", "y"):
+                        continue
+                    extent = canvas["width" if axis == "x" else "height"]
+                    for endpoint in ("from", "to"):
+                        if endpoint in clip:
+                            clip[endpoint] = _retrofe_fraction(clip[endpoint], extent)
         view["coordinateSpace"] = "normalized"
     return out
 
@@ -377,8 +400,10 @@ def render_imported_scene(
     Mesmo contrato de saída de :func:`render_scene` e a mesma resolução de
     assets: importar sem poder renderizar deixava o pacote sem consumidor.
     """
-    from steamzero.domain import scene_retrofe
+    from steamzero.domain import scene_retrofe, theme_import_retrofe
 
+    if not theme_import_retrofe.SCENE_ID.fullmatch(scene_id):
+        raise SteamZeroError("E-THEME-MANIFEST", detail="identificador de cena RetroFE inválido")
     root = scenes_root if scenes_root is not None else paths.scenes_dir()
     assets = store if store is not None else theme_assets.ThemeAssetStore(paths.theme_assets_dir())
     scene_path = root / f"{scene_id}.json"

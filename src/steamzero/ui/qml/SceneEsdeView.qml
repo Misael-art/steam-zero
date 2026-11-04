@@ -24,15 +24,59 @@ Item {
 
     readonly property var elements: viewData && viewData.elements ? viewData.elements : []
     readonly property string viewId: viewData && viewData.id ? String(viewData.id) : ""
-    // Imported timelines are retained in IR but this consumer cannot execute
-    // them yet. Parser coverage must never imply motion playback.
     readonly property var unsupportedTimelines: {
         const out = []
         for (const element of elements) {
-            for (const event of Object.keys(element.on || ({})))
-                out.push({id: element.id, event: event, reason: "Timeline importada sem executor neste renderer"})
+            for (const event of Object.keys(element.on || ({}))) {
+                if (event !== "enter" || !view.entryTimeline(element))
+                    out.push({id: element.id, event: event,
+                        reason: qsTr("Evento ou propriedade de movimento sem suporte")})
+            }
         }
         return out
+    }
+
+    function entryTimeline(element) {
+        const blocks = element.on && element.on.enter
+        if (!view.isDrawable(element) || !blocks || typeof blocks !== "object"
+                || !Number.isInteger(blocks.length) || blocks.length < 1 || blocks.length > 32)
+            return null
+        for (let blockIndex = 0; blockIndex < blocks.length; ++blockIndex) {
+            const block = blocks[blockIndex]
+            const clips = block && block.animations
+            if (!block || !Number.isFinite(block.duration) || block.duration < 0
+                    || block.duration > 60 || !clips || typeof clips !== "object"
+                    || !Number.isInteger(clips.length) || clips.length < 1 || clips.length > 16)
+                return null
+            const properties = new Set()
+            for (let clipIndex = 0; clipIndex < clips.length; ++clipIndex) {
+                const clip = clips[clipIndex]
+                if (!clip || !["alpha", "x", "y", "nop"].includes(clip.property)
+                        || properties.has(clip.property)
+                        || !view.validEndpoint(clip.property, clip.to)
+                        || (clip.from !== undefined && !view.validEndpoint(clip.property, clip.from))
+                        || (clip.easing !== undefined
+                            && !["linear", "easeIn", "easeOut", "easeInOut"].includes(clip.easing)))
+                    return null
+                properties.add(clip.property)
+            }
+        }
+        return blocks
+    }
+
+    function validEndpoint(propertyName, value) {
+        return Number.isFinite(value) && (propertyName === "alpha"
+            ? value >= 0 && value <= 1 : Math.abs(value) <= 8192)
+    }
+
+    function easedProgress(easing, progress) {
+        switch (easing) {
+        case "easeIn": return progress * progress
+        case "easeOut": return progress * (2 - progress)
+        case "easeInOut": return progress < 0.5
+            ? 2 * progress * progress : 1 - 2 * (1 - progress) * (1 - progress)
+        default: return progress
+        }
     }
     function elementAt(index) {
         const loader = elementRepeater.itemAt(index)
@@ -281,6 +325,14 @@ Item {
     }
 
     function geometryFor(element) {
+        if (element && element.on && element.on.enter) {
+            const index = view.elements.findIndex(function(candidate) {
+                return candidate.id === element.id
+            })
+            const node = index >= 0 ? elementRepeater.itemAt(index) : null
+            if (node && node.entryBlocks && node.modelData.id === element.id)
+                return {x: node.x, y: node.y, width: node.width, height: node.height}
+        }
         const lay = element && element.layout ? element.layout : ({})
         const fx = view.numberOr(lay, "x", 0)
         const fy = view.numberOr(lay, "y", 0)
@@ -415,6 +467,7 @@ Item {
         model: view.elements
 
         delegate: Loader {
+            id: node
             required property var modelData
 
             readonly property var lay: modelData.layout ? modelData.layout : ({})
@@ -439,12 +492,105 @@ Item {
                 : (view.numberOr(lay, "maxHeight", 0)
                    || view.numberOr(lay, "cropHeight", 0)) * view.height
 
-            x: fx * view.width - ox * width
-            y: fy * view.height - oy * height
+            readonly property var entryBlocks: modelData.on && modelData.on.enter
+                ? view.entryTimeline(modelData) : null
+            readonly property bool entryVisible: visible && entryBlocks !== null
+            readonly property bool entryReducedMotion: entryVisible && view.reducedMotion
+            readonly property real baseOpacity: view.numberOr(app, "opacity", 1)
+            property bool entryReady: false
+            property int entryIndex: 0
+            property real entryProgress: 1
+            property var entryValues: ({})
+            property var entryFrom: ({})
+            property var entryTo: ({})
+            property var entryEasing: ({})
+
+            function entryValue(channel, fallback) {
+                if (entryTo[channel] !== undefined) {
+                    const progress = view.easedProgress(entryEasing[channel], entryProgress)
+                    return progress === 1 ? entryTo[channel]
+                        : entryFrom[channel] + (entryTo[channel] - entryFrom[channel]) * progress
+                }
+                return entryValues[channel] === undefined ? fallback : entryValues[channel]
+            }
+
+            function resetEntry() {
+                entryClock.stop()
+                entryIndex = 0
+                entryValues = {alpha: baseOpacity, x: fx, y: fy}
+                entryTo = ({})
+                if (entryVisible)
+                    advanceEntry()
+                else
+                    entryValues = ({})
+            }
+
+            function advanceEntry() {
+                while (entryVisible && entryIndex < entryBlocks.length) {
+                    const block = entryBlocks[entryIndex++]
+                    const starts = {}
+                    const targets = {}
+                    const curves = {}
+                    for (let clipIndex = 0; clipIndex < block.animations.length; ++clipIndex) {
+                        const clip = block.animations[clipIndex]
+                        const channel = clip.property
+                        if (channel === "nop")
+                            continue
+                        starts[channel] = clip.from === undefined ? entryValues[channel] : clip.from
+                        targets[channel] = clip.to
+                        curves[channel] = clip.easing
+                    }
+                    entryFrom = starts
+                    entryTo = targets
+                    entryEasing = curves
+                    if (!entryReducedMotion && block.duration > 0) {
+                        entryProgress = 0
+                        entryClock.duration = Math.max(1, Math.round(block.duration * 1000))
+                        entryClock.start()
+                        return
+                    }
+                    settleEntry()
+                }
+            }
+
+            function settleEntry() {
+                entryValues = Object.assign({}, entryValues, entryTo)
+                entryTo = ({})
+                entryProgress = 1
+            }
+
+            onEntryVisibleChanged: if (entryReady) resetEntry()
+            onEntryReducedMotionChanged: {
+                if (entryReady && entryReducedMotion && entryClock.running) {
+                    entryClock.stop()
+                    settleEntry()
+                    advanceEntry()
+                }
+            }
+            Component.onCompleted: {
+                entryReady = true
+                if (entryVisible)
+                    resetEntry()
+            }
+
+            NumberAnimation {
+                id: entryClock
+                target: node
+                property: "entryProgress"
+                from: 0
+                to: 1
+                onFinished: {
+                    node.settleEntry()
+                    node.advanceEntry()
+                }
+            }
+
+            x: entryValue("x", fx) * view.width - ox * width
+            y: entryValue("y", fy) * view.height - oy * height
             width: pw > 0 ? pw : implicitWidth
             height: ph > 0 ? ph : implicitHeight
             z: view.numberOr(app, "layer", 0)
-            opacity: view.numberOr(app, "opacity", 1)
+            opacity: entryValue("alpha", baseOpacity)
             visible: app.visible !== false
 
             sourceComponent: {

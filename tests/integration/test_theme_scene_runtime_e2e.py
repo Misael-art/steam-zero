@@ -25,7 +25,6 @@ from steamzero.domain.desktop import ExperienceCoordinator
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "tests" / "fixtures" / "themes"
 HARNESS = ROOT / "tests" / "qml" / "check_theme_scene_runtime_e2e.qml"
-CONFIG = ROOT / "build" / "ui-theme-scene-runtime-e2e.json"
 ESDE_ID = "org.steamzero.fixture.esde-mini"
 RETROFE_ID = "org.example.retrofe-e2e"
 
@@ -80,6 +79,19 @@ def test_qml_desenha_pixels_das_cenas_esde_e_retrofe(
     _install_esde()
     source = tmp_path / "retrofe"
     shutil.copytree(FIXTURES / "retrofe-mini", source)
+    layout = source / "layout.xml"
+    layout.write_text(
+        layout.read_text().replace(
+            "/></layout>",
+            """><onEnter><set duration="0.5">
+            <animate type="alpha" from="0" to="0.85"/>
+            <animate type="x" to="480"/>
+            <animate type="y" to="25%"/>
+            </set></onEnter>
+            <onExit><set duration="0.2"><animate type="alpha" to="0"/></set></onExit>
+            </image></layout>""",
+        )
+    )
     dashboard = DesktopDashboard()
     dashboard.theme_import_retrofe_apply(
         str(source), "layout", RETROFE_ID, "RetroFE E2E", "Autor", "CC0-1.0"
@@ -100,8 +112,15 @@ def test_qml_desenha_pixels_das_cenas_esde_e_retrofe(
     thread = threading.Thread(target=run_server, daemon=True)
     thread.start()
     server = ready.get(timeout=5)
-    CONFIG.parent.mkdir(exist_ok=True)
-    CONFIG.write_text(
+    config = tmp_path / "fixture.json"
+    harness = tmp_path / "check_theme_scene_runtime_e2e.qml"
+    harness.write_text(
+        HARNESS.read_text()
+        .replace("../../src/steamzero/ui/qml", (ROOT / "src/steamzero/ui/qml").as_uri())
+        .replace("FIXTURE_CONFIG", config.as_uri()),
+        encoding="utf-8",
+    )
+    config.write_text(
         json.dumps(
             {
                 "apiUrl": f"http://127.0.0.1:{server.server_port}",
@@ -124,7 +143,7 @@ def test_qml_desenha_pixels_das_cenas_esde_e_retrofe(
     )
     try:
         completed = subprocess.run(
-            [str(RUNNER), "-input", str(HARNESS)],
+            [str(RUNNER), "-input", str(harness)],
             cwd=ROOT,
             env=env,
             capture_output=True,
@@ -133,7 +152,6 @@ def test_qml_desenha_pixels_das_cenas_esde_e_retrofe(
             check=False,
         )
     finally:
-        CONFIG.unlink(missing_ok=True)
         server.shutdown()
         thread.join(timeout=3)
     output = (completed.stdout or "") + (completed.stderr or "")
