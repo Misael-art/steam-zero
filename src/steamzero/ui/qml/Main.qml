@@ -6799,6 +6799,7 @@ ApplicationWindow {
                                     amberColor: root.amberColor
                                     redColor: root.redColor
                                     visualScale: root.visualScale
+                                    reducedMotion: root.reducedMotion
                                     compactLayout: root.compactLayout
                                     requestAction: root.requestAction
                                     request: root.request
