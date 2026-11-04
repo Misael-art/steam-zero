@@ -4,7 +4,7 @@
   "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
   "item": "SZ-THEME-STUDIO",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "84534364560168f36b0c1d94a73c8137b21650e2",
+  "baseRef": "f00de9a5424712be3ec8ed7da4c230238fd8371a",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
@@ -90,6 +90,9 @@
     "src/steamzero/ui/qml/shaders",
     "src/steamzero/ui/qml/SceneEsdeView.qml",
     "tests/integration/test_scene_esde_view.py",
+    "tests/integration/test_theme_scene_runtime_e2e.py",
+    "tests/qml/check_theme_scene_runtime_e2e.qml",
+    "tests/qml/golden/import-dialogs/retrofe",
     "tests/qml/check_scene_esde_view.qml",
     "requirements-dev.in",
     "requirements-dev.lock",
@@ -169,8 +172,9 @@
     "docs/status/items/frontend-srm.json",
     "docs/status/items/gamemode-readiness-g29.json",
     "docs/status/items/aura-platform-media-scope-2026-09-20.json",
-    "docs/status/items/recovery-r2-game-data.json"
+    "docs/status/items/recovery-r2-game-data.json",
+    "src/steamzero/ui/qml/Main.qml"
   ],
-  "nextAction": "Associação canônica validada na integral R6 com 7319 aprovados, 48 skips e cobertura 85,8459403%. Pacote 50fe36ba aprovado em 9 etapas e 62 casos. Conferir CI do SHA publicado no PR 268. Próximo incremento do executor central é reproduzir a lacuna de movimento importado no SceneEsdeView e validar o subconjunto aceito no IR e no Qt compartilhado. Confirmar claims antes da edição. Os nove mockups seguem após o fechamento do pedido original.",
+  "nextAction": "Validar a reprodução de entrada RetroFE pelo Studio e SceneEsdeView. O executor central assume os dois testes de cena e as referências de imagem RetroFE da frente V1–V3 encerrada. Main.qml é compartilhado com a frente R2 do mesmo executor apenas para encaminhar movimento reduzido. Após o aceite do Studio, o Launcher precisa selecionar e resolver o mesmo documento RetroFE salvo. Os nove mockups seguem após o fechamento do pedido original.",
   "updatedAt": "2026-11-03"
 }

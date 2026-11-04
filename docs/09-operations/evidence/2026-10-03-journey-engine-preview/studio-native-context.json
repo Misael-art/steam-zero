@@ -1084,6 +1084,27 @@
       "hardwareQualified": false
     }
   },
+  "importedEntryPlayback": {
+    "state": "Frozen source accepted. Isolated installed package acceptance pending.",
+    "functionalCommits": ["6eb17801", "d9e8c94b"],
+    "focused": "72 importer, renderer, preview and Studio tests passed. Eight focused Qt/viewport tests passed after the final field alignment and inspection of four updated dialog references.",
+    "fullSource": {
+      "run": "full-20261103-imported-entry-r2",
+      "exitCode": 0,
+      "passed": 7319,
+      "skipped": 48,
+      "warnings": 22,
+      "seconds": 2439.53,
+      "coverage": 85.85439613794634,
+      "baseline": 85.84594031922276,
+      "files": 3761,
+      "manifest": "studio-imported-entry-tested-files.json",
+      "manifestSha256": "f0f83b46e00fffce54b9634c56739313839940dd7df8b08c8a19824c663f51da"
+    },
+    "previousAttempt": "R1 passed 7318 tests with 48 skips and one failure. The RetroFE dialog image gate showed the intended new Play control and field layout. Four references were inspected and refreshed after aligning the form fields. Pixel comparison and geometry assertions remained intact.",
+    "scope": "Studio opens saved RetroFE scenes by ID using the existing read-only action and synthetic data. The shared Qt renderer plays supported entry alpha and position across parallel clips and sequential blocks. Reduced motion applies final values without interpolation. Unsupported timelines remain explicit and retain the base appearance.",
+    "limits": "Selection and resolution of persisted RetroFE scenes in Launcher, additional events, translation of source tween attributes, unsupported endpoints, menu and audio remain open. Existing ES-DE rendering and native theme behavior retain separate acceptance."
+  },
   "canonicalAssignments": {
     "state": "Complete frozen source gate and final isolated installed acceptance passed.",
     "finalInstalledAcceptance": {
