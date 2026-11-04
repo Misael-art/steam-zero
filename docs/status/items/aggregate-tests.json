@@ -84,5 +84,5 @@
   "activeWorkstreams": [],
   "updatedAt": "2026-10-30",
   "notes": "Item AGREGADOR: existe para que nenhum arquivo fique sem custodia declarada, nao para alegar capacidade verificada. Onde um item de capacidade especifico cobre o mesmo caminho, ELE prevalece — o agregador responde apenas pelo resto da arvore. Promover um recorte a item proprio, com aceitacao e evidencia, e o caminho normal; o agregador encolhe quando isso acontece.\n02/11/2026: lote serial de consumidores/recuperação validado por182 focados e integral7260passed/48skipped/22warnings/3310,94s; cobertura85,75618340013686%>=85,74876854203798%.3747 arquivos congelados e estado pessoal inalterados;172 casos críticos passam sem skips. Recibo studio-native-context.json explicita uma aresta incidental perdida em301módulos inalterados, sem regressão agregada. Eixos/aceites específicos anteriores preservados; pacote não editable deste delta ainda pendente.",
-  "scopeDigest": "9a7e8aebe3cfdcff0bc93ebc5296bb1622f3a0cc8332ab1b5ce059714f3ad51f"
+  "scopeDigest": "06710ba554a3b9321b4ba216e6a5f82ba5db208c8e84a8067552a89b192253f4"
 }

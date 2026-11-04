@@ -1085,7 +1085,19 @@
     }
   },
   "canonicalAssignments": {
-    "state": "source gates reconciled after generated capability-matrix update. Committed wheel acceptance pending.",
+    "state": "Steam-only correction passed the complete frozen source gate. Final installed acceptance pending.",
+    "finalSourceGate": {
+      "functionalCommit": "e37c7275",
+      "run": "full-20261103-canonical-assignment-r6",
+      "passed": 7319,
+      "skipped": 48,
+      "exitCode": 0,
+      "coverage": 85.84594031922276,
+      "baseline": 85.7842796097045,
+      "manifest": "studio-native-assignment-tested-files-r2.json",
+      "manifestSha256": "3eddab3b680163244a10f05038ca65932307d4add7f66b04ed2562d18a5fc7b2",
+      "attempts": "R2 received SIGTERM. R3 and R5 timed out in the SIGINT cancellation tests under detached execution. R4 was stopped by the memory preflight. R6 restored default SIGINT handling before starting the supervisor and passed all required checks in the suite."
+    },
     "baseCommit": "84534364560168f36b0c1d94a73c8137b21650e2",
     "baseCi": {
       "id": 41643626678,
@@ -1185,6 +1197,31 @@
       "testedManifest": "studio-native-assignment-tested-files.json",
       "testedManifestSha256": "d2fb0accae816cf8f76d25c18397abb109fecd25d2e59e8d266871d4fa0ee526",
       "realStateUnchanged": true
+    },
+    "firstInstalledAcceptance": {
+      "sourceCommit": "0c231b66f7ebee802438ea2851b67bb92f712c40",
+      "sourceDirty": false,
+      "bytes": 4015512,
+      "sha256": "91834c1a4dffc384a2d604eec0a882258259e3ab1e7f6fa50d456f3d3c0efcf8",
+      "cases": 61,
+      "steps": 9,
+      "seconds": 63.531863546999375,
+      "realStateUnchanged": true,
+      "qualification": "Initial package passed the selected journeys. Superseded for delivery after the separately reproduced Steam-only reader gap."
+    },
+    "steamOnly": {
+      "baseline": "1 failed / 1.09s with actual disposable ACF library, no emulation catalog, original cover present, and real application projection. Studio omitted the row and Launcher used the existing Steam cover rather than the association.",
+      "correction": "Treat a Steam-only catalog as an authoritative source. Seed Launcher metadata from the canonical media projection for all catalog games. The assigned cover takes precedence when it resolves. Preserve the Steam fallback and its bytes.",
+      "focused": "120 passed / 23.67s across catalog, metadata projection, Steam catalog, media projection, desktop contract and bridge. Actual entrypoint model and Studio projection agree, including after Core rollback.",
+      "baselinePath": "build/agent-runs/continuity-20261102/canonical-assignment-steam-baseline.xml",
+      "focusedPath": "build/agent-runs/continuity-20261102/canonical-assignment-steam-final-junit.xml"
+    },
+    "generatedViewReconciliation": {
+      "tests": 20,
+      "seconds": 6.41,
+      "makeCapabilityMatrix": "passed",
+      "makeStatusCheck": "passed",
+      "codeUnchangedFromR1DuringViewCorrection": true
     }
   }
 }

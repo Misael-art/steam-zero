@@ -168,8 +168,9 @@
     "docs/status/items/frontend-m11-surface.json",
     "docs/status/items/frontend-srm.json",
     "docs/status/items/gamemode-readiness-g29.json",
-    "docs/status/items/aura-platform-media-scope-2026-09-20.json"
+    "docs/status/items/aura-platform-media-scope-2026-09-20.json",
+    "docs/status/items/recovery-r2-game-data.json"
   ],
-  "nextAction": "Associação canônica passou na fonte, HTTP e Qt. R1 com 7317 aprovados e 48 skips. Cobertura global85.8402043% sobre85.7842796%. Única falha de matriz gerada159→162, corrigida pelo gerador mantendo todos os arquivos de aplicação e testes idênticos. Validação específica de documentação conforme AGENTS§6. CI do checkpoint de recuperação84534364 success8/8, árvore e cobertura conferidas. Próximo passo wheel limpo e61 casos em perfil descartável.",
+  "nextAction": "A associação passou no pacote inicial 0c231b66 com 61 casos. Verificação adicional reproduziu o caso Steam-only, no qual o Studio omitia a linha e o Launcher preferia a capa anterior. Corrigidos leitores e precedência da capa. 120 testes focados aprovados incluindo rollback ao arquivo anterior. Congelar e repetir suíte integral com baseline rollback R4 85.7842796%, depois validar pacote final com62 casos. O digest recovery-r2-game-data é compartilhado para reconciliar app.py; teste da frente R2 preservado.",
   "updatedAt": "2026-11-03"
 }
