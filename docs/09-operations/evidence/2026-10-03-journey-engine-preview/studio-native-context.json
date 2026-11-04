@@ -1085,7 +1085,34 @@
     }
   },
   "importedEntryPlayback": {
-    "state": "Frozen source accepted. Isolated installed package acceptance pending.",
+    "state": "Frozen source and isolated installed Studio playback accepted.",
+    "previousCanonicalAssignmentCi": {
+      "run": 41757901078,
+      "head": "f00de9a5424712be3ec8ed7da4c230238fd8371a",
+      "jobsPassed": 8,
+      "syntheticCheckout": "ab2a353a4b79a0245a321ea8288206b67c9bf950",
+      "identicalTree": "691d2e13b2346ca9ef3c6323ccce23118ecf0f8f",
+      "coverage": 85.65440666204024,
+      "baseline": 85.57966677338085,
+      "coverageArtifactId": 13289497173,
+      "coverageArtifactSha256": "28b38d457af7c87807a719fe41321959f45538a4206ec5d3fe6d0e19c799a20b"
+    },
+    "installed": {
+      "sourceCommit": "637d05bb79279959647d0ca61daf3b8879c12ff0",
+      "bytes": 4017957,
+      "sha256": "b02e33e3d3b0f733496ed8c65cc35e5b6c975c3f82ad610d172ae1bb786178c6",
+      "steps": 9,
+      "cases": 63,
+      "seconds": 79.1933763979996,
+      "installedResources": 644,
+      "installedModules": 247,
+      "realStateUnchanged": true,
+      "temporaryEnvironmentRemoved": true,
+      "capture": "studio-native-context/19-installed-retrofe-entry-studio.png",
+      "captureSha256": "c5b0656ed595519d631d7a31fdc2cbf8a33222ae5364214b1ddc908569d1892c",
+      "qaSources": "studio-imported-entry-qa-sources.json",
+      "previousAttempt": "The Qt screenshot helper wrote a valid PNG but exposed no return value. The first harness invocation misinterpreted this as a failure. The corrected harness verifies the PNG on disk and reused the same wheel and application assertions."
+    },
     "functionalCommits": ["6eb17801", "d9e8c94b"],
     "focused": "72 importer, renderer, preview and Studio tests passed. Eight focused Qt/viewport tests passed after the final field alignment and inspection of four updated dialog references.",
     "fullSource": {

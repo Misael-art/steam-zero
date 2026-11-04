@@ -175,6 +175,6 @@
     "docs/status/items/recovery-r2-game-data.json",
     "src/steamzero/ui/qml/Main.qml"
   ],
-  "nextAction": "Validar a reprodução de entrada RetroFE pelo Studio e SceneEsdeView. O executor central assume os dois testes de cena e as referências de imagem RetroFE da frente V1–V3 encerrada. Main.qml é compartilhado com a frente R2 do mesmo executor apenas para encaminhar movimento reduzido. Após o aceite do Studio, o Launcher precisa selecionar e resolver o mesmo documento RetroFE salvo. Os nove mockups seguem após o fechamento do pedido original.",
-  "updatedAt": "2026-11-03"
+  "nextAction": "Entrada RetroFE no Studio passou na integral R2 e no pacote 637d05bb. O executor central assume em seguida a seleção da cena salva na Jornada e a resolução desse mesmo documento pelo Launcher, com precedência e recuperação verificadas. Os dois testes de cena e as referências RetroFE vieram da frente V1–V3 encerrada. Main.qml segue compartilhado com R2. Os nove mockups seguem após o fechamento do pedido original.",
+  "updatedAt": "2026-11-04"
 }

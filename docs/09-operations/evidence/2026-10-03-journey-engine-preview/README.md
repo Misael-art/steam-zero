@@ -1009,3 +1009,20 @@ e a convergência dos coletores legados permanecem abertas.
 ![Confirmação no Studio em 840 × 900](studio-native-context/17-installed-canonical-assignment-compact.png)
 
 ![Imagem associada e renderizada pelo Launcher instalado](studio-native-context/18-installed-canonical-assignment-launcher.png)
+
+## 2026-11-04 — reprodução de entrada RetroFE no Studio
+
+O Studio reabre uma cena RetroFE salva pelo ID e a reproduz com dados de
+exemplo. O motor compartilhado executa opacidade e posição na entrada. A
+preferência de movimento reduzido aplica o estado final sem interpolação.
+Eventos e propriedades que o motor ainda não executa aparecem no diagnóstico.
+
+A execução integral R2 aprovou 7.319 testes, com 48 skips e cobertura de
+85,8543961% sobre 85,8459403%. A prova do pacote 637d05bb em ambiente
+descartável passou nas nove etapas e em 63 casos. A jornada abriu a cena
+persistida pela interface Qt e pela ponte HTTP e verificou a imagem na posição
+final, a perda explícita e a recusa de um ID inválido. A seleção do mesmo
+documento RetroFE na Jornada e no Launcher permanece pendente.
+[Recibo e manifesto](studio-native-context.json)
+
+![Cena RetroFE reproduzida no Studio instalado](studio-native-context/19-installed-retrofe-entry-studio.png)

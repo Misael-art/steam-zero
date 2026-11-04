@@ -15963,3 +15963,27 @@ O wheel 50fe36ba instalado em ambiente descartável passou em nove etapas e
 62 casos. O recibo reúne os hashes e as capturas 16–18. A validação usa
 Qt e HTTP reais em perfis controlados. A convergência dos coletores legados,
 os aceites físicos e o movimento importado seguem como trabalho separado.
+
+
+## 2026-11-04 — codex-central-executor — entrada RetroFE no Studio
+
+O Studio reabre e reproduz uma cena RetroFE persistida pela ação HTTP existente.
+O renderizador executa opacidade e posição na entrada, respeita movimento
+reduzido e informa o que ainda não executa. Funcional 6eb17801 e integração
+compartilhada d9e8c94b. O teste Qt confirma a animação, os pixels, a recusa de
+ID inválido e a reabertura.
+
+A R2 integral aprovou 7.319 testes com 48 skips, cobertura de 85,8543961%
+sobre 85,8459403% e 3.761 arquivos congelados. A R1 teve uma falha nas imagens
+do diálogo. As quatro referências foram revisadas após a inclusão da ação
+Reproduzir e o alinhamento dos campos.
+
+O wheel 637d05bb passou em nove etapas e 63 casos em perfis descartáveis.
+A captura 19 mostra a cena e a perda relatada. O primeiro roteiro de pacote
+falhou ao testar o retorno do gravador de PNG. A repetição conferiu o
+arquivo gravado, reutilizou o mesmo wheel e preservou o estado real observado.
+O CI do lote anterior confirmou oito jobs e cobertura sem regressão.
+
+O próximo incremento é selecionar na Jornada e resolver no Launcher o mesmo
+documento RetroFE persistido. Eventos adicionais, menu, áudio e validação
+física continuam abertos.
