@@ -1,0 +1,198 @@
+{
+  "commit": "4a894a8723b213285c9a014b552708a82d291c4d",
+  "nonEditable": true,
+  "verifiedInstalledResources": 644,
+  "applicationModulesFromInstalledPackage": 241,
+  "journeys": [
+    {
+      "compactAuthoring": false,
+      "passed": true
+    },
+    {
+      "compactAuthoring": true,
+      "passed": true
+    },
+    {
+      "case": "test_qml_desenha_pixels_das_cenas_esde_e_retrofe",
+      "params": [],
+      "passed": true
+    },
+    {
+      "case": "test_launcher_resolves_imported_scene_without_changing_an_identical_native_id",
+      "params": [],
+      "passed": true
+    },
+    {
+      "case": "test_imported_rollback_keeps_previous_artwork_through_gc",
+      "params": [],
+      "passed": true
+    },
+    {
+      "case": "test_imported_ids_cannot_replace_another_scene",
+      "params": [
+        "",
+        false
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_ids_cannot_replace_another_scene",
+      "params": [
+        "",
+        true
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_ids_cannot_replace_another_scene",
+      "params": [
+        ".assets",
+        false
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_ids_cannot_replace_another_scene",
+      "params": [
+        ".assets",
+        true
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_publication_recovers_whole_revision",
+      "params": [
+        false
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_publication_recovers_whole_revision",
+      "params": [
+        true
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_overwrite_preserves_unknown_previous_content",
+      "params": [
+        "missing"
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_overwrite_preserves_unknown_previous_content",
+      "params": [
+        "null"
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_overwrite_preserves_unknown_previous_content",
+      "params": [
+        "schema"
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_overwrite_preserves_unknown_previous_content",
+      "params": [
+        "identity"
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_overwrite_preserves_unknown_previous_content",
+      "params": [
+        "link"
+      ],
+      "passed": true
+    },
+    {
+      "case": "test_imported_overwrite_preserves_unknown_previous_content",
+      "params": [
+        "revision"
+      ],
+      "passed": true
+    }
+  ],
+  "helpers": "Existing development pytest and unit/integration fixture helpers drive installed application modules. Qt controls use the real HTTP bridge and importer; only harness import URI/config location is redirected. This receipt covers only the enumerated cases: two native authoring journeys and fifteen imported-scene regressions, including controlled in-process I/O exceptions. No SIGKILL, hardware failure or external download journey is claimed. All application modules and QML resources come from the installed wheel.",
+  "level": "Installed non-editable package, isolated synthetic profiles and controlled fault injection, Qt software authoring and RHI Launcher; no host activation, personal-profile migration, full catalog-download UI or physical hardware acceptance.",
+  "temporaryProfileRemoved": true,
+  "wheel": {
+    "wheel": "build/agent-runs/diagnostico-20261105/package-r4/steamzero-2.0.0rc1-py3-none-any.whl",
+    "sourceCommit": "4a894a8723b213285c9a014b552708a82d291c4d",
+    "sha256": "39efd2dee7daf6638eb4884e75d1443fd6905ef8ee558057303e18fdf8941542",
+    "size": 4022383,
+    "sourceBuildMetadataPreservedOutsideSource": true
+  },
+  "smoke": {
+    "sourceCommit": "4a894a8723b213285c9a014b552708a82d291c4d",
+    "wheelSha256": "39efd2dee7daf6638eb4884e75d1443fd6905ef8ee558057303e18fdf8941542",
+    "preflightMemoryKiB": 7991020,
+    "memoryBudgetMiB": 512,
+    "reserveMiB": 512,
+    "fullSuiteMemoryGuardUnchanged": true,
+    "hostActivated": false,
+    "temporaryEnvironmentRemoved": true,
+    "realStateUnchanged": true,
+    "realStateSource": "XDG_STATE_HOME",
+    "seconds": 54.96150164199935
+  },
+  "steps": [
+    {
+      "name": "venv",
+      "exitCode": 0
+    },
+    {
+      "name": "tls",
+      "exitCode": 0
+    },
+    {
+      "name": "runtime",
+      "exitCode": 0
+    },
+    {
+      "name": "wheel",
+      "exitCode": 0
+    },
+    {
+      "name": "pip-check",
+      "exitCode": 0
+    },
+    {
+      "name": "version",
+      "exitCode": 0
+    },
+    {
+      "name": "doctor",
+      "exitCode": 0
+    },
+    {
+      "name": "ports",
+      "exitCode": 0
+    },
+    {
+      "name": "native-qt",
+      "exitCode": 0
+    }
+  ],
+  "captures": [
+    {
+      "path": "20261105-01-baseline.png",
+      "sha256": "b03eb93b5bbf300f2ce00e86a519eedae3404a46cbf426164395efa233a15eb5",
+      "sourceCommit": "fedee5cb554866a3d649b973ca41f936ba791c95"
+    },
+    {
+      "path": "20261105-02-entrega-funcional.png",
+      "sha256": "992116277a973ee46b3ff2761a485a2a6a96da2e43530ef1e150d24912ceecb7",
+      "sourceCommit": "4a894a8723b213285c9a014b552708a82d291c4d"
+    },
+    {
+      "path": "20261105-03-recuperacao.png",
+      "sha256": "b149070673ba7c3873dbf78f9539b3effdf1d88fbc3c08ab7a598b49863179e6",
+      "sourceCommit": "4a894a8723b213285c9a014b552708a82d291c4d"
+    }
+  ],
+  "visualInspection": "Assistant inspected actual PNGs: white loss notice above footer; missing-scene notice legible, footer available; synthetic Probe data. No host activation."
+}

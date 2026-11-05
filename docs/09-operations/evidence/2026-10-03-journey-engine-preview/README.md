@@ -1044,7 +1044,7 @@ suportadas.
 | Studio/Jornada/Launcher e resolução de assets | 44f51d47 | fonte/Qt, mesmo ID nativo preservado, desaparecimento e retorno de blob |
 | Proteção das units não gerenciadas | dd026fec |44 testes focados; unit privada do host parada/desabilitada por autorização própria |
 | Sondagem de processos e cursor inválido determinísticos | b392dc94 |68 testes focados; rejeição anterior à abertura do banco e procfs controlado |
-| Aviso legível e navegação preservada | 6461ed8b |Qt verifica contraste configurado e posição acima do rodapé; pacote/captura pendentes nesta fotografia |
+| Aviso legível e navegação preservada | 6461ed8b |Qt verifica contraste configurado e posição acima do rodapé; pacote4a894a87 e capturas abaixo |
 
 Integral **R6:7351 passed/48 skipped/22 warnings,2494,49s**; supervisor0,
 fontes congeladas e perfil preservados, limpeza normal, cobertura com branches
@@ -1054,4 +1054,27 @@ temporária; nenhuma intervenção da guarda. Os resultados não aprovados R4/R5
 permanecem no [recibo estruturado](studio-native-context.json), incluindo a
 instabilidade dos testes de perda do observador ainda sem causa comprovada.
 
-O pacote seguinte e as capturas serão registrados abaixo após execução.
+Pacote **4a894a8723b213285c9a014b552708a82d291c4d**: nove etapas e17 casos
+aprovados em54,96s;644 recursos e241 módulos conferidos na instalação não
+editable. SHA-256 do wheel de4.022.383bytes:
+`39efd2dee7daf6638eb4884e75d1443fd6905ef8ee558057303e18fdf8941542`.
+Perfil preservado, ambiente temporário removido e nenhum acionamento do host.
+O arquivo de metadados gerado foi conferido byte a byte com o wheel e preservado
+fora do fonte; checkout continuou limpo. [Recibo do pacote e casos](studio-diagnostic-20261105-package.json).
+
+As imagens são do **pacote instalado em perfil sintético de QA**, sem ativação
+em `/opt` ou aceite físico. A captura principal foi inspecionada: aviso branco
+legível e separado dos controles de navegação.
+
+![Entrega funcional no pacote isolado](20261105-02-entrega-funcional.png)
+
+[Baseline anterior do pacote fedee5cb](20261105-01-baseline.png) ·
+[Erro controlado com navegação preservada](20261105-03-recuperacao.png).
+
+A instabilidade dos três casos de owner-loss em R5 não foi reproduzida nos14
+casos focados, nos3 casos focados instrumentados ou na integral R6. O ensaio
+instrumentado estreito teve exit1 pelo mínimo global de85% (cobria apenas10,84%),
+sem reduzir o limiar. A causa da instabilidade e da recriação temporária de
+runtime/pulse em R4 segue desconhecida. Esses registros não são apagados por
+uma rodada posterior aprovada. A causa dos reboots do host também não foi
+comprovada; a contenção do painel privado tem seu recibo próprio no handoff.

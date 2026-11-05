@@ -183,6 +183,6 @@
     "tests/unit/test_host_probing_coverage.py",
     "tests/unit/test_playtime.py"
   ],
-  "nextAction": "R6 integral aprovada:7351/48,85.8776727996022%>=85.87214763246588%, fontes e perfil preservados, cleanup normal, guarda encerrada sem ação. Commits dd026fec/b392dc94/6461ed8b. Validar pacote não editable e imagens do aviso/recuperação, depois checkpoint limpo/PR268/SHA remoto. Preservar falhas R4/R5 e investigação de instabilidade; sem instalar no host.",
+  "nextAction": "Lote de cenas importadas validado: integralR6 7351/48, cobertura85.8777%; pacote4a894a87 nove etapas/17casos/644recursos/241módulos e PNGs inspecionados. Fechar documentação, um push limpo/PR268, conferir SHA remoto e checks. Aceites de instalação/hardware e investigação da instabilidade R5 seguem separados. Continuar backlog de eventos/temas apenas por novo slice verificável, sem restaurar painel privado.",
   "updatedAt": "2026-11-05"
 }

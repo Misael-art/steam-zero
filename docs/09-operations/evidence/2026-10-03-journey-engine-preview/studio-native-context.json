@@ -1368,7 +1368,7 @@
       "exitCode": 0,
       "limits": "Private development XDG profile, fixture/software Qt; no gameplay or activation"
     },
-    "nextAction": "Build clean verification package from committed source, preserve its generated build metadata outside source after byte comparison, exercise installed package and inspect warning/recovery PNGs, then publish one clean branch checkpoint and verify remote SHA/CI.",
+    "nextAction": "Publish clean continuity checkpoint/PR268 and verify remote SHA/checks. Keep physical installation/gameplay and owner-loss flakiness investigation separate; next authorized source work follows status backlog without restoring private quota plugin.",
     "focusedFollowup": "57 passed in 12.02s, includes .assets IDs through real GC and rollback retained assets.",
     "commits": [
       {
@@ -1496,6 +1496,21 @@
         "ended": true
       },
       "limits": "R4 cleanup writer and R5 intermittent assertion cause remain unproven; this complete run passed without weakening tests or baseline. No host activation or physical acceptance."
+    },
+    "packageCheckpointFinal": {
+      "sourceCommit": "4a894a8723b213285c9a014b552708a82d291c4d",
+      "wheelSha256": "39efd2dee7daf6638eb4884e75d1443fd6905ef8ee558057303e18fdf8941542",
+      "bytes": 4022383,
+      "stepsPassed": 9,
+      "casesPassed": 17,
+      "verifiedResources": 644,
+      "verifiedModules": 241,
+      "seconds": 54.96150164199935,
+      "profilePreserved": true,
+      "temporaryEnvironmentRemoved": true,
+      "hostActivated": false,
+      "receipt": "studio-diagnostic-20261105-package.json",
+      "visualInspection": "passed for warning contrast/footer and controlled missing-scene notice; synthetic installed-package QA only"
     }
   }
 }

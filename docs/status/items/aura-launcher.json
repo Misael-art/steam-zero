@@ -845,11 +845,17 @@
     {
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
-      "command": "2026-11-05 R6:7351 passed/48 skipped, cobertura85.8776727996022%>=85.87214763246588%, supervisor0, fontes/perfil preservados e cleanup normal. Correções e6461ed8b/e8c5eada/44f51d47 exercitadas em fonte; pacote seguinte pendente. R4/R5 preservadas, instabilidade de owner-loss ainda sem causa comprovada. Nenhum aceite instalado/hardware promovido.",
+      "command": "2026-11-05 R6:7351 passed/48 skipped, cobertura85.8776727996022%>=85.87214763246588%, supervisor0, fontes/perfil preservados e cleanup normal. Correções 6461ed8b/e8c5eada/44f51d47 exercitadas em fonte; pacote seguinte pendente. R4/R5 preservadas, instabilidade de owner-loss ainda sem causa comprovada. Nenhum aceite instalado/hardware promovido.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-diagnostic-20261105-package.json",
+      "command": "Pacote não editable4a894a87:9etapas/17casos,644recursos/241módulos; perfil preservado,54.96s. PNGs de aviso e cena ausente inspecionados; dados sintéticos e Qt real, sem ativação do host nem prova física.",
       "result": "passed"
     }
   ],
-  "nextAction": "Validar pacote isolado da fonte commitada e capturas do aviso/recuperação; publicar checkpoint limpo na continuidade/PR268 e conferir SHA/CI. Instalação/hardware mantêm aceites próprios; não restaurar plugin privado de cotas.",
+  "nextAction": "Consultar checks do checkpoint publicado na continuidade/PR268. Fonte e pacote isolado4a894a87 validados, com imagens de aviso/erro. Preservar e investigar instabilidade R5 se reaparecer; instalação/hardware e capacidades ainda não suportadas mantêm aceites independentes.",
   "activeWorkstreams": [
     "WS-2026-08-AURA-LAUNCHER",
     "WS-2026-09-LAUNCHER-P0-LOOP",

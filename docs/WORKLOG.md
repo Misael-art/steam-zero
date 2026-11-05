@@ -16001,3 +16001,22 @@ instalador inalterada; cinco regressões de ownership acrescentadas. WIP anterio
 preservado; integralR3 interrompida não aprovada, retomada funcional em novo gate
 limitado. Recibo e rollback: CHECKPOINT.md em evidence/2026-10-24-new-host-handoff.
 Publicação aguarda checkpoint limpo do lote de continuidade, PR268 existente.
+
+
+## 2026-11-05 — fechamento do lote de cenas importadas após contenção
+
+Fonte preservada na continuidade: e8c5eada (identidade/transação/GC),44f51d47
+(Studio/Jornada/Launcher),dd026fec (units alheias),b392dc94 (probes/cursor
+determinísticos),6461ed8b (aviso legível sem cobrir navegação). R6 passou7351/48,
+22warnings,2494.49s; cobertura85.8776727996022%>=85.87214763246588%, fontes e
+perfil inalterados, cleanup normal, guarda encerrada sem intervenção. Estáticos
+aprovados. R4/R5 e causas ainda não demonstradas permanecem no recibo.
+
+Pacote limpo4a894a87, SHA39efd2dee7daf6638eb4884e75d1443fd6905ef8ee558057303e18fdf8941542,
+9etapas/17casos,644recursos/241módulos instalados conferidos,54.96s; duas capturas
+novas inspecionadas e baseline preservado. Perfil e árvore fonte preservados,
+ambiente temporário removido, sem host activation. Nenhum aceite físico promovido.
+Preparado checkpoint limpo para um push da continuidade/PR268, com conferência
+de SHA/checks; sem merge/release/instalação privilegiada. Documentação e imagens
+recuperáveis no diretório de evidências da Jornada; backup da unit permanece
+privado. Fonte seguinte segue backlog/aceites independentes, sem painel substituto.
