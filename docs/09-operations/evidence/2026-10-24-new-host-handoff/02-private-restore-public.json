@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "archiveSha256": "270b21f2b95a36066d988ca1f9810c2c35814ca5b09429f14ae7adb53d98e374",
+  "fileCount": 19613,
+  "sqliteIntegrityChecks": 15,
+  "restoreTested": true,
+  "restoredFilesReadBack": true,
+  "externallyStored": false
+}

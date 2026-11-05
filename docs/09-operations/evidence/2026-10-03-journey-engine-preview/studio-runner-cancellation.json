@@ -1,0 +1,413 @@
+{
+  "date": "2026-10-30",
+  "scope": "technical runner checkpoint before native single-source wheel; no Studio/Engine completion",
+  "sourceCommit": "e7bb579cda1e549a5f287b06bb3b9731dea72f25",
+  "startCommit": "216ac7101e12a84da3984822a87d64c3bb59448b",
+  "remoteBase": "fba166f8f454a0b928b1b82504613b26180987e2",
+  "pullRequest": 268,
+  "reproductions": {
+    "runnerCancellation": "2 failed/11.60s before correction",
+    "castSignalLeak": "24 Cast tests passed but caller handlers changed; regression failed/1.79s",
+    "qtWithoutDisplay": [
+      "RHI OpenGL context initialization failed",
+      "qml6 --version aborted without display"
+    ],
+    "firstIntegralThisTask": {
+      "exit_code": 143,
+      "seconds": 1525.328803634,
+      "signals": [
+        {
+          "signal": 15,
+          "elapsed": 1514.1734645449997
+        }
+      ],
+      "tested_files_unchanged": true
+    },
+    "historicalRtkSignalCause": "unknown; upstream v0.43.0 forwards received SIGINT/SIGTERM; original sender to RTK is not identified"
+  },
+  "focused": {
+    "runnerBootstrapCast": {
+      "passed": 104,
+      "seconds": 8.0
+    },
+    "rhiAndDefault": {
+      "passed": 20,
+      "seconds": 3.59
+    },
+    "interfaceAuthoringControls": {
+      "passed": 65,
+      "seconds": 569.12
+    }
+  },
+  "integral": {
+    "passed": 7117,
+    "skipped": 48,
+    "warnings": 19,
+    "pytestSeconds": 2326.94,
+    "exit_code": 0,
+    "seconds": 2339.285907857,
+    "signals": [],
+    "tested_files_unchanged": true
+  },
+  "coverage": {
+    "branchCoverage": true,
+    "baselinePercent": 85.66169677501884,
+    "currentPercent": 85.70961552128492,
+    "deltaPercentagePoints": 0.047918746266077505,
+    "criticalArcs": {
+      "src/steamzero/adapters/resource_probe.py": [
+        [
+          44,
+          45
+        ],
+        [
+          56,
+          57
+        ]
+      ],
+      "src/steamzero/domain/bitrot.py": [
+        [
+          329,
+          336
+        ]
+      ],
+      "src/steamzero/adapters/linux_runtime.py": [
+        [
+          403,
+          405
+        ]
+      ],
+      "src/steamzero/adapters/screencast_web.py": [
+        [
+          86,
+          87
+        ],
+        [
+          86,
+          88
+        ],
+        [
+          110,
+          111
+        ],
+        [
+          110,
+          -99
+        ],
+        [
+          96,
+          97
+        ],
+        [
+          96,
+          -80
+        ]
+      ]
+    },
+    "criticalLines": {
+      "src/steamzero/adapters/screencast_web.py": [
+        91,
+        92
+      ],
+      "src/steamzero/domain/bitrot.py": [
+        336
+      ],
+      "src/steamzero/adapters/linux_runtime.py": [
+        397,
+        398
+      ],
+      "src/steamzero/adapters/emulation.py": [
+        9045,
+        9046
+      ],
+      "src/steamzero/adapters/resource_probe.py": [
+        45,
+        47,
+        48,
+        49,
+        50,
+        57,
+        59,
+        60,
+        61,
+        62
+      ],
+      "src/steamzero/domain/theme_editor.py": [
+        1323,
+        1324,
+        1325
+      ]
+    },
+    "launcherBridgeModelAssignmentLine": 493,
+    "allCriticalGuardsCovered": true,
+    "changedModuleCount": 8,
+    "moduleDeltas": [
+      {
+        "path": "src/steamzero/adapters/desktop_dashboard.py",
+        "linesLost": [],
+        "linesGained": [
+          2202
+        ],
+        "arcsLost": [],
+        "arcsGained": []
+      },
+      {
+        "path": "src/steamzero/adapters/desktop_kde.py",
+        "linesLost": [
+          400,
+          913,
+          1549,
+          1550
+        ],
+        "linesGained": [
+          1554,
+          1558,
+          1559
+        ],
+        "arcsLost": [
+          [
+            399,
+            400
+          ],
+          [
+            912,
+            913
+          ],
+          [
+            1548,
+            1549
+          ]
+        ],
+        "arcsGained": [
+          [
+            399,
+            401
+          ],
+          [
+            1551,
+            1554
+          ],
+          [
+            1554,
+            1558
+          ]
+        ]
+      },
+      {
+        "path": "src/steamzero/adapters/desktop_ui.py",
+        "linesLost": [],
+        "linesGained": [
+          1270
+        ],
+        "arcsLost": [],
+        "arcsGained": [
+          [
+            1269,
+            1270
+          ]
+        ]
+      },
+      {
+        "path": "src/steamzero/adapters/emulation.py",
+        "linesLost": [],
+        "linesGained": [
+          9042,
+          9043,
+          9044
+        ],
+        "arcsLost": [],
+        "arcsGained": [
+          [
+            9040,
+            9042
+          ],
+          [
+            9043,
+            9032
+          ],
+          [
+            9043,
+            9044
+          ]
+        ]
+      },
+      {
+        "path": "src/steamzero/adapters/lifecycle.py",
+        "linesLost": [],
+        "linesGained": [
+          2412,
+          2413
+        ],
+        "arcsLost": [],
+        "arcsGained": []
+      },
+      {
+        "path": "src/steamzero/adapters/session_control.py",
+        "linesLost": [],
+        "linesGained": [],
+        "arcsLost": [],
+        "arcsGained": [
+          [
+            434,
+            -429
+          ]
+        ]
+      },
+      {
+        "path": "src/steamzero/adapters/steam_gameplay.py",
+        "linesLost": [],
+        "linesGained": [
+          175,
+          176,
+          187
+        ],
+        "arcsLost": [],
+        "arcsGained": [
+          [
+            174,
+            175
+          ],
+          [
+            186,
+            187
+          ]
+        ]
+      },
+      {
+        "path": "src/steamzero/domain/theme_editor.py",
+        "linesLost": [],
+        "linesGained": [
+          1382,
+          1461,
+          1462,
+          1463,
+          1464,
+          1465,
+          1467,
+          1468,
+          1469,
+          1472,
+          1473
+        ],
+        "arcsLost": [
+          [
+            1324,
+            1325
+          ]
+        ],
+        "arcsGained": [
+          [
+            1381,
+            1382
+          ],
+          [
+            1460,
+            1461
+          ],
+          [
+            1463,
+            1464
+          ],
+          [
+            1463,
+            1467
+          ],
+          [
+            1465,
+            1463
+          ],
+          [
+            1472,
+            1473
+          ]
+        ]
+      }
+    ],
+    "deltaReview": "Aggregate baseline and specified critical guards preserved. Changes in the unchanged desktop_kde module and line-number deltas of the earlier theme_editor correction are recorded explicitly; they do not certify KDE/physical operation."
+  },
+  "integrity": {
+    "originalEightHashes": {
+      "src/steamzero/domain/theme_editor.py": "19aa2ae8e18613e0e0800e17af1869d2baf8ca53312d7dc3a2300c901fef7e7e",
+      "tests/unit/test_theme_editor.py": "a927974be3cf438194fbe406650b95efd0b804ac10866b5c0e145e4a68040367",
+      "tests/integration/test_theme_authoring_e2e.py": "51adb794ca22b4361265a6a19b7bea96ebf5312e4be8dd7455baa0b07ed73fc5",
+      "tests/qml/check_theme_authoring_e2e.qml": "0e31494fe2a41c4817e4eac62df5668d51a68f13c35afc37f34dc2e8bf9fb9a9",
+      "tests/integration/test_launcher_owner_loss_qml.py": "4ebdfecabf550fa49c43f83dcec3c0897143189cb24ea285227c87524e49f80d",
+      "tests/qml/launcher/check_launcher_owner_loss.qml": "5c4996e58e39466c105a66e90879240d0fe3619a71e530ed1d120e1737fd456d",
+      "tests/unit/test_linux_runtime.py": "e09b2bb2090a639a02715e3e1ca47c369d4c498f38662a7b3abcfcfaa55fe9e9",
+      "tests/unit/test_emulation_runtime_remediation.py": "eaa492b34166beb35ddc360ce4624e6c95bd8a0c1734377843b8759516334245"
+    },
+    "trackedFileCount": 1284,
+    "trackedSnapshotSha256": "0939192ada9312ba40ab98637077c8ed504b07199eb822ea75c541ae474f71a2",
+    "profileStateBefore": "exists=True files=3 directories=5 bytes=860896 max_mtime_ns=1793069983507245137",
+    "profileStateAfter": "exists=True files=3 directories=5 bytes=860896 max_mtime_ns=1793069983507245137",
+    "profileStateUnchanged": true
+  },
+  "staticGates": [
+    "ruff check src tools tests: passed",
+    "ruff format --check src tools tests: 736 files formatted",
+    "mypy src: 307 files passed",
+    "make independence boundaries status-check: passed"
+  ],
+  "environment": {
+    "qtVersion": "Qml Runtime 6.11.2",
+    "display": "private Xvfb 1920x1080x24, TCP disabled",
+    "profile": ".steamzero-dev/env.sh",
+    "runner": "tools/run_tests_isolated.py",
+    "priority": "nice 10",
+    "physicalInput": false,
+    "physicalAudio": false,
+    "gpuPerformanceMeasured": false,
+    "installedReleaseExercised": false
+  },
+  "rawLogs": {
+    "directory": "build/agent-runs/studio-runner-cancellation",
+    "files": {
+      "baseline.log": {
+        "bytes": 2039,
+        "sha256": "2138d3870176d780861657b6507782d232dd3cc7ce78a3c85f587bdc9e93da97"
+      },
+      "focused.log": {
+        "bytes": 341,
+        "sha256": "f615ef68f887c675bcd9f26644e31f603b6dc1a4e70af26141f7ded66cf1a0ec"
+      },
+      "focused-final.log": {
+        "bytes": 341,
+        "sha256": "3484756d9031101b19b9644c482c7b8592f0ae1e67c080f2135f1c10e50adf04"
+      },
+      "full.log": {
+        "bytes": 2542,
+        "sha256": "66811a323082dca04791ac2625550c196ec0be996c8d9164d68b72daa36825a2"
+      },
+      "qt-diagnostic.log": {
+        "bytes": 1540,
+        "sha256": "2ec9725fe993263287921eddb7b37fcf37653c439b8203b08e8454e68a9a34de"
+      },
+      "qt-software-diagnostic.log": {
+        "bytes": 1192,
+        "sha256": "18a11a9a6ff26de59314a8d25263faf9014248d049ea5becb913eed76b5b9268"
+      },
+      "qt-private-display.log": {
+        "bytes": 341,
+        "sha256": "396e186ce28f6eb43196c7a1086768adf8628523ecd95493755590ba9e803c9c"
+      },
+      "signal-leak-baseline.log": {
+        "bytes": 2126,
+        "sha256": "d582eba0ab4f457bf897d0cb07a68048a1b46168feafeb35ebb35e48c24f99ac"
+      },
+      "focused-signal-isolation.log": {
+        "bytes": 422,
+        "sha256": "b857241ffdf75983feca8fde03cfbba4b1495cf8ccbea76160b52c3535bc6b77"
+      },
+      "qt-interface-focused.log": {
+        "bytes": 353,
+        "sha256": "185ef67f52ff857edaad2a552c61bdf8e1c40d7014ea9dbb5913b173e8cb9e6b"
+      },
+      "full-private-display.log": {
+        "bytes": 80212,
+        "sha256": "8e718d54ac4fa65cca38da445b2a3d888b1e934a0ced12bdc030e5c047bce95a"
+      }
+    }
+  },
+  "nextSlice": "section 22.5 native single-source wheel: generic UI, preserved canonical master, recipes/motion, round-trip and common Launcher execution; not implemented in this checkpoint",
+  "push": "Not observed when this receipt was created; publication and new CI are recorded against the final SHA in PR #268."
+}

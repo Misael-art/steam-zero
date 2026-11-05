@@ -692,6 +692,84 @@ def request_json(
         return loaded
 
 
+def test_closed_client_is_diagnosed_without_breaking_the_next_request(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    import socket
+    import struct
+    import sys
+
+    from steamzero.adapters.desktop_ui import DesktopControlHandler
+
+    entered = threading.Event()
+    release = threading.Event()
+    completed = threading.Event()
+    ready: queue.Queue[DesktopControlServer] = queue.Queue()
+    errors: list[str] = []
+    dropped_peer: tuple[str, int] | None = None
+    original = DesktopControlHandler._send
+
+    def delayed_response(
+        handler: DesktopControlHandler, status: Any, payload: dict[str, Any]
+    ) -> None:
+        if handler.path == "/status?drop=1":
+            entered.set()
+            assert release.wait(3), "client teardown was not released"
+        original(handler, status, payload)
+
+    class ObservedServer(DesktopControlServer):
+        def handle_error(self, request: Any, client_address: Any) -> None:
+            errors.append(type(sys.exception()).__name__)
+
+        def process_request_thread(self, request: Any, client_address: Any) -> None:
+            try:
+                super().process_request_thread(request, client_address)
+            finally:
+                if client_address == dropped_peer:
+                    completed.set()
+
+    monkeypatch.setattr(DesktopControlHandler, "_send", delayed_response)
+
+    def serve() -> None:
+        with StateStore(tmp_path / "disconnect.db") as store:
+            store.migrate()
+            server = ObservedServer(ExperienceCoordinator(Context(), (), store), "drop-test")
+            ready.put(server)
+            try:
+                server.serve_forever(poll_interval=0.02)
+            finally:
+                server.server_close()
+
+    worker = threading.Thread(target=serve, daemon=True)
+    worker.start()
+    server = ready.get(timeout=3)
+    client = socket.create_connection(server.server_address, timeout=3)
+    dropped_peer = client.getsockname()
+    try:
+        client.sendall(
+            b"GET /status?drop=1 HTTP/1.1\r\nHost: localhost\r\n"
+            b"X-SteamZero-Token: drop-test\r\nConnection: close\r\n\r\n"
+        )
+        assert entered.wait(3)
+        # A real TCP reset, delivered before the server writes any headers.
+        client.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
+        client.close()
+        release.set()
+        assert completed.wait(3)
+        status = request_json(f"http://127.0.0.1:{server.server_port}", "drop-test", "/status")
+        assert status["independentRuntime"] is True
+        assert errors == [], errors
+        messages = [record.getMessage() for record in caplog.records]
+        assert any("DESKTOP-CLIENT-DISCONNECTED-001" in message for message in messages)
+        assert not any("drop-test" in message or "/status?drop" in message for message in messages)
+    finally:
+        client.close()
+        release.set()
+        server.shutdown()
+        worker.join(timeout=3)
+        assert not worker.is_alive()
+
+
 def test_credential_bridge_complete_flow_uses_only_fake_secret_store(
     credential_bridge: tuple[str, str, FakeSecretStore],
     monkeypatch: pytest.MonkeyPatch,

@@ -1,0 +1,1516 @@
+{
+  "date": "2026-11-02",
+  "kind": "source-checkpoint",
+  "baseCommit": "93fdc318491f280d70568cca1cb4a2081edc6873",
+  "branch": "codex/product-recovery-2026-10-16",
+  "owner": "codex-central-executor",
+  "inheritedWip": "11 modified files plus 3 untracked tests, retained and serially assumed; fingerprints remain private in build/agent-runs/continuity-20261102/inherited-wip.json",
+  "changes": [
+    {
+      "gap": "contextual media",
+      "cause": "different public field lists, discarded resolved cover and implicit recipe master substitution",
+      "correction": "shared MediaRegistry role vocabulary and URI contract, shared projection, typed image binding and explicit missing-resource diagnostic",
+      "proof": "13 inherited unit tests pass; 25 final context/Qt tests pass, including source and logical revision after save/reopen/export/import and common Launcher resolver",
+      "limit": "controlled fixtures and source/Qt; no installed acceptance"
+    },
+    {
+      "gap": "markup in metadata",
+      "cause": "Text.AutoText in selector and common scene renderer",
+      "correction": "Text.PlainText on metadata consumers",
+      "proof": "loopback HTTP marker was fetched before selector correction; final Qt test observes zero HTTP requests and literal text in selector, popup and scene",
+      "limit": "owned local fixture; no personal metadata read"
+    },
+    {
+      "gap": "nonuniform outline and decode demand",
+      "cause": "outline implemented by scaling alpha; decode size ignored scale and DPR",
+      "correction": "engine-owned bounded disk alpha dilation; decode demand includes target scale, ancestor scales and DPR, capped at8192",
+      "proof": "Independent four-edge/inner-hole and DPR1/1.5/2 properties pass. Operator continuation treated as authorization for three reviewed reference updates in1f6be082; former images remain in Git history.22 focused pixel/count/context tests pass in6.43s; all image tolerances and assertions retained.",
+      "limit": "Qt/RHI using software OpenGL; verified target scale, ancestor Item.scale and DPR1/1.5/2, capped8192. This does not qualify animation overshoot, arbitrary transform stacks, hardware, FPS, VRAM or performance. Later full and installed checkpoints are recorded below with their own validity limits."
+    },
+    {
+      "gap": "custom inheritance export and removal",
+      "cause": "ZIP omitted custom ancestors; uninstall ignored installed extends consumers",
+      "correction": "bounded native bundle carries ancestry and each master once; identical dependencies reused; differing dependencies refused; handled publication failure removes only owned new dependencies; removal refuses live children; Central inspects explicit bundle primary and copying renames only the child/bundle pointer using a full ULID; dependency revisions and metadata remain intact",
+      "proof": "118 focused tests pass including fresh-profile inheritance/revision, master count, conflict preservation and publication failure; final111 focused tests pass; Central inspect/copy/two-copy regression reproduced then fixed;131 security/ownership/round-trip tests pass",
+      "limit": "Initial child-only removal guard superseded by consumerIntegrity: active preference, saved/open/undo/redo theme and Journey consumers now covered in source/HTTP and installed package fixtures. Complete recovery provenance and physical/profile migration qualification remain open."
+    },
+    {
+      "gap": "RetroFE silent loss",
+      "cause": "color, unknown on* events and animation attributes omitted; slices of16 animations/32 blocks lacked diagnostics; common model ignored alpha/layer/font size units",
+      "correction": "color retained; alpha/layer/font normalized; explicit loss diagnostics at bounds, unsupported events/tween and merged-holder overflow; consumer exposes unsupported timelines and actual decode/visibility observations",
+      "proof": "57 importer/common-consumer tests pass; known counterexamples now reduce parser coverage; source and Qt tests",
+      "limit": "onIdle/easing/timeline playback remain unimplemented, explicitly diagnosed; integral Aeon Nox/ES-DE fidelity remains open",
+      "counterexamples": {
+        "baseline": "build/agent-runs/diagnostic-20261101-mb1wehe4/compiler-probes.json",
+        "regression": "tests/unit/test_scene_retrofe.py::test_losses_are_diagnosed_instead_of_full_parser_coverage",
+        "normalization": "tests/unit/test_scene_retrofe.py::test_retrofe_alpha_color_layer_and_font_reach_the_common_render_model",
+        "consumer": "tests/qml/check_scene_esde_view.qml",
+        "lossesRemainOpen": [
+          "onIdle",
+          "unsupported easing attributes",
+          "timeline playback",
+          "menus",
+          "sound"
+        ]
+      }
+    },
+    {
+      "gap": "Ubuntu SSL smoke",
+      "cause": "Historical authenticated job log accessed through existing Git credential helper without login: host Ubuntu26.04.1/image20261025.179.1 reused mounted CPython3.14.9 cache inside Ubuntu24.04.4 container with OpenSSL/libssl3t64 3.0.13-0ubuntu3.16. pip reports SSL module unavailable before fetching hatchling. The exact dlopen symbol is not present in this log.",
+      "correction": "pin distro smoke runner to Ubuntu24.04; inspect Python extension linkage before ssl/sqlite/CA checks; install hash-locked build backend and build without an unverified isolation environment",
+      "proof": "CI41460758888/Smoke Ubuntu24.04 completed/success for head370b59e5. CPython3.14.9, OpenSSL3.0.13, SQLite3.45.1, ldd resolves libssl/libcrypto.so3, SSL/CERT_REQUIRED/hostname/nonempty CA assertions pass before pip; hash-locked dependencies, non-editable build/install, pip check twice and smoke pass. All eight CI jobs succeeded. Synthetic merge checkoutfcfe145d has identical tree20f30053855376b16d9d43fb59668278a9c21242 to head370b59e5.",
+      "limit": "Candidate blocker closed at CI/package level. Exact historical dlopen symbol remains unobserved and depends on the intact110842162byte manual asset; version/platform match does not establish historical binary byte identity. No host activation."
+    },
+    {
+      "gap": "Launcher regressions exposed by typed media loss",
+      "cause": "missing-cover diagnostics changed layout selection state; software recipe check could evaluate to undefined",
+      "correction": "separate resourceResolutionState from successful authored-layout selection, retain explicit missing-media diagnostic; boolean recipe guard",
+      "proof": "54 bundle/context/Launcher tests pass, including structured D-08 error and native journey flows; existing assertions preserved",
+      "limit": "isolated HTTP/Qt; no installed session proof"
+    },
+    {
+      "gap": "observed render count label",
+      "cause": "ThemeScenePreview label used estimated drawnCount after image decode failed",
+      "correction": "Use common renderer renderedCount in visible fidelity label",
+      "proof": "Qt regression failed before correction (expected0 of1); corrected33 focused tests pass in2.33s",
+      "limit": "source/Qt fixture; no installed qualification"
+    }
+  ],
+  "validation": {
+    "focused": "passed as specified per change",
+    "fullSuite": "Initial full-20261102-continuity cancelled by owned supervisor SIGTERM after1157.71s to correct a newly identified Central bundle integration gap; exit143, frozen1308 source hashes unchanged, real state13013 files unchanged. Partial execution is not approval. Five failure node IDs recovered from progress/collection; three are unchanged golden differences and two Launcher journey regressions require focused diagnosis.",
+    "static": "Historical original source checkpoint: Ruff check/format742 files, mypy307 source files, independence and boundaries passed. The original r3 run subsequently finished as documented below. Consumer-integrity and rollback-provenance checkpoints have separate validation records.",
+    "focusedFinal": {
+      "bundleSecurity": {
+        "passed": 131,
+        "seconds": 7.84
+      },
+      "bundleAndLauncher": {
+        "passed": 54,
+        "seconds": 11.05
+      },
+      "dashboardBootstrapNativeRenderer": {
+        "passed": 127,
+        "seconds": 85.34
+      },
+      "realState": "13013 files unchanged"
+    },
+    "fullSuiteR2": {
+      "exitCode": 1,
+      "passed": 7219,
+      "skipped": 48,
+      "failed": 3,
+      "warnings": 22,
+      "testSeconds": 2989.55,
+      "sourceHashesUnchanged": true,
+      "realStateUnchanged": true,
+      "failures": "Only outlineThin/outlineThick/outlinedShadow prior reference differences; this is not a green full gate",
+      "coverage": 85.75578539652244,
+      "baselineCoverage": 85.72395128552097,
+      "unchangedModulesCompared": 294,
+      "lostCoveredLinesOrArcsInUnchangedModules": 0,
+      "criticalCasesPassed": 171
+    },
+    "fullSuiteR3": {
+      "exitCode": 1,
+      "seconds": 3079.6816157560024,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "state": "finished",
+      "passed": 7221,
+      "skipped": 48,
+      "failed": 1,
+      "warnings": 22,
+      "testSeconds": 3058.56,
+      "coverage": 85.74876854203798,
+      "baselineCoverage": 85.72395128552097,
+      "aggregateNonRegression": true,
+      "realStateUnchanged": true,
+      "failure": "tests/unit/test_project_status.py::test_committed_catalog_and_generated_views_are_consistent; documentation was edited during full execution, making digests and generated views stale. This run has exit1, not a green full-suite result.",
+      "unchangedModulesCompared": 294,
+      "unchangedCoverageLosses": [
+        {
+          "file": "src/steamzero/adapters/scraping/cache.py",
+          "lines": [
+            84,
+            85
+          ],
+          "arcs": [],
+          "interpretation": "Existing SQLite WAL contention retry path was not exercised in r3; application source is unchanged. Aggregate coverage remains above baseline. No claim of zero line losses."
+        }
+      ],
+      "criticalCasesPassed": 171
+    },
+    "status": "13 official project-status tests passed after r3 documentary correction; final metadata/WORKLOG/capture changes receive fresh scope/render/status check before push.",
+    "nonEditableAcceptancePlan": "After final green local gate and clean committed source: hash-locked wheel build, verify embedded source identity and shader/QML resources; install non-editable in owned empty environment; pip check/version/doctor/ports with isolated HOME/XDG; reuse existing authoring/Launcher Qt journeys redirected to installed package resources, documenting any development helper used. No /opt activation or occupied-desktop interaction. Candidate remote smoke must confirm its own published SHA.",
+    "canonicalRhiProbe": {
+      "image": "sha256:8b832ec124ae72aa59a4de3b5c00ccf3f03b41a7e688f45c10daf767290041cd",
+      "download": false,
+      "level": "bounded ephemeral container, no network, read-only root, tmpfs64MiB,384MiB RAM,0.5CPU,LP_NUM_THREADS1",
+      "initialAttempt": "Repository bind mount did not expose the new untracked harness to the Docker daemon; qml reported file missing. This is not product failure.",
+      "minimalProbe": "QML window sent over stdin, QtQuick/OpenGL RHI: QRhiGles2 failed context creation, Failed to initialize graphics backend for OpenGL, exit250",
+      "existingContract": "Canonical image declares QT_QUICK_BACKEND=software; existing RHI goldens/native wheel tests skip explicitly there. New DPR outline test currently forces RHI and must be routed consistently.",
+      "nextAction": "Backend selection guard implemented after r3; local focused RHI4passed. Software selection/result separately recorded. Remote canonical gate validates software only, not RHI pixels."
+    },
+    "historicalExit137": {
+      "observation": "Prior isolated tests/unit/test_native_context_contract.py attempt ended137 with empty log",
+      "rootCause": "Not established; lack of historical kernel/process evidence does not justify an OOM claim",
+      "response": "Resources inspected before serial rerun;13 inherited tests passed, then later focused suites and full r2 completed without signal. Full r3 is under resource preflight and owned signal-recording supervisor. These successes do not identify the historical cause."
+    },
+    "closureRule": "AGENTS.md section6: when only generated views/digests became stale, regenerate and run applicable status validation. Preserve full r3 exit1 and correct only the documentary defect; do not repeat full suite for generated metadata. Application files remain exactly as frozen. Post-r3 test-only backend routing is separately proven.",
+    "postR3TestOnlyDelta": {
+      "path": "tests/integration/test_native_context_media.py",
+      "before": "3bce4658d0155468c69c487829afdccc40b99f2c1ce53e74f78b3de9fab033c5",
+      "after": "bf48c9c9dae24b7602a9ec9963c4e2b1f94bad70768e1d0167a653eee4b31364",
+      "change": "Only explicit software-backend skip guard consistent with existing RHI tests; every pixel assertion and tolerance retained.",
+      "focusedRhi": "4passed/7.66s, real state unchanged",
+      "focusedSoftware": "1passed/3 explicitly skipped RHI cases in2.82s; literal metadata still tested, real state unchanged",
+      "runtimeFilesChangedAfterR3": false,
+      "verifiedAllOtherFrozenFilesUnchanged": true
+    },
+    "nonEditable": {
+      "wheel": {
+        "wheel": "build/agent-runs/continuity-20261102/verification-wheel/steamzero-2.0.0rc1-py3-none-any.whl",
+        "bytes": 4002807,
+        "sha256": "d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9",
+        "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+        "sourceDirty": false,
+        "newResourcesPresent": true
+      },
+      "smoke": {
+        "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+        "wheelSha256": "d3b51a889420ddb1a82f031eec6552b2c2bdfaf2e503c3732947bf1f071441e9",
+        "preflightMemoryKiB": 1830508,
+        "memoryBudgetMiB": 512,
+        "reserveMiB": 512,
+        "fullSuiteMemoryGuardUnchanged": true,
+        "steps": [
+          {
+            "name": "venv",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-venv.log"
+          },
+          {
+            "name": "tls",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-tls.log"
+          },
+          {
+            "name": "runtime",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-runtime.log"
+          },
+          {
+            "name": "wheel",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-wheel.log"
+          },
+          {
+            "name": "pip-check",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-pip-check.log"
+          },
+          {
+            "name": "version",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-version.log"
+          },
+          {
+            "name": "doctor",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-doctor.log"
+          },
+          {
+            "name": "ports",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-ports.log"
+          },
+          {
+            "name": "native-qt",
+            "exitCode": 0,
+            "log": "build/agent-runs/continuity-20261102/installed-native-qt.log"
+          }
+        ],
+        "hostActivated": false,
+        "temporaryEnvironmentRemoved": true,
+        "realStateUnchanged": true,
+        "realStateSource": "HOME-default",
+        "seconds": 78.96327763900626
+      },
+      "native": {
+        "commit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+        "nonEditable": true,
+        "verifiedInstalledResources": 644,
+        "applicationModulesFromInstalledPackage": 237,
+        "journeys": [
+          {
+            "compactAuthoring": false,
+            "passed": true
+          },
+          {
+            "compactAuthoring": true,
+            "passed": true
+          }
+        ],
+        "helpers": "Existing development pytest and tests.integration.test_native_wheel; only harness import URI/config location redirected. All application modules and QML resources come from the installed wheel.",
+        "level": "Installed non-editable package, isolated synthetic profile, Qt software authoring and RHI Launcher; no host activation or physical hardware acceptance.",
+        "temporaryProfileRemoved": true
+      },
+      "tls": "Local Arch/Manjaro runtime OpenSSL3.6.4, SQLite3.53.4; valid default CA context. This does not replace Ubuntu candidate CI.",
+      "observedNonFatalIssue": "Installed bridge logged BrokenPipeError while replying to GET/themes after Qt client teardown. Both authoring/Launcher journeys passed; review controlled disconnect handling in next eligible bridge slice, do not call this a flawless transport run."
+    }
+  },
+  "host": {
+    "mutations": [],
+    "rollback": "not activated or requalified; old release directories do not prove usable rollback",
+    "actions": "read-only release link, processes/resources and disposable test/container sessions; two hash-locked development packages added in existing .venv; no global host dependency install",
+    "pointedRelease": "2.0.0rc1-59ecc2d8f0f6",
+    "runtimeConvergence": "Not requalified; release symlink read-only does not certify the executing daemon/session"
+  },
+  "remote": {
+    "pr": 268,
+    "state": "open draft",
+    "head": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+    "run": 41544196561,
+    "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561",
+    "checks": "CI41544196561 terminal success8/8; published head2d2b9c59 and synthetic merge36108899 have identical Git treefa59c3f7893687d024f9dbc7c3616c36c115195f. No merge performed.",
+    "push": "Existing nominal continuity ref, no force or hook bypass; head and PR independently verified.",
+    "previousCheckpoint": {
+      "pr": 268,
+      "state": "open draft",
+      "head": "370b59e5f77578bbb802e8a1d0804d75c749306d",
+      "checks": "CI41460758888 completed/success, all eight jobs; candidate head370b59e5, synthetic PR merge checkoutfcfe145d with identical Git tree. No PR merge performed.",
+      "credentials": "Existing Git credential helper used in memory; no secret persisted, login initiated or authentication changed. Nominal continuity ref pushed without force; PR268 remains open draft.",
+      "verifiedBeforePush": {
+        "head": "93fdc318491f280d70568cca1cb4a2081edc6873",
+        "main": "ad742ca3515f794fe285d42060708835cb09fb91",
+        "pr": 268,
+        "url": "https://github.com/Misael-art/steam-zero/pull/268",
+        "state": "OPEN",
+        "draft": true,
+        "readUsing": "existing credential helper, no new login; remote refs unchanged"
+      },
+      "run": 41460758888,
+      "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888",
+      "push": "Nominal existing continuity ref accepted after HEAD alias was refused by unchanged workspace hook; no force or bypass. PR head independently verified.",
+      "jobs": [
+        {
+          "name": "Python 3.11",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868591"
+        },
+        {
+          "name": "Smoke Ubuntu 24.04",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328868938"
+        },
+        {
+          "name": "Smoke Manjaro",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869024"
+        },
+        {
+          "name": "Smoke Arch Linux",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869050"
+        },
+        {
+          "name": "Python 3.12",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869092"
+        },
+        {
+          "name": "Python 3.14",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869111"
+        },
+        {
+          "name": "Gate visual QML (Linux)",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869264"
+        },
+        {
+          "name": "Wheel limpo, smoke e supply chain",
+          "conclusion": "success",
+          "url": "https://github.com/Misael-art/steam-zero/actions/runs/41460758888/job/125328869343"
+        }
+      ],
+      "checkoutAndCoverageProof": {
+        "coverage": [
+          {
+            "run": 41460758888,
+            "artifactId": 13150366092,
+            "archiveBytes": 676259,
+            "archiveSha256": "ef0a03dc3cccf5fb5bec890e6d04cf523c04d710fa3dad7bf54d71a838565821",
+            "coverage": 85.53545616571003
+          },
+          {
+            "run": 41195711124,
+            "artifactId": 13041122168,
+            "archiveBytes": 674578,
+            "archiveSha256": "2c312f187f99709c14c7621dfb1bb6934ad764ea788c9e76ad32d9c11ed23260",
+            "coverage": 85.50828822733423
+          }
+        ],
+        "coreNonRegression": true,
+        "checkouts": {
+          "370b59e5f77578bbb802e8a1d0804d75c749306d": {
+            "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+            "parents": [
+              "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6"
+            ]
+          },
+          "fcfe145d791776453c08e85c24a32a4d8b9bff64": {
+            "tree": "20f30053855376b16d9d43fb59668278a9c21242",
+            "parents": [
+              "ad742ca3515f794fe285d42060708835cb09fb91",
+              "370b59e5f77578bbb802e8a1d0804d75c749306d"
+            ]
+          }
+        },
+        "mergeTreeEqualsPublishedHead": true
+      }
+    },
+    "jobs": [
+      {
+        "name": "Gate visual QML (Linux)",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630330"
+      },
+      {
+        "name": "Wheel limpo, smoke e supply chain",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630615"
+      },
+      {
+        "name": "Python 3.12",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630627"
+      },
+      {
+        "name": "Smoke Ubuntu 24.04",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630628"
+      },
+      {
+        "name": "Python 3.11",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630637"
+      },
+      {
+        "name": "Smoke Manjaro",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630641"
+      },
+      {
+        "name": "Python 3.14",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630836"
+      },
+      {
+        "name": "Smoke Arch Linux",
+        "conclusion": "success",
+        "url": "https://github.com/Misael-art/steam-zero/actions/runs/41544196561/job/125615630893"
+      }
+    ],
+    "checkoutAndCoverageProof": {
+      "run": 41544196561,
+      "head": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+      "allEightJobsSuccessful": true,
+      "coverage": {
+        "artifactId": 13188277498,
+        "archiveSha256": "8705e0d53ee4963013a2e2c069ac02a2afd4ee784248ee308f3314a3bd3b9e3f",
+        "bytes": 678847,
+        "current": 85.55647109757972,
+        "baseline": 85.53545616571003,
+        "nonRegression": true
+      },
+      "checkouts": {
+        "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e": {
+          "tree": "fa59c3f7893687d024f9dbc7c3616c36c115195f",
+          "parents": [
+            "980b477cdfcfda264cddc5d2b3098f604cce3932"
+          ]
+        },
+        "36108899db1c99532d0b2aeacc9d91e3af788d8e": {
+          "tree": "fa59c3f7893687d024f9dbc7c3616c36c115195f",
+          "parents": [
+            "ad742ca3515f794fe285d42060708835cb09fb91",
+            "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e"
+          ]
+        }
+      },
+      "mergeTreeEqualsPublishedHead": true
+    }
+  },
+  "externalDependencies": [
+    "Exact historical SSL dlopen symbol only: intact110842162byte manually downloaded asset with declared SHA256; current candidate CI/SSL/build/install smoke is proven green.",
+    "governed installation/rollback and occupied-desktop-safe physical test window",
+    "hardware, legitimate content and service credentials for corresponding product journeys",
+    "external private-backup readback/restore proof; no upload or overwrite performed"
+  ],
+  "commits": {
+    "ci": "0cfd1b62",
+    "domain": "fddf91c0",
+    "reviewedOutlineReferences": "1f6be082",
+    "integration": "4236bde0f9e3f476eb9634861271ac3092b4c5dd"
+  },
+  "sequence": "Complete prior request before reading/executing prompt-pos-entrega-revisao-visual.txt and adopting nine final mockups. No parallel front.",
+  "captures": {
+    "level": "Source/isolated Qt only; synthetic original fixture; no installed or hardware acceptance",
+    "items": [
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/01-studio-wide.png",
+        "bytes": 93646,
+        "sha256": "11acdbfd2dd1acaa20a6d683d4727eb12809bdaceb50d2268d93eb0ff69c6d8f",
+        "size": [
+          1280,
+          900
+        ],
+        "meaning": "Studio controls, wide viewport, software backend"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/02-studio-compact-large-text.png",
+        "bytes": 59509,
+        "sha256": "76efddd86434ce0f555f5bd91f2a0e986b985d4cefd7f1f42b6a55b9962441b6",
+        "size": [
+          840,
+          900
+        ],
+        "meaning": "Studio controls, compact viewport with larger text, software backend"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/03-launcher-from-wide-authoring.png",
+        "bytes": 73001,
+        "sha256": "233006fd7fcf0cb34bbddbdfee733e4cc0df9e22d7536e622d21162972a7fd5e",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Launcher RHI consumption of wide-authored theme; Launcher viewport1280x800"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/04-launcher-from-compact-authoring.png",
+        "bytes": 73116,
+        "sha256": "cf3925cca2dd2732affbd089d3cf4410c88cf8e22e328fba035470ff3d90afa5",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Launcher RHI consumption of compact-authored theme; Launcher viewport1280x800"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/05-outline-dpr1.png",
+        "bytes": 527,
+        "sha256": "f36befbe58d09b2fc03bd6abe13c60d91a0178d589e7afb154047548fdad682c",
+        "size": [
+          200,
+          100
+        ],
+        "meaning": "Independent uniform-edge/hole fixture at DPR1"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/06-outline-dpr1_5.png",
+        "bytes": 1254,
+        "sha256": "44f2a31598bcc7c6e2abc6029dcfc2e5412dde4ef64cc30fd42d128d5b491abd",
+        "size": [
+          300,
+          150
+        ],
+        "meaning": "Independent uniform-edge/hole fixture at DPR1.5"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/07-outline-dpr2.png",
+        "bytes": 1688,
+        "sha256": "a4110bac04a7ed35540e5fe3590c077f89711eab81daa672cbeeae9a5eaef202",
+        "size": [
+          400,
+          200
+        ],
+        "meaning": "Independent uniform-edge/hole fixture at DPR2"
+      }
+    ],
+    "fixtureArtworkLicense": "Original synthetic artwork declared CC0-1.0 in existing fixtures; UI screenshots are evidence of the SteamZero application, not replacement mockups."
+  },
+  "historicalPythonBinary": {
+    "releaseMetadata": "https://api.github.com/repos/actions/python-versions/releases/tags/3.14.9-39619022138",
+    "asset": {
+      "name": "python-3.14.9-linux-26.04-x64.tar.gz",
+      "size": 110842162,
+      "digest": "sha256:4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2",
+      "browser_download_url": "https://github.com/actions/python-versions/releases/download/3.14.9-39619022138/python-3.14.9-linux-26.04-x64.tar.gz"
+    },
+    "downloaded": false,
+    "reason": "Asset exceeds operator manual-download threshold70,000,000bytes. Do not split or stream selected members to circumvent it.",
+    "destination": "build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz",
+    "identityLimit": "Version/platform match historical host cache; the historical cache binary hash itself was not logged.",
+    "nextAction": "Operator may download the intact asset manually; verify full SHA256/size from this receipt before bounded owned extraction and read-only linkage inspection in pinned Ubuntu24.04. Never replace host Python or TLS libraries.",
+    "validationArgv": [
+      "python3",
+      "-c",
+      "import hashlib,pathlib; p=pathlib.Path('build/agent-runs/continuity-20261102/manual-inputs/python-3.14.9-linux-26.04-x64.tar.gz'); assert p.stat().st_size==110842162; assert hashlib.sha256(p.read_bytes()).hexdigest()=='4e2490da062ec2e6d80da14bad1ea61820b04acea50719004f3599f76a5386d2'; print('size and SHA256 verified')"
+    ]
+  },
+  "nextAction": "One clean push of the consumer/recovery checkpoint to existing PR268 and capture the exact candidate CI run, then continue safe original-request rollback provenance, canonical associations/composition and imported playback. Review of nine mockups remains queued until the original eligible work is closed; host/hardware/private backup dependencies remain explicit.",
+  "installedCaptures": {
+    "sourceCommit": "1dbbdfa16be9e64ed515661a7d5e2a3cd7a35bc6",
+    "level": "Non-editable wheel in owned temporary environment; synthetic profile, Qt authoring and Launcher components. No /opt release activation, live-library/gameplay or physical acceptance.",
+    "items": [
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/08-installed-studio-wide.png",
+        "bytes": 93768,
+        "sha256": "252ee056ef15e7cd0ade2506e02d6ad5c67cd7c0c18b8aea4b94d7811ab4b087",
+        "size": [
+          1280,
+          900
+        ],
+        "meaning": "Installed package Studio1280x900/software"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/09-installed-studio-compact.png",
+        "bytes": 59775,
+        "sha256": "e9acbb15063656fa8efff86b2dcf78d9cec95c4f6ff7be0e2e0f9a39b03080b4",
+        "size": [
+          840,
+          900
+        ],
+        "meaning": "Installed package Studio840x900/large-text/software"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/10-installed-launcher-from-wide.png",
+        "bytes": 72778,
+        "sha256": "f81f1566296c36cc1ad60c8b0f19aa400ae5d1c188addba4568c586fe1ad471a",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Installed package Launcher1280x800/RHI, wide-authored theme"
+      },
+      {
+        "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/11-installed-launcher-from-compact.png",
+        "bytes": 72775,
+        "sha256": "10e5ec78a62a692d4529d219bcdb1f7333a8fba5a389f1f17104cfa0b84b3ad8",
+        "size": [
+          1280,
+          800
+        ],
+        "meaning": "Installed package Launcher1280x800/RHI, compact-authored theme"
+      }
+    ]
+  },
+  "consumerIntegrity": {
+    "baseCommit": "370b59e5f77578bbb802e8a1d0804d75c749306d",
+    "state": "source/HTTP/Qt integral and non-editable package acceptance passed; clean checkpoint2d2b9c59 published and CI41544196561 terminal success8/8.",
+    "reproductions": [
+      "Eight removal cases failed before preference/current draft/inheritance/history guards.",
+      "Four real HTTP Journey saved/draft/history/bezel consumer cases failed before actual service integration.",
+      "Launcher search metadata fetched owned loopback marker before Text.PlainText; fixed test now covers selector/popup/scene/search/package metadata and notices with zero HTTP requests.",
+      "TCP RST produced ConnectionResetError before bounded disconnected-client diagnosis; subsequent actual status request succeeds after correction.",
+      "Applying a preview after theme removal wrote a missing-theme preference; now fresh catalog ID/version verification refuses before writing.",
+      "Preference rollback accepted foreign operation and restored a removed theme before ownership/reference checks; actual reimport with explicit overwrite releases refusal and rollback is idempotent.",
+      "Actual blob GC deleted an old image still needed by a live replacement rollback; existing staging previous-theme.json now contributes to the common live_digests set before deletion."
+    ],
+    "implementation": "Existing ThemeTransaction, ThemePreferenceManager, ThemeEditorManager and JourneyStudioService supply bounded current/saved/undo/redo dependency queries. Existing bridge RLock serializes theme/Journey mutations. Unknown/corrupt/symlink/over-budget ownership refuses deletion. Native import preview distinguishes preserved directory data from an installed manifest and requires an actual confirmation click before overwrite; active preference remains unchanged.",
+    "focused": {
+      "passed": 182,
+      "seconds": 61.63,
+      "junitPrivate": "build/agent-runs/continuity-20261102/consumer-integrity-focused-junit.xml",
+      "realStateUnchanged": true
+    },
+    "static": "Ruff check and format742files, mypy307files, independence and architecture boundaries passed before frozen integral; final documentary status regeneration/check follows the evidence update (AGENTS§6).",
+    "limits": [
+      "Owned fixtures and actual non-editable installed HTTP/Qt/backend components in a disposable profile; no personal corpus or /opt activation, hardware or complete accessibility qualification.",
+      "Theme acquire operation identity/obsolete rollback provenance requires follow-up reconciliation before a complete recovery claim.",
+      "Generic canonical authoring/associations and integral imported playback remain open; nine mockups remain queued."
+    ],
+    "fullSuite": {
+      "exitCode": 0,
+      "seconds": 3330.0607895279973,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "coverage": {
+        "current": 85.75618340013686,
+        "baseline": 85.74876854203798,
+        "nonRegression": true,
+        "branches": 18200
+      },
+      "passed": 7260,
+      "skipped": 48,
+      "warnings": 22,
+      "testSeconds": 3310.94,
+      "frozenTrackedFiles": 3747,
+      "frozenSourceAndDocumentation": true,
+      "realStateUnchanged": true,
+      "criticalCasesPassed": 172,
+      "criticalSkipped": 0,
+      "criticalFailed": 0,
+      "sourceManifest": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-consumer-tested-files.json",
+      "sourceManifestSha256": "209fad8108edf8e0979fce01a983ac38be8682fe0e3b59a9f0de7429c1e01627",
+      "unchangedCoverageComparison": {
+        "comparedUnchangedModules": 301,
+        "lostCoveredLinesOrArcs": [
+          {
+            "module": "src/steamzero/adapters/session_control.py",
+            "lines": [],
+            "arcs": [
+              [
+                434,
+                -429
+              ]
+            ]
+          }
+        ],
+        "aggregateNonRegression": true
+      }
+    },
+    "commits": {
+      "domain": "0ab4bbc7a6eeb4c752fead3df258049a5e5b41a0",
+      "sharedIntegration": "5dbfda30e842e9a5f579efa376e8514964cfe079"
+    },
+    "documentaryStatusAfterRecording": {
+      "testsPassed": 13,
+      "seconds": 12.2,
+      "statusCheck": "passed",
+      "reason": "Only evidence/status metadata changed after frozen integral; restricted validation per AGENTS section6."
+    },
+    "committedFunctionalInputsMatchFrozenGate": true,
+    "installedAcceptance": {
+      "sourceCommit": "980b477cdfcfda264cddc5d2b3098f604cce3932",
+      "sourceDirty": false,
+      "wheel": "build/agent-runs/continuity-20261102/consumer-integrity-package/verification-wheel/steamzero-2.0.0rc1-py3-none-any.whl",
+      "bytes": 4007822,
+      "sha256": "680ceefb55dd565e3867685b78c60cec3741eb9913b9b45dc924392d90479a3c",
+      "steps": [
+        {
+          "name": "venv",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-venv.log"
+        },
+        {
+          "name": "tls",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-tls.log"
+        },
+        {
+          "name": "runtime",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-runtime.log"
+        },
+        {
+          "name": "wheel",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-wheel.log"
+        },
+        {
+          "name": "pip-check",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-pip-check.log"
+        },
+        {
+          "name": "version",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-version.log"
+        },
+        {
+          "name": "doctor",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-doctor.log"
+        },
+        {
+          "name": "ports",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-ports.log"
+        },
+        {
+          "name": "native-qt",
+          "exitCode": 0,
+          "log": "build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-native-qt.log"
+        }
+      ],
+      "seconds": 88.87721906600927,
+      "journeys": [
+        {
+          "compactAuthoring": false,
+          "passed": true
+        },
+        {
+          "compactAuthoring": true,
+          "passed": true
+        },
+        {
+          "installedRecovery": "active-preference",
+          "passed": true
+        },
+        {
+          "installedRecovery": "stale-activation",
+          "passed": true
+        },
+        {
+          "installedRecovery": "preference-rollback-reimport",
+          "passed": true
+        },
+        {
+          "installedRecovery": "gc-rollback",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-saved",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-draft",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-history",
+          "passed": true
+        },
+        {
+          "installedRecovery": "http-journey-bezel",
+          "passed": true
+        },
+        {
+          "installedRecovery": "package-recovery-wide",
+          "passed": true,
+          "actualQtControlsToHttpToInstalledImporter": true,
+          "preferencePreservedUntilExplicitRollback": true,
+          "capture": "/home/misael/Projects/SteamZero/build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-captures/package-recovery-wide.png"
+        },
+        {
+          "installedRecovery": "package-recovery-compact",
+          "passed": true,
+          "actualQtControlsToHttpToInstalledImporter": true,
+          "preferencePreservedUntilExplicitRollback": true,
+          "capture": "/home/misael/Projects/SteamZero/build/agent-runs/continuity-20261102/consumer-integrity-package-final/installed-captures/package-recovery-compact.png"
+        }
+      ],
+      "verifiedInstalledResources": 644,
+      "applicationModulesFromInstalledPackage": 237,
+      "temporaryEnvironmentRemoved": true,
+      "realStateUnchanged": true,
+      "hostActivated": false,
+      "captures": [
+        {
+          "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/12-installed-recovery-wide.png",
+          "bytes": 69729,
+          "sha256": "c48849254aef020f47a19c577e6b06747c36623657eebaeb0a0f8e8a311d904a",
+          "size": [
+            1280,
+            900
+          ],
+          "meaning": "Installed wheel980b477c; actual package recovery modal/wide, before confirmation. Real typing, inspect, confirmation, import and preference rollback subsequently passed. Pointer/input/fit proof, not complete accessibility or hardware certification."
+        },
+        {
+          "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context/13-installed-recovery-compact.png",
+          "bytes": 63712,
+          "sha256": "2edc11c45c0983349788535e4dbf74344becca734d185699a042e50d57b0066c",
+          "size": [
+            840,
+            900
+          ],
+          "meaning": "Installed wheel980b477c; actual package recovery modal/compact, before confirmation. Real typing, inspect, confirmation, import and preference rollback subsequently passed. Pointer/input/fit proof, not complete accessibility or hardware certification."
+        }
+      ],
+      "executedQaSources": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context-qa-sources.json",
+      "executedQaSourcesSha256": "af52f33b7e25fe48308c14eac156335c094bc0a1bc5562ab22aedaa56ce95402",
+      "level": "Non-editable installed wheel980b477c, isolated synthetic profile. Actual Qt controls/HTTP/backend/disk/readback; authoring1280x900 and840x900 large text plus Launcher RHI on software OpenGL. No /opt activation, live corpus, gameplay, physical controls or complete accessibility qualification.",
+      "instrumentationHistory": "Initial aggregate exit1 and two focused exit1 attempts preserved. The extra harness clicked/typed before the TextField layout was polished (width0), so input had no focus. Await the same >=48px field geometry, center click, actual focus and exact typed path; no forced focus, handler shortcut or application/assertion threshold change. Focused wide/compact passed, then consolidated12 journeys and all9 stages passed. Controlled disconnect warning replaces the original BrokenPipe traceback."
+    },
+    "finalDocumentaryValidation": {
+      "testsPassed": 13,
+      "seconds": 13.61,
+      "realStateUnchanged": true,
+      "statusCheck": "passed; final generated-view regeneration after ownership metadata only"
+    }
+  },
+  "rollbackProvenance": {
+    "state": "source and installed package accepted, local evidence closed for the existing PR268",
+    "baseCommit": "2d2b9c59f904b1b78ad89410d3b8aa031e04a68e",
+    "changes": [
+      "Theme publication delegates to the existing Core transaction, durable journal and hash-verified backup; compatibility undoPath retained.",
+      "Catalog rollback validates operation identity, kind, target, current fingerprint and old assets before mutation; unknown/foreign/stale operations refuse, consumed rollback is idempotent.",
+      "GC derives rollback ownership from bounded Core backups as well as legacy compatibility snapshots, including interrupted publication; damaged or empty journals refuse collection.",
+      "Generic History refuses theme acquisition/preference rollback, including previously pending confirmation plans; owning theme services preserve their reference checks.",
+      "Frontend CLI rollback reuses each adapters existing kind/root/target validation; unrelated operations refuse without mutation. Valid3MiB ES-DE before-image remains byte-exactly recoverable.",
+      "Theme directory symlink is refused before publication/removal/rollback so aliases cannot turn a foreign operation into an owned one or bypass the actual active consumer."
+    ],
+    "baselines": {
+      "identity": "4 failed/1.10s",
+      "coreAssets": "2 failed/2.20s",
+      "context": "7 failed,1 passed/5.22s; fresh-root producer already worked and was retained",
+      "validFrontendSize": "Candidate regression: new domain reader initially refused a valid3MiB ES-DE before-image (1 failed/1.17s); corrected before R1 without changing generic History4MiB bound.",
+      "emptyJournal": "Candidate fault: new Core producer/graph initially allowed GC after journal truncation (1 failed/1.37s); corrected before R1.",
+      "directoryAlias": "1 actual isolated test failed in0.50s: alias directory resolves to another theme, so its operation was accepted and deleted the real manifest. Baseline retained in build/agent-runs/continuity-20261102/rollback-theme-alias-baseline.xml."
+    },
+    "focused": {
+      "passed": 154,
+      "seconds": 12.41,
+      "junit": "build/agent-runs/continuity-20261102/rollback-provenance-focused-junit.xml",
+      "realStateUnchanged": true
+    },
+    "crashRecovery": "Real isolated child receives SIGKILL at apply.backup, apply.verify and apply.after-commit; Core recover rolls back uncommitted and keeps committed publication; GC retains prior assets with compatibility snapshot absent; domain undo restores committed replacement byte-exactly.",
+    "limits": [
+      "Controlled source fixtures and actual isolated child processes; no new installed or hardware acceptance yet.",
+      "Unproven legacy snapshots are retained and refused; historical explicit migration/recovery remains open.",
+      "No cross-process writer/GC atomicity qualification; same-app bridge serialization is not proof for simultaneous CLI writers.",
+      "Host release, personal profile, boot and privileged state remain unchanged.",
+      "Domain-owned original transaction plan read is bounded32MiB; generic History keeps4MiB bound. Valid3MiB ES-DE before-image is tested; arbitrary aggregate plan sizes are not qualified."
+    ],
+    "fullSuiteR1": {
+      "pytestExitCode": 0,
+      "supervisorExitCode": 88,
+      "passed": 7287,
+      "skipped": 48,
+      "warnings": 21,
+      "pytestSeconds": 3052.1,
+      "supervisorSeconds": 3080.0800253579946,
+      "testedFiles": 3751,
+      "testedFilesUnchanged": true,
+      "signals": [],
+      "realStateUnchanged": true,
+      "coverage": {
+        "current": 85.72721072338294,
+        "requiredBaseline": 85.75618340013686,
+        "nonRegression": false
+      },
+      "frozenManifestSha256": "f2ea5caf6072e1559746a9b27be625e08df8881c58ffca83bd56ca8b0637992a",
+      "prefix": "build/agent-runs/studio-native-wheel/full-20261102-rollback-provenance-r1",
+      "acceptance": "refused; passing tests alone do not close a coverage failure"
+    },
+    "additionalFaultProof": {
+      "passed": 87,
+      "seconds": 41.11,
+      "coveredModule": "steamzero.domain.theme_acquire",
+      "moduleCoverage": 88.56502242152466,
+      "notGlobalApplicationCoverage": true,
+      "junit": "build/agent-runs/continuity-20261102/rollback-fault-proof-r2-junit.xml",
+      "applicationSourceChangedAfterR1": false,
+      "proofs": [
+        "Controlled recovery-copy I/O and operation-recording callback failures trigger Core rollback, preserve the original manifest and assets, and permit retry.",
+        "Concurrent write at real plan creation is preserved, operation refuses before publication and replanning succeeds.",
+        "Symlink/directory current manifest refuses before mutation; repaired owned file unlocks rollback.",
+        "Hash-owned opaque legacy before-image restores exact bytes, without claiming semantic validity.",
+        "Each exhausted journal/backup budget refuses GC without deleting orphan or live assets; restored allowance unlocks actual collection and byte-exact rollback.",
+        "Malformed/oversized/foreign-identity journal refuses GC and rollback until repaired.",
+        "Shared Core journal skips unrelated domains, preserves unowned notes and releases media only after verified terminal undo."
+      ],
+      "intermediate": "76 tests passed, but targeted module coverage82.74% failed the unchanged85% threshold; raw report retained. No threshold or assertion changed."
+    },
+    "harnessCorrections": "Initial crash/context harness attempts had4 failures, then1 failure from missing child import path and dataclass access. Instrumentation corrected; raw JUnit retained. Final focused154 pass before R1.",
+    "fullSuiteR2": {
+      "state": "cancelled, not acceptance",
+      "supervisorExitCode": 143,
+      "childExitCode": -15,
+      "seconds": 910.1929193370015,
+      "signals": [
+        {
+          "signal": 15,
+          "seconds": 908.8048320779926
+        }
+      ],
+      "testedFiles": 3751,
+      "testedFilesUnchanged": true,
+      "frozenManifestSha256": "f6b0d17fd1fba042e7ae4c9681ac41cc76f993a04d94a53583b96492849b57bf",
+      "reason": "Owned supervisor received SIGTERM only after isolated real baseline proved an in-root directory symlink could use another themes operation to delete its manifest. No tracked file changed until the supervisor returned; following focused runner confirms personal state unchanged.",
+      "receipt": "build/agent-runs/studio-native-wheel/full-20261102-rollback-provenance-r2-result.json"
+    },
+    "directoryAliasCorrection": {
+      "cause": "Logical theme directory alias was resolved to the target before ownership comparison; requested alias could also bypass the real targets consumer guard.",
+      "correction": "Shared ThemeTransaction manifest-path validation refuses a symlink directory before install/uninstall/rollback. Existing root containment and target/hash guards remain.",
+      "applicationDeltaAfterR2": "One condition in theme_acquire.py; no Core executor, lock, journal or transaction source changed.",
+      "focused": {
+        "passed": 174,
+        "seconds": 9.75,
+        "themeAcquireCoverage": 88.56502242152466,
+        "junit": "build/agent-runs/continuity-20261102/rollback-alias-final-focused-junit.xml"
+      },
+      "additionalHttp": {
+        "passed": 1,
+        "seconds": 1.85,
+        "proof": "Actual loopback HTTP activates a native theme, alias uninstall refuses E-THEME-UNSAFE, real active target refuses E-THEME-ACTIVE, preference/manifest unchanged; explicit HTTP switch to default unlocks removal, readback confirms default.",
+        "junit": "build/agent-runs/continuity-20261102/rollback-http-alias-focused.xml"
+      },
+      "realStateUnchanged": true
+    },
+    "staticR3": {
+      "ruff": "All src/tools/tests passed;742 files formatted. Final subsequently added HTTP test file also passed Ruff and format.",
+      "mypy": "307 source files passed after the alias correction.",
+      "architecture": "Runtime independence and boundaries passed with0 violations after the alias correction.",
+      "baseline": "Unchanged consumer-integrity full coverage85.75618340013686, never lowered."
+    },
+    "functionalCommits": {
+      "domain": "f7d2d2cc76b48be7d043c5c1091f0539404b2e24",
+      "cliIntegration": "eb41577f4a8d1e97b888a8807e1acef4ca6a85c1"
+    },
+    "fullSuiteR3": {
+      "passed": 7308,
+      "skipped": 48,
+      "pytestSeconds": 2666.59,
+      "supervisorExitCode": 86,
+      "coverage": 85.77731998942137,
+      "acceptance": "refused by state guard after production application started during the window",
+      "testedFilesUnchanged": true,
+      "diagnosis": "User journal locates the production desktop and QML in the desktop app systemd unit. The user manager activated the installed daemon within the same window. No inference about who initiated the desktop launch. Raw process log remains private."
+    },
+    "fullSuiteR4": {
+      "exitCode": 0,
+      "seconds": 2326.212450559,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "coverage": {
+        "current": 85.7842796097045,
+        "baseline": 85.75618340013686,
+        "nonRegression": true,
+        "branches": 18274
+      },
+      "passed": 7308,
+      "skipped": 48,
+      "warnings": 22,
+      "pytestSeconds": 2311.17,
+      "testedFiles": 3751,
+      "testedManifest": "studio-native-rollback-tested-files.json",
+      "testedManifestSha256": "c87947309b6a377c947fb171a6bf1fa8faeb33f1d72f380b56e7fe5d3ad659b8",
+      "sameFrozenTreeAsR3": true,
+      "realStateUnchanged": true,
+      "realStateFiles": 13013
+    },
+    "installedAcceptance": {
+      "sourceCommit": "b183a3feb469ae4d9646762d5f74eceb40da6231",
+      "sourceDirty": false,
+      "bytes": 4010573,
+      "sha256": "ed5af599058e84bb150009cae20c777a35b10f8eca48b0a0874a3a5b381e629a",
+      "steps": 9,
+      "seconds": 58.84485215300083,
+      "cases": 58,
+      "installedResources": 644,
+      "installedModules": 242,
+      "caseNames": [
+        "native-authoring-wide",
+        "native-authoring-compact",
+        "active-preference",
+        "stale-activation",
+        "preference-rollback-reimport",
+        "gc-rollback-with-compatibility",
+        "gc-rollback-core-only",
+        "http-journey-saved",
+        "http-journey-draft",
+        "http-journey-history",
+        "http-journey-bezel",
+        "interrupted-apply.backup",
+        "interrupted-apply.verify",
+        "interrupted-apply.after-commit",
+        "damaged-bytes",
+        "damaged-symlink",
+        "damaged-directory",
+        "damaged-journal",
+        "damaged-empty-journal",
+        "damaged-journal-header",
+        "damaged-journal-identity",
+        "damaged-journal-kind",
+        "history-theme-context",
+        "history-pending-preference",
+        "legacy-snapshot-preserved",
+        "missing-old-asset",
+        "rollback-idempotent",
+        "superseded-install",
+        "frontend-large-beforeimage",
+        "frontend-foreign-srm-emulator.config",
+        "frontend-foreign-srm-theme.acquire",
+        "frontend-other-srm",
+        "frontend-root-srm",
+        "frontend-foreign-esde-emulator.config",
+        "frontend-foreign-esde-theme.acquire",
+        "frontend-other-esde",
+        "frontend-root-esde",
+        "frontend-positive-cli",
+        "publication-fault-compatibility-copy",
+        "publication-fault-state-recorder",
+        "publication-concurrent-write",
+        "current-manifest-symlink",
+        "current-manifest-directory",
+        "opaque-owned-beforeimage",
+        "budget-max_theme_journal_bytes",
+        "budget-max_theme_journal_records",
+        "budget-max_theme_journal_scan_entries",
+        "budget-max_theme_journal_scan_bytes",
+        "budget-max_rollback_manifest_bytes",
+        "budget-max_rollback_manifests",
+        "budget-max_rollback_total_bytes",
+        "shared-core-journal",
+        "directory-alias-install",
+        "directory-alias-uninstall",
+        "directory-alias-rollback",
+        "http-active-directory-alias",
+        "package-recovery-wide",
+        "package-recovery-compact"
+      ],
+      "captures": [
+        {
+          "file": "studio-native-context/14-installed-rollback-recovery-wide.png",
+          "width": 1280,
+          "height": 900,
+          "bytes": 68770,
+          "sha256": "ccc87ab6592ae4dd1d9fcab321e7275d139d7903baca9bafc73cd0ef50747c8a",
+          "reviewed": true
+        },
+        {
+          "file": "studio-native-context/15-installed-rollback-recovery-compact.png",
+          "width": 840,
+          "height": 900,
+          "bytes": 63920,
+          "sha256": "58e4bb794107622eae25c9190d4045ea0491993fbb5fbd3a2b8f74d140fb8caa",
+          "reviewed": true
+        }
+      ],
+      "qaSources": "studio-native-rollback-qa-sources.json",
+      "qaSourcesSha256": "f55879445e00048fc289a67efc4d0fed42820733c9736c8d5556a6e245c2ecfd",
+      "profileRemoved": true,
+      "realStateUnchanged": true,
+      "level": "Installed non-editable package, isolated synthetic profiles and controlled fault injection, Qt software authoring and RHI Launcher; no host activation, personal-profile migration, full catalog-download UI or physical hardware acceptance.",
+      "failedAttempt": {
+        "successfulCasesBeforeHarnessFailure": 22,
+        "cause": "History fixture found a directory pre-created by the package harness. Relative evidence path also resolved beneath the temporary child working directory.",
+        "recovery": "Select History fixture before creating a dashboard, use an absolute evidence path, and type an anonymous temporary ZIP path in Qt. Same wheel and assertions."
+      }
+    },
+    "host": {
+      "activeRelease": "2.0.0rc1-59ecc2d8f0f6",
+      "actions": [
+        "read active release symlink",
+        "read scoped user journal for R3 attribution",
+        "run disposable package profiles"
+      ],
+      "activationQualified": false,
+      "hardwareQualified": false
+    }
+  },
+  "importedEntryPlayback": {
+    "state": "Frozen source and isolated installed Studio playback accepted.",
+    "previousCanonicalAssignmentCi": {
+      "run": 41757901078,
+      "head": "f00de9a5424712be3ec8ed7da4c230238fd8371a",
+      "jobsPassed": 8,
+      "syntheticCheckout": "ab2a353a4b79a0245a321ea8288206b67c9bf950",
+      "identicalTree": "691d2e13b2346ca9ef3c6323ccce23118ecf0f8f",
+      "coverage": 85.65440666204024,
+      "baseline": 85.57966677338085,
+      "coverageArtifactId": 13289497173,
+      "coverageArtifactSha256": "28b38d457af7c87807a719fe41321959f45538a4206ec5d3fe6d0e19c799a20b"
+    },
+    "installed": {
+      "sourceCommit": "637d05bb79279959647d0ca61daf3b8879c12ff0",
+      "bytes": 4017957,
+      "sha256": "b02e33e3d3b0f733496ed8c65cc35e5b6c975c3f82ad610d172ae1bb786178c6",
+      "steps": 9,
+      "cases": 63,
+      "seconds": 79.1933763979996,
+      "installedResources": 644,
+      "installedModules": 247,
+      "realStateUnchanged": true,
+      "temporaryEnvironmentRemoved": true,
+      "capture": "studio-native-context/19-installed-retrofe-entry-studio.png",
+      "captureSha256": "c5b0656ed595519d631d7a31fdc2cbf8a33222ae5364214b1ddc908569d1892c",
+      "qaSources": "studio-imported-entry-qa-sources.json",
+      "previousAttempt": "The Qt screenshot helper wrote a valid PNG but exposed no return value. The first harness invocation misinterpreted this as a failure. The corrected harness verifies the PNG on disk and reused the same wheel and application assertions."
+    },
+    "functionalCommits": [
+      "6eb17801",
+      "d9e8c94b"
+    ],
+    "focused": "72 importer, renderer, preview and Studio tests passed. Eight focused Qt/viewport tests passed after the final field alignment and inspection of four updated dialog references.",
+    "fullSource": {
+      "run": "full-20261103-imported-entry-r2",
+      "exitCode": 0,
+      "passed": 7319,
+      "skipped": 48,
+      "warnings": 22,
+      "seconds": 2439.53,
+      "coverage": 85.85439613794634,
+      "baseline": 85.84594031922276,
+      "files": 3761,
+      "manifest": "studio-imported-entry-tested-files.json",
+      "manifestSha256": "f0f83b46e00fffce54b9634c56739313839940dd7df8b08c8a19824c663f51da"
+    },
+    "previousAttempt": "R1 passed 7318 tests with 48 skips and one failure. The RetroFE dialog image gate showed the intended new Play control and field layout. Four references were inspected and refreshed after aligning the form fields. Pixel comparison and geometry assertions remained intact.",
+    "scope": "Studio opens saved RetroFE scenes by ID using the existing read-only action and synthetic data. The shared Qt renderer plays supported entry alpha and position across parallel clips and sequential blocks. Reduced motion applies final values without interpolation. Unsupported timelines remain explicit and retain the base appearance.",
+    "limits": "Selection and resolution of persisted RetroFE scenes in Launcher, additional events, translation of source tween attributes, unsupported endpoints, menu and audio remain open. Existing ES-DE rendering and native theme behavior retain separate acceptance."
+  },
+  "canonicalAssignments": {
+    "state": "Complete frozen source gate and final isolated installed acceptance passed.",
+    "finalInstalledAcceptance": {
+      "sourceCommit": "50fe36ba0df7849174d2ff7998f0390929e9ba70",
+      "sourceDirty": false,
+      "bytes": 4015598,
+      "sha256": "13d12e2987e16153fb167ae668eb0047e3199cf53600141ef6a5f033b25776d6",
+      "steps": 9,
+      "cases": 62,
+      "seconds": 68.85583283300002,
+      "installedResources": 644,
+      "installedModules": 247,
+      "realStateUnchanged": true,
+      "temporaryEnvironmentRemoved": true,
+      "qaSources": "studio-native-assignment-qa-sources.json",
+      "captures": [
+        "studio-native-context/16-installed-canonical-assignment-wide.png",
+        "studio-native-context/17-installed-canonical-assignment-compact.png",
+        "studio-native-context/18-installed-canonical-assignment-launcher.png"
+      ],
+      "harnessCorrection": "The first invocation stopped before installation because the wheel path was relative to the evidence folder. The runner expects a path relative to the checkout. The corrected receipt reused the same wheel and assertions."
+    },
+    "finalSourceGate": {
+      "functionalCommit": "e37c7275",
+      "run": "full-20261103-canonical-assignment-r6",
+      "passed": 7319,
+      "skipped": 48,
+      "exitCode": 0,
+      "coverage": 85.84594031922276,
+      "baseline": 85.7842796097045,
+      "manifest": "studio-native-assignment-tested-files-r2.json",
+      "manifestSha256": "3eddab3b680163244a10f05038ca65932307d4add7f66b04ed2562d18a5fc7b2",
+      "attempts": "R2 received SIGTERM. R3 and R5 timed out in the SIGINT cancellation tests under detached execution. R4 was stopped by the memory preflight. R6 restored default SIGINT handling before starting the supervisor and passed all required checks in the suite."
+    },
+    "baseCommit": "84534364560168f36b0c1d94a73c8137b21650e2",
+    "baseCi": {
+      "id": 41643626678,
+      "head_sha": "84534364560168f36b0c1d94a73c8137b21650e2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678",
+      "jobs": [
+        {
+          "name": "Gate visual QML (Linux)",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137157"
+        },
+        {
+          "name": "Smoke Ubuntu 24.04",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137466"
+        },
+        {
+          "name": "Wheel limpo, smoke e supply chain",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137492"
+        },
+        {
+          "name": "Python 3.14",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137566"
+        },
+        {
+          "name": "Python 3.12",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137616"
+        },
+        {
+          "name": "Smoke Manjaro",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137647"
+        },
+        {
+          "name": "Python 3.11",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137660"
+        },
+        {
+          "name": "Smoke Arch Linux",
+          "conclusion": "success",
+          "html_url": "https://github.com/Misael-art/steam-zero/actions/runs/41643626678/job/125943137703"
+        }
+      ],
+      "coverage": {
+        "artifactId": 13235316103,
+        "sha256": "0a884d6c1d80c960adc6802dbf40a57d13fc3a7007856b4e0ea08c2ef4e52823",
+        "current": 85.57966677338085,
+        "baseline": 85.55647109757972,
+        "nonRegression": true
+      },
+      "checkout": "de3c8d47b001bf747cc9eab270c52d78bb09ed97",
+      "trees": {
+        "84534364560168f36b0c1d94a73c8137b21650e2": "c99d9e5ec4954ef2b0281eb64da81e56938d319e",
+        "de3c8d47b001bf747cc9eab270c52d78bb09ed97": "c99d9e5ec4954ef2b0281eb64da81e56938d319e"
+      },
+      "treeMatchesHead": true
+    },
+    "changes": [
+      "Studio searches canonical Launcher games, selects a preserved image and a role, shows a preview, and waits for confirmation.",
+      "MediaRegistry reuses assignments-v1.json, validates the master by digest, preserves other roles and opaque fields, and publishes through Core with original fingerprint and editor/game context.",
+      "Launcher and Studio consume the same role aliases and registry paths. A changed registry invalidates the Studio journey projection, including after History rollback.",
+      "Existing video assignments remain readable. The new authoring action supports the six image roles."
+    ],
+    "proof": {
+      "baseline": "1 failed because no preserved-master assignment operation existed",
+      "domainFinal": "114 passed / 7.92s. Targeted MediaRegistry and Launcher media coverage87.16%, not the global value.",
+      "contractCorrection": "Broad focused run165 pass and one route-inventory failure. Grouped membership was replaced with explicit existing dispatch style. Route inventory plus live HTTP then passed2 cases.",
+      "qt": "2 real authoring+Launcher Qt cases passed33.81s with actual canonical cover association and contextual source binding. Final broad focused run also exercised those Qt cases.",
+      "qtHarnessCorrection": "Earlier run failed to enter the intended multi-word filter through the Qt key helper. Platform query checks actual input text and selection. Preserved full prior visual assertions and exercised real selected master in Launcher.",
+      "realStateUnchanged": true
+    },
+    "limits": [
+      "Source and installed runs used disposable libraries. Studio Qt software and Launcher Qt RHI exercised the real bridge, persistence and rendering in isolated profiles.",
+      "Associations require a valid bounded registry and catalog. Snapshot/confirmation detects drift and fails closed. Legacy direct collection writers and broad global master deduplication need separate convergence.",
+      "Hardware, full accessibility, personal profiles, and imported playback retain their separate status."
+    ],
+    "fullSource": {
+      "rawExitCode": 1,
+      "passed": 7317,
+      "skipped": 48,
+      "warnings": 26,
+      "failed": 1,
+      "pytestSeconds": 2203.56,
+      "supervisorSeconds": 2215.97566845,
+      "soleFailure": "tests/unit/test_capability_matrix.py::test_committed_matrix_matches_the_code",
+      "correction": "Official generator updated the published action count159→162. The only frozen tracked file changed by this correction was the generated capability matrix. Code and tests remain identical. Verify regenerated views under AGENTS section6.",
+      "coverage": 85.84020432525472,
+      "baseline": 85.7842796097045,
+      "branches": 18324,
+      "testedFiles": 3755,
+      "testedManifest": "studio-native-assignment-tested-files.json",
+      "testedManifestSha256": "d2fb0accae816cf8f76d25c18397abb109fecd25d2e59e8d266871d4fa0ee526",
+      "realStateUnchanged": true
+    },
+    "firstInstalledAcceptance": {
+      "sourceCommit": "0c231b66f7ebee802438ea2851b67bb92f712c40",
+      "sourceDirty": false,
+      "bytes": 4015512,
+      "sha256": "91834c1a4dffc384a2d604eec0a882258259e3ab1e7f6fa50d456f3d3c0efcf8",
+      "cases": 61,
+      "steps": 9,
+      "seconds": 63.531863546999375,
+      "realStateUnchanged": true,
+      "qualification": "Initial package passed the selected journeys. Superseded for delivery after the separately reproduced Steam-only reader gap."
+    },
+    "steamOnly": {
+      "baseline": "1 failed / 1.09s with actual disposable ACF library, no emulation catalog, original cover present, and real application projection. Studio omitted the row and Launcher used the existing Steam cover rather than the association.",
+      "correction": "Treat a Steam-only catalog as an authoritative source. Seed Launcher metadata from the canonical media projection for all catalog games. The assigned cover takes precedence when it resolves. Preserve the Steam fallback and its bytes.",
+      "focused": "120 passed / 23.67s across catalog, metadata projection, Steam catalog, media projection, desktop contract and bridge. Actual entrypoint model and Studio projection agree, including after Core rollback.",
+      "baselinePath": "build/agent-runs/continuity-20261102/canonical-assignment-steam-baseline.xml",
+      "focusedPath": "build/agent-runs/continuity-20261102/canonical-assignment-steam-final-junit.xml"
+    },
+    "generatedViewReconciliation": {
+      "tests": 20,
+      "seconds": 6.41,
+      "makeCapabilityMatrix": "passed",
+      "makeStatusCheck": "passed",
+      "codeUnchangedFromR1DuringViewCorrection": true
+    }
+  },
+  "diagnosticRepair20261105": {
+    "owner": "codex-central-executor",
+    "branch": "codex/product-recovery-2026-10-16",
+    "pr": 268,
+    "lastPublishedSha": "cb1d6f87ee4a3096944ef1e54abc7eb6a3542ac7",
+    "inheritedChanges": 35,
+    "baseline": "Diagnostic reproduced two installed data losses, interrupted pair publication, stale Launcher media and Qt undefined boolean.",
+    "queue": [
+      {
+        "id": "SZ-THEME-IMPORT-RETROFE",
+        "state": "em validação",
+        "objective": "Preserve conflicting IDs and whole scene revisions, including rollback artwork",
+        "evidence": "67 focused tests passed in 12.50s, software Qt and private profiles",
+        "next": "Frozen integral then isolated package and existing PR",
+        "blocker": null
+      },
+      {
+        "id": "SZ-THEME-STUDIO",
+        "state": "em validação",
+        "objective": "Recover compact Journey panel and connect saved imported scene",
+        "evidence": "Same 67 focused cases",
+        "next": "Full gate",
+        "blocker": null
+      },
+      {
+        "id": "SZ-AURA-LAUNCHER",
+        "state": "em validação",
+        "objective": "Reobserve actual assets through the shared scene resolver",
+        "evidence": "Live bridge reports resolved/degraded/resolved after isolated asset removal/restoration",
+        "next": "Full gate and package",
+        "blocker": null
+      },
+      {
+        "id": "SZ-RECOVERY-R3-LAUNCHER-JOURNEY",
+        "state": "bloqueado",
+        "objective": "Installed gameplay and return",
+        "evidence": "Installed pointer remains 59ecc2d8",
+        "next": "Operator provides installation authorization and dedicated physical window",
+        "blocker": "Current recovery forbids privileged installation and personal desktop testing"
+      },
+      {
+        "id": "SZ-CAST-LAN",
+        "state": "bloqueado",
+        "objective": "Pair and transmit to real receiver",
+        "next": "Receiver and dedicated session",
+        "blocker": "Physical receiver not provisioned for this task"
+      },
+      {
+        "id": "SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP",
+        "state": "bloqueado",
+        "objective": "Private external restore",
+        "next": "Operator-controlled external destination and readback",
+        "blocker": "External private backup destination and restore sample unavailable"
+      }
+    ],
+    "limits": [
+      "No new host installation/authentication/release/merge/boot",
+      "Fault injection and Qt software are isolated proofs",
+      "Nine mockups remain after functional recovery",
+      "Import publication now delegates to core.transaction and reports operationId; general operation recovery restores interrupted pairs"
+    ],
+    "fullGate": {
+      "run": "full-20261105-diagnostic-r2",
+      "passed": 7334,
+      "skipped": 48,
+      "seconds": 2747.82,
+      "coverage": 85.87214763246588,
+      "baseline": 85.85439613794634,
+      "frozenFiles": 3764,
+      "unchanged": true,
+      "exitCode": 0,
+      "limits": "Private development XDG profile, fixture/software Qt; no gameplay or activation"
+    },
+    "nextAction": "Publish clean continuity checkpoint/PR268 and verify remote SHA/checks. Keep physical installation/gameplay and owner-loss flakiness investigation separate; next authorized source work follows status backlog without restoring private quota plugin.",
+    "focusedFollowup": "57 passed in 12.02s, includes .assets IDs through real GC and rollback retained assets.",
+    "commits": [
+      {
+        "title": "test(host): preserve unmanaged user units across release changes",
+        "sha": "dd026fec374cfa534eab2fdddb1ca2d4910e8884",
+        "files": [
+          "tests/integration/test_host_installer.py"
+        ]
+      },
+      {
+        "title": "test: stabilize process probe and invalid cursor coverage",
+        "sha": "b392dc9497b20b5f682d7ae109c14e324ec4d3e0",
+        "files": [
+          "tests/unit/test_host_probing_coverage.py",
+          "tests/unit/test_playtime.py"
+        ]
+      },
+      {
+        "title": "fix(launcher): keep imported scene notices legible above navigation",
+        "sha": "6461ed8b4ddcd0812466a0b629a71b1292bb3c2a",
+        "files": [
+          "src/steamzero/ui/qml/launcher/LauncherCinema.qml",
+          "tests/qml/check_theme_scene_runtime_e2e.qml"
+        ]
+      }
+    ],
+    "packageCheckpoint": {
+      "commit": "fedee5cb554866a3d649b973ca41f936ba791c95",
+      "wheelSha256": "335f7aa243b62d6008e1cd739f68bf05dc7743a6507f70bf4d67b7af8fa6a323",
+      "steps": 9,
+      "cases": 17,
+      "seconds": 58.5936,
+      "resources": 644,
+      "modulesCheckedBeforeSceneCases": 240,
+      "isolated": true,
+      "hostActivated": false,
+      "initialHarnessFailure": "FileExistsError in fixture setup. Fixed runner profile directory without changing product or assertions."
+    },
+    "visualFollowup": "Package screenshot exposed dark text on dark warning and overlap with footer. Candidate now uses white text and anchors loss notice above actual footer.17 focused pass/8.83s. Full and revised package pending.",
+    "interruption": {
+      "state": "interrupted",
+      "gate": "full-20261105-diagnostic-r3",
+      "finalResultAvailable": false,
+      "lastProgressApproxPercent": 28,
+      "cause": "Host reboot reported by operator; causal diagnosis unknown",
+      "nextAction": "Operator authorized containment of private unit, now inactive/disabled; resume bounded serial validation."
+    },
+    "legacyContainment": {
+      "state": "contained",
+      "observedAt": "2026-11-05T08:25:29Z",
+      "newJournalRecords": 0,
+      "observationSeconds": 69.66,
+      "unitUnchanged": true,
+      "rebootCause": "unknown"
+    },
+    "fullGateR4": {
+      "state": "failed",
+      "passed": 7338,
+      "skipped": 48,
+      "failed": 1,
+      "seconds": 2347.89,
+      "supervisorSeconds": 2360.1365453439994,
+      "testedFilesUnchanged": true,
+      "signals": [],
+      "profileUnchanged": true,
+      "catalogFailure": "Ignored generated src/steamzero/_build_info.py left by prior wheel build had no custodian. Bytes matched fedee5cb wheel; preserved under ignored build evidence and moved out of source. No test weakened.",
+      "cleanupFailure": "OSError ENOTEMPTY at temporary root; only empty runtime/pulse remained, no matching environment consumers found, empty directories removed. Writer not proven.",
+      "coverage": 85.86720811060927,
+      "baselineCoverage": 85.87214763246588,
+      "coverageNonRegression": false,
+      "followup": "73 focused tests passed; only generated COVERAGE view stale after metadata move. Re-render, deterministic proc/cursor regressions, then one new full checkpoint R5 with original coverage baseline; do not label R4 green."
+    },
+    "fullGateR5": {
+      "state": "interrupted-after-failures",
+      "seconds": 310.4129361060004,
+      "testedFilesUnchanged": true,
+      "profileUnchanged": true,
+      "failuresObserved": 3,
+      "signal": 2,
+      "signalOwner": "this task, to stop an already failing heavy run",
+      "limitation": "SIGINT propagated through Xvfb/runner before pytest printed failure detail; inferred test names from marker offsets and unchanged collection, not a preserved assertion traceback.",
+      "suspectedCases": [
+        "test_live_descendant_prevents_recovery_after_owner_and_leader_exit",
+        "test_qml_retains_terminal_context_after_reply_loss_and_restarts[post-reply-loss]",
+        "test_qml_retains_terminal_context_after_reply_loss_and_restarts[terminal-get-restart]"
+      ],
+      "focusedFollowup": {
+        "withoutCoverage": "14 passed in108.79s",
+        "withCoverage": "3 passed in29.45s; command exit1 because narrow diagnostic coverage10.84% does not meet global85%, no threshold relaxed"
+      },
+      "cause": "not reproduced in isolation; unknown",
+      "nextAction": "One full fail-fast diagnostic checkpoint R6 with --maxfail=1 --tb=short, same frozen product and coverage baseline, bounded resources; do not label intermittent failures fixed."
+    },
+    "deterministicCoverageFollowup": {
+      "tests": 68,
+      "seconds": 1.81,
+      "catalogTests": 13,
+      "catalogSeconds": 6.91,
+      "staticChecks": "passed; mypy307 sources after own generated build metadata preserved outside source"
+    },
+    "fullGateR6": {
+      "exitCode": 0,
+      "seconds": 2506.4843238460007,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "coverage": {
+        "current": 85.8776727996022,
+        "baseline": 85.87214763246588,
+        "nonRegression": true,
+        "branches": 18430
+      },
+      "state": "passed",
+      "pytestPassed": 7351,
+      "pytestSkipped": 48,
+      "pytestWarnings": 22,
+      "pytestSeconds": 2494.49,
+      "profileUnchanged": true,
+      "cleanup": "completed without error",
+      "testedManifestSha256": "5e4401928f2c629a73a0b71bcfa97f19ad2e8a073537aa9d8fc1bf05ce6ba847",
+      "resourceWatch": {
+        "samples": 251,
+        "minimumAvailableKiB": 4972296,
+        "maximumAcpiC": 97.0,
+        "actions": [],
+        "ended": true
+      },
+      "limits": "R4 cleanup writer and R5 intermittent assertion cause remain unproven; this complete run passed without weakening tests or baseline. No host activation or physical acceptance."
+    },
+    "packageCheckpointFinal": {
+      "sourceCommit": "4a894a8723b213285c9a014b552708a82d291c4d",
+      "wheelSha256": "39efd2dee7daf6638eb4884e75d1443fd6905ef8ee558057303e18fdf8941542",
+      "bytes": 4022383,
+      "stepsPassed": 9,
+      "casesPassed": 17,
+      "verifiedResources": 644,
+      "verifiedModules": 241,
+      "seconds": 54.96150164199935,
+      "profilePreserved": true,
+      "temporaryEnvironmentRemoved": true,
+      "hostActivated": false,
+      "receipt": "studio-diagnostic-20261105-package.json",
+      "visualInspection": "passed for warning contrast/footer and controlled missing-scene notice; synthetic installed-package QA only"
+    }
+  }
+}

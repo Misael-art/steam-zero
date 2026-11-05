@@ -297,3 +297,55 @@ def test_a_theme_without_selection_blocks_gets_no_invented_selection(tmp_path: P
     )
 
     assert rendered["selection"] == {"effective": {}, "themeDefault": {}}
+
+
+def test_retrofe_exit_motion_normalizes_like_entry() -> None:
+    from steamzero.domain.theme_scene import _normalize_retrofe_scene
+
+    clip = {"property": "x", "from": 400, "to": "25%"}
+    scene = {
+        "views": [
+            {
+                "canvas": {"width": 800, "height": 600},
+                "elements": [
+                    {
+                        "layout": {"x": 0},
+                        "on": {"exit": [{"duration": 0.2, "animations": [clip]}]},
+                    }
+                ],
+            }
+        ]
+    }
+    out = _normalize_retrofe_scene(scene)
+    moved = out["views"][0]["elements"][0]["on"]["exit"][0]["animations"][0]
+    assert moved["from"] == 0.5
+    assert moved["to"] == 0.25
+    assert clip["from"] == 400  # cena armazenada intacta
+
+
+def test_retrofe_malformed_timelines_are_left_untouched() -> None:
+    from steamzero.domain.theme_scene import _normalize_retrofe_scene
+
+    elements = [
+        {"layout": {"x": 0}, "on": "not-a-dict"},
+        {"layout": {"x": 0}, "on": {"exit": "not-a-list"}},
+        {"layout": {"x": 0}, "on": {"exit": ["not-a-block", {"animations": "nope"}]}},
+        {"layout": {"x": 0}, "on": {"enter": [{"animations": ["clip", {"property": "alpha"}]}]}},
+    ]
+    scene = {"views": [{"canvas": {"width": 800, "height": 600}, "elements": elements}]}
+    out = _normalize_retrofe_scene(scene)
+    got = out["views"][0]["elements"]
+    assert got[0]["on"] == "not-a-dict"
+    assert got[1]["on"] == {"exit": "not-a-list"}
+    assert got[2]["on"]["exit"] == ["not-a-block", {"animations": "nope"}]
+    assert got[3]["on"]["enter"][0]["animations"] == ["clip", {"property": "alpha"}]
+
+
+def test_retrofe_fraction_keeps_values_it_cannot_read() -> None:
+    from steamzero.domain.theme_scene import _retrofe_fraction
+
+    assert _retrofe_fraction("abc%", 800) == "abc%"
+    assert _retrofe_fraction("left", 800) == "left"
+    assert _retrofe_fraction(True, 800) is True
+    assert _retrofe_fraction(float("inf"), 800) == float("inf")
+    assert _retrofe_fraction("50%", 800) == 0.5

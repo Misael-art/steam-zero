@@ -11,15 +11,16 @@ visível antes de qualquer gravação.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from steamzero.core import fs, paths
+from steamzero.core import paths, transaction
 from steamzero.core.errors import SteamZeroError
-from steamzero.domain import theme_assets
+from steamzero.domain import theme_assets, theme_scene
 from steamzero.domain.scene_retrofe import compile_layout, fidelity_report
 
 MAX_LAYOUT_BYTES = 8 * 1024 * 1024
@@ -267,7 +268,7 @@ def apply(
     ``overwrite=true`` explícito; o shell decide quando uma cena pode virar a
     aparência corrente.
     """
-    if not SCENE_ID.fullmatch(scene_id):
+    if len(scene_id) > 128 or not SCENE_ID.fullmatch(scene_id):
         raise SteamZeroError("E-THEME-MANIFEST", detail=f"id de cena inválido: {scene_id!r}")
     if not name.strip() or not author.strip() or not license_id.strip():
         raise SteamZeroError("E-THEME-MANIFEST", detail="nome, autor e licença são obrigatórios")
@@ -290,44 +291,50 @@ def apply(
             "E-CONTENT-INCOMPLETE",
             detail=f"assets RetroFE indisponíveis ou recusados: {', '.join(missing[:8])}",
         )
-    target = paths.scenes_dir() / f"{scene_id}.json"
-    if target.exists() and not overwrite:
-        raise SteamZeroError(
-            "E-SCENE-ID-EXISTS",
-            detail=f"cena '{scene_id}' já existe; marque Substituir para trocá-la",
-        )
-    if target.is_symlink():
-        raise SteamZeroError("E-THEME-UNSAFE", detail="destino de cena é symlink")
-    asset_manifest = paths.scenes_dir() / f"{scene_id}.assets.json"
-    if asset_manifest.is_symlink():
-        raise SteamZeroError("E-THEME-UNSAFE", detail="manifesto de assets é symlink")
-    store = theme_assets.ThemeAssetStore(paths.theme_assets_dir())
-    stored_assets = {}
-    for logical_path in asset_report["available"]:
-        stored = store.put(logical_path, _asset_path(root, logical_path).read_bytes())
-        stored_assets[logical_path] = stored.to_dict()
-    fs.write_atomic_text(target, json.dumps(scene, ensure_ascii=False, indent=2) + "\n")
-    fs.write_atomic_text(
-        asset_manifest,
-        json.dumps(
-            {
-                "schemaVersion": 1,
-                "sceneId": scene_id,
-                "origin": {
-                    "family": "retrofe",
-                    "author": author.strip(),
-                    "license": license_id.strip(),
-                },
-                "assets": stored_assets,
+    with theme_scene.imported_scene_publication(create=True):
+        target = paths.scenes_dir() / f"{scene_id}.json"
+        if target.exists() and not overwrite:
+            raise SteamZeroError(
+                "E-SCENE-ID-EXISTS",
+                detail=f"cena '{scene_id}' já existe; marque Substituir para trocá-la",
+            )
+        if target.is_symlink():
+            raise SteamZeroError("E-THEME-UNSAFE", detail="destino de cena é symlink")
+        asset_manifest = paths.scenes_dir() / f"{scene_id}.assets.json"
+        if asset_manifest.is_symlink():
+            raise SteamZeroError("E-THEME-UNSAFE", detail="manifesto de assets é symlink")
+        if target.exists() or asset_manifest.exists():
+            # Both names must already belong to this scene. With dotted IDs a
+            # neighbouring scene can occupy either name, even on overwrite.
+            theme_scene.validate_imported_pair(target, asset_manifest, scene_id)
+        store = theme_assets.ThemeAssetStore(paths.theme_assets_dir())
+        stored_assets = {}
+        for logical_path in asset_report["available"]:
+            stored = store.put(logical_path, _asset_path(root, logical_path).read_bytes())
+            stored_assets[logical_path] = stored.to_dict()
+        scene_bytes = (json.dumps(scene, ensure_ascii=False, indent=2) + "\n").encode()
+        manifest = {
+            "schemaVersion": 1,
+            "sceneId": scene_id,
+            "sceneSha256": hashlib.sha256(scene_bytes).hexdigest(),
+            "origin": {
+                "family": "retrofe",
+                "author": author.strip(),
+                "license": license_id.strip(),
             },
-            ensure_ascii=False,
-            indent=2,
+            "assets": stored_assets,
+        }
+        manifest_bytes = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode()
+        plan = transaction.plan_write_files(
+            {target: scene_bytes, asset_manifest: manifest_bytes},
+            root=target.parent,
+            kind="theme.retrofe.import",
         )
-        + "\n",
-    )
+        published = transaction.apply(plan.plan_id, plan.confirm_token)
     return {
         "sceneId": scene_id,
         "path": str(target),
+        "operationId": published.operation_id,
         "layout": selected.relative_path,
         "family": "retrofe",
         "report": fidelity_report(scene),

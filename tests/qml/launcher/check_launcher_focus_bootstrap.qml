@@ -211,7 +211,9 @@ Item {
             const scene = createTemporaryObject(sceneComponent, harness)
             const message = scene.launchErrorText(0, "")
             verify(message.indexOf("LAUNCHER-BRIDGE-OFFLINE-001") >= 0)
-            verify(message.indexOf("Volte e tente novamente") >= 0)
+            verify(message.indexOf("Confira a sessão") >= 0)
+            verify(message.indexOf("não foi confirmado") >= 0)
+            verify(message.indexOf("não foi iniciado") < 0)
             compare(scene.requestTimeoutMs, 3000,
                     "requisição à ponte não pode prender a interface indefinidamente")
         }

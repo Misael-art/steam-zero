@@ -27,6 +27,8 @@ from steamzero.adapters.launcher_ui import LauncherBridge
 from steamzero.adapters.session_overlay import SessionOverlayAdapter
 from steamzero.core import paths
 from steamzero.launcher.app import build_sections, build_titles, main
+from steamzero.launcher.launch import CONTEXT_OWNER
+from steamzero.launcher.navigation import HomeSection
 
 
 def _wayland_listener(path: Path) -> socket.socket:
@@ -352,6 +354,82 @@ def test_the_bridge_publishes_context_consumed_by_the_real_entry_point(tmp_path:
     with bridge.serving() as base:
         model = _get(f"{base}/model", bridge.token)
     assert model["returnContext"] == {"gameId": "celeste", "focusId": "library:celeste"}
+
+
+@pytest.mark.parametrize("schema", [1, 2])
+@pytest.mark.parametrize("catalog", ["neighbour", "section-removed", "empty"])
+def test_model_resolves_missing_return_card_without_rewriting_identity(tmp_path, schema, catalog):
+    payload = {"gameId": "gone", "focusId": "library:gone"}
+    if schema == 2:
+        payload.update(
+            schemaVersion=2,
+            owner=CONTEXT_OWNER,
+            launchRequestId="01ARZ3NDEKTSV4RRFFQ69G5FAV",
+        )
+    context = tmp_path / "context.json"
+    context.write_text(json.dumps(payload))
+    before = context.read_bytes()
+    sections = () if catalog == "empty" else (HomeSection("top", "Top", ("first",)),)
+    if catalog == "neighbour":
+        sections += (HomeSection("library", "Library", ("survivor",)),)
+    bridge = LauncherBridge(
+        sections=sections,
+        context_path=context,
+        return_context=payload,
+        on_launch=lambda *_: pytest.fail("model must not launch"),
+        session_by_id=lambda *_: pytest.fail("model must not reconcile lifecycle"),
+    )
+    expected = {
+        "neighbour": "library:survivor",
+        "section-removed": "top:first",
+        "empty": "empty:action",
+    }[catalog]
+    with bridge.serving() as base:
+        for _ in range(2):
+            model = _get(f"{base}/model", bridge.token)
+            assert model["returnContext"] == payload
+            assert model["returnFocus"] == expected
+            assert expected in model["focusMap"]["nodes"]
+            assert model["returnDiagnostics"][0]["code"] == "LAUNCHER-RETURN-MISSING-001"
+            assert model["returnDiagnostics"][0]["fallback"] == expected
+            if schema == 2:
+                assert model["launchRecovery"] == {
+                    "requestId": payload["launchRequestId"],
+                    "sessionId": payload["launchRequestId"],
+                    "gameId": "gone",
+                    "focusId": "library:gone",
+                }
+            else:
+                assert model["launchRecovery"] is None
+            assert context.read_bytes() == before
+
+
+@pytest.mark.parametrize(
+    "payload,expected,code",
+    [
+        (None, "top:first", None),
+        ({"gameId": "survivor", "focusId": "library:survivor"}, "library:survivor", None),
+        ({"gameId": "gone", "focusId": "../invalid"}, "top:first", "LAUNCHER-RETURN-INVALID-002"),
+    ],
+)
+def test_model_return_projection_handles_absent_present_and_invalid_focus(
+    tmp_path, payload, expected, code
+):
+    bridge = LauncherBridge(
+        sections=(
+            HomeSection("top", "Top", ("first",)),
+            HomeSection("library", "Library", ("survivor",)),
+        ),
+        context_path=tmp_path / "absent-context.json",
+        return_context=payload,
+        on_launch=lambda *_: pytest.fail("projection must not launch"),
+    )
+    model = bridge.model()
+    assert model["returnFocus"] == expected
+    assert model["returnContext"] == payload
+    assert model["launchRecovery"] is None
+    assert [entry["code"] for entry in model["returnDiagnostics"]] == ([code] if code else [])
+    assert not (tmp_path / "absent-context.json").exists()
 
 
 def test_the_launcher_model_publishes_scan_reconciliation(tmp_path: Path) -> None:

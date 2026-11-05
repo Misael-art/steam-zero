@@ -79,6 +79,7 @@ def motion_editor_schema() -> dict[str, Any]:
     """Expose the allowlisted motion controls and bounds used by validation."""
     return {
         "states": list(NATIVE_STATES),
+        "easings": sorted(EASINGS),
         "timelineKinds": ["sequence", "parallel"],
         "keyframes": {
             "opacity": {"minimum": 0.0, "maximum": 1.0, "step": 0.05, "decimals": 2},

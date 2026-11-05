@@ -29,6 +29,139 @@ def _write_theme(themes_dir: Path, manifest: dict[str, object] | None = None) ->
     return theme_dir
 
 
+def _nested_assets_theme(themes_dir: Path) -> tuple[Path, dict[str, bytes]]:
+    assets = {
+        "assets/logos/platform/logo.svg": b'<svg xmlns="http://www.w3.org/2000/svg" '
+        b'width="64" height="48"><rect width="64" height="48" fill="#13bdf2"/></svg>',
+        "assets/backgrounds/platform/logo.svg": b'<svg xmlns="http://www.w3.org/2000/svg" '
+        b'width="64" height="48"><rect width="64" height="48" fill="#ff9f1a"/></svg>',
+        "assets/icons/unused.svg": b'<svg xmlns="http://www.w3.org/2000/svg"/>',
+        "assets/plain.svg": b'<svg xmlns="http://www.w3.org/2000/svg"/>',
+    }
+    theme_dir = _write_theme(
+        themes_dir,
+        {
+            **_VALID_MANIFEST,
+            "license": "CC0-1.0",
+            "extends": "org.steamzero.asset-recipes-demo",
+            "assets": {
+                "logo": "assets/logos/platform/logo.svg",
+                "background": "assets/backgrounds/platform/logo.svg",
+            },
+        },
+    )
+    for relative, data in assets.items():
+        path = theme_dir / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+    return theme_dir, assets
+
+
+def _theme_bytes(root: Path) -> dict[str, bytes]:
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+@pytest.mark.parametrize("upload", [False, True], ids=["metadata", "uploaded-logo"])
+def test_nested_assets_survive_save_reopen_export_import(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, upload: bool
+) -> None:
+    from steamzero.domain.theme_install import ThemeInstaller
+
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
+    theme_dir, expected = _nested_assets_theme(tmp_path / "data/steamzero/themes")
+    manager = ThemeEditorManager()
+    session_id = str(manager.load(theme_dir.name)["sessionId"])
+    manager.set_metadata(session_id, "name", "Artes preservadas")
+    if upload:
+        data = expected["assets/backgrounds/platform/logo.svg"]
+        manager.set_asset(session_id, "logo", data, "logo.svg")
+        expected["assets/logo.svg"] = data
+
+    manager.save(session_id, overwrite=True)
+
+    assert {
+        name: data for name, data in _theme_bytes(theme_dir).items() if name != "theme.json"
+    } == (expected)
+    reopened = manager.load(theme_dir.name)
+    assert reopened["manifest"]["name"] == "Artes preservadas"
+    selected = "assets/logo.svg" if upload else "assets/logos/platform/logo.svg"
+    assert reopened["manifest"]["assets"]["logo"] == selected
+    assert reopened["manifest"]["assets"]["background"] == "assets/backgrounds/platform/logo.svg"
+    assert reopened["preview"]["assetUris"]["logo"] == (theme_dir / selected).as_uri()
+    before_repeat = _theme_bytes(theme_dir)
+    manager.save(str(reopened["sessionId"]), overwrite=True)
+    assert _theme_bytes(theme_dir) == before_repeat
+
+    package = tmp_path / "theme.zip"
+    package.write_bytes(manager.export_zip(str(reopened["sessionId"])))
+    with zipfile.ZipFile(package) as archive:
+        for relative, data in expected.items():
+            assert archive.read(f"{theme_dir.name}/{relative}") == data
+    ThemeInstaller().install(str(package), force=True)
+    assert _theme_bytes(theme_dir) == before_repeat
+    imported = ThemeEditorManager().load(theme_dir.name)
+    assert imported["manifest"] == reopened["manifest"]
+    assert imported["preview"]["assetUris"] == reopened["preview"]["assetUris"]
+
+
+@pytest.mark.parametrize(
+    "unreadable", ["assets/logos/platform/logo.svg", "assets/icons/unused.svg"]
+)
+def test_nested_asset_read_failure_preserves_theme_and_draft_for_retry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unreadable: str
+) -> None:
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    theme_dir, assets = _nested_assets_theme(tmp_path / "data/steamzero/themes")
+    before = _theme_bytes(theme_dir)
+    manager = ThemeEditorManager()
+    session_id = str(manager.load(theme_dir.name)["sessionId"])
+    manager.set_metadata(session_id, "name", "Recuperado")
+    uploaded = assets["assets/backgrounds/platform/logo.svg"]
+    manager.set_asset(session_id, "logo", uploaded, "logo.svg")
+    history = manager.history(session_id)
+    original_read = Path.read_bytes
+
+    def read(path: Path) -> bytes:
+        if path == theme_dir / unreadable:
+            raise PermissionError("fixture: leitura do asset negada")
+        return original_read(path)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "read_bytes", read)
+        with pytest.raises(PermissionError, match="fixture"):
+            manager.save(session_id, overwrite=True)
+
+    assert _theme_bytes(theme_dir) == before
+    assert manager.history(session_id) == history
+    assert history["history"]["dirty"] is True
+    with zipfile.ZipFile(io.BytesIO(manager.export_zip(session_id))) as archive:
+        assert archive.read(f"{theme_dir.name}/assets/logo.svg") == uploaded
+    manager.save(session_id, overwrite=True)
+    assert manager.history(session_id)["history"]["dirty"] is False
+    assert (theme_dir / unreadable).read_bytes() == assets[unreadable]
+    assert (theme_dir / "assets/logo.svg").read_bytes() == uploaded
+    assert json.loads((theme_dir / "theme.json").read_text())["name"] == "Recuperado"
+
+
+def test_nested_assets_are_unchanged_when_overwrite_is_not_confirmed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    theme_dir, _assets = _nested_assets_theme(tmp_path / "data/steamzero/themes")
+    before = _theme_bytes(theme_dir)
+    manager = ThemeEditorManager()
+    session_id = str(manager.load(theme_dir.name)["sessionId"])
+    manager.set_metadata(session_id, "name", "Sem confirmação")
+    history = manager.history(session_id)
+
+    with pytest.raises(SteamZeroError, match="E-THEME-ID-EXISTS"):
+        manager.save(session_id)
+
+    assert _theme_bytes(theme_dir) == before
+    assert manager.history(session_id) == history
+
+
 class TestEditorCreate:
     def test_create_new_session(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))

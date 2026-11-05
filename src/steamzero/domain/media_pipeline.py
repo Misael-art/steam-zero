@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import os
 import re
 from collections.abc import Callable, Mapping
@@ -18,7 +19,7 @@ from steamzero.domain.media_optimizer import (
     OptimizerCapability,
     OptimizerProfile,
 )
-from steamzero.domain.media_registry import MediaMasterEntry, MediaRegistry, Provenance
+from steamzero.domain.media_registry import MediaMasterEntry, MediaRegistry, MediaSource, Provenance
 from steamzero.ports import MediaCandidate, MediaProviderPort
 
 _OWNERSHIP_MARKER = "# SteamZero-Boot-Managed: true"
@@ -121,6 +122,55 @@ class MediaPipeline:
         self._optimizer_tool = optimizer_tool
         self._candidate_fetcher = candidate_fetcher or _download_candidate
         self._registry = MediaRegistry.load(media_root)
+
+    def preserve_source(
+        self,
+        data: bytes,
+        filename: str,
+        provenance: Provenance,
+        *,
+        expected_source: MediaSource | None = None,
+    ) -> MediaSource:
+        """Decode and preserve a single selected master, without transforming it.
+
+        This does not invent a game assignment or an optimized cache. It extends
+        the same registry used by the media pipeline. No per-theme file is made.
+        """
+        from PIL import Image
+
+        from steamzero.domain.asset_recipes import validate_asset_source
+
+        try:
+            validate_asset_source(data)
+            with Image.open(io.BytesIO(data)) as image:
+                width, height = image.size
+                if (
+                    not (1 <= width <= 8192 and 1 <= height <= 8192)
+                    or width * height > 32 * 1024 * 1024
+                ):
+                    raise ValueError("dimensões da fonte excedem o limite")
+                image.load()
+                format_name = str(image.format).lower()
+                has_alpha = "A" in image.getbands() or "transparency" in image.info
+            digest = hashlib.sha256(data).hexdigest()
+            source = MediaSource(
+                digest,
+                f"masters/sources/{digest}.{format_name}",
+                filename,
+                format_name,
+                width,
+                height,
+                has_alpha,
+                len(data),
+                replace(provenance, hash_sha256=digest),
+            )
+        except (OSError, ValueError, Image.DecompressionBombError) as exc:
+            raise SteamZeroError("E-THEME-UNSAFE", detail=f"master inválido: {exc}") from exc
+        if expected_source is not None and source != expected_source:
+            raise SteamZeroError(
+                "E-CONTENT-INCOMPLETE", detail="metadados não correspondem ao master decodificado"
+            )
+        return MediaRegistry.publish_source(self._media_root, source, data)
 
     # --- 1. COLLECT ---
     def collect(
@@ -461,8 +511,19 @@ class MediaPipeline:
                         )
         report.stats["viewLinks"] = len(view_files)
 
+        preserved: set[str] = set()
+        if platform_segment is None:
+            # These sources have no platform assignment. A filtered audit must
+            # neither count nor read this global namespace (even if corrupt).
+            preserved = {
+                Path(s.path).relative_to("masters").as_posix()
+                for s in MediaRegistry.sources(self._media_root)
+            }
+            report.stats["preservedSources"] = len(preserved)
         orphan_masters = 0
         for master_rel in master_files:
+            if master_rel in preserved:
+                continue
             master_path = masters_dir / master_rel
             found = any(
                 (optimized_dir / p).exists()
@@ -522,6 +583,10 @@ class MediaPipeline:
                 if (
                     resolved.is_relative_to(masters_dir.resolve(strict=True))
                     and resolved not in referenced
+                    # Preserved sources (including interrupted publication) are
+                    # never disposable cache. Removal needs a separate explicit
+                    # source lifecycle, not cache pruning.
+                    and candidate.relative_to(masters_dir).parts[0] != "sources"
                 ):
                     removals.add(resolved)
         return transaction.plan_write_files(

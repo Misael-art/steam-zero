@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import ctypes.util
 import stat
 from pathlib import Path
 
@@ -21,6 +22,37 @@ def state(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
 
 
 # --- escrita atômica -------------------------------------------------------
+def test_repeated_custody_resolves_libc_once_without_clobbering(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    find_library = ctypes.util.find_library
+    discoveries: list[str] = []
+
+    def discover(name: str) -> str | None:
+        discoveries.append(name)
+        return find_library(name)
+
+    fs._libc_name.cache_clear()
+    monkeypatch.setattr(ctypes.util, "find_library", discover)
+    try:
+        for number in range(2):
+            source = tmp_path / f"source-{number}"
+            custody = tmp_path / f"custody-{number}"
+            source.write_bytes(b"preserved")
+            assert fs.take_custody_named(source, custody) == custody
+            assert custody.read_bytes() == b"preserved"
+            assert not source.exists()
+        intruder = tmp_path / "source-2"
+        intruder.write_bytes(b"intruder")
+        with pytest.raises(FileExistsError):
+            fs.take_custody_named(intruder, tmp_path / "custody-0")
+        assert intruder.read_bytes() == b"intruder"
+        assert (tmp_path / "custody-0").read_bytes() == b"preserved"
+        assert discoveries == ["c"]
+    finally:
+        fs._libc_name.cache_clear()
+
+
 def test_write_atomic_content_and_perms(tmp_path: Path) -> None:
     p = tmp_path / "sub" / "file.txt"
     fs.write_atomic_text(p, "olá")

@@ -513,6 +513,7 @@ def test_component_apply_timeout_names_the_operation_to_follow(
     """Timeout de mutação não permite retry, mas deixa o trabalho observável."""
     from steamzero.service import client as mod
 
+    monkeypatch.delenv("STEAMZERO_NO_DAEMON", raising=False)
     monkeypatch.setattr(mod, "verify_generation", lambda **_kw: {"sourceCommit": "x"})
     monkeypatch.setattr(
         mod,

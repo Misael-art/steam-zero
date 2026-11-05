@@ -37,6 +37,7 @@ from steamzero.adapters.desktop_kde import (
 from steamzero.adapters.diagnostics import DiagnosticsService
 from steamzero.adapters.emulation import EmulationController
 from steamzero.adapters.flatpak import FlatpakCLI
+from steamzero.adapters.journey_studio import JourneyStudioService
 from steamzero.adapters.lifecycle import ComponentLifecycle, route_for
 from steamzero.adapters.registry import AdapterManifest, AdapterRegistry
 from steamzero.adapters.resource_probe import ResourceProbe
@@ -60,6 +61,7 @@ from steamzero.domain import (
 from steamzero.domain.bios_sources import approved_bios_sources, resolve_approved_bios_source
 from steamzero.domain.collections import CollectionManager
 from steamzero.domain.emulation_workspace import build_emulation_workspace
+from steamzero.domain.experience_journey import JourneyBudgetError
 from steamzero.domain.operation_history import OperationHistory
 from steamzero.domain.playtime import PlaytimeCatalog
 from steamzero.domain.readiness import not_measured
@@ -176,7 +178,7 @@ def _rewrite_theme_package_as_copy(source: str, scratch: Path) -> Path:
     old_id = str(manifest.get("id", ""))
     if not THEME_ID_RE.fullmatch(old_id):
         raise SteamZeroError("E-THEME-MANIFEST", detail="id do pacote inválido para cópia")
-    new_id = f"{old_id}.copy{ids.new_ulid().casefold()[:6]}"
+    new_id = f"{old_id}.copy{ids.new_ulid().casefold()}"
     if not THEME_ID_RE.fullmatch(new_id):
         raise SteamZeroError("E-THEME-MANIFEST", detail="id de cópia inválido")
     target = scratch / "copy.zip"
@@ -195,11 +197,18 @@ def _rewrite_theme_package_as_copy(source: str, scratch: Path) -> Path:
                 if parts[0] == old_id:
                     parts[0] = new_id
                 data = package.read(info)
-                if parts[-1] == "theme.json" and len(parts) <= 2:
+                if name in {"theme.json", f"{old_id}/theme.json"}:
                     doc = json.loads(data)
                     doc["id"] = new_id
                     doc["name"] = f"{doc.get('name', old_id)} (cópia)"
                     data = json.dumps(doc, indent=2).encode("utf-8")
+                elif name == "theme-bundle.json":
+                    bundle = json.loads(data)
+                    bundle["primary"] = new_id
+                    bundle["themes"] = [
+                        new_id if key == old_id else key for key in bundle["themes"]
+                    ]
+                    data = json.dumps(bundle, indent=2).encode("utf-8")
                 out.writestr("/".join(parts), data)
     return target
 
@@ -239,6 +248,27 @@ def _peek_theme_manifest(source: str) -> dict[str, Any]:
                 raise SteamZeroError("E-THEME-MANIFEST", detail="o pacote não contém um theme.json")
             # Manifesto da raiz vence: um tema aninhado não pode se passar por outro.
             entry = min(entries, key=lambda name: name.count("/"))
+            if "theme-bundle.json" in package.namelist():
+                marker = package.getinfo("theme-bundle.json")
+                if marker.file_size > 8192:
+                    raise SteamZeroError(
+                        "E-THEME-MANIFEST", detail="manifesto de pacote excede 8 KiB"
+                    )
+                try:
+                    bundle = json.loads(package.read(marker))
+                    primary = bundle["primary"]
+                    if (
+                        bundle.get("schemaVersion") != 1
+                        or bundle.get("kind") != "steamzero-theme-bundle-v1"
+                        or not isinstance(primary, str)
+                        or not THEME_ID_RE.fullmatch(primary)
+                    ):
+                        raise ValueError("identidade primária do pacote inválida")
+                    entry = f"{primary}/theme.json"
+                    if entry not in entries:
+                        raise ValueError("manifesto primário ausente")
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise SteamZeroError("E-THEME-MANIFEST", detail=str(exc)[:400]) from exc
             info = package.getinfo(entry)
             if info.file_size > _THEME_MANIFEST_MAX_BYTES:
                 raise SteamZeroError(
@@ -1844,9 +1874,23 @@ class DesktopDashboard:
         """
         manifest = _peek_theme_manifest(source)
         theme_id = str(manifest.get("id") or "")
-        if not theme_id:
-            raise SteamZeroError("E-THEME-MANIFEST", detail="theme.json sem id")
-        installed = {str(item.get("id")) for item in self.theme_list()}
+        if not THEME_ID_RE.fullmatch(theme_id):
+            raise SteamZeroError("E-THEME-MANIFEST", detail="theme.json com id inválido")
+        target = paths.themes_dir() / theme_id
+        manifest_path = target / "theme.json"
+        if (
+            target.is_symlink()
+            or manifest_path.is_symlink()
+            or (target.exists() and not target.is_dir())
+        ):
+            raise SteamZeroError("E-THEME-UNSAFE", detail="destino de tema inseguro")
+        # The catalog intentionally retains invalid directories for diagnosis.
+        # Their presence does not mean a removed manifest is still installed.
+        builtin = any(
+            item.get("id") == theme_id and item.get("origin") == "builtin"
+            for item in self.theme_list()
+        )
+        installed = builtin or manifest_path.is_file()
         return {
             "themeId": theme_id,
             "name": str(manifest.get("name") or theme_id),
@@ -1854,7 +1898,8 @@ class DesktopDashboard:
             "author": str(manifest.get("author") or ""),
             "license": str(manifest.get("license") or ""),
             "extends": str(manifest.get("extends") or ""),
-            "alreadyInstalled": theme_id in installed,
+            "alreadyInstalled": installed,
+            "hasPreservedData": not installed and target.is_dir(),
         }
 
     def theme_import_zip_apply(
@@ -2022,16 +2067,54 @@ class DesktopDashboard:
             force=overwrite,
         )
 
-    def theme_catalog_rollback(self, theme_id: str, operation_id: str) -> dict[str, Any]:
+    def theme_catalog_rollback(
+        self,
+        theme_id: str,
+        operation_id: str,
+        *,
+        additional_consumers: Callable[[str], list[str]] | None = None,
+    ) -> dict[str, Any]:
         """Desfaz uma instalação, preservando os assets compartilhados."""
-        return theme_acquire.ThemeTransaction(paths.themes_dir(), self._theme_store()).rollback(
+        return self._theme_removal_transaction(additional_consumers).rollback(
             theme_id, operation_id
         )
 
-    def theme_catalog_uninstall(self, theme_id: str) -> dict[str, Any]:
+    def theme_catalog_uninstall(
+        self, theme_id: str, *, additional_consumers: Callable[[str], list[str]] | None = None
+    ) -> dict[str, Any]:
         """Remove um tema instalado sem tocar nos blobs compartilhados."""
-        return theme_acquire.ThemeTransaction(paths.themes_dir(), self._theme_store()).uninstall(
-            theme_id
+        return self._theme_removal_transaction(additional_consumers).uninstall(theme_id)
+
+    def _theme_removal_transaction(
+        self, additional_consumers: Callable[[str], list[str]] | None
+    ) -> theme_acquire.ThemeTransaction:
+        def guard(theme_id: str) -> None:
+            if self._theme_prefs.referenced_theme_id() == theme_id:
+                raise SteamZeroError(
+                    "E-THEME-ACTIVE", detail="selecione outro tema antes de remover"
+                )
+            consumers = self._theme_editor.theme_consumers(theme_id)
+            provider = (
+                additional_consumers
+                or JourneyStudioService(paths.data_home() / "journeys").theme_consumers
+            )
+            try:
+                consumers.extend(provider(theme_id))
+            except JourneyBudgetError as exc:
+                raise SteamZeroError("E-THEME-LIMIT", detail=str(exc)) from exc
+            except (OSError, ValueError) as exc:
+                raise SteamZeroError(
+                    "E-THEME-MANIFEST",
+                    detail="jornadas indisponíveis ou inválidas; nenhuma remoção foi feita",
+                ) from exc
+            if consumers:
+                raise SteamZeroError(
+                    "E-THEME-MANIFEST",
+                    detail=("tema em uso por " + ", ".join(consumers) + "; remoção recusada")[:400],
+                )
+
+        return theme_acquire.ThemeTransaction(
+            paths.themes_dir(), self._theme_store(), removal_guard=guard
         )
 
     def theme_store_gc(self, *, apply: bool = False) -> dict[str, Any]:
@@ -2042,7 +2125,13 @@ class DesktopDashboard:
         """
         store = self._theme_store()
         live = theme_assets.live_digests(theme_assets.load_installed_manifests(paths.themes_dir()))
-        return store.collect_garbage(live, dry_run=not apply)
+        rollback = theme_acquire.rollback_live_digests()
+        with theme_scene.imported_scene_publication(create=apply):
+            imported = theme_scene.imported_live_digests()
+            result = store.collect_garbage(live | rollback | imported, dry_run=not apply)
+        result["protectedByRollback"] = len(rollback - live)
+        result["protectedByImportedScenes"] = len(imported - live - rollback)
+        return result
 
     def _theme_runtime_model(
         self, system_id: str | None, *, synthetic: bool = False
@@ -2201,6 +2290,54 @@ class DesktopDashboard:
     ) -> dict[str, object]:
         return self._theme_editor.set_metadata(session_id, meta_field, value)
 
+    def editor_create_layout(
+        self, session_id: str, layout_id: str, kind: str, template_kind: str
+    ) -> dict[str, object]:
+        return self._theme_editor.create_layout(session_id, layout_id, kind, template_kind)
+
+    def editor_sources(self, session_id: str) -> dict[str, object]:
+        from steamzero.domain.media_registry import MediaRegistry
+
+        self._theme_editor.preview(session_id)
+        sources = []
+        for source in MediaRegistry.sources(paths.media_dir()):
+            try:
+                uri = MediaRegistry.resolve_source(paths.media_dir(), source.digest).as_uri()
+                sources.append({**source.to_dict(), "uri": uri, "available": True})
+            except SteamZeroError as exc:
+                sources.append(
+                    {**source.to_dict(), "uri": "", "available": False, "reason": exc.detail}
+                )
+        return {"sources": sources}
+
+    def editor_set_source(self, session_id: str, slot: str, digest: str) -> dict[str, object]:
+        return self._theme_editor.set_source(session_id, slot, digest)
+
+    def editor_preserve_source(
+        self,
+        session_id: str,
+        slot: str,
+        source: str,
+        license_id: str,
+        origin: str,
+        attribution: str,
+    ) -> dict[str, object]:
+        from steamzero.domain.media_pipeline import MediaPipeline
+        from steamzero.domain.media_registry import Provenance
+
+        # Validate the target session/slot before preserving any selected file.
+        self._theme_editor.preview(session_id)
+        if slot not in {"logo", "background", "sidebar"}:
+            raise SteamZeroError("E-API-SCHEMA", detail="slot de master inválido")
+        payload, filename = self._editor_read_local_image(source)
+        preserved = MediaPipeline(paths.media_dir()).preserve_source(
+            payload, filename, Provenance("local-import", origin, license_id, attribution)
+        )
+        return {
+            **self._theme_editor.set_source(session_id, slot, preserved.digest),
+            "source": preserved.to_dict(),
+        }
+
     def editor_set_layout(
         self, session_id: str, layout_id: str, field: str, value: object
     ) -> dict[str, object]:
@@ -2213,17 +2350,22 @@ class DesktopDashboard:
 
     def editor_set_bezel(self, session_id: str, source: str) -> dict[str, object]:
         """Import one locally selected PNG into the current theme edit session."""
+        payload, filename = self._editor_read_local_image(source)
+        return self._theme_editor.set_asset(session_id, "bezel", payload, filename)
+
+    @staticmethod
+    def _editor_read_local_image(source: str) -> tuple[bytes, str]:
         selected = Path(source).expanduser()
         if not selected.is_absolute() or selected.is_symlink():
             raise SteamZeroError(
-                "E-THEME-UNSAFE", detail="selecione um PNG local que não seja link simbólico"
+                "E-THEME-UNSAFE", detail="selecione uma imagem local que não seja link simbólico"
             )
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
         try:
             descriptor = os.open(selected, flags)
         except OSError as exc:
             raise SteamZeroError(
-                "E-THEME-UNSAFE", detail="não foi possível abrir o PNG selecionado"
+                "E-THEME-UNSAFE", detail="não foi possível abrir a imagem selecionada"
             ) from exc
         with os.fdopen(descriptor, "rb") as stream:
             metadata = os.fstat(stream.fileno())
@@ -2232,13 +2374,11 @@ class DesktopDashboard:
                 or metadata.st_size <= 0
                 or metadata.st_size > 16 * 1024 * 1024
             ):
-                raise SteamZeroError(
-                    "E-THEME-LIMIT", detail="o PNG do bezel precisa ter até 16 MiB"
-                )
+                raise SteamZeroError("E-THEME-LIMIT", detail="a imagem precisa ter até 16 MiB")
             payload = stream.read((16 * 1024 * 1024) + 1)
         if len(payload) > 16 * 1024 * 1024:
-            raise SteamZeroError("E-THEME-LIMIT", detail="o PNG do bezel precisa ter até 16 MiB")
-        return self._theme_editor.set_asset(session_id, "bezel", payload, selected.name)
+            raise SteamZeroError("E-THEME-LIMIT", detail="a imagem precisa ter até 16 MiB")
+        return payload, selected.name
 
     def editor_edit_asset_recipe(
         self,
@@ -2408,12 +2548,37 @@ class DesktopDashboard:
 
     @staticmethod
     def apply_theme_preference(plan_id: str, confirm_token: str) -> dict[str, Any]:
-        result = ThemePreferenceManager().apply(plan_id, confirm_token)
+        def verify_reference(theme_id: str, version: str) -> None:
+            for entry in ThemeCatalog().list_catalog():
+                if entry["id"] == theme_id and entry["compatible"]:
+                    if str(entry["version"]) != version:
+                        raise SteamZeroError(
+                            "E-TX-STALE-PLAN",
+                            detail="tema mudou após a prévia; selecione novamente",
+                        )
+                    return
+            raise SteamZeroError(
+                "E-THEME-NOT-FOUND", detail="tema indisponível após a prévia; selecione novamente"
+            )
+
+        result = ThemePreferenceManager().apply(
+            plan_id, confirm_token, verify_reference=verify_reference
+        )
         return {"status": result.status, "operationId": result.operation_id}
 
     @staticmethod
     def rollback_theme(operation_id: str) -> dict[str, Any]:
-        result = ThemePreferenceManager().rollback(operation_id)
+        def verify_reference(theme_id: str, _version: str) -> None:
+            if not any(
+                entry["id"] == theme_id and entry["compatible"]
+                for entry in ThemeCatalog().list_catalog()
+            ):
+                raise SteamZeroError(
+                    "E-THEME-NOT-FOUND",
+                    detail="tema anterior indisponível; reimporte antes de desfazer",
+                )
+
+        result = ThemePreferenceManager().rollback(operation_id, verify_reference=verify_reference)
         return {"status": result.status, "operationId": result.operation_id}
 
     @staticmethod

@@ -371,6 +371,81 @@ def test_removing_referenced_menu_requires_explicit_reconnection(tmp_path: Path)
     }
 
 
+def test_theme_consumers_keep_redo_dependencies_without_mutating_the_session(
+    tmp_path: Path,
+) -> None:
+    service = JourneyStudioService(tmp_path / "journeys")
+    session = str(service.create(name="Open consumer")["sessionId"])
+    service.transact(
+        session,
+        "set-menu-appearance",
+        {"menuId": "home", "appearance": {"mode": "custom", "themeId": "org.example.used"}},
+    )
+    service.undo(session)
+    before = service.snapshot(session)
+    assert service.theme_consumers("org.example.used")
+    assert service.theme_consumers("org.example.unused") == []
+    assert service.snapshot(session) == before
+    service.redo(session)
+    assert (
+        service.snapshot(session)["document"]["menus"][0]["appearance"]["themeId"]
+        == "org.example.used"
+    )
+    service.close(session)
+    assert service.theme_consumers("org.example.used") == []
+
+
+@pytest.mark.parametrize("budget", ["files", "bytes", "snapshots"])
+def test_theme_consumer_budgets_refuse_instead_of_returning_a_partial_graph(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, budget: str
+) -> None:
+    from steamzero.adapters import journey_studio as module
+    from steamzero.domain.experience_journey import JourneyBudgetError
+
+    service = JourneyStudioService(tmp_path / "journeys")
+    session = str(service.create(name="Bounded consumer")["sessionId"])
+    service.transact(
+        session,
+        "set-menu-appearance",
+        {"menuId": "home", "appearance": {"mode": "custom", "themeId": "org.example.used"}},
+    )
+    service.save(session)
+    before = service.snapshot(session)
+    stored = {p: p.read_bytes() for p in (tmp_path / "journeys").glob("*.journey.json")}
+    setting = {
+        "files": "MAX_THEME_CONSUMER_FILES",
+        "bytes": "MAX_THEME_CONSUMER_BYTES",
+        "snapshots": "MAX_THEME_CONSUMER_SNAPSHOTS",
+    }[budget]
+    with monkeypatch.context() as patch:
+        patch.setattr(module, setting, 0)
+        with pytest.raises(JourneyBudgetError, match="nenhuma remoção"):
+            service.theme_consumers("org.example.used")
+    assert service.snapshot(session) == before
+    assert all(p.read_bytes() == data for p, data in stored.items())
+    assert service.theme_consumers("org.example.used")
+
+
+def test_theme_consumer_query_does_not_ignore_or_follow_invalid_saved_documents(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "journeys"
+    root.mkdir()
+    path = root / "org.example.broken.journey.json"
+    path.write_bytes(b"not-json")
+    service = JourneyStudioService(root)
+    with pytest.raises(ValueError):
+        service.theme_consumers("org.example.used")
+    assert path.read_bytes() == b"not-json"
+    path.unlink()
+    outside = tmp_path / "owned-outside.json"
+    outside.write_bytes(b"owned sentinel")
+    path.symlink_to(outside)
+    with pytest.raises(ValueError, match="link simbólico"):
+        service.theme_consumers("org.example.used")
+    assert outside.read_bytes() == b"owned sentinel"
+
+
 def test_custom_bezel_survives_history_save_reopen_and_journey_copy(tmp_path: Path) -> None:
     service = JourneyStudioService(tmp_path / "journeys")
     created = service.create(name="Jornada com bezel", journey_id="org.steamzero.bezel-journey")

@@ -98,6 +98,7 @@
     },
     "node": {
       "oneOf": [
+        {"type": "object", "required": ["type"], "properties": {"type": {"const": "saturation"}, "amount": {"type": "number", "minimum": 0, "maximum": 2}, "fallback": {"const": "source"}}, "additionalProperties": false},
         {
           "type": "object",
           "required": [

@@ -11,51 +11,23 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import quote, unquote, urlparse
 
+from steamzero.domain.media_registry import (
+    MEDIA_ROLE_URL_FIELDS,
+    local_media_uri,
+    public_media_uri,
+)
 from steamzero.domain.scene_layout import (
     LayoutBounds,
     LayoutRecipe,
     LayoutRecipeBook,
     resolve_scene_layouts,
 )
+from steamzero.domain.scene_motion import resolve_scene_motion
 
-
-def _local_asset_url(value: object) -> str | None:
-    """Return a safe local asset URL without widening the QML trust boundary."""
-    if (
-        not isinstance(value, str)
-        or not value.startswith("/")
-        or value.startswith("//")
-        or len(value) > 4096
-        or "\x00" in value
-        or ".." in value.split("/")
-    ):
-        return None
-    return "file://" + quote(value, safe="/")
-
-
-def _public_asset_url(value: object) -> str | None:
-    """Keep only local/package media URLs safe for the QML boundary.
-
-    Catalog imports may already have resolved a managed media path to a
-    ``file://`` URL, while older records still carry an absolute path.  Treat
-    both forms identically and allow only package URLs from trusted providers;
-    arbitrary HTTP URLs would turn a metadata field into a network side
-    channel for the launcher.
-    """
-
-    if not isinstance(value, str) or not value or "\x00" in value or len(value) > 4096:
-        return None
-    if value.startswith(("asset://", "qrc:/", "data:image/")):
-        return value
-    if value.startswith("file://"):
-        parsed = urlparse(value)
-        decoded = unquote(parsed.path)
-        if parsed.netloc not in {"", "localhost"}:
-            return None
-        return _local_asset_url(decoded)
-    return _local_asset_url(value)
+# Preserve the former internal names while sharing one URI contract.
+_local_asset_url = local_media_uri
+_public_asset_url = public_media_uri
 
 
 _PALETTE_KEYS = (
@@ -134,10 +106,10 @@ def cinema_metadata(record: Mapping[str, Any]) -> dict[str, Any]:
         ]
         if screenshots:
             result["screenshotUrls"] = screenshots
-    for role in ("cover", "fanart", "logo", "icon", "marquee", "video"):
-        direct = _public_asset_url(record.get(role + "Url"))
+    for field in MEDIA_ROLE_URL_FIELDS.values():
+        direct = _public_asset_url(record.get(field))
         if direct is not None:
-            result[role + "Url"] = direct
+            result[field] = direct
     palette = _public_palette(record.get("palette"))
     if palette:
         result["palette"] = palette
@@ -158,13 +130,17 @@ class CinemaWindow:
     source_indices: tuple[int, ...]
 
 
-def cinema_window(items: Sequence[Mapping[str, Any]], selected: int) -> CinemaWindow:
+def cinema_window(
+    items: Sequence[Mapping[str, Any]], selected: int, *, limit: int = 7
+) -> CinemaWindow:
     """Return at most seven distinct neighbours, including the actual selection."""
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 7:
+        raise ValueError("Cinema window limit must be within its published budget 1..7")
     if not items:
         return CinemaWindow((), 0, ())
     if isinstance(selected, bool) or not 0 <= selected < len(items):
         raise ValueError("Cinema selection must address the current collection")
-    count = min(7, len(items))
+    count = min(limit, len(items))
     before = (count - 1) // 2
     indices = tuple((selected + offset) % len(items) for offset in range(-before, count - before))
     return CinemaWindow(tuple(items[index] for index in indices), before, indices)
@@ -176,20 +152,35 @@ def resolve_cinema_covers(
     selected: int,
     *,
     bounds: LayoutBounds,
+    theme: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Use the validated theme recipe, rebasing selection to its bounded window.
 
     The caller supplies the theme recipe, not executable theme code. Returned
     source indices preserve identity for semantic hit targets in the shell.
     """
-    window = cinema_window(items, selected)
+    window = cinema_window(items, selected, limit=min(7, recipe.max_items))
     raw = recipe.to_dict()
-    raw.update(source="cinema.items", selected=window.selected, maxItems=7)
+    raw.update(selected=window.selected, maxItems=min(7, recipe.max_items))
     bounded = LayoutRecipe.from_dict(recipe.id, raw)
     resolved = resolve_scene_layouts(
         LayoutRecipeBook({recipe.id: bounded}),
-        {"cinema": {"items": list(window.items)}},
+        {
+            "context": {"items": list(window.items)},
+            # Compatibility aliases retain the former public selection scopes.
+            "cinema": {"items": list(window.items)},
+            "preview": {"items": list(window.items)},
+            "library": {"items": list(window.items), "games": list(window.items)},
+        },
         bounds=bounds,
+        asset_uris=(theme or {}).get("assetUris", {}),
+        asset_recipes=(theme or {}).get("assetRecipes", {}),
+        motion=resolve_scene_motion(
+            (theme or {})["sceneMotion"],
+            reduced_motion=bool((theme or {}).get("reducedMotion", False)),
+        ).to_qml_object()
+        if (theme or {}).get("sceneMotion")
+        else None,
     ).to_qml_object()
     resolved["sourceIndices"] = list(window.source_indices)
     resolved["selected"] = window.selected

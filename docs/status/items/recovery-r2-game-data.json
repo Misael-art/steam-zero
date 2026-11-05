@@ -36,7 +36,7 @@
     "docs/09-operations/evidence/2026-10-23-r2-launcher-data",
     "tests/integration/test_game_metadata_migration_recovery.py"
   ],
-  "scopeDigest": "327984e2b4fb23299ba1b9502e8398d4789a85df5a731a931774eac728470ee1",
+  "scopeDigest": "f3cc8532cdde5cc89a524840be2ce2a35ce437ea8428567ed967e5707149b824",
   "dependsOn": [
     "SZ-MEDIA-SCRAPING",
     "SZ-AURA-METADATA",
@@ -92,12 +92,24 @@
       "reference": "docs/09-operations/evidence/2026-10-23-r2-launcher-data/host-59ecc2d8/05-summary.json",
       "command": "prepare/verify/install exit0 da main 59ecc2d8 e CI push40083592868 verde; CLI/daemon/servico/socket e schema23 integros. Release parcial instalada nao inclui year-alias7d89ab0f; esse snapshot do item permanece not-packaged. Sem gameplay/hardware/rollback executado.",
       "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "Recuperacao26/10: reconciliacao do WIP e governanca na raiz unica; 29 testes focados bootstrap/export/readiness aprovados, sem delta no state pessoal. Escopo compartilhado revisado; gates integrais atuais registrados no fechamento, sem herdar aceite instalado/fisico.",
+      "result": "passed"
+    },
+    {
+      "kind": "diagnostic",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
+      "command": "R3 terminou7221passed/48skipped/1failed documental/22warnings em3058,56s;1309 entradas e estado pessoal inalterados. Cobertura85,74876854203798%>=85,72395128552097%,171 guardas críticos passam.294 módulos comparados: duas linhas do retry SQLite não exercidas, sem regressão agregada. Única falha: digests/visões alterados durante a integral; corrigir e validar somente status conforme AGENTS§6. RHI focado4pass após guard de seleção de backend; nenhuma assertiva relaxada. Fonte/Qt, não instalação/hardware.",
+      "result": "recorded"
     }
   ],
-  "nextAction": "Retomada continua em24/10: publicar PR/CI do year-alias7d89ab0f na mesma branch, 1262 hashes identicos a integral6849passed/47skipped exit0. Main/host ativo59ecc2d8 preservado. Nao pedir senha nem iniciar autenticacao ate nova direcao expressa do proprietario. Integrar somente CI terminal verde/cobertura equivalente, depois proximo trabalho independente do plano; instalacao e aceite fisico conservam fila unica.",
+  "nextAction": "Year-alias segue integrado no PR267/mainad742ca3; CI40087147293 histórico, fonte fora da release59ecc2d8. O checkpoint R3 Launcher/Studio foi composto na continuidade; execução full-20261102-continuity-r3 concluída7221/48/1 apenas status documental,1309 entradas preservadas. R2 teve7219/48/3 apenas goldens, cobertura85,75578539652244%;171 guardas críticos aprovados. Conferir candidata/CI após checkpoint verde; nenhuma autenticação nova, senha, instalação ou aceite físico.",
   "activeWorkstreams": [
     "WS-2026-10-RECOVERY-R2-GAME-DATA"
   ],
-  "updatedAt": "2026-10-24",
-  "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado. 2026-10-23: assuncao serial Codex, projecao canonica no Launcher implementada; provas de fixture/offscreen separadas de instalacao e provedor remoto. Nenhum eixo promovido ate gates e aceite aplicavel. 2026-10-24: instalada main 59ecc2d8 com operador; distribution not-packaged conserva o snapshot local com year-alias 7d89ab0f ainda nao integrado/empacotado, sem negar a release parcial instalada e comprovada no recibo host-59ecc2d8."
+  "updatedAt": "2026-11-02",
+  "notes": "Baseline 2026-10-21 (main 7b4f38fa): screenscraper.search descarta synopsis/dates/genres/developpeur do jeu ja baixado; GameRecord nao tem persistencia; desktop_dashboard e LauncherGamePage ja leem genre/year/description quando presentes. launcher_catalog.py esta sob claim ativo de WS journey-launcher-session (PR #252 mergeado, claim nao liberado): Launcher exige handoff. 2026-10-21: busca de midia ja era job; faltavam extracao, persistencia e projecao de metadados. Painel movido para o topo dos ajustes do jogo: no fim do painel ficava fora do alcance do teclado/roda na automacao. Automacao: a rolagem do painel lateral nao foi alcancada por ydotool/AT-SPI; registrado, nao contornado. 2026-10-23: assuncao serial Codex, projecao canonica no Launcher implementada; provas de fixture/offscreen separadas de instalacao e provedor remoto. Nenhum eixo promovido ate gates e aceite aplicavel. 2026-10-24: instalada main 59ecc2d8 com operador; distribution not-packaged conserva o snapshot local com year-alias 7d89ab0f ainda nao integrado/empacotado, sem negar a release parcial instalada e comprovada no recibo host-59ecc2d8.\n\n02/11/2026: reconciliação serial após testes focados contexto/Qt25, importador/renderer57 e tema/herança118 (rodada final111). Recibo studio-native-context.json separa fonte, CI e instalação. Integral inicial cancelada para corrigir integração UI identificada por revisão; sem aprovação parcial. Goldens preservados. Provas instaladas/físicas anteriores são históricas e não certificam esta candidata.\n02/11: Central primary/copy e duas regressões Launcher corrigidas;54 focados aprovados.131 testes de segurança/tema e127 Dashboard/bootstrap/Qt/renderer aprovados. Integral final pendente; sem alterar goldens.\n02/11 atualização corrente: r2 concluída7219/48/3 somente imagens antigas; três referências autorizadas/revisadas em1f6be082,22 focados verdes, r3 final em execução. Notas anteriores de espera de autorização/log403 descrevem etapas superadas; recibo atual distingue log histórico acessível via helper existente sem login de símbolo SSL ainda não observado. Nenhuma promoção instalada/física.\n02/11 resultado r3:7221pass/48skip/1falha documental, cobertura85,74876854203798% acima da base e171 guardas passam. Falha por atualização documental durante execução; resultado original preservado e correção restrita de status conforme AGENTS§6. Sem selo de integral verde nem novo aceite instalado."
 }

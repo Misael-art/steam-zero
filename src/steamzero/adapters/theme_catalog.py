@@ -9,12 +9,8 @@ import re
 import stat
 from collections.abc import Mapping
 from dataclasses import dataclass
-from functools import cache
 from pathlib import Path, PurePosixPath
 from typing import Any
-
-import jsonschema
-from jsonschema import Draft202012Validator
 
 from steamzero.core.errors import SteamZeroError
 from steamzero.domain.asset_recipes import validate_asset_source, validate_retroarch_bezel_source
@@ -25,11 +21,17 @@ from steamzero.domain.themes import (
     ResolvedTheme,
     ThemeManifest,
     ThemeResolver,
+    bind_theme_sources,
+    theme_manifest_validator,
+)
+from steamzero.domain.themes import (
+    validate_theme_manifest as _validate_manifest,
 )
 
 _THEME_PACKAGE = "steamzero.themes"
-_MAX_MANIFEST_BYTES = 256 * 1024
+_manifest_validator = theme_manifest_validator
 _MAX_VALIDATION_DETAIL = 400
+_MAX_MANIFEST_BYTES = 256 * 1024
 _MAX_FILES = 128
 _MAX_TOTAL_BYTES = 64 * 1024 * 1024
 _MAX_ASSET_BYTES = 16 * 1024 * 1024
@@ -95,43 +97,6 @@ class BezelResource:
             "applyMode": "next-launch",
             "reason": self.reason,
         }
-
-
-def _load_manifest_schema() -> dict[str, Any]:
-    schemas = importlib.resources.files("steamzero.schemas")
-    ref = schemas.joinpath("theme-manifest-v1.schema.json")
-    with importlib.resources.as_file(ref) as path:
-        loaded: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
-    # ``jsonschema.validate`` não recebe o registry multi-arquivo usado pela API.
-    # Injetar o schema empacotado preserva a mesma validação sem buscar a rede.
-    asset_schemas = []
-    for name in ("asset-recipe-v1.schema.json", "asset-recipe-v2.schema.json"):
-        asset_ref = schemas.joinpath(name)
-        with importlib.resources.as_file(asset_ref) as path:
-            asset_schemas.append(json.loads(path.read_text(encoding="utf-8")))
-    loaded["properties"]["assetRecipes"] = {"oneOf": asset_schemas}
-    layout_ref = schemas.joinpath("scene-layout-v1.schema.json")
-    with importlib.resources.as_file(layout_ref) as path:
-        loaded["properties"]["sceneLayouts"] = json.loads(path.read_text(encoding="utf-8"))
-    palette_ref = schemas.joinpath("dynamic-palette-v1.schema.json")
-    with importlib.resources.as_file(palette_ref) as path:
-        loaded["properties"]["dynamicPalette"] = json.loads(path.read_text(encoding="utf-8"))
-    glass_ref = schemas.joinpath("glass-panel-v1.schema.json")
-    with importlib.resources.as_file(glass_ref) as path:
-        loaded["properties"]["glass"] = json.loads(path.read_text(encoding="utf-8"))
-    motion_ref = schemas.joinpath("scene-motion-v1.schema.json")
-    with importlib.resources.as_file(motion_ref) as path:
-        loaded["properties"]["sceneMotion"] = json.loads(path.read_text(encoding="utf-8"))
-    surface_ref = schemas.joinpath("scene-surfaces-v1.schema.json")
-    with importlib.resources.as_file(surface_ref) as path:
-        loaded["properties"]["sceneSurfaces"] = json.loads(path.read_text(encoding="utf-8"))
-    container_ref = schemas.joinpath("scene-containers-v1.schema.json")
-    with importlib.resources.as_file(container_ref) as path:
-        loaded["properties"]["sceneContainers"] = json.loads(path.read_text(encoding="utf-8"))
-    return loaded
-
-
-_MANIFEST_SCHEMA = _load_manifest_schema()
 
 
 def list_builtin_theme_ids() -> list[str]:
@@ -209,44 +174,6 @@ def read_user_manifest_from(source_path: Path) -> ThemeManifest:
         raise SteamZeroError("E-THEME-MANIFEST", detail=str(exc)) from exc
     _validate_manifest(raw)
     return ThemeManifest.from_dict(raw)
-
-
-@cache
-def _manifest_validator() -> Draft202012Validator:
-    """Validador do manifesto de tema, compilado uma vez por processo.
-
-    ``jsonschema.validate`` recheca o proprio schema empacotado a cada chamada:
-    medido em 305 ms por manifesto na ponte do produto, o que dominava o bloco
-    ``theme`` do /status (4,1 s de 8,9 s na baseline RC-01). Validar o schema
-    que nos empacotamos nao e a checagem de seguranca do lote; a validacao da
-    instancia do manifesto permanece identica, inclusive a primeira ordem de
-    erro e a mensagem.
-    """
-    return Draft202012Validator(_MANIFEST_SCHEMA)
-
-
-def _validation_detail(exc: jsonschema.ValidationError) -> str:
-    """Descrição curta e estável da falha: caminho JSON + mensagem, sem despejo.
-
-    ``str(exc)`` faz pprint do schema *e* da instância. Com quatro pacotes ES-DE
-    malformados no diretório de temas do host, isso custava 1,2 s de CPU por
-    composição do ``theme`` no /status, e o ``theme.list`` publicava os 1,1 MB
-    resultantes na UI do Estúdio de Temas, onde ninguém consegue ler um dump de
-    schema. O caminho e a mensagem preservam o diagnóstico.
-    """
-    return f"{exc.json_path}: {exc.message}"[:_MAX_VALIDATION_DETAIL]
-
-
-def _validate_manifest(raw: dict[str, Any]) -> None:
-    try:
-        _manifest_validator().validate(raw)
-    except jsonschema.ValidationError as exc:
-        raise SteamZeroError("E-THEME-MANIFEST", detail=_validation_detail(exc)) from exc
-    api = raw.get("compatibility", {}).get("themeApi", 0)
-    if api != THEME_API_VERSION:
-        raise SteamZeroError(
-            "E-THEME-INCOMPATIBLE", detail=f"tema requer themeApi={api}, atual={THEME_API_VERSION}"
-        )
 
 
 def _check_path_safety(directory: Path) -> None:
@@ -375,7 +302,7 @@ class ThemeCatalog:
                 )
         if self._user_themes_dir is not None and self._user_themes_dir.is_dir():
             for entry in sorted(self._user_themes_dir.iterdir(), key=str):
-                if not entry.is_dir():
+                if entry.name.startswith(".") or not entry.is_dir():
                     continue
                 tid = entry.name
                 if tid in seen:
@@ -428,14 +355,16 @@ class ThemeCatalog:
                 manifests[tid] = read_builtin_manifest(tid)
         if self._user_themes_dir is not None and self._user_themes_dir.is_dir():
             for entry in self._user_themes_dir.iterdir():
-                if not entry.is_dir():
+                if entry.name.startswith(".") or not entry.is_dir():
                     continue
                 tid = entry.name
                 with contextlib.suppress(SteamZeroError):
                     manifests[tid] = validate_theme_directory(entry)
+        from steamzero.core import paths
+
         resolver = ThemeResolver(manifests)
         try:
-            return resolver.resolve(
+            result = resolver.resolve(
                 theme_id,
                 effect_capabilities=effect_capabilities,
                 performance_tier=performance_tier,
@@ -447,13 +376,14 @@ class ThemeCatalog:
                 raise
             # Pacote inválido, incompatível ou ausente não derruba a central:
             # o builtin seguro permanece o único consumidor visível.
-            return resolver.resolve(
+            result = resolver.resolve(
                 THEME_DEFAULT_ID,
                 effect_capabilities=effect_capabilities,
                 performance_tier=performance_tier,
                 high_contrast=high_contrast,
                 reduced_motion=reduced_motion,
             )
+        return bind_theme_sources(result, paths.media_dir(), user_themes_dir=self._user_themes_dir)
 
 
 _BEZEL_RESOURCE_URI = re.compile(

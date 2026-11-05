@@ -9,7 +9,6 @@
   "state": "active",
   "exclusivePaths": [
     "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
-    "tests/qml/launcher/check_launcher_journey.qml",
     "docs/09-operations/evidence/2026-10-23-r3-refresh-recovery"
   ],
   "sharedPaths": [
@@ -18,6 +17,6 @@
     "docs/status/COVERAGE.md",
     "docs/WORKLOG.md"
   ],
-  "nextAction": "Refresh R3 integrado/instalado59ecc2d8. Continuacao serial autorizada sem senha ate nova direcao expressa; R2/year-alias7d89ab0f segue para PR/CI, depois proximo slice elegivel R3. Instalacao futura/aceite fisico pendentes na fila unica, sem autenticar novamente.",
+  "nextAction": "Assunção serial prospectiva de tests/qml/launcher/check_launcher_journey.qml pelo WS-2026-10-STUDIO-DRAFT-HISTORY para prova nativa/diagnóstico CI 41133040350. Refresh R3 integrado/instalado59ecc2d8. Continuacao serial autorizada sem senha ate nova direcao expressa; R2/year-alias7d89ab0f segue para PR/CI, depois proximo slice elegivel R3. Instalacao futura/aceite fisico pendentes na fila unica, sem autenticar novamente.",
   "updatedAt": "2026-10-24"
 }

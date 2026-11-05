@@ -24,6 +24,20 @@ FocusScope {
     required property var sections
     property var catalogSummary: ({})
     property var cinemaScene: null
+    property var readinessRequest: null
+    readonly property var selectedItem: {
+        if (!sections)
+            return null
+        for (let s = 0; s < sections.length; ++s) {
+            const row = sections[s]
+            for (let i = 0; i < (row.items || []).length; ++i) {
+                const item = row.items[i]
+                if (_nodeId(row.id, item.id) === currentFocus)
+                    return item
+            }
+        }
+        return null
+    }
 
     property string currentFocus: focusMap && focusMap.initial ? focusMap.initial : ""
     // Preferências de acessibilidade herdadas do host (highContrast etc.).
@@ -264,6 +278,9 @@ FocusScope {
                             Accessible.name: qsTr("%1, jogo").arg(modelData.title)
                             Accessible.role: Accessible.Button
                             Accessible.description: qsTr("Abrir a página de %1").arg(modelData.title)
+                                + (home.currentFocus === nodeId && selectedReadiness.active
+                                   ? ". " + selectedReadiness.badgeText + ". "
+                                     + String(selectedReadiness.observation.reason || "") : "")
 
                             function activate() {
                                 return home.activateItem(card.nodeId, String(card.modelData.id))
@@ -298,6 +315,31 @@ FocusScope {
                                 // o pico de memória de decodificar a arte nativa.
                                 sourceSize.width: width * 2
                                 sourceSize.height: height * 2
+                            }
+                            Rectangle {
+                                objectName: "cardReadinessBadge"
+                                visible: home.currentFocus === card.nodeId && selectedReadiness.active
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.margins: 6
+                                height: badgeLabel.implicitHeight + 12
+                                radius: 6
+                                color: "#ed071019"
+                                z: 2
+                                Text {
+                                    id: badgeLabel
+                                    objectName: "cardReadinessText"
+                                    anchors.fill: parent
+                                    anchors.margins: 6
+                                    text: selectedReadiness.badgeText
+                                    textFormat: Text.PlainText
+                                    color: "#ffffff"
+                                    font.pixelSize: 12 * Math.max(1, Number(home.accessibility.visualScale || 1))
+                                    maximumLineCount: 2
+                                    wrapMode: Text.Wrap
+                                    elide: Text.ElideRight
+                                }
                             }
                             // Placeholder honesto quando não há arte: um retângulo
                             // com a inicial do sistema, nunca imagem "de capa".
@@ -341,11 +383,57 @@ FocusScope {
         anchors.fill: parent
         visible: home.cinemaScene !== null && !home.empty
         focus: visible
+        anchors.bottomMargin: readinessPanel.visible ? readinessPanel.height + 36 : 0
         scene: home.cinemaScene
         currentFocus: home.currentFocus
         accessibility: home.accessibility
         onActivated: home.activateCurrent()
         onMoveRequested: function(direction) { home.move(direction) }
+    }
+
+    // A single observer follows the semantic selection in both native and
+    // Cinema layouts. Moving focus never prepares a game or scans every tile.
+    Rectangle {
+        id: readinessPanel
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottomMargin: 24
+        width: Math.min(parent.width - 48, 680)
+        height: readinessContent.implicitHeight + 20
+        radius: 8
+        color: "#f2071019"
+        z: 3
+        visible: selectedReadiness.active
+        Column {
+            id: readinessContent
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 10
+            spacing: 4
+            Text {
+                width: parent.width
+                text: selectedReadiness.gameTitle
+                textFormat: Text.PlainText
+                color: "#ffffff"
+                font.pixelSize: 14 * Math.max(1, Number(home.accessibility.visualScale || 1))
+                elide: Text.ElideRight
+            }
+            LauncherReadiness {
+                id: selectedReadiness
+                objectName: "selectedGameReadiness"
+                width: parent.width
+                gameId: home.selectedItem ? String(home.selectedItem.id) : ""
+                gameTitle: home.selectedItem ? String(home.selectedItem.title || "") : ""
+                active: home.visible && home.selectedItem !== null
+                    && typeof home.readinessRequest === "function"
+                requestFunction: home.readinessRequest
+                accessibility: home.accessibility
+                interactive: false
+                compact: true
+                observationDelayMs: 200
+            }
+        }
     }
 
     // The empty library still has a real focus target. Its action is routed to

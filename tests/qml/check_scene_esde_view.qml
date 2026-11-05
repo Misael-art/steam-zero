@@ -65,6 +65,70 @@ import "../../src/steamzero/ui/qml"
         name: "SceneEsdeView"
         when: windowShown
 
+        function test_decode_failure_is_not_a_rendered_element() {
+            const previous = view.viewData
+            view.viewData = {id: "invalid", elements: [
+                {id: "missing", kind: "image", source: "qrc:/missing-owned-fixture.png",
+                 layout: {width: 0.5, height: 0.2}},
+                {id: "hidden", kind: "text", text: "Hidden", appearance: {opacity: 0},
+                 layout: {width: 0.5, height: 0.2}}]}
+            tryVerify(function() { return view.renderObservations.length === 2
+                && view.renderObservations[0].state === "decodeFailed" })
+            compare(view.renderedCount, 0)
+            compare(view.renderObservations[1].state, "hidden")
+            view.viewData = previous
+        }
+
+        function test_imported_timelines_are_explicitly_unavailable() {
+            const previous = view.viewData
+            view.viewData = {id: "motion", elements: [{id: "probe", kind: "text", text: "Probe",
+                layout: {width: 0.5, height: 0.2},
+                on: {highlightEnter: [{duration: 1, animations: [{property: "alpha", to: 0}]}]}}]}
+            compare(view.unsupportedTimelines.length, 1)
+            compare(view.unsupportedTimelines[0].id, "probe")
+            compare(view.unsupportedTimelines[0].event, "highlightEnter")
+            verify(view.unsupportedTimelines[0].reason.length > 0)
+            view.viewData = previous
+        }
+
+        function test_imported_entry_timeline_plays_in_order_and_respects_reduced_motion() {
+            const previous = view.viewData
+            const animated = {
+                id: "motion", elements: [{id: "probe", kind: "text", text: "Probe",
+                    layout: {x: 0.1, width: 0.5, height: 0.2},
+                    on: {enter: [
+                        {duration: 0.4, animations: [
+                            {property: "alpha", from: 0, to: 0.8, easing: "easeIn"},
+                            {property: "x", to: 0.3}
+                        ]},
+                        {duration: 0.2, animations: [{property: "alpha", to: 0.6}]}
+                    ]}}]
+            }
+            try {
+                view.viewData = animated
+                compare(view.unsupportedTimelines.length, 0)
+                const node = view.elementAt(0).parent
+                tryVerify(function() {
+                    return node.opacity > 0 && node.opacity < 0.6
+                        && node.x > view.width * 0.1 && node.x < view.width * 0.3
+                }, 1000)
+                tryCompare(node, "opacity", 0.6, 1500)
+                compare(node.x, view.width * 0.3)
+                view.visible = false
+                view.visible = true
+                compare(node.opacity, 0)
+                view.reducedMotion = true
+                compare(node.opacity, 0.6)
+                compare(node.x, view.width * 0.3)
+                view.reducedMotion = false
+                compare(node.opacity, 0.6)
+            } finally {
+                view.viewData = previous
+                view.visible = true
+                view.reducedMotion = false
+            }
+        }
+
         function test_an_element_without_geometry_is_not_drawn() {
             // Desenhá-lo no tamanho natural em (0,0) inventaria layout e, na
             // medição real, cobria a cena inteira com uma arte esticada.

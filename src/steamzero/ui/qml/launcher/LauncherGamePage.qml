@@ -22,6 +22,7 @@ FocusScope {
     property string currentFocus: model && model.initialFocus ? model.initialFocus : ""
     // Preferências de acessibilidade herdadas do host (highContrast etc.).
     property var accessibility: ({"highContrast": false, "visualScale": 1.0, "reducedMotion": false})
+    property var readinessRequest: null
     readonly property real textScale: Math.max(1, Number(accessibility.visualScale || 1))
     readonly property int actionReasonPixelSize: actionReason.font.pixelSize
     readonly property string description: model && model.description
@@ -268,6 +269,15 @@ FocusScope {
                     id: detailContent
                     width: detailScroll.width
                     spacing: 18
+                    LauncherReadiness {
+                        objectName: "gameReadiness"
+                        width: parent.width
+                        active: page.visible && page.readinessRequest !== null
+                        gameId: String(page.model.gameId || "")
+                        gameTitle: String(page.model.title || "")
+                        requestFunction: page.readinessRequest
+                        accessibility: page.accessibility
+                    }
                     Text {
                         objectName: "gameDeveloper"
                         width: parent.width

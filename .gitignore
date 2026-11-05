@@ -15,6 +15,7 @@ docs/12-roadmap/
 
 # Virtualenvs
 .venv/
+/.steamzero-dev/
 venv/
 env/
 

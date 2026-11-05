@@ -1,0 +1,22 @@
+{
+  "source": "generated CC0 color and sine fixtures",
+  "context": "Qt and private PipeWire virtual sink",
+  "physicalAudioCertified": false,
+  "sampleRate": 48000,
+  "channels": 2,
+  "capturedFrames": 165120,
+  "analysisFrames": 24000,
+  "finalSignalHz": 880,
+  "staleSignalHz": 440,
+  "finalSignalPower": 1163356296738112.0,
+  "staleSignalPower": 1740535384.8165894,
+  "requiredPowerRatio": 20,
+  "finalVideoCenterRGBA": [
+    1,
+    0,
+    255,
+    255
+  ],
+  "recorderLatencyRequestedMs": 20,
+  "recorderProcessTimeRequestedMs": 10
+}

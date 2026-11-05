@@ -57,6 +57,20 @@ Item {
         name: "ThemeScenePreview"
         when: windowShown
 
+        function test_failed_decode_is_excluded_from_the_visible_rendered_count() {
+            const previous = preview.rendered
+            preview.rendered = {assets: {resolved: 1}, scene: {views: [{id: "gamelist",
+                elements: [{id: "broken", kind: "image", source: "qrc:/owned-missing-fixture.png",
+                    layout: {width: 0.5, height: 0.2}}]}]}}
+            const scene = findChild(preview, "sceneView")
+            tryVerify(function() { return scene.renderObservations.length === 1
+                && scene.renderObservations[0].state === "decodeFailed" })
+            const label = findChild(preview, "fidelityLine")
+            verify(label.text.indexOf("0 de 1 elementos") === 0,
+                "o indicador não pode contar um asset cujo decode falhou: " + label.text)
+            preview.rendered = previous
+        }
+
         function test_the_preview_asks_for_the_scene_on_its_own() {
             verify(calls.length > 0, "a prévia não chamou nenhuma rota")
             compare(calls[0].actionId, "theme.scene.render")

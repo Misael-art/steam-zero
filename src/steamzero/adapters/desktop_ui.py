@@ -7,6 +7,7 @@ from __future__ import annotations
 import contextlib
 import importlib.resources
 import json
+import logging
 import math
 import os
 import re
@@ -34,13 +35,19 @@ from steamzero.adapters.desktop_kde import (
     logout_desktop_session,
     toggle_virtual_keyboard,
 )
-from steamzero.adapters.journey_public import game_record_public_field_types, project_game_row
+from steamzero.adapters.journey_public import (
+    game_record_public_field_types,
+    journey_public_field_types,
+    project_game_row,
+    project_public_media,
+)
 from steamzero.adapters.journey_studio import (
     JOURNEY_TEMPLATES,
     MAX_PREVIEW_ROWS,
     MAX_PUBLIC_RECORDS,
     JourneyStudioService,
 )
+from steamzero.adapters.launcher_media import launcher_media_metadata
 from steamzero.adapters.steam_session import readiness as session_readiness
 from steamzero.adapters.steam_session import request_target
 from steamzero.adapters.theme_catalog import list_bezel_resources
@@ -57,6 +64,7 @@ from steamzero.domain.desktop import (
 from steamzero.ports import CaptureConsent
 
 _MAX_BODY = 64 * 1024
+_LOG = logging.getLogger(__name__)
 # A central QML precisa continuar disponível mesmo quando o driver gráfico do
 # host falha. O backend software é o mesmo caminho certificado pelo gate visual
 # e evita que um SIGSEGV do renderer encerre a unidade transitória do Plasma.
@@ -238,15 +246,7 @@ def _project_journey_game(
 def _journey_game_field_types(field_types: Mapping[str, str]) -> dict[str, str]:
     return {
         **field_types,
-        "id": "string",
-        "gameId": "string",
-        "title": "string",
-        "name": "string",
-        "source": "string",
-        "platformId": "string",
-        "platformName": "string",
-        "year": "integer",
-        "genre": "string",
+        **journey_public_field_types(),
     }
 
 
@@ -316,19 +316,45 @@ def _launcher_journey_catalog() -> list[dict[str, Any]] | None:
     try:
         emulation = _emulation_catalog_records()
     except Exception:
-        return None
-    if not emulation:
-        return None
-    steam_rows: list[dict[str, Any]] = []
+        emulation = []
+    return [*emulation, *_steam_catalog_records()] or None
+
+
+def _steam_catalog_records() -> list[dict[str, Any]]:
     try:
         from steamzero.adapters.launcher_steam import steam_catalog_games
 
-        steam_rows.extend(
-            _public_launcher_record(game, None, kind="steam") for game in steam_catalog_games()
-        )
+        return [
+            {**_public_launcher_record(game, None, kind="steam"), "coverUrl": game.cover_url}
+            for game in steam_catalog_games()
+        ]
     except Exception:
-        steam_rows = []
-    return [*emulation, *steam_rows]
+        return []
+
+
+def _media_assignment_catalog() -> dict[str, dict[str, Any]]:
+    catalog = _launcher_journey_catalog() or []
+    if len(catalog) > MAX_PUBLIC_RECORDS:
+        raise SteamZeroError("E-CONTENT-LIMIT", detail="biblioteca acima do limite de associação")
+    games: dict[str, dict[str, Any]] = {}
+    ambiguous: set[str] = set()
+    for row in catalog:
+        game_id = row["id"]
+        if game_id in games:
+            ambiguous.add(game_id)
+        games[game_id] = row
+    return {game_id: row for game_id, row in games.items() if game_id not in ambiguous}
+
+
+def _media_assignment_stamp() -> tuple[str, int, int, int] | None:
+    from steamzero.domain.media_registry import ASSIGNMENTS_RELATIVE_PATH
+
+    target = paths.media_dir() / ASSIGNMENTS_RELATIVE_PATH
+    try:
+        info = target.stat()
+    except OSError:
+        return None
+    return str(target), info.st_ino, info.st_ctime_ns, info.st_size
 
 
 def _snapshot_with_launcher_catalog(dashboard_snapshot: Mapping[str, Any]) -> dict[str, Any]:
@@ -360,6 +386,8 @@ def _project_journey_catalog(
         projected = project_game_row(dict(record), source=source_name)
         if projected is None:
             continue
+        if source_name == "steam":
+            projected.update(project_public_media(record))
         rows.append(projected)
         platform_id = projected.get("platformId")
         if not isinstance(platform_id, str) or not platform_id:
@@ -377,6 +405,17 @@ def _project_journey_catalog(
             platform_rows[platform_id] = bucket
         bucket["gameCount"] += 1
     over_budget = raw_count > MAX_PUBLIC_RECORDS
+    if not over_budget:
+        registry_media = launcher_media_metadata(
+            media_root=paths.media_dir(),
+            platform_by_game={
+                row["gameId"]: row["platformId"]
+                for row in rows
+                if isinstance(row.get("platformId"), str) and row["platformId"]
+            },
+        )
+        for row in rows:
+            row.update(project_public_media(registry_media.get(row["gameId"], {})))
     return {
         "library.games": {
             "rows": None if over_budget else rows,
@@ -583,6 +622,7 @@ class DesktopControlServer(ThreadingHTTPServer):
         self.dashboard = dashboard
         self.journey_studio = journey_studio or JourneyStudioService(paths.data_home() / "journeys")
         self._journey_read_models: dict[str, dict[str, Any]] | None = None
+        self._journey_media_stamp: tuple[str, int, int, int] | None = None
         self._journey_read_models_lock = threading.RLock()
         self._journey_theme_lock = threading.RLock()
         self.session_plans = {}
@@ -594,13 +634,17 @@ class DesktopControlServer(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), DesktopControlHandler)
 
     def publish_journey_read_models(self, dashboard_snapshot: Mapping[str, Any]) -> None:
+        media_stamp = _media_assignment_stamp()
         snapshot = _snapshot_with_launcher_catalog(dashboard_snapshot)
         projected = _project_journey_read_models(snapshot)
         with self._journey_read_models_lock:
             self._journey_read_models = projected
+            self._journey_media_stamp = media_stamp
 
     def journey_read_models(self) -> dict[str, dict[str, Any]] | None:
         with self._journey_read_models_lock:
+            if self._journey_media_stamp != _media_assignment_stamp():
+                return None
             return self._journey_read_models
 
     @property
@@ -716,7 +760,8 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 self._send(HTTPStatus.BAD_REQUEST, {"error": "themeId ausente"})
                 return
             try:
-                result = self._dashboard().editor_load(theme_id)
+                with self._control_server._journey_theme_lock:
+                    result = self._dashboard().editor_load(theme_id)
             except SteamZeroError as exc:
                 self._send(HTTPStatus.NOT_FOUND, {"error": exc.to_error_object()})
                 return
@@ -752,7 +797,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_payload()
-            result = self._dispatch(urlparse(self.path).path, payload)
+            path = urlparse(self.path).path
+            if path.startswith(("/theme/", "/journey/studio/")):
+                # Consumers and removal share the existing theme lock. Status,
+                # launch and unrelated actions remain independently responsive.
+                with self._control_server._journey_theme_lock:
+                    result = self._dispatch(path, payload)
+            else:
+                result = self._dispatch(path, payload)
         except SteamZeroError as exc:
             status = _STATUS_BY_CODE.get(exc.code, HTTPStatus.CONFLICT)
             self._send(status, {"error": exc.to_error_object()})
@@ -1205,10 +1257,12 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             return self._dashboard().theme_catalog_rollback(
                 self._required_string(payload, "themeId"),
                 self._required_string(payload, "operationId"),
+                additional_consumers=self._control_server.journey_studio.theme_consumers,
             )
         if path == "/theme/catalog/uninstall":
             return self._dashboard().theme_catalog_uninstall(
                 self._required_string(payload, "themeId"),
+                additional_consumers=self._control_server.journey_studio.theme_consumers,
             )
         if path == "/theme/store/gc":
             # `apply` explícito: a prévia é o padrão, e apagar blob do usuário
@@ -1271,6 +1325,36 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 self._required_string(payload, "sessionId"),
                 self._required_string(payload, "field"),
                 payload.get("value"),
+            )
+        if path == "/theme/editor/create-layout":
+            return self._dashboard().editor_create_layout(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "layoutId"),
+                self._required_string(payload, "kind"),
+                self._required_string(payload, "templateKind"),
+            )
+        if path == "/theme/editor/sources":
+            return self._dashboard().editor_sources(self._required_string(payload, "sessionId"))
+        if path == "/theme/editor/source-assignment/targets":
+            return self._editor_source_assignment("targets", payload)
+        if path == "/theme/editor/source-assignment/plan":
+            return self._editor_source_assignment("plan", payload)
+        if path == "/theme/editor/source-assignment/apply":
+            return self._editor_source_assignment("apply", payload)
+        if path == "/theme/editor/set-source":
+            return self._dashboard().editor_set_source(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "slot"),
+                self._required_string(payload, "digest"),
+            )
+        if path == "/theme/editor/preserve-source":
+            return self._dashboard().editor_preserve_source(
+                self._required_string(payload, "sessionId"),
+                self._required_string(payload, "slot"),
+                self._required_string(payload, "source"),
+                self._required_string(payload, "license"),
+                str(payload.get("origin", "")),
+                str(payload.get("attribution", "")),
             )
         if path == "/theme/editor/set-layout":
             return self._dashboard().editor_set_layout(
@@ -1538,8 +1622,19 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 for row in rows
                 if isinstance(row, Mapping)
             ]
-            theme_read_model = {"preview": {"items": engine_rows}}
+            theme_read_model = {
+                "context": {"items": engine_rows},
+                "preview": {"items": engine_rows},
+            }
             appearance = menu.get("appearance")
+            imported_preview = None
+            imported_states: dict[str, str] = {}
+            if isinstance(appearance, Mapping) and appearance.get("mode") == "imported-scene":
+                from steamzero.domain.theme_scene import resolve_journey_imported_scene
+
+                scene_id = str(appearance["sceneId"])
+                imported_preview = resolve_journey_imported_scene(scene_id)
+                imported_states[scene_id] = imported_preview["state"]
             declared_theme_id = (
                 str(appearance.get("themeId"))
                 if isinstance(appearance, Mapping)
@@ -1645,12 +1740,15 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                         used_stages=[f"menu:{menu_id}"],
                         themes=manifests,
                         aura_version=str(aura_manifest.get("version") or "unknown"),
+                        imported_scenes=imported_states,
                     )
                     coverage_stage = coverage["stages"][0]
                     theme_id = str(coverage_stage.get("sourceThemeId") or aura_id)
                     resolution_state = str(coverage_stage.get("appearance") or "unknown")
                     resolution_diagnostic = ""
-                    if resolution_state == "missing-reference":
+                    if imported_preview is not None:
+                        resolution_diagnostic = imported_preview["diagnostic"]
+                    elif resolution_state == "missing-reference":
                         resolution_diagnostic = (
                             f"O tema {declared_theme_id} não está disponível; "
                             "a prévia usa AURA para esta etapa."
@@ -1702,6 +1800,11 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                         "manifest": dict(manifest),
                         "declared": dict(declared),
                         "preview": dict(preview),
+                        **(
+                            {"importedScenePreview": imported_preview}
+                            if imported_preview is not None
+                            else {}
+                        ),
                     }
             finally:
                 for theme_session_id in theme_session_ids:
@@ -1721,12 +1824,18 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             # cobertura reporte versão/cor/procedência iguais ao manifesto
             # carregado nas etapas com herança explícita.
             theme_ids = {"org.steamzero.default", "org.steamzero.aura"}
+            scene_ids: set[str] = set()
+            requested_stages = set(used_stages)
             for menu in document.get("menus", []):
                 appearance = menu.get("appearance", {})
                 if appearance.get("mode") == "custom" and isinstance(
                     appearance.get("themeId"), str
                 ):
                     theme_ids.add(appearance["themeId"])
+                elif appearance.get("mode") == "imported-scene" and (
+                    f"menu:{menu['id']}" in requested_stages
+                ):
+                    scene_ids.add(appearance["sceneId"])
             for stage in document.get("sessionStages", []):
                 appearance = stage.get("appearance", {})
                 if appearance.get("mode") == "custom" and isinstance(
@@ -1764,6 +1873,7 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 used_stages=used_stages,
                 themes=themes,
                 aura_version=aura_version,
+                imported_scenes=self._journey_imported_scene_states(scene_ids),
                 operation_requirements={
                     "gameplay": ["launch"],
                     "entryFade": ["launch"],
@@ -1870,6 +1980,92 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
         if path == "/theme/apply/rollback":
             return self._dashboard().rollback_theme(self._required_string(payload, "operationId"))
         raise SteamZeroError("E-API-UNKNOWN-ACTION", detail=f"ação não permitida: {path}")
+
+    def _editor_source_assignment(self, step: str, payload: dict[str, Any]) -> dict[str, Any]:
+        from steamzero.adapters.launcher_catalog import catalog_games
+        from steamzero.domain.media_registry import (
+            IMAGE_ASSIGNMENT_KINDS,
+            MediaMasterEntry,
+            MediaRegistry,
+        )
+        from steamzero.launcher.app import _read_library_payload
+
+        keys = {"sessionId"}
+        if step != "targets":
+            keys.update({"gameId", "platformId"})
+            keys.update({"role", "digest"} if step == "plan" else {"planId", "confirmToken"})
+        self._require_exact_keys(payload, keys)
+        session_id = self._required_string(payload, "sessionId")
+        self._dashboard().editor_preview(session_id, high_contrast=False, reduced_motion=False)
+        catalog = _media_assignment_catalog()
+        if step == "targets":
+            return {
+                "games": [
+                    {
+                        "gameId": row["id"],
+                        "platformId": row["platformId"],
+                        "title": row["title"],
+                        "platformName": row.get("platformLabel", row["platformId"]),
+                    }
+                    for row in catalog.values()
+                ],
+                "roles": list(IMAGE_ASSIGNMENT_KINDS),
+            }
+        game_id = self._required_string(payload, "gameId")
+        platform = self._required_string(payload, "platformId")
+        row = catalog.get(game_id)
+        if row is None or row["platformId"] != platform:
+            raise SteamZeroError("E-TX-STALE-PLAN", detail="jogo ou plataforma fora da biblioteca")
+        identity: Mapping[str, Any] = {}
+        if row["source"] == "emulation":
+            records, _ = _read_library_payload(None)
+            matching = [record for record in records if record.get("id") == game_id]
+            current = catalog_games(matching)
+            if len(matching) != 1 or len(current) != 1 or current[0].platform != platform:
+                raise SteamZeroError("E-TX-STALE-PLAN", detail="identidade do jogo mudou")
+            identity = matching[0]
+        title_id = identity.get("titleId")
+        fingerprint = identity.get("fingerprint")
+        game = MediaMasterEntry(
+            game_id,
+            title_id if isinstance(title_id, str) else "",
+            fingerprint if isinstance(fingerprint, str) else "",
+            row["title"],
+            platform,
+            steam_appid=int(game_id)
+            if row["source"] == "steam"
+            and game_id.isascii()
+            and game_id.isdecimal()
+            and len(game_id) <= 10
+            else None,
+        )
+        root = paths.media_dir()
+        if step == "plan":
+            plan, replacing = MediaRegistry.plan_source_assignment(
+                root,
+                game,
+                self._required_string(payload, "role"),
+                self._required_string(payload, "digest"),
+                session_id=session_id,
+            )
+            if plan is None:
+                return {"status": "unchanged"}
+            return {
+                "status": "ready",
+                "planId": plan.plan_id,
+                "confirmToken": plan.confirm_token,
+                "replacing": replacing,
+                "title": game.canonical_name,
+            }
+        plan = transaction.load_plan(self._required_string(payload, "planId"))
+        result = MediaRegistry.apply_source_assignment(
+            root,
+            plan,
+            self._required_string(payload, "confirmToken"),
+            game,
+            session_id=session_id,
+        )
+        return {"status": result.status, "operationId": result.operation_id}
 
     _SESSION_TARGETS = frozenset({"steam", "gamepadui"})
 
@@ -2029,7 +2225,20 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
         result["sourceState"] = str(model.get("state") or "unavailable")
         return result, session, menu, model
 
+    @staticmethod
+    def _journey_imported_scene_states(scene_ids: set[str]) -> dict[str, str]:
+        from steamzero.domain.theme_scene import resolve_journey_imported_scene
+
+        if len(scene_ids) > 32:
+            raise SteamZeroError("E-THEME-LIMIT", detail="consulte até 32 cenas RetroFE por vez")
+        return {
+            scene_id: str(resolve_journey_imported_scene(scene_id)["state"])
+            for scene_id in sorted(scene_ids)
+        }
+
     def _journey_catalog(self, models: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
+        from steamzero.domain.theme_scene import list_imported_scene_ids
+
         read_models: list[dict[str, Any]] = []
         labels = {
             "library.games": "Jogos publicados",
@@ -2073,6 +2282,7 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             "schemaVersion": 1,
             "readModels": read_models,
             "themes": themes,
+            "importedScenes": [{"id": scene_id} for scene_id in list_imported_scene_ids()],
             "bezels": list_bezel_resources(),
             "limits": {
                 "maxRecords": MAX_PUBLIC_RECORDS,
@@ -2248,12 +2458,18 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
 
     def _send(self, status: HTTPStatus, payload: dict[str, Any]) -> None:
         encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
-        self.send_response(status.value)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(encoded)))
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers()
-        self.wfile.write(encoded)
+        try:
+            self.send_response(status.value)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(encoded)
+        except (BrokenPipeError, ConnectionResetError):
+            self.close_connection = True
+            _LOG.warning(
+                "DESKTOP-CLIENT-DISCONNECTED-001: cliente encerrou a conexão antes da resposta"
+            )
 
     def log_message(self, format: str, *args: object) -> None:
         # A bridge local não grava URLs/tokens no log HTTP padrão.

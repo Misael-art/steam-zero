@@ -36,22 +36,249 @@ contrariar a medição.
 from __future__ import annotations
 
 import json
+import os
+import stat
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from steamzero.core import fs, ids, log, paths
+from steamzero.core import fs, ids, journal, log, paths, transaction
 from steamzero.core.errors import SteamZeroError
 from steamzero.core.net import HttpClient, fetch_bytes
 from steamzero.core.safetar import SafeTarLimits, iter_members
-from steamzero.domain.theme_assets import ALLOWED_SUFFIXES, ThemeAssetStore, digest_bytes
+from steamzero.domain.theme_assets import (
+    ALLOWED_SUFFIXES,
+    ThemeAssetStore,
+    digest_bytes,
+    live_digests,
+    load_installed_manifests,
+)
 from steamzero.domain.theme_sources import ThemeSource
 
 #: Teto do tarball. O maior tema licenciado medido em 2026-09-03 (iconic) fica
 #: bem abaixo; o teto existe para que um endereço trocado não vire download sem
 #: fim, não para apertar os temas conhecidos.
 MAX_ARCHIVE_BYTES = 320 * 1024 * 1024
+
+MAX_ROLLBACK_MANIFESTS = 256
+MAX_ROLLBACK_MANIFEST_BYTES = 16 * 1024 * 1024
+MAX_ROLLBACK_TOTAL_BYTES = 64 * 1024 * 1024
+MAX_THEME_JOURNAL_BYTES = 2 * 1024 * 1024
+MAX_THEME_JOURNAL_RECORDS = 4096
+MAX_THEME_JOURNAL_SCAN_ENTRIES = 4096
+MAX_THEME_JOURNAL_SCAN_BYTES = 16 * 1024 * 1024
+
+
+def _theme_operation_records(
+    operation_id: str,
+) -> tuple[list[dict[str, Any]], int] | None:
+    """Read the existing core journal, bounded and without following links."""
+    try:
+        fd = os.open(
+            paths.journal_path(operation_id),
+            os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+        )
+    except FileNotFoundError:
+        return None
+    with os.fdopen(fd, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError("journal não é arquivo regular")
+        first = stream.readline(4097)
+        if not first:
+            # An interrupted new journal and a truncated live journal cannot
+            # be distinguished here. Preserve data until ownership is known.
+            raise ValueError("journal vazio; recuperação não verificável")
+        if len(first) > 4096:
+            raise ValueError("cabeçalho de journal excede o limite")
+        begin = json.loads(first)
+        if (
+            not isinstance(begin, dict)
+            or begin.get("type") != "operation.begin"
+            or not isinstance(begin.get("kind"), str)
+        ):
+            raise ValueError("cabeçalho de journal inválido")
+        if begin["kind"] not in {"theme.acquire", "theme.retrofe.import"}:
+            return None
+        payload = first + stream.read(MAX_THEME_JOURNAL_BYTES + 1)
+    if len(payload) > MAX_THEME_JOURNAL_BYTES:
+        raise ValueError("journal de tema excede o limite")
+    lines = payload.splitlines()
+    if len(lines) > MAX_THEME_JOURNAL_RECORDS:
+        raise ValueError("journal de tema excede o orçamento de registros")
+    records = [json.loads(line) for line in lines if line.strip()]
+    if not all(
+        isinstance(record, dict)
+        and record.get("operationId") == operation_id
+        and record.get("seq") == index
+        for index, record in enumerate(records)
+    ):
+        raise ValueError("identidade de journal divergente")
+    return records, len(payload)
+
+
+def _theme_backup_bytes(operation_id: str, action_id: str, undo: dict[str, Any]) -> bytes:
+    name = undo.get("backupRel")
+    if name != action_id or not isinstance(name, str) or not ids.ULID_RE.fullmatch(name):
+        raise ValueError("identidade do backup inválida")
+    directory_fd = os.open(
+        paths.backup_for(operation_id),
+        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+    )
+    try:
+        fd = os.open(
+            name,
+            os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+            dir_fd=directory_fd,
+        )
+        with os.fdopen(fd, "rb") as stream:
+            if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                raise ValueError("backup não é arquivo regular")
+            payload = stream.read(MAX_ROLLBACK_MANIFEST_BYTES + 1)
+    finally:
+        os.close(directory_fd)
+    if len(payload) > MAX_ROLLBACK_MANIFEST_BYTES:
+        raise ValueError("backup excede o orçamento de manifesto")
+    return payload
+
+
+def _snapshot_digests(payload: bytes) -> set[str]:
+    manifest = json.loads(payload)
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("assets"), dict):
+        raise ValueError("snapshot sem assets reconhecidos")
+    digests = live_digests([manifest])
+    for asset in manifest["assets"].values():
+        digest = asset.get("digest") if isinstance(asset, dict) else asset
+        if not isinstance(digest, str) or digest not in digests:
+            raise ValueError("snapshot com digest inválido")
+    return digests
+
+
+def _core_rollback_live_digests(count: int = 0, total: int = 0) -> set[str]:
+    """Core backups remain owners even before the compatibility copy exists."""
+    protected: set[str] = set()
+    folder = paths.journal_dir()
+    try:
+        if folder.is_symlink():
+            raise ValueError("journal de recuperação é link")
+        if not folder.exists():
+            return protected
+        journal_bytes = 0
+        for scanned, path in enumerate(folder.iterdir(), start=1):
+            if scanned > MAX_THEME_JOURNAL_SCAN_ENTRIES:
+                raise SteamZeroError("E-THEME-LIMIT", detail="muitos journals para verificar")
+            if path.suffix != ".jsonl" or not ids.ULID_RE.fullmatch(path.stem):
+                continue
+            owned = _theme_operation_records(path.stem)
+            if owned is None:
+                continue
+            records, size = owned
+            journal_bytes += size
+            if journal_bytes > MAX_THEME_JOURNAL_SCAN_BYTES:
+                raise SteamZeroError("E-THEME-LIMIT", detail="journals excedem o orçamento")
+            if journal.has_type(records, journal.ROLLBACK):
+                continue
+            intents = [record for record in records if record.get("type") == "action.intent"]
+            if not intents and not journal.has_type(records, journal.COMMIT):
+                continue  # No manifest publication preceded a durable intent.
+            retrofe = records[0]["kind"] == "theme.retrofe.import"
+            if retrofe:
+                if len(intents) > 2:
+                    raise ValueError("publicação RetroFE com ações inesperadas")
+                # Core sorts targets before writing. The sidecar sorts before
+                # its scene, including scene IDs that themselves end in .assets.
+                intents = intents[:1]
+            if len(intents) != 1:
+                raise ValueError("journal de tema sem alvo único")
+            intent = intents[0]
+            undo = intent["undo"]
+            target = Path(undo["target"])
+            # A different profile/root owns its own asset store. Do not add
+            # unrelated test/custom-root backups to this store's live graph.
+            if retrofe:
+                if (
+                    not target.name.endswith(".assets.json")
+                    or target.parent != paths.scenes_dir().resolve()
+                ):
+                    continue
+            elif (
+                target.name != "theme.json" or target.parent.parent != paths.themes_dir().resolve()
+            ):
+                continue
+            if undo["op"] == "delete":
+                continue
+            if undo["op"] != "restore":
+                raise ValueError("tipo de recuperação desconhecido")
+            payload = _theme_backup_bytes(path.stem, intent["actionId"], undo)
+            if fs.hash_bytes(payload) != undo["expectHash"]:
+                raise ValueError("backup de recuperação adulterado")
+            count += 1
+            total += len(payload)
+            if count > MAX_ROLLBACK_MANIFESTS or total > MAX_ROLLBACK_TOTAL_BYTES:
+                raise SteamZeroError("E-THEME-LIMIT", detail="backups excedem o orçamento")
+            protected.update(_snapshot_digests(payload))
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise SteamZeroError(
+            "E-THEME-MANIFEST", detail="recuperação de tema inválida; limpeza recusada"
+        ) from exc
+    return protected
+
+
+def rollback_live_digests() -> set[str]:
+    """Protect assets in owned undo snapshots before any garbage collection.
+
+    Staging already holds the previous manifests; derive ownership there rather
+    than maintaining another registry. An unreadable or oversized snapshot must
+    stop collection, never silently shrink the set of protected assets.
+    """
+    protected: set[str] = set()
+    count = total = 0
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        root_fd = os.open(paths.staging_dir(), directory_flags)
+    except FileNotFoundError:
+        return _core_rollback_live_digests()
+    except OSError as exc:
+        raise SteamZeroError("E-THEME-MANIFEST", detail="staging de recuperação ilegível") from exc
+    try:
+        for name in os.listdir(root_fd):
+            if not ids.ULID_RE.fullmatch(name):
+                continue
+            operation_fd = os.open(name, directory_flags, dir_fd=root_fd)
+            try:
+                try:
+                    fd = os.open(
+                        "previous-theme.json",
+                        os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                        dir_fd=operation_fd,
+                    )
+                except FileNotFoundError:
+                    continue
+                with os.fdopen(fd, "rb") as stream:
+                    if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                        raise ValueError("snapshot não é arquivo regular")
+                    count += 1
+                    if count > MAX_ROLLBACK_MANIFESTS:
+                        raise SteamZeroError(
+                            "E-THEME-LIMIT", detail="muitos snapshots de recuperação"
+                        )
+                    data = stream.read(MAX_ROLLBACK_MANIFEST_BYTES + 1)
+                total += len(data)
+                if len(data) > MAX_ROLLBACK_MANIFEST_BYTES or total > MAX_ROLLBACK_TOTAL_BYTES:
+                    raise SteamZeroError(
+                        "E-THEME-LIMIT", detail="snapshots de recuperação excedem o limite"
+                    )
+                protected.update(_snapshot_digests(data))
+            finally:
+                os.close(operation_fd)
+    except (OSError, ValueError) as exc:
+        raise SteamZeroError(
+            "E-THEME-MANIFEST", detail="snapshot de recuperação inválido; limpeza recusada"
+        ) from exc
+    finally:
+        os.close(root_fd)
+    return protected | _core_rollback_live_digests(count, total)
+
 
 _INGEST_LIMITS = SafeTarLimits(
     max_entries=20_000,
@@ -222,14 +449,20 @@ def record_operation_state(operation_id: str, state: str) -> None:
     torna a reinstalação reversível. Medido no host em 2026-09-03, onde o plano
     de limpeza listava 122 KB de dado de rollback vivo.
 
-    Não há journal nem backup nesta transação: ela cobre um arquivo só, e
-    declarar caminhos que não existem seria pior que declarar nenhum.
+    O núcleo transacional é dono do journal/backup. O espelho da cópia de
+    compatibilidade no staging não pode apagar esses vínculos ao mudar estado.
     """
     from steamzero.core.state import StateStore
 
     with StateStore() as store:
         store.migrate()
-        store.save_operation(operation_id, state=state)
+        previous = store.get_operation(operation_id) or {}
+        store.save_operation(
+            operation_id,
+            state=state,
+            journal_path=previous.get("journal_path"),
+            backup_path=previous.get("backup_path"),
+        )
 
 
 class ThemeTransaction:
@@ -249,9 +482,11 @@ class ThemeTransaction:
         store: ThemeAssetStore,
         *,
         record_operation: OperationRecorder | None = None,
+        removal_guard: Callable[[str], None] | None = None,
     ) -> None:
         self._root = themes_root
         self._store = store
+        self._removal_guard = removal_guard
         # O registro é padrão, e não algo que o adaptador liga: uma operação que
         # deixa dado de rollback em disco SEM linha no banco parece órfã para o
         # resto do sistema — o doctor a acusa e o `state cleanup` a coloca em
@@ -261,7 +496,7 @@ class ThemeTransaction:
 
     def _manifest_path(self, theme_id: str) -> Path:
         directory = self._root / theme_id
-        if directory.resolve().parent != self._root.resolve():
+        if directory.is_symlink() or directory.resolve().parent != self._root.resolve():
             raise SteamZeroError("E-THEME-UNSAFE", detail=f"id de tema inválido: {theme_id!r}")
         return directory / "theme.json"
 
@@ -300,19 +535,26 @@ class ThemeTransaction:
                 ),
             )
 
-        operation_id = ids.new_ulid()
+        encoded = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode()
+        plan = transaction.plan_write_files(
+            {manifest_path: encoded}, root=self._root, kind="theme.acquire"
+        )
+        expected = fs.hash_bytes(previous) if previous is not None else None
+        if plan.preconditions[0].fingerprint != expected:
+            transaction.abort(plan.plan_id, plan.confirm_token)
+            raise SteamZeroError("E-TX-STALE-PLAN", detail="tema mudou antes da instalação")
+        applied = transaction.apply(plan.plan_id, plan.confirm_token)
+        operation_id = applied.operation_id
         undo_path: Path | None = None
         if previous is not None:
-            undo_path = fs.stage_bytes(operation_id, "previous-theme.json", previous)
-            # Registrar ANTES de publicar o manifesto novo: se o processo morrer
-            # entre as duas escritas, o staging já tem dono no banco e sobrevive
-            # à limpeza. Registrar depois deixaria uma janela em que o rollback
-            # existe em disco e é indistinguível de lixo.
-            self._record(operation_id, "active")
-
-        fs.write_atomic_text(
-            manifest_path, json.dumps(manifest, ensure_ascii=False, indent=2) + "\n"
-        )
+            try:
+                # Preserve the public undoPath/staging contract. The core's
+                # hash-verified backup remains authoritative for rollback.
+                undo_path = fs.stage_bytes(operation_id, "previous-theme.json", previous)
+                self._record(operation_id, "active")
+            except Exception:
+                transaction.rollback(operation_id, reason="theme-acquire-mirror-failed")
+                raise
         log.get_logger().info("theme_acquire.installed", theme=source.id, operation=operation_id)
         return {
             "themeId": source.id,
@@ -335,19 +577,72 @@ class ThemeTransaction:
         motivou o desenho.
         """
         manifest_path = self._manifest_path(theme_id)
-        undo_path = paths.staging_for(operation_id) / "previous-theme.json"
-
-        if undo_path.is_file():
-            fs.write_atomic(manifest_path, undo_path.read_bytes())
-            restored = True
-        else:
-            # Não havia versão anterior: desfazer é voltar a não ter o tema.
-            fs.remove_file(manifest_path)
-            restored = False
-
-        # O desfazer foi consumido: o staging vira lixo agora, e mantê-lo faria
-        # a próxima auditoria acusar como órfão algo que já cumpriu sua função.
-        fs.remove_tree(paths.staging_for(operation_id))
+        if not isinstance(operation_id, str) or not ids.ULID_RE.fullmatch(operation_id):
+            raise SteamZeroError("E-API-SCHEMA", detail="operation_id inválido")
+        try:
+            owned = _theme_operation_records(operation_id)
+            if owned is None:
+                raise ValueError("operação sem vínculo verificável; snapshot legado preservado")
+            records = owned[0]
+            intents = [record for record in records if record.get("type") == "action.intent"]
+            if len(intents) != 1:
+                raise ValueError("operação de tema exige um alvo")
+            undo = intents[0]["undo"]
+            if (
+                not isinstance(undo, dict)
+                or undo.get("op") not in {"restore", "delete"}
+                or Path(undo["target"]) != manifest_path.resolve()
+            ):
+                raise ValueError("operação não pertence a este tema")
+            restored = undo["op"] == "restore"
+            consumed = journal.has_type(records, journal.ROLLBACK)
+            if not consumed:
+                if manifest_path.is_symlink() or (
+                    manifest_path.exists() and not manifest_path.is_file()
+                ):
+                    raise ValueError("manifesto atual inseguro")
+                current = fs.hash_file(manifest_path) if manifest_path.is_file() else None
+                accepted = {undo.get("expectHash"), undo.get("appliedHash")}
+                if current is not None and current not in accepted:
+                    raise ValueError("manifesto substituído após esta operação")
+        except (OSError, ValueError, TypeError, KeyError) as exc:
+            raise SteamZeroError(
+                "E-TX-STALE-PLAN",
+                operation_id=operation_id,
+                detail="operação não corresponde ao tema atual; dados de recuperação preservados",
+            ) from exc
+        if not consumed and not restored and manifest_path.exists():
+            self._assert_removable(theme_id)
+        if not consumed and restored:
+            try:
+                previous = _theme_backup_bytes(operation_id, intents[0]["actionId"], undo)
+                if fs.hash_bytes(previous) != undo["expectHash"]:
+                    raise ValueError("hash de backup divergente")
+            except (OSError, ValueError, TypeError, KeyError) as exc:
+                raise SteamZeroError(
+                    "E-TX-ROLLBACK-FAILED",
+                    operation_id=operation_id,
+                    detail="backup indisponível; recuperação preservada",
+                ) from exc
+            try:
+                previous_digests = _snapshot_digests(previous)
+            except ValueError:
+                # A known, hash-verified before-image can contain old damaged
+                # bytes. Preserve the core's exact-byte restore contract.
+                log.get_logger().warning(
+                    "theme_acquire.legacy_restore_bytes", operation=operation_id
+                )
+            else:
+                verification = self._store.verify(previous_digests)
+                if not verification["ok"]:
+                    raise SteamZeroError(
+                        "E-CONTENT-INCOMPLETE",
+                        operation_id=operation_id,
+                        detail=(
+                            "assets anteriores ausentes ou corrompidos; reingira antes de desfazer"
+                        ),
+                    )
+        transaction.rollback(operation_id, reason="theme-acquire")
         self._record(operation_id, "rolled-back")
         return {
             "themeId": theme_id,
@@ -369,8 +664,26 @@ class ThemeTransaction:
             raise SteamZeroError(
                 "E-THEME-NOT-FOUND", detail=f"tema '{theme_id}' não está instalado"
             )
+        self._assert_removable(theme_id)
         fs.remove_file(manifest_path)
         return {"themeId": theme_id, "removed": True, "assetsPreserved": True}
+
+    def _assert_removable(self, theme_id: str) -> None:
+        dependents = sorted(
+            str(manifest.get("id", "?"))
+            for manifest in load_installed_manifests(self._root)
+            if manifest.get("extends") == theme_id
+        )
+        if dependents:
+            raise SteamZeroError(
+                "E-THEME-MANIFEST",
+                detail=(
+                    f"tema usado como base por {', '.join(dependents)}; "
+                    "altere a herança desses temas antes de remover"
+                )[:400],
+            )
+        if self._removal_guard is not None:
+            self._removal_guard(theme_id)
 
 
 def acquire_and_install(

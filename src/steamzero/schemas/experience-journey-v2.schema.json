@@ -57,6 +57,20 @@
         }
       ]
     },
+    "menuAppearance": {
+      "oneOf": [
+        {"$ref": "#/$defs/appearance"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "sceneId"],
+          "properties": {
+            "mode": {"const": "imported-scene"},
+            "sceneId": {"type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$", "maxLength": 128}
+          }
+        }
+      ]
+    },
     "filter": {
       "type": "object",
       "additionalProperties": false,
@@ -111,7 +125,7 @@
         "filters": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/filter"}},
         "sort": {"type": "array", "items": {"$ref": "#/$defs/sort"}},
         "groupBy": {"type": "array", "uniqueItems": true, "maxItems": 8, "items": {"$ref": "#/$defs/publicFieldId"}},
-        "appearance": {"$ref": "#/$defs/appearance"}
+        "appearance": {"$ref": "#/$defs/menuAppearance"}
       }
     },
     "endpoint": {

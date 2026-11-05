@@ -437,13 +437,20 @@ def _timeline(node: ET.Element, degraded: _Degraded, where: str) -> list[dict[st
                 degraded.add(where, f"animação de {prop} sem destino utilizável")
                 continue
             animation: dict[str, Any] = {"property": prop, "to": to_value}
+            for attribute in item.attrib:
+                if attribute not in {"type", "to", "from"}:
+                    degraded.add(where, f"animação {prop}: atributo não traduzido {attribute!r}")
             if item.get("from") is not None:
                 from_value = _coordinate(item.get("from"), degraded, where)
                 if from_value is not None:
                     animation["from"] = from_value
             animations.append(animation)
         if animations:
+            if len(animations) > 16:
+                degraded.add(where, f"limite de 16 animações: {len(animations) - 16} descartadas")
             blocks.append({"duration": duration, "animations": animations[:16]})
+    if len(blocks) > 32:
+        degraded.add(where, f"limite de 32 blocos: {len(blocks) - 32} descartados")
     return blocks[:32]
 
 
@@ -469,6 +476,8 @@ def _menu(node: ET.Element, degraded: _Degraded, where: str) -> dict[str, Any]:
         out["itemDefaults"] = _layout(defaults, degraded, f"{where}/itemDefaults")
     items = [_layout(item, degraded, f"{where}/item") for item in node.findall("item")]
     if items:
+        if len(items) > 64:
+            degraded.add(where, f"limite de 64 slots de menu: {len(items) - 64} descartados")
         out["items"] = items[:64]
         out["visibleItems"] = min(64, len(items))
     return out
@@ -488,6 +497,12 @@ def _element(node: ET.Element, degraded: _Degraded, index: int) -> dict[str, Any
     layout = _layout(node, degraded, where)
     if layout:
         element["layout"] = layout
+    color = node.get("color")
+    if color is not None:
+        if re.fullmatch(r"#?(?:[a-fA-F0-9]{6}|[a-fA-F0-9]{8})", color):
+            element["appearance"] = {"color": color.removeprefix("#").lower()}
+        else:
+            degraded.add(where, f"cor inválida: {color!r}")
 
     if kind in {"boundText", "boundImage"}:
         binding = _binding(node, kind, degraded, where)
@@ -511,12 +526,20 @@ def _element(node: ET.Element, degraded: _Degraded, index: int) -> dict[str, Any
         element["menu"] = _menu(node, degraded, where)
 
     events: dict[str, Any] = {}
+    for child in node:
+        if child.tag.startswith("on") and child.tag not in _EVENTS:
+            degraded.add(where, f"evento não traduzido: {child.tag}")
     for tag, name in _EVENTS.items():
         for holder in node.findall(tag):
             timeline = _timeline(holder, degraded, f"{where}/{tag}")
             if timeline:
                 events.setdefault(name, []).extend(timeline)
     if events:
+        for name, blocks in events.items():
+            if len(blocks) > 32:
+                degraded.add(
+                    where, f"evento {name}: limite de 32 blocos, {len(blocks) - 32} descartados"
+                )
         element["on"] = {name: blocks[:32] for name, blocks in events.items()}
     return element
 

@@ -2,15 +2,25 @@
 
 Plataforma autônoma de jogos e emulação para Steam Deck e desktops Linux.
 
-> **Status:** em desenvolvimento. A instalação versionada, os smoke checks e o rollback foram verificados no host BigLinux. A instalação real em VM e a substituição da fonte EOL do DuckStation continuam pendentes.
+> **Status:** em desenvolvimento. Consulte os cinco eixos por capacidade em [docs/STATUS.md](docs/STATUS.md) e a [passagem de contexto](docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md). O registro empacotado já seleciona o AppImage oficial do DuckStation com versão e hash fixados. Instalação, execução de jogos, rollback e hardware têm evidências e aceites próprios.
 
-Consulte [IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) para detalhes e evidências por fase.
+[IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) preserva o histórico por fase. O catálogo de status registra o estado atual.
 
 ## Metodologia replicável
 
 [METODOLOGIA-SINTESE-DE-PROJETOS.md](METODOLOGIA-SINTESE-DE-PROJETOS.md) — documento autocontido que explica o método de cruzamento e estudo de projetos usado aqui (E1–E8), escrito para que outro agente de IA replique o processo no planejamento de outros produtos. [IMPLEMENTATION-PROMPT.md](IMPLEMENTATION-PROMPT.md) é o prompt de construção correspondente (E8).
 
 ## Comece por aqui
+
+Neste host, o único checkout de desenvolvimento fica em `$HOME/Projects/SteamZero`.
+`Port_Steam`, `Port_Steam-claude` e “Port Steam” são nomes históricos deste mesmo
+projeto. Continue nesta raiz; os históricos antigos estão preservados como material
+de recuperação. As regras da coleção estão em [../AGENTS.md](../AGENTS.md), com
+os contratos específicos no [AGENTS.md local](AGENTS.md).
+Leia primeiro o [handoff de recuperação](docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md),
+incluindo a atualização de 26/10. O perfil de desenvolvimento em
+`.steamzero-dev/env.sh` isola dados e comandos do fonte; instalação em `/opt`,
+dados XDG pessoais e provas de hardware têm estados e aceites próprios.
 
 1. [IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) — estado por marco, testes, dívidas e limites verificados.
 2. [docs/WORKLOG.md](docs/WORKLOG.md) — histórico de implementação com evidências.

@@ -15,7 +15,7 @@
     "tests/unit/test_test_state_isolation.py",
     "tests/unit/test_service_core.py"
   ],
-  "scopeDigest": "97b5657e9ab000718e53415e5e7dd0d01d7e1a45f12cc7f0c81cd1923bf43338",
+  "scopeDigest": "ecd197d34a4a288015f14250845461c27a127e0ff599117143286d2323210c4f",
   "dependsOn": [],
   "knownGaps": [],
   "acceptanceCriteria": [
@@ -48,10 +48,40 @@
       "reference": "tests/integration/test_host_installer.py",
       "command": ".venv/bin/python tools/run_tests_isolated.py tests/integration/test_host_installer.py tests/integration/test_release_convergence.py tests/integration/test_core_service.py -q",
       "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: 130 testes de isolamento/recuperacao e 147 de filesystem aprovados; pytest filho real confirma que PYTEST_DEBUG_TEMPROOT herdado nao escapa do runner. test_service_core.py: 43 passed com flag offline herdada, fixture privada corrigida sem alterar o produto; state pessoal sem delta.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md",
+      "command": "26/10: core local, 6484 passed,48 skipped,396 deselected e1 falha exclusiva de consistencia do catalogo durante atualizacao documental;85.40% de cobertura. Resultado bruto exit1, nao aprovado; reteste do catalogo apos regeneracao registrado no fechamento. 1271 fontes/tools/testes com bytes congelados; gates estaticos finais aprovados.",
+      "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/README.md",
+      "command": "2026-10-30: baseline cancelamento2failed/11,60s; 54focados/4,21s no runner isolado (SIGINT/SIGTERM, state guard86, reaping/limpeza e bootstrap); integral de fechamento pendente, sem promoção física.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/README.md",
+      "command": "2026-10-30:104focados runner/bootstrap/Cast em8,00s; regressão de handlers falha antes e passa após correção da fixture.20Qt/RHI/default em3,59s com display virtual privado; erros semDISPLAY reproduzidos. Integral inicial deliberadamente interrompida após E/F, saída143/snapshot final inalterado; não aprovada. Próxima integral condicionada a estáticos e prova focal do ambiente.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-runner-cancellation.json",
+      "command": "2026-10-30,fontee7bb579cda1e549a5f287b06bb3b9731dea72f25: integral7117passed/48skipped/19warnings/2326,94s, supervisor0/sinais vazios; cobertura85,70961552128492%>=85,66169677501884%, oito hashes/guardas críticos e perfil preservados.104infra+20Qt/RHI+65interface focados. Gate técnico, sem promoção dos aceites de produto, Cast físico ou instalação.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Manter o runner canônico em todos os entrypoints e não limpar o state home histórico sem autorização do operador.",
+  "nextAction": "Checkpoint técnico e7bb579c aprovado: 7.117 testes passaram, 48 skips; cobertura 85,70961552128492% >= 85,66169677501884%, oito hashes e guardas críticos preservados, sem sinais ou delta no perfil. Publicar/conferir o fechamento documental no PR #268 com SHA remoto e novo CI; depois registrar claims prospectivos e implementar a wheel da seção 22.5: autoria nativa genérica, master canônico preservado e compartilhado, receitas/movimento, round-trip e mesmo Launcher. Wheel ainda não entregue; Studio/Engine parciais. Origem externa histórica do SIGTERM desconhecida. Sem auth, instalação, release, merge, deploy ou boot.",
   "activeWorkstreams": [],
-  "updatedAt": "2026-09-21",
+  "updatedAt": "2026-10-30",
   "notes": "GAP-G26 fechado no software: além do isolamento HOME/XDG antes da coleta, a raiz temporária agora evita TMPDIR profundo da sessão Codex, que excedia o limite AF_UNIX em testes de serviço. O state home real observado durante os gates permaneceu byte-a-byte e mtime-a-mtime idêntico; os artefatos históricos do operador não foram removidos."
 }

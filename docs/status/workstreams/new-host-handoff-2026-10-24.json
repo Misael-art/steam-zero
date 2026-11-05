@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-10-NEW-HOST-HANDOFF",
+  "item": "SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP",
+  "branch": "codex/product-recovery-2026-10-16",
+  "baseRef": "fedee5cb554866a3d649b973ca41f936ba791c95",
+  "owner": "codex-central-executor",
+  "state": "closed",
+  "exclusivePaths": [
+    "tests/integration/test_host_installer.py",
+    "docs/09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md"
+  ],
+  "sharedPaths": [
+    "docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md",
+    "docs/STATUS.md",
+    "docs/ACTIVE-WORK.md",
+    "docs/status/COVERAGE.md",
+    "docs/WORKLOG.md"
+  ],
+  "nextAction": "Contenção autorizada e concluída em 05/11: unit privada parada/desabilitada, original e backup íntegros, 69.66 s sem novos logs, 44 testes focados e estáticos verdes. Sem nexo causal comprovado com reboot. Retomar lote Studio/Launcher no workstream existente; backup externo e prova de host vazio continuam independentes.",
+  "updatedAt": "2026-11-05"
+}

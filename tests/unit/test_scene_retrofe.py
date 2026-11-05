@@ -297,3 +297,55 @@ class TestRealWorldSweepCoverage:
         scene = _compile('<layout><image src="a.png" xOrigin="910"/></layout>')
         layout = _elements(scene)[0]["layout"]
         assert layout.get("xOffset") == 910.0  # type: ignore[union-attr]
+
+
+@pytest.mark.parametrize("case", ["color-event-easing", "animations", "blocks", "holders"])
+def test_losses_are_diagnosed_instead_of_full_parser_coverage(case: str) -> None:
+    if case == "color-event-easing":
+        xml = (
+            '<text color="FF0000" value="Probe"><onIdle><set/></onIdle>'
+            '<onEnter><set duration="1"><animate type="x" to="50" tween="easeInQuad"/>'
+            "</set></onEnter></text>"
+        )
+    elif case == "animations":
+        xml = (
+            '<text value="Probe"><onEnter><set duration="1">'
+            + '<animate type="x" to="1"/>' * 17
+            + "</set></onEnter></text>"
+        )
+    elif case == "blocks":
+        xml = (
+            '<text value="Probe"><onEnter>'
+            + '<set duration="1"><animate type="alpha" to="1"/></set>' * 33
+            + "</onEnter></text>"
+        )
+    else:
+        xml = (
+            '<text value="Probe">'
+            + '<onEnter><set duration="1"><animate type="alpha" to="1"/></set></onEnter>' * 33
+            + "</text>"
+        )
+    scene = _compile("<layout>" + xml + "</layout>")
+    jsonschema.validate(scene, _SCHEMA)
+    report = fidelity_report(scene)
+    assert report["coverage"] < 1
+    reasons = " ".join(item["reason"] for item in scene["degraded"])
+    if case == "color-event-easing":
+        assert _elements(scene)[0]["appearance"]["color"] == "ff0000"
+        assert "onIdle" in reasons and "tween" in reasons
+    else:
+        assert "limite" in reasons
+
+
+def test_retrofe_alpha_color_layer_and_font_reach_the_common_render_model() -> None:
+    from steamzero.domain.theme_scene import _normalize_retrofe_scene
+
+    scene = _compile(
+        '<layout width="800" height="400"><text value="Probe" color="FF000080" '
+        'alpha="0.25" fontSize="20" layer="4" width="100" height="30"/></layout>'
+    )
+    normalized = _normalize_retrofe_scene(scene)
+    element = normalized["views"][0]["elements"][0]
+    assert element["appearance"] == {"color": "ff000080", "opacity": 0.25, "layer": 4}
+    assert element["layout"]["fontSize"] == 0.05
+    assert scene["views"][0]["elements"][0]["layout"]["fontSize"] == 20

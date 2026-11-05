@@ -24,6 +24,146 @@ Item {
 
     readonly property var elements: viewData && viewData.elements ? viewData.elements : []
     readonly property string viewId: viewData && viewData.id ? String(viewData.id) : ""
+    readonly property var unsupportedTimelines: {
+        const out = []
+        for (const element of elements) {
+            for (const event of Object.keys(element.on || ({}))) {
+                if (!view.motionEvents.includes(event) || !view.timeline(element, event))
+                    out.push({id: element.id, event: event,
+                        reason: qsTr("Evento ou propriedade de movimento sem suporte")})
+            }
+        }
+        return out
+    }
+
+    // Eventos de movimento que este renderizador executa. `exit` é a saída da
+    // view (RetroFE onExit): toca antes de a superfície trocar de tela.
+    readonly property var motionEvents: ["enter", "exit"]
+    // Teto da transição de saída: a animação nunca segura a operação de
+    // sessão nem o controle do usuário além deste limite.
+    property int exitBudgetMs: 1500
+    readonly property bool exiting: d_exiting
+    property bool d_exiting: false
+    property int d_exitPending: 0
+    signal exitFinished(bool completed)
+
+    function entryTimeline(element) { return view.timeline(element, "enter") }
+
+    function timeline(element, eventName) {
+        const blocks = element.on && element.on[eventName]
+        if (!view.isDrawable(element) || !blocks || typeof blocks !== "object"
+                || !Number.isInteger(blocks.length) || blocks.length < 1 || blocks.length > 32)
+            return null
+        for (let blockIndex = 0; blockIndex < blocks.length; ++blockIndex) {
+            const block = blocks[blockIndex]
+            const clips = block && block.animations
+            if (!block || !Number.isFinite(block.duration) || block.duration < 0
+                    || block.duration > 60 || !clips || typeof clips !== "object"
+                    || !Number.isInteger(clips.length) || clips.length < 1 || clips.length > 16)
+                return null
+            const properties = new Set()
+            for (let clipIndex = 0; clipIndex < clips.length; ++clipIndex) {
+                const clip = clips[clipIndex]
+                if (!clip || !["alpha", "x", "y", "nop"].includes(clip.property)
+                        || properties.has(clip.property)
+                        || !view.validEndpoint(clip.property, clip.to)
+                        || (clip.from !== undefined && !view.validEndpoint(clip.property, clip.from))
+                        || (clip.easing !== undefined
+                            && !["linear", "easeIn", "easeOut", "easeInOut"].includes(clip.easing)))
+                    return null
+                properties.add(clip.property)
+            }
+        }
+        return blocks
+    }
+
+    function validEndpoint(propertyName, value) {
+        return Number.isFinite(value) && (propertyName === "alpha"
+            ? value >= 0 && value <= 1 : Math.abs(value) <= 8192)
+    }
+
+    function easedProgress(easing, progress) {
+        switch (easing) {
+        case "easeIn": return progress * progress
+        case "easeOut": return progress * (2 - progress)
+        case "easeInOut": return progress < 0.5
+            ? 2 * progress * progress : 1 - 2 * (1 - progress) * (1 - progress)
+        default: return progress
+        }
+    }
+
+    // Inicia a saída. Cada elemento com timeline de saída parte do estado atual;
+    // a view emite exitFinished(true) quando todos assentam, ou (false) no teto.
+    function playExit() {
+        if (view.d_exiting)
+            return
+        exitBudget.interval = Math.max(0, view.exitBudgetMs)
+        view.d_exiting = true
+        view.d_exitPending = 0
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (loader && loader.startExit && loader.startExit())
+                view.d_exitPending += 1
+        }
+        if (view.d_exitPending === 0) {
+            Qt.callLater(view.finishExit, true)
+            return
+        }
+        exitBudget.restart()
+    }
+
+    function exitSettled() {
+        if (!view.d_exiting) return
+        view.d_exitPending -= 1
+        if (view.d_exitPending <= 0)
+            Qt.callLater(view.finishExit, true)
+    }
+
+    function finishExit(completed) {
+        if (!view.d_exiting) return
+        exitBudget.stop()
+        view.d_exiting = false
+        view.exitFinished(completed)
+    }
+
+    // Navegação durante ou após a saída (retorno à tela): interrompe e devolve a
+    // cena ao estado final de entrada.
+    function cancelExit() {
+        exitBudget.stop()
+        view.d_exiting = false
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (loader && loader.abortExit) loader.abortExit()
+        }
+    }
+
+    Timer {
+        id: exitBudget
+        repeat: false
+        onTriggered: view.finishExit(false)
+    }
+    function elementAt(index) {
+        const loader = elementRepeater.itemAt(index)
+        return loader ? loader.item : null
+    }
+    readonly property var renderObservations: {
+        const out = []
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (!loader) continue
+            const item = loader.item
+            let state = !loader.visible || loader.opacity <= 0 ? "hidden"
+                : !item || loader.width <= 0 || loader.height <= 0 ? "notDrawn" : "rendered"
+            if (state === "rendered" && loader.modelData.kind === "image")
+                state = item.sourceStatus === Image.Ready ? "rendered"
+                    : item.sourceStatus === Image.Error ? "decodeFailed" : "loading"
+            out.push({id: loader.modelData.id, kind: loader.modelData.kind, state: state})
+        }
+        return out
+    }
+    readonly property int renderedCount: renderObservations.filter(function(row) {
+        return row.state === "rendered"
+    }).length
 
     // Conteúdo publicado pelo dashboard. A cena continua sendo declarativa:
     // este modelo só contém valores já projetados (jogos, mídia e ações), e
@@ -249,6 +389,14 @@ Item {
     }
 
     function geometryFor(element) {
+        if (element && element.on && element.on.enter) {
+            const index = view.elements.findIndex(function(candidate) {
+                return candidate.id === element.id
+            })
+            const node = index >= 0 ? elementRepeater.itemAt(index) : null
+            if (node && node.entryBlocks && node.modelData.id === element.id)
+                return {x: node.x, y: node.y, width: node.width, height: node.height}
+        }
         const lay = element && element.layout ? element.layout : ({})
         const fx = view.numberOr(lay, "x", 0)
         const fy = view.numberOr(lay, "y", 0)
@@ -379,9 +527,11 @@ Item {
     }
 
     Repeater {
+        id: elementRepeater
         model: view.elements
 
         delegate: Loader {
+            id: node
             required property var modelData
 
             readonly property var lay: modelData.layout ? modelData.layout : ({})
@@ -406,12 +556,148 @@ Item {
                 : (view.numberOr(lay, "maxHeight", 0)
                    || view.numberOr(lay, "cropHeight", 0)) * view.height
 
-            x: fx * view.width - ox * width
-            y: fy * view.height - oy * height
+            readonly property var entryBlocks: modelData.on && modelData.on.enter
+                ? view.entryTimeline(modelData) : null
+            readonly property var exitBlocks: modelData.on && modelData.on.exit
+                ? view.timeline(modelData, "exit") : null
+            property bool exitPhase: false
+            readonly property var phaseBlocks: exitPhase ? exitBlocks : entryBlocks
+            readonly property bool entryVisible: visible && entryBlocks !== null
+            readonly property bool entryReducedMotion: (entryVisible || exitPhase) && view.reducedMotion
+            readonly property real baseOpacity: view.numberOr(app, "opacity", 1)
+            property bool entryReady: false
+            property int entryIndex: 0
+            property real entryProgress: 1
+            property var entryValues: ({})
+            property var entryFrom: ({})
+            property var entryTo: ({})
+            property var entryEasing: ({})
+
+            function entryValue(channel, fallback) {
+                if (entryTo[channel] !== undefined) {
+                    const progress = view.easedProgress(entryEasing[channel], entryProgress)
+                    return progress === 1 ? entryTo[channel]
+                        : entryFrom[channel] + (entryTo[channel] - entryFrom[channel]) * progress
+                }
+                return entryValues[channel] === undefined ? fallback : entryValues[channel]
+            }
+
+            function startExit() {
+                if (!visible || exitBlocks === null)
+                    return false
+                entryClock.stop()
+                if (entryTo && Object.keys(entryTo).length) settleEntry()
+                entryValues = {
+                    alpha: entryValue("alpha", baseOpacity), x: entryValue("x", fx),
+                    y: entryValue("y", fy)}
+                exitPhase = true
+                entryIndex = 0
+                advanceEntry()
+                return true
+            }
+
+            function abortExit() {
+                if (!exitPhase) return
+                exitPhase = false
+                resetEntry()
+                settleAll()
+            }
+
+            function settleAll() {
+                entryClock.stop()
+                while (entryIndex < (phaseBlocks ? phaseBlocks.length : 0) || entryProgress < 1) {
+                    settleEntry()
+                    if (!phaseBlocks || entryIndex >= phaseBlocks.length) break
+                    const block = phaseBlocks[entryIndex++]
+                    const targets = {}
+                    for (const clip of block.animations)
+                        if (clip.property !== "nop") targets[clip.property] = clip.to
+                    entryTo = targets
+                }
+                settleEntry()
+            }
+
+            function resetEntry() {
+                entryClock.stop()
+                exitPhase = false
+                entryIndex = 0
+                entryValues = {alpha: baseOpacity, x: fx, y: fy}
+                entryTo = ({})
+                if (entryVisible)
+                    advanceEntry()
+                else
+                    entryValues = ({})
+            }
+
+            function advanceEntry() {
+                const blocks = phaseBlocks
+                while (blocks && (exitPhase || entryVisible) && entryIndex < blocks.length) {
+                    const block = blocks[entryIndex++]
+                    const starts = {}
+                    const targets = {}
+                    const curves = {}
+                    for (let clipIndex = 0; clipIndex < block.animations.length; ++clipIndex) {
+                        const clip = block.animations[clipIndex]
+                        const channel = clip.property
+                        if (channel === "nop")
+                            continue
+                        starts[channel] = clip.from === undefined ? entryValues[channel] : clip.from
+                        targets[channel] = clip.to
+                        curves[channel] = clip.easing
+                    }
+                    entryFrom = starts
+                    entryTo = targets
+                    entryEasing = curves
+                    if (!view.reducedMotion && block.duration > 0) {
+                        entryProgress = 0
+                        entryClock.duration = Math.max(1, Math.round(block.duration * 1000))
+                        entryClock.start()
+                        return
+                    }
+                    settleEntry()
+                }
+                if (exitPhase && blocks && entryIndex >= blocks.length)
+                    view.exitSettled()
+            }
+
+            function settleEntry() {
+                entryValues = Object.assign({}, entryValues, entryTo)
+                entryTo = ({})
+                entryProgress = 1
+            }
+
+            onEntryVisibleChanged: if (entryReady && !exitPhase) resetEntry()
+            onEntryReducedMotionChanged: {
+                if (entryReady && entryReducedMotion && entryClock.running) {
+                    entryClock.stop()
+                    settleEntry()
+                    advanceEntry()
+                }
+            }
+            Component.onCompleted: {
+                entryReady = true
+                if (entryVisible)
+                    resetEntry()
+            }
+
+            NumberAnimation {
+                id: entryClock
+                target: node
+                property: "entryProgress"
+                from: 0
+                to: 1
+                onFinished: {
+                    node.settleEntry()
+                    node.advanceEntry()
+                }
+            }
+
+            x: entryValue("x", fx) * view.width - ox * width
+            y: entryValue("y", fy) * view.height - oy * height
             width: pw > 0 ? pw : implicitWidth
             height: ph > 0 ? ph : implicitHeight
             z: view.numberOr(app, "layer", 0)
-            opacity: view.numberOr(app, "opacity", 1)
+            opacity: entryValue("alpha", baseOpacity)
             visible: app.visible !== false
 
             sourceComponent: {
@@ -434,6 +720,7 @@ Item {
             Component {
                 id: imageComponent
                 Item {
+                    readonly property int sourceStatus: artwork.status
                     Image {
                         id: artwork
                         anchors.fill: parent
@@ -448,11 +735,12 @@ Item {
                     }
                     Rectangle {
                         anchors.fill: parent
-                        visible: !artwork.visible
+                        visible: artwork.status === Image.Error || !artwork.visible
                         color: view.highContrast ? "#000000" : "#172532"
                         border.color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#5d7182")
                         border.width: view.highContrast ? 2 : 1
                         Text {
+                            textFormat: Text.PlainText
                             anchors.centerIn: parent
                             width: parent.width - 12
                             text: qsTr("Arte indisponível")
@@ -513,6 +801,7 @@ Item {
                                     visible: source.toString().length > 0
                                 }
                                 Text {
+                                    textFormat: Text.PlainText
                                     anchors.centerIn: parent
                                     width: parent.width - 10
                                     text: item.name || item.title || qsTr("Sem capa")
@@ -559,6 +848,7 @@ Item {
                         color: view.esdeColor(app.color, "#0b1118")
                         visible: !videoHost.multimediaReady
                         Text {
+                            textFormat: Text.PlainText
                             anchors.centerIn: parent
                             text: videoHost.player === null
                                 ? qsTr("vídeo indisponível")
@@ -623,6 +913,7 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
+                                textFormat: Text.PlainText
                                 id: helpText
                                 text: String(modelData)
                                 color: view.esdeColor(app.textColor, "#cccccc")
@@ -638,6 +929,7 @@ Item {
             Component {
                 id: textComponent
                 Text {
+                    textFormat: Text.PlainText
                     text: view.textFor(modelData, view.selectedItem,
                                        modelData.binding ? qsTr("Sem dados") : "")
                     color: view.highContrast ? "#ffffff" : view.esdeColor(app.color, "#e8eef6")
@@ -653,11 +945,13 @@ Item {
                 Row {
                     spacing: 3
                     Text {
+                        textFormat: Text.PlainText
                         text: "★"
                         color: view.esdeColor(app.color, "#f4c542")
                         font.pixelSize: Math.max(12, view.numberOr(lay, "fontSize", 0.03) * view.height)
                     }
                     Text {
+                        textFormat: Text.PlainText
                         text: view.selectedItem.rating || view.selectedItem.score || qsTr("Sem avaliação")
                         color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#e8eef6")
                         font.pixelSize: Math.max(10, view.numberOr(lay, "fontSize", 0.03) * view.height)
@@ -681,6 +975,7 @@ Item {
                             border.width: 1
                             radius: 4
                             Text {
+                                textFormat: Text.PlainText
                                 id: badgeText
                                 anchors.centerIn: parent
                                 text: String(modelData)
@@ -695,6 +990,7 @@ Item {
             Component {
                 id: systemStatusComponent
                 Text {
+                    textFormat: Text.PlainText
                     text: view.runtimeModel.status && view.runtimeModel.status.label
                         ? String(view.runtimeModel.status.label) : qsTr("Estado indisponível")
                     color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#e8eef6")
@@ -741,6 +1037,7 @@ Item {
                                 visible: source.toString().length > 0
                             }
                             Text {
+                                textFormat: Text.PlainText
                                 anchors.centerIn: parent
                                 text: modelData.name || modelData.title || qsTr("Sem capa")
                                 visible: parent.children[0].visible === false
@@ -776,6 +1073,7 @@ Item {
             Component {
                 id: gameSelectorComponent
                 Text {
+                    textFormat: Text.PlainText
                     text: view.selectedItem.name || view.selectedItem.title || qsTr("Selecione um jogo")
                     color: view.highContrast ? "#ffffff" : view.esdeColor(app.textColor, "#e8eef6")
                     font.pixelSize: Math.max(10, view.numberOr(lay, "fontSize", 0.03) * view.height)

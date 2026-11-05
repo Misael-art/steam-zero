@@ -919,6 +919,70 @@ def test_activation_publishes_and_removes_user_units_by_release_capability(
     assert not layout.polkit_policy.exists()
 
 
+@pytest.mark.parametrize("unit_attribute", ["user_service", "user_socket"])
+@pytest.mark.parametrize("symlink", [False, True])
+def test_activation_preserves_unowned_units_before_any_publication(
+    tmp_path: Path, unit_attribute: str, symlink: bool
+) -> None:
+    layout = _layout(tmp_path)
+    _release(layout, "candidate")
+    unit = getattr(layout, unit_attribute)
+    unit.parent.mkdir(parents=True)
+    content = b"[Service]\nExecStart=/missing/script\nRestart=on-failure\n"
+    foreign = tmp_path / "foreign.service"
+    foreign.write_bytes(content)
+    if symlink:
+        unit.symlink_to(foreign)
+    else:
+        unit.write_bytes(content)
+
+    for _ in range(2):
+        with pytest.raises(RuntimeError, match="unidade não gerenciada"):
+            install_host._activate(layout, "candidate")
+        assert unit.read_bytes() == content
+        assert foreign.read_bytes() == content
+        assert unit.is_symlink() is symlink
+        assert not layout.current.exists()
+        assert not layout.command.exists()
+        assert not layout.desktop.exists()
+
+
+def test_release_changes_preserve_unrelated_user_unit_and_enablement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    home = tmp_path / "home"
+    monkeypatch.setenv("HOME", str(home))
+    units = home / ".config/systemd/user"
+    wants = units / "default.target.wants"
+    wants.mkdir(parents=True)
+    foreign = units / "codex-quota-panel.service"
+    content = b"[Service]\nExecStart=/missing/private-panel.py\nRestart=on-failure\n"
+    foreign.write_bytes(content)
+    enabled = wants / foreign.name
+    enabled.symlink_to(foreign)
+    layout = _layout(tmp_path)
+    modern = _release(layout, "modern")
+    core = modern / "venv/bin/steamzero-core"
+    core.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    core.chmod(0o755)
+    legacy = _release(layout, "legacy")
+
+    run = subprocess.run
+    allowed = {str(path / "venv/bin/steamzero") for path in (modern, legacy)}
+
+    def fixture_process(args, **kwargs):
+        assert args[0] in allowed, "must not invoke host services or the missing script"
+        return run(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", fixture_process)
+    for release in ("modern", "modern", "legacy", "legacy", "modern"):
+        install_host._activate(layout, release)
+        assert layout.current.readlink() == Path("releases") / release
+        assert layout.user_service.exists() is (release == "modern")
+        assert foreign.read_bytes() == content
+        assert enabled.readlink() == foreign
+
+
 def test_core_service_allows_only_local_and_internet_socket_families(tmp_path: Path) -> None:
     unit = install_host._service_unit(_layout(tmp_path))
 

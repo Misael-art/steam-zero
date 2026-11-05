@@ -23,8 +23,8 @@ from pathlib import Path
 from typing import Any
 
 # hatchling só existe no ambiente de build. As funções puras abaixo precisam ser
-# importáveis e testáveis sem ele — o ambiente de testes instala apenas o
-# requirements-dev.lock, onde o backend de build não entra.
+# importáveis sem ele. O lock de desenvolvimento também fixa o backend usado
+# no build não isolado do smoke; consumidores mínimos podem não instalá-lo.
 try:
     from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 except ImportError:  # pragma: no cover - exercitado apenas fora do build

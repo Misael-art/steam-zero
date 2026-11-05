@@ -14,3 +14,8 @@ pytest
 pytest-cov
 hypothesis
 pip-audit==2.10.1
+# Same build backend as pyproject.toml; CI builds without downloading an
+# unverified isolated environment after installing this hash-locked set.
+hatchling==1.31.0
+# Preserve the existing development Pillow pin (runtime lock is independent).
+Pillow==13.0.0

@@ -35,6 +35,7 @@ _RECIPE_NAME = re.compile(r"^[a-z][a-zA-Z0-9]{0,63}$")
 class AssetRecipeNodeType(StrEnum):
     RECOLOR = "recolor"
     GRAYSCALE = "grayscale"
+    SATURATION = "saturation"
     SILHOUETTE = "silhouette"
     INVERT = "invert"
     HUE_ROTATE = "hueRotate"
@@ -77,6 +78,12 @@ _NODE_RULES: dict[AssetRecipeNodeType, _NodeRule] = {
         EffectCost.LOW,
         {"amount": 1.0},
         {"amount": (0.0, 1.0)},
+    ),
+    AssetRecipeNodeType.SATURATION: _NodeRule(
+        "graphics.asset.saturation",
+        EffectCost.LOW,
+        {"amount": 1.0},
+        {"amount": (0.0, 2.0)},
     ),
     AssetRecipeNodeType.SILHOUETTE: _NodeRule(
         "graphics.asset.silhouette",
@@ -150,6 +157,7 @@ DEFAULT_ASSET_CAPABILITIES = frozenset(
     {
         "graphics.asset.recolor",
         "graphics.asset.grayscale",
+        "graphics.asset.saturation",
         "graphics.asset.silhouette",
         "graphics.asset.invert",
         "graphics.asset.hue-rotate",
@@ -598,6 +606,10 @@ def _validate_composition(name: str, nodes: tuple[AssetRecipeNode, ...]) -> None
     color_nodes = {AssetRecipeNodeType.RECOLOR, AssetRecipeNodeType.SILHOUETTE}
     if len(color_nodes.intersection(types)) > 1:
         raise ValueError(f"receita {name} combina recolor e silhouette")
+    if {AssetRecipeNodeType.GRAYSCALE, AssetRecipeNodeType.SATURATION} <= set(types):
+        raise ValueError(
+            f"receita {name} combina grayscale e saturation; escolha um controle de saturação"
+        )
     ambient = {AssetRecipeNodeType.GLOW, AssetRecipeNodeType.SHADOW}
     if len(ambient.intersection(types)) > 1:
         raise ValueError(f"receita {name} combina glow e shadow acima do orçamento do slice")

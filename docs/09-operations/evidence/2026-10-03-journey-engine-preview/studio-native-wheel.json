@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 1,
+  "kind": "studio-native-wheel-evidence",
+  "date": "2026-10-31",
+  "sourceBase": "59a91da74d5f0938b1b7c7b201edf1370ca58f44",
+  "sourceState": "committed functional source; documentation checkpoint; no installed-release or overall Studio acceptance",
+  "context": {
+    "qt": "6.11.2",
+    "renderer": "offscreen RHI OpenGL/private Xvfb; software authoring contexts separately asserted",
+    "assets": "original generated CC0 PNG and color/sine video fixtures",
+    "audio": "private PipeWire graph with virtual sink and PCM capture, no hardware/session manager modules"
+  },
+  "focusedTests": [
+    {
+      "command": "official isolated runner: test_native_wheel.py + test_native_wheel_audio.py",
+      "result": "passed",
+      "passed": 6,
+      "seconds": 43.08,
+      "log": "build/agent-runs/studio-native-wheel/launcher-composition-corrected.log"
+    },
+    {
+      "command": "official isolated runner: media_sources/native_wheel/theme_editor/theme_install/scene_layout/launcher_cinema units",
+      "result": "passed",
+      "passed": 166,
+      "seconds": 4.86,
+      "log": "build/agent-runs/studio-native-wheel/domain-recovery-final.log"
+    },
+    {
+      "command": "official isolated runner: native_wheel + desktop_contracts units",
+      "result": "passed",
+      "passed": 45,
+      "seconds": 2.69,
+      "log": "build/agent-runs/studio-native-wheel/action-schema-corrected.log"
+    },
+    {
+      "command": "official isolated runner: native wheel/audio + launcher journey integration (earlier source state)",
+      "result": "passed",
+      "passed": 10,
+      "seconds": 42.69,
+      "log": "build/agent-runs/studio-native-wheel/integrated-captures.log"
+    },
+    {
+      "command": "official isolated runner: media_sources + media + media_pipeline_platform_scope + media_audit_platform_scope + media_global_scope",
+      "result": "passed",
+      "passed": 51,
+      "seconds": 1.97,
+      "log": "build/agent-runs/studio-native-wheel/audit-scope-verified.log"
+    },
+    {
+      "command": "official isolated runner: strengthened AV owner visibility regression, unchanged product baseline",
+      "result": "failed",
+      "failed": 1,
+      "seconds": 4.16,
+      "avFailures": 6,
+      "log": "build/agent-runs/studio-native-wheel/hidden-owner-baseline.log"
+    },
+    {
+      "command": "official isolated runner: AV owner visibility after product correction",
+      "result": "passed",
+      "passed": 1,
+      "seconds": 5.41,
+      "visibilityStopChecks": 2,
+      "log": "build/agent-runs/studio-native-wheel/hidden-owner-corrected.log"
+    },
+    {
+      "command": "official isolated runner: native wheel/audio + Launcher journey E2E, after visibility fix",
+      "result": "passed",
+      "passed": 11,
+      "seconds": 41.57,
+      "warnings": 3,
+      "log": "build/agent-runs/studio-native-wheel/hidden-owner-integration.log"
+    }
+  ],
+  "reproducedAndFixed": [
+    "Original color bleed behind grayscale caused by source plus effect overdraw; source now drawn once.",
+    "Generic create-layout callback did not apply canonical backend result; controls now apply result before selection.",
+    "Theme creation IDs collided within a clock tick; full ULID now preserved.",
+    "Save replaced the target before a complete candidate existed; complete directories now publish atomically with rollback on durability failure.",
+    "Canonical master missing/truncated/hash corruption refused original reimport; exact hash-verified original now repairs only its own identity, with interruption/retry and symlink refusal.",
+    "Invalid JSON/unsafe manifest ID accepted by default installer; existing manifest validator moved to common domain and reused.",
+    "Inherited package image bound too late and only in editor; owner preserved in common resolver before layout resolution; SVG external references refused.",
+    "Authored maxItems/source ignored by Cinema window; source context and bounded selection window now respected.",
+    "Logical revision depended on accessibility context; revision now derived from authoring manifest chain.",
+    "Long source label overflowed compact viewport; bounded flow controls preserve full accessible label.",
+    "Preview used a smaller drawing area than its resolved coordinates; explicit viewport and uniform fit now shared with renderer.",
+    "Default theme text rendered on fixed dark Launcher background; authored background and readability veils now use common theme palette.",
+    "Video backdrop overpainted foreground (measured red pixel 184,0,72); corrected stacking preserves foreground red.",
+    "No audio output still reported playing; decoded video stays available with partial state and audio dependency diagnosis.",
+    "Public action schemas rejected valid layout/motion/binding values; closed schemas now describe consumed JSON types.",
+    "Actual audiovisual playback continued when Cinema or its ancestor became hidden:6 checks failed/1 pytest failure. Effective visibility now clears the owner and stops playback before destruction; reveal resumes the current owner; delayed creation also guards visibility/selection."
+  ],
+  "validationLimits": [
+    "Final functional source gate passed:7181 passed/48 skipped/26 warnings, aggregate branch-enabled coverage85.72395128552097% >=85.71972259810555%. The first native increment does not close overall Studio/Engine acceptance or certify installation/hardware.",
+    "Software rendering explicitly reports unavailable effects; image Ready is decode evidence, not full rendering/performance certification.",
+    "PCM in a private virtual sink proves software output; no physical speaker, latency, GPU/FPS or installed-release acceptance.",
+    "Outline currently uses scaled alpha shadow approximation; uniform contour/inner/SDF fidelity remains open.",
+    "Canonical preserved sources are integrated; complete game/platform/genre assignments and all contextual published media roles remain open.",
+    "Standalone SVG preservation, multi-origin provenance history, full composition/motion UI and media authoring remain open.",
+    "Custom inheritance export dependency closure remains open; tested portable round-trip uses built-in parent and canonical master.",
+    "RetroFE/ES-DE parity losses in existing audit remain uncorrected by this native slice.",
+    "Installed production remains 2.0.0rc1 source 59ecc2d8f0f66e27ce9aefa1dd7656451a610997; desktop shortcut only.",
+    "Decode demand currently follows logical item size rather than final physical scale/DPR; maximum visual quality/performance still needs its own acceptance."
+  ],
+  "fullGate": {
+    "state": "passed",
+    "attempt": "full-20261031-r6",
+    "minimumCoveragePercent": 85.71972259810555,
+    "currentCoveragePercent": 85.72395128552097,
+    "branchCoverage": true,
+    "branches": 17990,
+    "baselineAttempt": "full-20261031-r5",
+    "criticalGuardsCovered": true,
+    "criticalLines": {
+      "src/steamzero/adapters/screencast_web.py": true,
+      "src/steamzero/domain/bitrot.py": true,
+      "src/steamzero/adapters/linux_runtime.py": true,
+      "src/steamzero/adapters/emulation.py": true,
+      "src/steamzero/adapters/resource_probe.py": true,
+      "src/steamzero/domain/theme_editor.py": true
+    },
+    "criticalArcs": {
+      "src/steamzero/adapters/resource_probe.py": true,
+      "src/steamzero/domain/bitrot.py": true,
+      "src/steamzero/adapters/linux_runtime.py": true,
+      "src/steamzero/adapters/screencast_web.py": true
+    },
+    "launcherModelAssignment": {
+      "line": 493,
+      "covered": true
+    },
+    "moduleDeltasSinceR5": [
+      {
+        "path": "src/steamzero/adapters/scraping/cache.py",
+        "linesLost": [],
+        "linesGained": [
+          84,
+          85
+        ],
+        "arcsLost": [],
+        "arcsGained": []
+      },
+      {
+        "path": "src/steamzero/adapters/session_control.py",
+        "linesLost": [],
+        "linesGained": [],
+        "arcsLost": [],
+        "arcsGained": [
+          [
+            434,
+            -429
+          ]
+        ]
+      }
+    ],
+    "linesOrArcsLostSinceR5": false,
+    "testedFilesUnchanged": true,
+    "isolatedProfileUnchanged": true
+  },
+  "artifacts": [
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/01-wheel-rhi.png",
+      "bytes": 15932,
+      "sha256": "96871f8aa950be80a0f033740cbe1a982b603444589ea98c70ea4f168ab79c7f"
+    },
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/02-launcher-rhi.png",
+      "bytes": 74917,
+      "sha256": "b170ef5dc21bfa7c93dcba7d33af0cdafb3ef6384183f7ca7409d153b36f3c4b"
+    },
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/03-studio-compact-software.png",
+      "bytes": 59240,
+      "sha256": "f3378b4718615d5e003eeb43d20bb52c2f51c2e913af2da1e09d567bf141d9da"
+    },
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/04-silhouette-rhi.png",
+      "bytes": 14552,
+      "sha256": "f267be4e4efcb6b85b39c9a2213eb6a8cfee9543d7697be709796bb45fd0da7b"
+    },
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/05-video-decoded.png",
+      "bytes": 2327,
+      "sha256": "159e611c26b877261e5383dac308706e4ad11a5f95728f7aede9824021b55cb1"
+    },
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/software-audio-output.json",
+      "bytes": 539,
+      "sha256": "17371722bb661401f7b51df5dd1222ac53a9aba0c87317bda4343b719e4801b0"
+    },
+    {
+      "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/native-wheel-2026-10-31/06-visibility-and-audio-output.json",
+      "bytes": 568,
+      "sha256": "6116a17fd8dc3d899590ca022d92a5a62ceb9c301811c1f7b76bbf961ee31be3"
+    }
+  ],
+  "sourceManifest": {
+    "path": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel-tested-files-visibility.json",
+    "treeDigest": "e263173d9d6b40f3330decf3e52339aeca645dcff6fa25f836fb707cb828a36f",
+    "files": 1294,
+    "changedSinceR5": [
+      "src/steamzero/ui/qml/launcher/LauncherCinema.qml",
+      "tests/integration/test_native_wheel_audio.py",
+      "tests/qml/check_native_wheel_audio.qml"
+    ]
+  },
+  "fullGateAttempts": [
+    {
+      "attempt": "full-20261031",
+      "result": {
+        "exitCode": 1,
+        "seconds": 8.912478769000245,
+        "signals": [],
+        "testedFilesUnchanged": true
+      },
+      "classification": "collection failure; no full-suite approval",
+      "cause": "same new test basename in tests/unit and tests/integration",
+      "remedy": "rename unit contract test; preserve default pytest collection and validate complete collection before retry"
+    },
+    {
+      "attempt": "full-20261031-r2",
+      "result": {
+        "exitCode": 1,
+        "seconds": 382.8852666060002,
+        "signals": [],
+        "testedFilesUnchanged": true
+      },
+      "tests": {
+        "passed": 1265,
+        "skipped": 45,
+        "failed": 1,
+        "seconds": 376.67
+      },
+      "classification": "failed, no full-suite approval",
+      "cause": "unassigned global source stats and registry read leaked into platform-scoped audit",
+      "remedy": "scope global namespace access and new metric to unfiltered audit; original integration assertion preserved; 3 focused failures reproduced then 51 media tests passed/1.97s"
+    },
+    {
+      "attempt": "full-20261031-r3",
+      "result": {
+        "exitCode": 1,
+        "seconds": 2039.3326785130002,
+        "signals": [],
+        "testedFilesUnchanged": true
+      },
+      "tests": {
+        "passed": 2582,
+        "skipped": 46,
+        "failed": 1,
+        "seconds": 2032.96
+      },
+      "classification": "failed, no full-suite approval",
+      "cause": "generated capability matrix still counted155 published actions rather than159",
+      "remedy": "prospective shared claim, official generator, diff limited to159 count;7 capability matrix and6 Vita consumer tests passed; status-check passed"
+    },
+    {
+      "attempt": "full-20261031-r4",
+      "result": {
+        "exitCode": -15,
+        "seconds": 42.49242145400058,
+        "signals": [
+          {
+            "signal": 15,
+            "seconds": 42.39721430600184
+          }
+        ],
+        "testedFilesUnchanged": true
+      },
+      "classification": "external SIGTERM; no full-suite or coverage approval",
+      "cause": "supervisor received SIGTERM at42.397s and forwarded cancellation to owned runner group; sender not recorded by this handler",
+      "nextAction": "lightweight sigtimedwait probe records kernel sender before another heavy execution; no source, guard, dependency or threshold changes"
+    },
+    {
+      "attempt": "full-20261031-r5",
+      "result": {
+        "exitCode": 0,
+        "seconds": 2182.4876095030013,
+        "signals": [],
+        "testedFilesUnchanged": true,
+        "coverage": {
+          "current": 85.71972259810555,
+          "baseline": 85.70961552128492,
+          "nonRegression": true,
+          "branches": 17990
+        }
+      },
+      "tests": {
+        "passed": 7181,
+        "skipped": 48,
+        "warnings": 24,
+        "failed": 0,
+        "seconds": 2171.38
+      },
+      "classification": "passed for frozen r3 source/test tree; final integration review still in progress",
+      "criticalGuardsCovered": true,
+      "coveredSourceFiles": 307,
+      "isolatedProfileUnchanged": true,
+      "sourceManifest": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel-tested-files-r3.json"
+    },
+    {
+      "attempt": "full-20261031-r6",
+      "result": {
+        "exitCode": 0,
+        "seconds": 2194.612940365001,
+        "signals": [],
+        "testedFilesUnchanged": true,
+        "coverage": {
+          "current": 85.72395128552097,
+          "baseline": 85.71972259810555,
+          "nonRegression": true,
+          "branches": 17990
+        }
+      },
+      "tests": {
+        "passed": 7181,
+        "skipped": 48,
+        "warnings": 26,
+        "failed": 0,
+        "seconds": 2183.57
+      },
+      "classification": "passed final functional source checkpoint",
+      "sourceManifest": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-wheel-tested-files-visibility.json",
+      "criticalGuardsCovered": true,
+      "coveredSourceFiles": 307,
+      "isolatedProfileUnchanged": true
+    }
+  ],
+  "collectionValidation": {
+    "result": "passed",
+    "log": "build/agent-runs/studio-native-wheel/collection-corrected.log",
+    "defaultImportModePreserved": true
+  },
+  "coverageInstrumentationDiagnostic": {
+    "result": "reproduced",
+    "sourceChanged": false,
+    "dependencyOrThresholdChanged": false,
+    "comparison": [
+      {
+        "options": "-q -x --cov=steamzero --cov-branch --cov-report=json:... --cov-report=term",
+        "test": "tests/unit/test_capability_matrix.py before generated view refresh",
+        "tests": "1 failed/0.63s",
+        "reportSaved": false,
+        "log": "build/agent-runs/studio-native-wheel/coverage-diagnostic-failure.log"
+      },
+      {
+        "options": "same coverage options, without -x",
+        "test": "same unchanged failing module",
+        "tests": "1 failed,6passed/8.84s",
+        "reportSaved": true,
+        "measuredPercent": 2.87,
+        "interpretation": "scoped diagnostic only; below unchanged85% threshold; no gate approval",
+        "log": "build/agent-runs/studio-native-wheel/coverage-diagnostic-failure-without-x.log"
+      }
+    ],
+    "nextExecution": "full-20261031-r4, identical1294 source/test file hashes, no -x; JUnit and coverage outputs required"
+  },
+  "sourceCommits": {
+    "domain": "686d0b7e10442fbf11d06baba7f0db7da2f4c6c8",
+    "integration": "d9392bec9d3132e58bfc0812ec0dc892014ff28d"
+  },
+  "staticGates": {
+    "ruffCheck": "passed",
+    "ruffFormat": {
+      "passed": true,
+      "files": 740
+    },
+    "mypy": {
+      "passed": true,
+      "sourceFiles": 307
+    },
+    "independence": "passed",
+    "boundaries": {
+      "passed": true,
+      "violations": 0
+    },
+    "statusCheck": "functional checkpoint passed; generated documentary catalog checked separately before commit"
+  },
+  "softwareHarnessContract": "Existing software-only checks now require explicit fallback and applied values0/inactive outline when effects cannot draw; RHI assertions and goldens unchanged. This corrects visibility/diagnostic reporting, not an effects-fidelity approval.",
+  "preservedOlderTestHashes": {
+    "unchanged": [
+      "tests/unit/test_theme_editor.py",
+      "tests/integration/test_theme_authoring_e2e.py",
+      "tests/integration/test_launcher_owner_loss_qml.py",
+      "tests/qml/launcher/check_launcher_owner_loss.qml",
+      "tests/unit/test_linux_runtime.py",
+      "tests/unit/test_emulation_runtime_remediation.py"
+    ],
+    "changed": [
+      "src/steamzero/domain/theme_editor.py",
+      "tests/qml/check_theme_authoring_e2e.qml"
+    ],
+    "reason": "Generic native authoring and atomic source persistence; software harness contract described above. Six other protected hashes remain identical.",
+    "comparison": [
+      {
+        "path": "src/steamzero/domain/theme_editor.py",
+        "previousSha256": "19aa2ae8e18613e0e0800e17af1869d2baf8ca53312d7dc3a2300c901fef7e7e",
+        "currentSha256": "e60c53ebfe1b9e5eb643cc5b2c2af86d0bd97a41fe03649d486f048558d28772",
+        "unchanged": false
+      },
+      {
+        "path": "tests/unit/test_theme_editor.py",
+        "previousSha256": "a927974be3cf438194fbe406650b95efd0b804ac10866b5c0e145e4a68040367",
+        "currentSha256": "a927974be3cf438194fbe406650b95efd0b804ac10866b5c0e145e4a68040367",
+        "unchanged": true
+      },
+      {
+        "path": "tests/integration/test_theme_authoring_e2e.py",
+        "previousSha256": "51adb794ca22b4361265a6a19b7bea96ebf5312e4be8dd7455baa0b07ed73fc5",
+        "currentSha256": "51adb794ca22b4361265a6a19b7bea96ebf5312e4be8dd7455baa0b07ed73fc5",
+        "unchanged": true
+      },
+      {
+        "path": "tests/qml/check_theme_authoring_e2e.qml",
+        "previousSha256": "0e31494fe2a41c4817e4eac62df5668d51a68f13c35afc37f34dc2e8bf9fb9a9",
+        "currentSha256": "866aef3caadcab1d3b49ab600a99f4395e4a417312905525062148619f292430",
+        "unchanged": false
+      },
+      {
+        "path": "tests/integration/test_launcher_owner_loss_qml.py",
+        "previousSha256": "4ebdfecabf550fa49c43f83dcec3c0897143189cb24ea285227c87524e49f80d",
+        "currentSha256": "4ebdfecabf550fa49c43f83dcec3c0897143189cb24ea285227c87524e49f80d",
+        "unchanged": true
+      },
+      {
+        "path": "tests/qml/launcher/check_launcher_owner_loss.qml",
+        "previousSha256": "5c4996e58e39466c105a66e90879240d0fe3619a71e530ed1d120e1737fd456d",
+        "currentSha256": "5c4996e58e39466c105a66e90879240d0fe3619a71e530ed1d120e1737fd456d",
+        "unchanged": true
+      },
+      {
+        "path": "tests/unit/test_linux_runtime.py",
+        "previousSha256": "e09b2bb2090a639a02715e3e1ca47c369d4c498f38662a7b3abcfcfaa55fe9e9",
+        "currentSha256": "e09b2bb2090a639a02715e3e1ca47c369d4c498f38662a7b3abcfcfaa55fe9e9",
+        "unchanged": true
+      },
+      {
+        "path": "tests/unit/test_emulation_runtime_remediation.py",
+        "previousSha256": "eaa492b34166beb35ddc360ce4624e6c95bd8a0c1734377843b8759516334245",
+        "currentSha256": "eaa492b34166beb35ddc360ce4624e6c95bd8a0c1734377843b8759516334245",
+        "unchanged": true
+      }
+    ]
+  },
+  "logs": [
+    {
+      "path": "build/agent-runs/studio-native-wheel/full-20261031-r6.log",
+      "bytes": 83462,
+      "sha256": "911c3c3f86982c76b804bc7e0ff1f8e1c9a8cc98ec4ecf34d4375d2c5af4832e"
+    },
+    {
+      "path": "build/agent-runs/studio-native-wheel/full-20261031-r6-coverage.json",
+      "bytes": 5079358,
+      "sha256": "594c9e32fd93a206e54aebd04811f6bf2d3202a386ade6e688c9af1f50949c3e"
+    },
+    {
+      "path": "build/agent-runs/studio-native-wheel/full-20261031-r6-junit.xml",
+      "bytes": 1046004,
+      "sha256": "39998db9dbb14249141e5f11d5551f1d6e6e61d9a8915e222942f204c023a144"
+    }
+  ]
+}

@@ -12,8 +12,8 @@ Window {
 
     property int failures: 0
     property int captureIndex: 0
-    property real thinScale: 0
-    property real thickScale: 0
+    property real thinWidth: 0
+    property real thickWidth: 0
     readonly property var captureNames: [
         "original", "colored", "grayscale", "black", "white",
         "outlineThin", "outlineThick", "outlinedGlow", "outlinedShadow"
@@ -101,8 +101,8 @@ Window {
     function finish() {
         check(preview.sourceDecodeCount === 1,
               "trocar receita não pode decodificar a fonte novamente")
-        check(thickScale > thinScale,
-              "contorno grosso precisa ter escala visual maior que o fino")
+        check(thickWidth > thinWidth,
+              "contorno grosso precisa ter largura maior que o fino")
         Qt.exit(failures === 0 ? 0 : 1)
     }
 
@@ -114,9 +114,9 @@ Window {
         const name = captureNames[captureIndex]
         preview.recipe = recipes[name]
         if (name === "outlineThin")
-            thinScale = preview.outlineScale
+            thinWidth = preview.outlineWidth
         if (name === "outlineThick")
-            thickScale = preview.outlineScale
+            thickWidth = preview.outlineWidth
         captureTimer.restart()
     }
 
@@ -151,13 +151,13 @@ Window {
                 harness.check(preview.recolorNode !== null,
                               "receita colored precisa chegar ao renderer")
             if (name === "colored")
-                harness.check(preview.appliedColorization === 1,
+                harness.check(preview.softwareBackend ? preview.fallbackActive && preview.appliedColorization === 0 : preview.appliedColorization === 1,
                               "recolor precisa ativar colorization")
             if (name === "grayscale")
                 harness.check(preview.grayscaleNode !== null,
                               "receita grayscale precisa chegar ao renderer")
             if (name === "grayscale")
-                harness.check(preview.appliedSaturation === -1,
+                harness.check(preview.softwareBackend ? preview.fallbackActive && preview.appliedSaturation === 0 : preview.appliedSaturation === -1,
                               "grayscale precisa remover saturação")
             if (name === "black" || name === "white")
                 harness.check(preview.silhouetteNode !== null,
@@ -166,7 +166,7 @@ Window {
                 harness.check(preview.outlineNode !== null,
                               "receita outline precisa chegar ao renderer")
             if (name === "outlineThin" || name === "outlineThick")
-                harness.check(preview.outlineActive,
+                harness.check(preview.softwareBackend ? preview.fallbackActive && !preview.outlineActive : preview.outlineActive,
                               "outline precisa ativar a camada alpha")
             // Contrato de degradacao: o node de cor existe (invert/hueRotate) e
             // ou o runtime aplica o efeito, ou o fallback precisa estar publicado.

@@ -24,8 +24,14 @@ from __future__ import annotations
 import contextlib
 import copy
 import dataclasses
+import fcntl
 import json
+import math
+import os
+import re
+import stat
 import xml.etree.ElementTree as ET
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -328,6 +334,19 @@ _RETROFE_X_KEYS = ("x", "width", "maxWidth", "xOffset")
 _RETROFE_Y_KEYS = ("y", "height", "maxHeight", "yOffset")
 
 
+def _retrofe_fraction(value: object, extent: float) -> object:
+    if isinstance(value, int | float) and not isinstance(value, bool):
+        normalized = value / extent
+    elif isinstance(value, str) and value.endswith("%"):
+        try:
+            normalized = float(value[:-1]) / 100.0
+        except ValueError:
+            return value
+    else:
+        return value
+    return normalized if math.isfinite(normalized) else value
+
+
 def _normalize_retrofe_scene(scene: dict[str, Any]) -> dict[str, Any]:
     """Converte pixels/percentuais do IR RetroFE nas frações que o renderizador de cena lê.
 
@@ -343,20 +362,210 @@ def _normalize_retrofe_scene(scene: dict[str, Any]) -> dict[str, Any]:
             layout = element.get("layout")
             if not isinstance(layout, dict):
                 continue
+            appearance = element.setdefault("appearance", {})
+            if "alpha" in layout:
+                appearance["opacity"] = layout["alpha"]
+            if "layer" in layout:
+                appearance["layer"] = layout["layer"]
+            if "fontSize" in layout:
+                layout["fontSize"] /= canvas["height"]
             for keys, extent in (
                 (_RETROFE_X_KEYS, canvas["width"]),
                 (_RETROFE_Y_KEYS, canvas["height"]),
             ):
                 for key in keys:
-                    value = layout.get(key)
-                    if isinstance(value, bool):
+                    if key in layout:
+                        layout[key] = _retrofe_fraction(layout[key], extent)
+            events = element.get("on")
+            timelines = [events.get(name) for name in ("enter", "exit") if isinstance(events, dict)]
+            blocks = [b for t in timelines if isinstance(t, list) for b in t]
+            for block in blocks:
+                clips = block.get("animations") if isinstance(block, dict) else None
+                for clip in clips if isinstance(clips, list) else ():
+                    if not isinstance(clip, dict):
                         continue
-                    if isinstance(value, int | float):
-                        layout[key] = float(value) / extent
-                    elif isinstance(value, str) and value.endswith("%"):
-                        layout[key] = float(value[:-1]) / 100.0
+                    axis = clip.get("property")
+                    if axis not in ("x", "y"):
+                        continue
+                    extent = canvas["width" if axis == "x" else "height"]
+                    for endpoint in ("from", "to"):
+                        if endpoint in clip:
+                            clip[endpoint] = _retrofe_fraction(clip[endpoint], extent)
         view["coordinateSpace"] = "normalized"
     return out
+
+
+_MAX_IMPORTED_SCENE_BYTES = 32 * 1024 * 1024
+_MAX_SCENE_FILES = 2048
+
+
+def _read_imported_json(path: Path, limit: int = _MAX_IMPORTED_SCENE_BYTES) -> Any:
+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        with os.fdopen(os.open(path.name, flags, dir_fd=directory), "rb") as stream:
+            metadata = os.fstat(stream.fileno())
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > limit:
+                raise ValueError("arquivo de cena fora do limite")
+            raw = stream.read(limit + 1)
+    finally:
+        os.close(directory)
+    if len(raw) > limit:
+        raise ValueError("arquivo de cena fora do limite")
+    return json.loads(raw)
+
+
+@contextlib.contextmanager
+def imported_scene_publication(
+    *, create: bool, shared: bool = False, root: Path | None = None
+) -> Iterator[None]:
+    root = root if root is not None else paths.scenes_dir()
+    if create and not root.exists():
+        fs.ensure_dir(root, mode=0o700)
+    try:
+        directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    except FileNotFoundError:
+        if create:
+            raise
+        yield
+        return
+    except OSError as exc:
+        raise SteamZeroError("E-THEME-UNSAFE", detail="diretório RetroFE indisponível") from exc
+    try:
+        try:
+            mode = fcntl.LOCK_SH if shared else fcntl.LOCK_EX
+            fcntl.flock(directory, mode | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise SteamZeroError(
+                "E-TX-LOCKED", detail="aguarde a gravação ou limpeza da biblioteca RetroFE"
+            ) from exc
+        yield
+    finally:
+        os.close(directory)
+
+
+def validate_imported_pair(target: Path, manifest_path: Path, scene_id: str) -> None:
+    try:
+        scene = _read_imported_json(target)
+        manifest = _read_imported_json(manifest_path)
+        if (
+            not isinstance(scene, dict)
+            or scene.get("schemaVersion") != 1
+            or scene.get("id") != scene_id
+            or not isinstance(scene.get("views"), list)
+            or not isinstance(manifest, dict)
+            or manifest.get("schemaVersion") != 1
+            or manifest.get("sceneId") != scene_id
+            or not isinstance(manifest.get("assets"), dict)
+        ):
+            raise ValueError("par de cena inválido")
+        _check_scene_revision(target, manifest)
+    except (OSError, ValueError, RecursionError) as exc:
+        raise SteamZeroError(
+            "E-THEME-MANIFEST", detail="par RetroFE incompleto ou conflitante"
+        ) from exc
+
+
+def _check_scene_revision(target: Path, manifest: dict[str, Any]) -> None:
+    if "sceneSha256" in manifest:
+        if (
+            not target.is_file()
+            or target.is_symlink()
+            or target.stat().st_size > _MAX_IMPORTED_SCENE_BYTES
+        ):
+            raise ValueError("cena ausente ou inválida")
+        if fs.hash_file(target, algo="sha256") != manifest["sceneSha256"]:
+            raise ValueError("revisão da cena divergente")
+
+
+def imported_live_digests() -> set[str]:
+    from steamzero.domain.theme_import_retrofe import SCENE_ID
+
+    root = paths.scenes_dir()
+    if root.is_symlink():
+        raise SteamZeroError("E-THEME-UNSAFE", detail="diretório RetroFE é um link")
+    manifests: set[str] = set()
+    scenes: set[str] = set()
+    live: set[str] = set()
+    budget = _MAX_IMPORTED_SCENE_BYTES
+    try:
+        with os.scandir(root) as entries:
+            for index, entry in enumerate(entries):
+                if index >= _MAX_SCENE_FILES:
+                    raise SteamZeroError("E-THEME-LIMIT", detail="cenas RetroFE demais para limpar")
+                identity, suffix = os.path.splitext(entry.name)
+                if suffix != ".json" or not SCENE_ID.fullmatch(identity):
+                    continue
+                if not entry.is_file(follow_symlinks=False):
+                    raise ValueError("artefato RetroFE não é um arquivo regular")
+                if not identity.endswith(".assets"):
+                    scenes.add(identity)
+                    continue
+                limit = min(budget, 2 * 1024 * 1024)
+                budget -= entry.stat(follow_symlinks=False).st_size
+                record = _read_imported_json(Path(entry.path), limit)
+                if not isinstance(record, dict):
+                    raise ValueError("metadados RetroFE inválidos")
+                if record.get("id") == identity and isinstance(record.get("views"), list):
+                    scenes.add(identity)
+                    continue
+                scene_id = identity.removesuffix(".assets")
+                assets = record.get("assets")
+                if (
+                    record.get("schemaVersion") != 1
+                    or record.get("sceneId") != scene_id
+                    or not isinstance(assets, dict)
+                    or any(
+                        not isinstance(value, dict)
+                        or not isinstance(digest := value.get("digest"), str)
+                        or not re.fullmatch(r"[a-f0-9]{64}", digest)
+                        for value in assets.values()
+                    )
+                ):
+                    raise ValueError("manifesto RetroFE inválido")
+                _check_scene_revision(root / f"{scene_id}.json", record)
+                manifests.add(scene_id)
+                live.update(theme_assets.live_digests([record]))
+    except FileNotFoundError:
+        if root.exists():
+            raise SteamZeroError(
+                "E-THEME-MANIFEST", detail="a biblioteca RetroFE mudou durante a limpeza"
+            ) from None
+    except (OSError, ValueError, RecursionError) as exc:
+        raise SteamZeroError(
+            "E-THEME-MANIFEST", detail="metadados RetroFE ilegíveis impedem a limpeza"
+        ) from exc
+    if scenes - manifests:
+        raise SteamZeroError("E-THEME-MANIFEST", detail="cena RetroFE sem manifesto de assets")
+    return live
+
+
+def list_imported_scene_ids() -> list[str]:
+    from steamzero.domain.theme_import_retrofe import SCENE_ID
+
+    root = paths.scenes_dir()
+    if root.is_symlink():
+        return []
+    ids = []
+    try:
+        with os.scandir(root) as entries:
+            for index, entry in enumerate(entries):
+                if index >= _MAX_SCENE_FILES:
+                    return []
+                if not entry.name.endswith(".json"):
+                    continue
+                scene_id = entry.name.removesuffix(".json")
+                if len(scene_id) <= 128 and SCENE_ID.fullmatch(scene_id):
+                    manifest = root / f"{scene_id}.assets.json"
+                    if (
+                        entry.is_file(follow_symlinks=False)
+                        and manifest.is_file()
+                        and not manifest.is_symlink()
+                    ):
+                        ids.append(scene_id)
+    except OSError:
+        return []
+    return sorted(ids)
 
 
 def render_imported_scene(
@@ -370,33 +579,96 @@ def render_imported_scene(
     Mesmo contrato de saída de :func:`render_scene` e a mesma resolução de
     assets: importar sem poder renderizar deixava o pacote sem consumidor.
     """
-    from steamzero.domain import scene_retrofe
+    from steamzero.domain import theme_import_retrofe
 
+    if not theme_import_retrofe.SCENE_ID.fullmatch(scene_id):
+        raise SteamZeroError("E-THEME-MANIFEST", detail="identificador de cena RetroFE inválido")
     root = scenes_root if scenes_root is not None else paths.scenes_dir()
     assets = store if store is not None else theme_assets.ThemeAssetStore(paths.theme_assets_dir())
+    with imported_scene_publication(create=False, shared=True, root=root):
+        return _render_imported_scene(scene_id, root, assets)
+
+
+def _render_imported_scene(
+    scene_id: str, root: Path, assets: theme_assets.ThemeAssetStore
+) -> dict[str, Any]:
+    from steamzero.domain import scene_retrofe
+
     scene_path = root / f"{scene_id}.json"
     manifest_path = root / f"{scene_id}.assets.json"
-    if not scene_path.is_file() or scene_path.is_symlink():
-        raise SteamZeroError("E-THEME-NOT-FOUND", detail=f"cena '{scene_id}' não está importada")
+    if root.is_symlink() or scene_path.is_symlink():
+        raise SteamZeroError("E-THEME-UNSAFE", detail="cena RetroFE não pode ser um link")
     try:
-        scene = json.loads(scene_path.read_text(encoding="utf-8"))
-        manifest = (
-            json.loads(manifest_path.read_text(encoding="utf-8"))
-            if manifest_path.is_file() and not manifest_path.is_symlink()
-            else {}
-        )
-    except (OSError, ValueError) as exc:
+        scene = _read_imported_json(scene_path)
+    except FileNotFoundError:
         raise SteamZeroError(
-            "E-THEME-MANIFEST", detail=f"cena '{scene_id}' ilegível: {exc}"
-        ) from exc
-    if not isinstance(scene, dict) or not isinstance(manifest.get("assets", {}), dict):
+            "E-THEME-NOT-FOUND", detail=f"cena '{scene_id}' não está importada"
+        ) from None
+    except (OSError, ValueError, RecursionError) as exc:
+        raise SteamZeroError("E-THEME-MANIFEST", detail=f"cena '{scene_id}' ilegível") from exc
+    try:
+        manifest = _read_imported_json(manifest_path)
+        if isinstance(manifest, dict):
+            _check_scene_revision(scene_path, manifest)
+    except FileNotFoundError:
+        manifest = {"schemaVersion": 1, "sceneId": scene_id, "assets": {}}
+    except (OSError, ValueError, RecursionError) as exc:
+        raise SteamZeroError("E-THEME-MANIFEST", detail="assets RetroFE ilegíveis") from exc
+    views = scene.get("views") if isinstance(scene, dict) else None
+    if (
+        not isinstance(scene, dict)
+        or scene.get("id") != scene_id
+        or scene.get("schemaVersion") != 1
+        or not isinstance(views, list)
+        or not 1 <= len(views) <= 16
+        or not isinstance(manifest, dict)
+        or manifest.get("schemaVersion") != 1
+        or manifest.get("sceneId") != scene_id
+        or not isinstance(manifest.get("assets"), dict)
+    ):
         raise SteamZeroError("E-THEME-MANIFEST", detail=f"cena '{scene_id}' inválida")
-    report = _resolve_assets(scene, {"assets": manifest.get("assets", {})}, assets, system_id=None)
+    for view in views:
+        elements = view.get("elements") if isinstance(view, dict) else None
+        if not isinstance(elements, list) or len(elements) > 512:
+            raise SteamZeroError("E-THEME-MANIFEST", detail="elementos RetroFE inválidos")
+        for element in elements:
+            if not isinstance(element, dict):
+                raise SteamZeroError("E-THEME-MANIFEST", detail="elemento RetroFE inválido")
+            element.pop("source", None)
+    try:
+        report = _resolve_assets(scene, manifest, assets, system_id=None)
+        normalized = _normalize_retrofe_scene(scene)
+        fidelity = scene_retrofe.fidelity_report(scene)
+    except (KeyError, TypeError, ValueError, ArithmeticError, RecursionError) as exc:
+        raise SteamZeroError("E-THEME-MANIFEST", detail=f"cena '{scene_id}' inválida") from exc
     return {
         "themeId": scene_id,
         "origin": "retrofe",
         "systemId": None,
-        "scene": _normalize_retrofe_scene(scene),
-        "fidelity": scene_retrofe.fidelity_report(scene),
+        "scene": normalized,
+        "fidelity": fidelity,
         "assets": report,
+    }
+
+
+def resolve_journey_imported_scene(scene_id: str) -> dict[str, Any]:
+    """Publish the saved scene and any resolution loss to both Journey consumers."""
+    try:
+        rendered = render_imported_scene(scene_id)
+    except SteamZeroError as exc:
+        return {
+            "state": {
+                "E-THEME-NOT-FOUND": "missing",
+                "E-TX-LOCKED": "busy",
+            }.get(exc.code, "failed"),
+            "scene": None,
+            "diagnostic": str(exc.detail or "Cena RetroFE indisponível.")[:240],
+        }
+    missing_assets = bool(rendered["assets"]["missing"])
+    return {
+        "state": "degraded" if missing_assets else "resolved",
+        "scene": rendered["scene"],
+        "assets": rendered["assets"],
+        "fidelity": rendered["fidelity"],
+        "diagnostic": "A cena RetroFE tem imagens ou sons ausentes." if missing_assets else "",
     }

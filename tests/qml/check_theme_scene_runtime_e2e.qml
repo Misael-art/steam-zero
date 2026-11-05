@@ -8,6 +8,7 @@
 import QtQuick
 import QtTest
 import "../../src/steamzero/ui/qml"
+import "../../src/steamzero/ui/qml/launcher"
 
 Item {
     id: harness
@@ -21,6 +22,47 @@ Item {
         runtimeModel: ({})
     }
 
+    Component {
+        id: editorComponent
+        ThemeEditorPanel {
+            anchors.fill: parent
+            requestAction: function(actionId, payload, callback, errorCallback) {
+                if (actionId !== "theme.scene.render-imported")
+                    return false
+                const response = suite.post(suite.readConfig(), "/theme/scene/render-imported", payload)
+                if (response.status === 200)
+                    callback(response.body)
+                else
+                    errorCallback(response.body.error)
+                return true
+            }
+        }
+    }
+
+    Component {
+        id: journeyComponent
+        ExperienceJourneyPanel {
+            anchors.fill: parent
+            compactLayout: true
+            requestAction: function(actionId, payload, callback, errorCallback) {
+                const operation = actionId.replace("journey.studio.", "")
+                const method = ["list", "catalog"].includes(operation) ? "GET" : "POST"
+                const response = suite.request(suite.readConfig(), method,
+                    "/journey/studio/" + operation, payload)
+                if (response.status === 200)
+                    callback(response.body)
+                else
+                    errorCallback(response.body.error)
+                return true
+            }
+        }
+    }
+
+    Component {
+        id: cinemaComponent
+        LauncherCinema { anchors.fill: parent }
+    }
+
     TestCase {
         id: suite
         name: "ThemeSceneRuntimeE2E"
@@ -28,17 +70,21 @@ Item {
 
         function readConfig() {
             const r = new XMLHttpRequest()
-            r.open("GET", Qt.resolvedUrl("../../build/ui-theme-scene-runtime-e2e.json"), false)
+            r.open("GET", "FIXTURE_CONFIG", false)
             r.send()
             return JSON.parse(r.responseText)
         }
 
         function post(cfg, path, payload) {
+            return request(cfg, "POST", path, payload)
+        }
+
+        function request(cfg, method, path, payload) {
             const r = new XMLHttpRequest()
-            r.open("POST", cfg.apiUrl + path, false)
+            r.open(method, cfg.apiUrl + path, false)
             r.setRequestHeader("X-SteamZero-Token", cfg.apiToken)
             r.setRequestHeader("Content-Type", "application/json")
-            r.send(JSON.stringify(payload))
+            r.send(method === "POST" ? JSON.stringify(payload) : null)
             return {status: r.status, body: JSON.parse(r.responseText || "{}")}
         }
 
@@ -80,17 +126,21 @@ Item {
 
         // O gradiente do fixture muda da esquerda para a direita; uma imagem não
         // decodificada (ou um placeholder) não tem essa variação de pixel.
-        function assertGradient(imageItem, firstDominant, lastDominant) {
+        function assertGradient(imageItem, firstDominant, lastDominant, captureItem) {
             tryCompare(imageItem, "status", Image.Ready, 5000, imageItem.objectName + " não decodificou")
             verify(imageItem.sourceSize.width > 0 && imageItem.sourceSize.height > 0)
             wait(100)
-            const grabbed = grabImage(imageItem)
+            const target = captureItem || imageItem
+            const origin = imageItem.mapToItem(target, 0, 0)
+            const grabbed = grabImage(target)
             verify(grabbed !== null && grabbed.width > 8, "captura vazia")
-            const left = grabbed.pixel(Math.min(8, Math.floor(grabbed.width / 8)), Math.floor(grabbed.height / 2))
-            const right = grabbed.pixel(grabbed.width - 1 - Math.min(8, Math.floor(grabbed.width / 8)), Math.floor(grabbed.height / 2))
+            const inset = Math.min(8, Math.floor(imageItem.width / 8))
+            const centerY = Math.floor(origin.y + imageItem.height / 2)
+            const left = grabbed.pixel(Math.floor(origin.x) + inset, centerY)
+            const right = grabbed.pixel(Math.floor(origin.x + imageItem.width) - 1 - inset, centerY)
             const channel = function(c, i) { return 255 * [c.r, c.g, c.b][i] }
             verify(channel(left, firstDominant) > channel(left, lastDominant) + 40,
-                   "lado esquerdo sem a cor esperada")
+                   "lado esquerdo sem a cor esperada: " + left + " · " + grabbed.width + "×" + grabbed.height)
             verify(channel(right, lastDominant) > channel(right, firstDominant) + 40,
                    "lado direito sem a cor esperada")
         }
@@ -123,7 +173,200 @@ Item {
             tryVerify(function() { return imageFor(view, declared) !== null }, 5000,
                       "o logo RetroFE não foi instanciado pelo SceneEsdeView")
             const logo = imageFor(view, declared)
-            assertGradient(logo, 1, 0)  // verde → magenta
+            const node = view.elementAt(0).parent
+            tryCompare(node, "opacity", 0.85, 1500)
+            compare(node.x, view.width * 0.25)
+            compare(node.y, view.height * 0.25)
+            assertGradient(logo, 1, 0, view)  // verde → magenta
+            // Saída agora é executada; evento sem suporte continua identificável.
+            compare(view.unsupportedTimelines.length, 1)
+            compare(view.unsupportedTimelines[0].event, "highlightEnter")
+
+            // Saída RetroFE (onExit alpha→0): toca, assenta e notifica.
+            const spy = Qt.createQmlObject("import QtTest; SignalSpy { signalName: 'exitFinished' }", view)
+            spy.target = view
+            view.playExit()
+            verify(view.exiting)
+            spy.wait(1500)
+            compare(spy.signalArguments[0][0], true)
+            compare(node.opacity, 0)
+            verify(!view.exiting)
+
+            // Navegação rápida interrompe e restaura o estado final de entrada.
+            view.cancelExit()
+            view.viewData = null
+            show(response.body)
+            const again = view.elementAt(0).parent
+            tryCompare(again, "opacity", 0.85, 1500)
+            spy.clear()
+            view.playExit()
+            view.cancelExit()
+            verify(!view.exiting)
+            compare(again.opacity, 0.85)
+            compare(spy.count, 0)
+
+            // Movimento reduzido: sem animação, mesmo estado final, conclusão imediata.
+            view.reducedMotion = true
+            view.playExit()
+            spy.wait(500)
+            compare(spy.signalArguments[0][0], true)
+            compare(again.opacity, 0)
+            view.reducedMotion = false
+
+            // Teto: a saída nunca segura a sessão além do orçamento.
+            view.viewData = null
+            show(response.body)
+            const third = view.elementAt(0).parent
+            tryCompare(third, "opacity", 0.85, 1500)
+            spy.clear()
+            view.exitBudgetMs = 10
+            view.playExit()
+            spy.wait(500)
+            compare(spy.signalArguments[0][0], false)
+            view.exitBudgetMs = 1500
+        }
+
+        function test_03_studio_reabre_e_reproduz_cena_salva() {
+            const cfg = readConfig()
+            const editor = createTemporaryObject(editorComponent, harness)
+            verify(editor)
+            editor.retrofeImportDialogControl.open()
+            tryCompare(editor.retrofeImportDialogControl, "opened", true)
+            editor.retrofeImportSceneId = cfg.retrofeId
+            const play = find(editor.retrofeImportDialogControl.contentItem.parent, "themeImportRetrofePlay")
+            verify(play && play.enabled)
+            mouseClick(play)
+            const dialog = findChild(editor, "themeRetrofePlaybackDialog")
+            verify(dialog)
+            tryCompare(dialog, "opened", true)
+            const preview = dialog.contentItem
+            compare(preview.rendered.themeId, cfg.retrofeId)
+            compare(preview.rendered.runtimeModel.isolated, true)
+            const scene = find(preview, "sceneView")
+            tryVerify(function() { return scene.elementAt(0) !== null })
+            tryCompare(scene.elementAt(0).parent, "opacity", 0.85, 1500)
+            compare(scene.unsupportedTimelines.length, 1)
+            verify(find(preview, "notDrawnLine").text.indexOf("1") !== -1)
+            dialog.close()
+            tryCompare(dialog, "opened", false)
+            editor.retrofeImportSceneId = "../missing"
+            mouseClick(play)
+            tryCompare(dialog, "opened", true)
+            compare(preview.rendered, null)
+            verify(preview.errorText.length > 0)
+            dialog.close()
+            tryCompare(dialog, "opened", false)
+            editor.retrofeImportDialogControl.close()
+        }
+
+        function test_04_jornada_salva_e_previsualiza_cena_retrofe() {
+            const cfg = readConfig()
+            const journey = createTemporaryObject(journeyComponent, harness)
+            verify(journey)
+            journey.refresh()
+            compare(journey.catalog.importedScenes.length, 1)
+            compare(journey.catalog.importedScenes[0].id, cfg.retrofeId)
+            journey.createJourney("")
+            tryVerify(function() { return journey.session && !journey.busy })
+            journey.compactPane = "inspector"
+            const button = find(journey, "journeyApplyImportedScene")
+            const picker = find(journey, "journeyImportedScenePicker")
+            tryVerify(function() { return button && button.visible && button.enabled })
+            compare(picker.currentValue, cfg.retrofeId)
+            const inspector = find(journey, "journeyInspectorScroll").contentItem
+            tryVerify(function() {
+                const point = button.mapToItem(inspector, 0, 0)
+                if (button.height <= 0 || inspector.height <= 0)
+                    return false
+                if (point.y >= 0 && point.y + button.height <= inspector.height)
+                    return true
+                inspector.contentY = Math.max(0, inspector.contentY + point.y - 8)
+                return false
+            }, 3000, "ação fora da área visível do inspetor")
+            mouseClick(button)
+            tryVerify(function() {
+                return journey.currentMenu.appearance
+                    && journey.currentMenu.appearance.mode === "imported-scene"
+            }, 3000, "não atribuiu a cena: " + journey.notice)
+            compare(journey.currentMenu.appearance.sceneId, cfg.retrofeId)
+            journey.preview()
+            tryCompare(journey, "themePreviewMode", "imported")
+            const preview = find(journey, "journeyImportedScenePreview")
+            verify(preview.visible)
+            const title = find(journey, "journeyScenePreviewTitle")
+            verify(title.text.indexOf(cfg.retrofeId) !== -1)
+            tryVerify(function() {
+                const point = preview.mapToItem(inspector, 0, 0)
+                // A prévia pode ser mais alta que a viewport (fonte/DPI do CI):
+                // exige topo visível e o maior trecho possível na área.
+                const needed = Math.min(preview.height, inspector.height)
+                const visible = Math.min(point.y + preview.height, inspector.height) - Math.max(point.y, 0)
+                if (preview.height > 0 && point.y >= 0 && visible >= needed - 1)
+                    return true
+                inspector.contentY = Math.max(0, Math.min(inspector.contentHeight - inspector.height,
+                    inspector.contentY + point.y
+                    - Math.max(0, Math.min(title.height + 8, inspector.height - preview.height))))
+                return false
+            }, 3000, "prévia não está visível na área do inspetor: preview="
+                + preview.height + " viewport=" + inspector.height)
+            const scene = find(preview, "sceneView")
+            tryVerify(function() { return scene.elementAt(0) !== null })
+            tryCompare(scene.elementAt(0).parent, "opacity", 0.85, 1500)
+            journey.saveJourney()
+            tryVerify(function() { return journey.session.isNew === false && !journey.busy })
+            const id = journey.journeyDocument.id
+            journey.loadJourney(id)
+            compare(journey.currentMenu.appearance.sceneId, cfg.retrofeId)
+            verify(journey.activateJourney())
+            tryCompare(journey, "activeJourneyId", id)
+        }
+
+        function test_05_launcher_reproduz_a_mesma_cena() {
+            const cfg = readConfig()
+            const cinema = createTemporaryObject(cinemaComponent, harness)
+            verify(cinema)
+            cinema.currentFocus = cfg.launcher.focusId
+            cinema.scene = cfg.launcher
+            const scene = find(cinema, "launcherCinemaXmlScene")
+            verify(scene && scene.visible)
+            const node = scene.elementAt(0).parent
+            tryVerify(function() { return node.opacity > 0 && node.opacity < 0.85 }, 1000)
+            tryCompare(node, "opacity", 0.85, 1500)
+            compare(node.x, scene.width * 0.25)
+            compare(node.y, scene.height * 0.25)
+            const loss = find(cinema, "importedSceneLossBanner")
+            const text = find(cinema, "importedSceneLossText")
+            const footer = find(cinema, "cinemaFooter")
+            verify(loss.visible)
+            compare(String(text.color), "#ffffff")
+            verify(loss.y + loss.height < footer.y)
+            assertGradient(imageFor(scene, scene.elements[0].source), 1, 0, scene)
+
+            // Ativar lança na hora; a saída do tema acompanha e a navegação restaura.
+            const launched = Qt.createQmlObject("import QtTest; SignalSpy { signalName: 'activated' }", cinema)
+            launched.target = cinema
+            cinema.currentFocus = cfg.launcher.focusId
+            verify(cinema.activateFocused())
+            compare(launched.count, 1)
+            verify(scene.exiting)
+            tryCompare(node, "opacity", 0, 1500)
+            verify(!scene.exiting)
+            cinema.moveRequested("right")
+            compare(node.opacity, 0.85)
+        }
+
+        function test_06_launcher_preserva_a_navegacao_sem_cena() {
+            const cfg = readConfig()
+            const cinema = createTemporaryObject(cinemaComponent, harness)
+            verify(cinema)
+            cinema.currentFocus = cfg.launcher.focusId
+            cinema.scene = cfg.launcher
+            compare(cinema.selectionReady, true)
+            compare(cinema.externalSceneAvailable, false)
+            const notice = find(cinema, "launcherExternalSceneDiagnostic")
+            verify(notice && notice.visible)
+            compare(String(notice.color), "#ffffff")
+            verify(notice.text.indexOf(cfg.launcher.theme.requestedSceneId) !== -1)
         }
     }
 }

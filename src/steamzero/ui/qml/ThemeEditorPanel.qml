@@ -20,6 +20,7 @@ Rectangle {
     property color amberColor: "#ff9f1a"
     property color redColor: "#ff6b73"
     property real visualScale: 1.0
+    property bool reducedMotion: false
     readonly property int minimumInteractiveTarget: 48
     readonly property int titlePixelSize: editorTitle.font.pixelSize
 
@@ -112,6 +113,24 @@ Rectangle {
     property var editorEffectSchema: ({})
     property var editorMotionSchema: ({})
     property var editorAssetRecipeSchema: ({nodeTypes: [], nodes: ({})})
+    property var editorBindingSchema: ({fields: [], mediaFields: ({})})
+    property string nativeMediaRoleValue: "master:logo"
+    readonly property var nativeMediaRoleOptions: {
+        const options = [
+            {value: "master:logo", label: qsTr("Imagem específica · logotipo")},
+            {value: "master:background", label: qsTr("Imagem específica · fundo")},
+            {value: "master:sidebar", label: qsTr("Imagem específica · barra lateral")}
+        ]
+        const fields = editorBindingSchema.mediaFields || ({})
+        const labels = {
+            logoUrl: qsTr("Logotipo do jogo"), coverUrl: qsTr("Capa do jogo"),
+            fanartUrl: qsTr("Arte de fundo do jogo"), iconUrl: qsTr("Ícone do jogo"),
+            marqueeUrl: qsTr("Marquise do jogo"), screenshotUrl: qsTr("Captura de tela do jogo")
+        }
+        for (const field of Object.keys(fields))
+            if (fields[field] === "image") options.push({value: field, label: labels[field] || field})
+        return options
+    }
     property string authoringNotice: ""
     // Sobe quando uma edição é recusada: os campos reconstroem e voltam ao valor
     // declarado, em vez de continuar exibindo o texto rejeitado.
@@ -180,6 +199,7 @@ Rectangle {
     property string assetRecipeBreakpointMaxWidth: ""
     property string assetRecipeBreakpointMinHeight: ""
     property string assetRecipeBreakpointMaxHeight: ""
+    property var nativeSources: []
     readonly property bool assetRecipeDemoActive:
         editorManifest.id === "org.steamzero.asset-recipes-demo"
         && Object.keys(_previewBridge.assetRecipes).length > 0
@@ -234,10 +254,12 @@ Rectangle {
     readonly property var assetRecipePreviewRecipe:
         _previewBridge.assetRecipes[assetRecipePreviewRecipeName]
             || _previewBridge.assetRecipes[assetRecipeSelection] || null
-    readonly property var sceneLayoutPreview: _previewBridge.sceneLayoutPreview.layouts
-        ? _previewBridge.sceneLayoutPreview.layouts.previewTitles : null
+    readonly property var sceneLayoutPreview: {
+        const layouts = _previewBridge.sceneLayoutPreview.layouts || ({})
+        return layouts[panel.bindingLayoutName] || layouts.previewTitles || layouts[Object.keys(layouts)[0]] || null
+    }
     readonly property bool sceneLayoutPreviewActive:
-        assetRecipeDemoActive && sceneLayoutPreview !== null
+        editorSessionId !== "" && sceneLayoutPreview !== null
     readonly property int sceneLayoutPreviewEntryCount:
         sceneLayoutPreviewActive ? sceneLayoutRepeater.entryCount : 0
 
@@ -248,15 +270,15 @@ Rectangle {
     readonly property var dynamicPalettePreview: _previewBridge.dynamicPalette.swatches
         ? _previewBridge.dynamicPalette.swatches : null
     readonly property bool dynamicPalettePreviewActive:
-        assetRecipeDemoActive && dynamicPalettePreview !== null
+        editorSessionId !== "" && dynamicPalettePreview !== null
     readonly property var glassPreview: _previewBridge.glassPreview.panels
         ? _previewBridge.glassPreview.panels.previewCard : null
     readonly property bool glassPreviewActive:
-        assetRecipeDemoActive && glassPreview !== null
+        editorSessionId !== "" && glassPreview !== null
     readonly property var sceneMotionPreview: _previewBridge.sceneMotionPreview.states
         ? _previewBridge.sceneMotionPreview : null
     readonly property bool sceneMotionPreviewActive:
-        assetRecipeDemoActive && sceneMotionPreview !== null
+        editorSessionId !== "" && sceneMotionPreview !== null
     readonly property int sceneMotionFocusDuration:
         sceneMotionPreviewActive && sceneMotionPreview.transitions
             && sceneMotionPreview.transitions.focusIn
@@ -264,7 +286,7 @@ Rectangle {
     readonly property var sceneSurfacePreview: _previewBridge.sceneSurfacePreview.slots
         ? _previewBridge.sceneSurfacePreview : null
     readonly property bool sceneSurfacePreviewActive:
-        assetRecipeDemoActive && sceneSurfacePreview !== null
+        editorSessionId !== "" && sceneSurfacePreview !== null
     readonly property int sceneSurfaceSaveCount:
         sceneSurfacePreviewActive && sceneSurfaceRepeater.saveCount
             ? sceneSurfaceRepeater.saveCount : 0
@@ -275,7 +297,7 @@ Rectangle {
     readonly property var studioGraph: _previewBridge.studioGraph.nodes
         ? _previewBridge.studioGraph : null
     readonly property bool studioGraphActive:
-        assetRecipeDemoActive && studioGraph !== null
+        editorSessionId !== "" && studioGraph !== null
     readonly property int studioGraphNodeCount:
         studioGraphActive ? studioCanvas.nodeCount : 0
     readonly property string studioGraphSelectedId:
@@ -448,7 +470,9 @@ Rectangle {
                 panel.packageImportOverwrite = false
                 panel.packageImportNotice = response && response.alreadyInstalled
                     ? qsTr("Este tema já está instalado. Marque substituir somente se deseja trocar a versão atual.")
-                    : qsTr("Pacote validado. Confirme para instalar; o tema ativo não será alterado.")
+                    : response && response.hasPreservedData
+                        ? qsTr("Há dados preservados deste tema. Confirme a substituição para restaurar o pacote; o tema ativo não será alterado.")
+                        : qsTr("Pacote validado. Confirme para instalar; o tema ativo não será alterado.")
                 panel.packageImportNoticeIsError = false
             },
             function(message) {
@@ -461,6 +485,9 @@ Rectangle {
 
     function applyPackageImport() {
         if (!panel.packageImportPreview || panel.packageImportSource.trim() === "")
+            return
+        if ((panel.packageImportPreview.alreadyInstalled
+                || panel.packageImportPreview.hasPreservedData) && !panel.packageImportOverwrite)
             return
         panel.packageImportBusy = true
         panel.packageImportNotice = ""
@@ -665,6 +692,20 @@ Rectangle {
         return copy
     }
 
+    function nativeLayoutValue(field, fallback) {
+        let current = ((panel.editorDeclared.sceneLayouts || ({})).layouts || ({}))[panel.bindingLayoutName]
+        const parts = field.split(".")
+        for (let i = 0; i < parts.length; ++i) {
+            if (!current || current[parts[i]] === undefined) return fallback
+            current = current[parts[i]]
+        }
+        return current
+    }
+
+    function setNativeLayoutField(field, value) {
+        panel.requestEditorMutation("theme.editor.set-layout", {sessionId: panel.editorSessionId, layoutId: panel.bindingLayoutName, field: field, value: value})
+    }
+
     function _syncAssetRecipeSelection() {
         const recipes = (panel.editorDeclared.assetRecipes || ({})).recipes || ({})
         const recipeNames = Object.keys(recipes)
@@ -839,6 +880,8 @@ Rectangle {
             panel.editorMotionSchema = r.motionSchema
         if (r.assetRecipeSchema)
             panel.editorAssetRecipeSchema = r.assetRecipeSchema
+        if (r.bindingSchema)
+            panel.editorBindingSchema = r.bindingSchema
         panel._syncAssetRecipeSelection()
         panel.authoringNotice = ""
         if (r.history) {
@@ -1259,7 +1302,7 @@ Rectangle {
     }
 
     function _openEditor(sessionId, manifest, preview, declared, effectSchema, motionSchema,
-                         assetRecipeSchema, readOnly) {
+                         assetRecipeSchema, readOnly, bindingSchema) {
         panel.editorLoadGeneration += 1
         panel.editorMutationGeneration += 1
         // O cancelamento de uma sessão descartada ainda pode estar na fila atrás de
@@ -1272,6 +1315,8 @@ Rectangle {
         panel.editorEffectSchema = effectSchema || ({})
         panel.editorMotionSchema = motionSchema || ({})
         panel.editorAssetRecipeSchema = assetRecipeSchema || ({nodeTypes: [], nodes: ({})})
+        panel.editorBindingSchema = bindingSchema || ({fields: [], mediaFields: ({})})
+        panel.nativeMediaRoleValue = "master:logo"
         panel.authoringNotice = ""
         panel.editorHistory = ({canUndo: false, canRedo: false})
         panel.editorManifest = manifest
@@ -1330,7 +1375,7 @@ Rectangle {
                 return
             panel._openEditor(r.sessionId, r.manifest, r.preview, r.declared,
                               r.effectSchema, r.motionSchema, r.assetRecipeSchema,
-                              r.readOnly)
+                              r.readOnly, r.bindingSchema)
         }, function(message) {
             if (generation === panel.editorLoadGeneration)
                 panel.notice = String(message)
@@ -1401,7 +1446,8 @@ Rectangle {
                 if (generation !== panel.editorLoadGeneration)
                     return
                 panel._openEditor(r.sessionId, r.manifest, r.preview, r.declared,
-                                  r.effectSchema, r.motionSchema, r.assetRecipeSchema)
+                                  r.effectSchema, r.motionSchema, r.assetRecipeSchema,
+                                  r.readOnly, r.bindingSchema)
             }, function(message) {
                 if (generation === panel.editorLoadGeneration)
                     panel.notice = String(message)
@@ -1848,6 +1894,7 @@ Rectangle {
         errorColor: panel.redColor
         visualScale: panel.visualScale
         compactLayout: panel.compactLayout
+        reducedMotion: panel.reducedMotion
         onCloseRequested: panel.journeyMode = false
     }
 
@@ -2062,7 +2109,7 @@ Rectangle {
         height: Math.min(panel.height - 24, 650)
         x: (panel.width - width) / 2
         y: (panel.height - height) / 2
-        title: qsTr("Importar cena RetroFE")
+        title: qsTr("Importar ou reproduzir cena RetroFE")
         standardButtons: Dialog.NoButton
         onOpened: retrofeImportSourceField.forceActiveFocus()
         onClosed: panel.resetRetrofeImport()
@@ -2104,7 +2151,7 @@ Rectangle {
                 spacing: 10
 
                 Label {
-                    text: qsTr("Examine primeiro. A cena é compilada para o IR comum, assets são copiados para o store por conteúdo e nada é ativado automaticamente.")
+                    text: qsTr("Examine uma pasta ou XML para importar. Para abrir uma cena salva, informe o ID e escolha Reproduzir.")
                     color: panel.mutedColor
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -2237,12 +2284,12 @@ Rectangle {
                 }
 
                 GridLayout {
+                    id: retrofeSceneFields
+                    readonly property bool hasLayouts: panel.retrofeImportLayouts.length > 0
                     columns: 2
-                    visible: panel.retrofeImportLayouts.length > 0
                     Layout.fillWidth: true
                     columnSpacing: 10
                     rowSpacing: 8
-
                     Label { text: qsTr("ID da cena"); color: panel.mutedColor }
                     TextField {
                         id: retrofeImportSceneIdField
@@ -2253,9 +2300,10 @@ Rectangle {
                         Layout.fillWidth: true
                         onTextChanged: panel.retrofeImportSceneId = text
                     }
-                    Label { text: qsTr("Nome"); color: panel.mutedColor }
+                    Label { text: qsTr("Nome"); color: panel.mutedColor; visible: retrofeSceneFields.hasLayouts }
                     TextField {
                         id: retrofeImportNameField
+                        visible: retrofeSceneFields.hasLayouts
                         objectName: "themeImportRetrofeName"
                         text: panel.retrofeImportName
                         placeholderText: qsTr("Nome da cena")
@@ -2263,9 +2311,10 @@ Rectangle {
                         Layout.fillWidth: true
                         onTextChanged: panel.retrofeImportName = text
                     }
-                    Label { text: qsTr("Autor"); color: panel.mutedColor }
+                    Label { text: qsTr("Autor"); color: panel.mutedColor; visible: retrofeSceneFields.hasLayouts }
                     TextField {
                         id: retrofeImportAuthorField
+                        visible: retrofeSceneFields.hasLayouts
                         objectName: "themeImportRetrofeAuthor"
                         text: panel.retrofeImportAuthor
                         placeholderText: qsTr("Autor do tema")
@@ -2273,9 +2322,10 @@ Rectangle {
                         Layout.fillWidth: true
                         onTextChanged: panel.retrofeImportAuthor = text
                     }
-                    Label { text: qsTr("Licença"); color: panel.mutedColor }
+                    Label { text: qsTr("Licença"); color: panel.mutedColor; visible: retrofeSceneFields.hasLayouts }
                     TextField {
                         id: retrofeImportLicenseField
+                        visible: retrofeSceneFields.hasLayouts
                         objectName: "themeImportRetrofeLicense"
                         text: panel.retrofeImportLicense
                         placeholderText: qsTr("SPDX, por exemplo CC0-1.0")
@@ -2313,6 +2363,18 @@ Rectangle {
                 Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 onClicked: retrofeImportDialog.close()
             }
+            Button {
+                objectName: "themeImportRetrofePlay"
+                text: qsTr("Reproduzir")
+                enabled: !panel.retrofeImportBusy && panel.retrofeImportSceneId.trim() !== ""
+                Accessible.name: qsTr("Reproduzir cena RetroFE salva")
+                Accessible.description: qsTr("Abre uma cena pelo ID com dados de exemplo")
+                Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
+                onClicked: {
+                    retrofePlaybackDialog.sceneId = panel.retrofeImportSceneId.trim()
+                    retrofePlaybackDialog.open()
+                }
+            }
             Item { Layout.fillWidth: true }
             Button {
                 id: retrofeImportApplyButton
@@ -2331,6 +2393,39 @@ Rectangle {
                 Layout.minimumHeight: Math.max(panel.minimumInteractiveTarget, 44)
                 onClicked: panel.applyRetrofeImport()
             }
+        }
+    }
+
+    ThemedDialog {
+        id: retrofePlaybackDialog
+        objectName: "themeRetrofePlaybackDialog"
+        property string sceneId: ""
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
+        anchors.centerIn: parent
+        width: Math.min(panel.width - 24, 1000)
+        height: Math.min(panel.height - 24, 750)
+        title: qsTr("Reprodução RetroFE com dados de exemplo")
+        modal: true
+        standardButtons: Dialog.Close
+        onOpened: retrofePlayback.render()
+        onClosed: sceneId = ""
+        contentItem: ThemeScenePreview {
+            id: retrofePlayback
+            importedScene: true
+            themeId: retrofePlaybackDialog.sceneId
+            requestAction: panel.requestAction
+            reducedMotion: panel.reducedMotion
+            surfaceColor: panel.surfaceColor
+            borderColor: panel.borderColor
+            textColor: panel.textColor
+            mutedColor: panel.mutedColor
+            focusColor: panel.cyanColor
         }
     }
 
@@ -2444,6 +2539,8 @@ Rectangle {
 
             Label {
                 visible: panel.packageImportPreview !== null
+                objectName: "packageImportPreviewLabel"
+                textFormat: Text.PlainText
                 text: panel.packageImportPreview
                     ? qsTr("%1 · v%2\nAutor: %3\nLicença: %4\nID: %5")
                         .arg(panel.packageImportPreview.name || "Tema")
@@ -2458,9 +2555,13 @@ Rectangle {
             }
 
             CheckBox {
+                objectName: "packageImportOverwriteCheck"
                 visible: panel.packageImportPreview !== null
-                    && panel.packageImportPreview.alreadyInstalled === true
-                text: qsTr("Substituir o tema instalado")
+                    && (panel.packageImportPreview.alreadyInstalled === true
+                        || panel.packageImportPreview.hasPreservedData === true)
+                text: panel.packageImportPreview && panel.packageImportPreview.hasPreservedData
+                    ? qsTr("Confirmar substituição dos dados preservados")
+                    : qsTr("Substituir o tema instalado")
                 checked: panel.packageImportOverwrite
                 Accessible.name: text
                 onToggled: panel.packageImportOverwrite = checked
@@ -2468,6 +2569,8 @@ Rectangle {
 
             Label {
                 text: panel.packageImportNotice
+                objectName: "packageImportNoticeLabel"
+                textFormat: Text.PlainText
                 visible: panel.packageImportNotice !== ""
                 color: panel.packageImportNoticeIsError ? panel.redColor : panel.greenColor
                 wrapMode: Text.WordWrap
@@ -2488,9 +2591,11 @@ Rectangle {
                 Button {
                     text: panel.packageImportBusy
                         ? qsTr("Instalando…") : qsTr("Instalar pacote")
+                    objectName: "packageImportApplyButton"
                     enabled: !panel.packageImportBusy
                         && panel.packageImportPreview !== null
-                        && (!panel.packageImportPreview.alreadyInstalled
+                        && ((!panel.packageImportPreview.alreadyInstalled
+                                && !panel.packageImportPreview.hasPreservedData)
                             || panel.packageImportOverwrite)
                     Accessible.name: text
                     Accessible.description: enabled
@@ -3691,12 +3796,217 @@ Rectangle {
                                 color: panel.mutedColor
                                 font.pixelSize: Math.round(11 * panel.visualScale)
                             }
+                            Label { text: qsTr("Master preservado · compartilhado entre temas"); color: panel.textColor; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: masterSlot
+                                    objectName: "nativeMasterSlot"
+                                    model: ["logo", "background", "sidebar"]
+                                    Accessible.name: qsTr("Papel da imagem no tema")
+                                }
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: masterLicense
+                                    objectName: "nativeMasterLicense"
+                                    placeholderText: qsTr("Licença da imagem")
+                                    Accessible.name: qsTr("Licença do master preservado")
+                                }
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: masterOrigin
+                                    objectName: "nativeMasterOrigin"
+                                    placeholderText: qsTr("Origem da imagem")
+                                    Accessible.name: qsTr("Origem do master preservado")
+                                }
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: masterAttribution
+                                    objectName: "nativeMasterAttribution"
+                                    placeholderText: qsTr("Crédito da imagem")
+                                    Accessible.name: qsTr("Crédito do master preservado")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterImport"
+                                    text: qsTr("Escolher imagem original")
+                                    enabled: masterLicense.text.trim() !== ""
+                                    onClicked: nativeMasterDialog.open()
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterRefresh"
+                                    text: qsTr("Consultar biblioteca")
+                                    onClicked: panel.requestEditorMutation("theme.editor.sources", {sessionId: panel.editorSessionId}, function(r) { panel.nativeSources = r.sources || [] })
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: masterPicker
+                                    objectName: "nativeMasterPicker"
+                                    Accessible.description: currentText
+                                    ToolTip.visible: hovered || activeFocus
+                                    ToolTip.text: currentText
+                                    model: panel.nativeSources.map(function(s) { return s.filename + " · " + s.width + "×" + s.height + " · " + s.provenance.license })
+                                    Accessible.name: qsTr("Master da biblioteca canônica")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterBind"
+                                    text: qsTr("Usar master")
+                                    enabled: masterPicker.currentIndex >= 0 && panel.nativeSources.length > 0
+                                    onClicked: panel.requestEditorMutation("theme.editor.set-source", {sessionId: panel.editorSessionId, slot: masterSlot.currentText, digest: panel.nativeSources[masterPicker.currentIndex].digest})
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMasterAssignGame"
+                                    text: qsTr("Associar imagem a jogo")
+                                    enabled: masterPicker.currentIndex >= 0
+                                        && masterPicker.currentIndex < panel.nativeSources.length
+                                        && panel.nativeSources[masterPicker.currentIndex].available === true
+                                    Accessible.description: enabled ? "" : qsTr("Escolha uma imagem preservada disponível.")
+                                    onClicked: sourceAssignmentDialog.begin(panel.nativeSources[masterPicker.currentIndex])
+                                }
+                            }
+                            Label { text: qsTr("Composição nativa"); color: panel.textColor }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthField { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeLayoutName
+                                    objectName: "nativeLayoutName"
+                                    placeholderText: qsTr("Nome da composição")
+                                    Accessible.name: qsTr("Nome da composição nativa")
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeLayoutKind
+                                    objectName: "nativeLayoutKind"
+                                    model: ["wheel", "grid", "list", "coverFlow", "carousel", "flow", "stack"]
+                                    Accessible.name: qsTr("Organização dos itens")
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeTemplateKind
+                                    objectName: "nativeTemplateKind"
+                                    model: ["image", "text", "badge"]
+                                    Accessible.name: qsTr("Tipo dos itens")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutCreate"
+                                    text: qsTr("Criar composição")
+                                    onClicked: {
+                                        const layoutId = nativeLayoutName.text
+                                        panel.requestEditorMutation("theme.editor.create-layout", {sessionId: panel.editorSessionId, layoutId: layoutId, kind: nativeLayoutKind.currentText, templateKind: nativeTemplateKind.currentText}, function(result) {
+                                            panel._applyEditorResult(result)
+                                            panel.bindingLayoutName = layoutId
+                                        })
+                                    }
+                                }
+                            }
+                            Flow {
+                                visible: bindingColumn.layoutNames.length > 0
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutPicker"
+                                    model: bindingColumn.layoutNames
+                                    currentIndex: model.indexOf(panel.bindingLayoutName)
+                                    Accessible.name: qsTr("Composição em edição")
+                                    onActivated: panel.bindingLayoutName = currentText
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutNormalRecipe"
+                                    model: [""].concat(Object.keys(panel.assetRecipeRecipes))
+                                    currentIndex: Math.max(0, model.indexOf(((bindingColumn.layouts[panel.bindingLayoutName] || {}).imageRecipes || {}).normal || ""))
+                                    displayText: currentText || qsTr("Laterais: fonte original")
+                                    Accessible.name: qsTr("Receita dos itens laterais")
+                                    onActivated: panel.setNativeLayoutField("imageRecipes.normal", currentText || null)
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutFocusRecipe"
+                                    model: [""].concat(Object.keys(panel.assetRecipeRecipes))
+                                    currentIndex: Math.max(0, model.indexOf(((bindingColumn.layouts[panel.bindingLayoutName] || {}).imageRecipes || {}).focused || ""))
+                                    displayText: currentText || qsTr("Centro: fonte original")
+                                    Accessible.name: qsTr("Receita do item central")
+                                    onActivated: panel.setNativeLayoutField("imageRecipes.focused", currentText || null)
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    id: nativeMediaRole
+                                    objectName: "nativeLayoutMediaRole"
+                                    model: panel.nativeMediaRoleOptions
+                                    textRole: "label"
+                                    valueRole: "value"
+                                    currentIndex: model.findIndex(function(option) { return option.value === panel.nativeMediaRoleValue })
+                                    onActivated: panel.nativeMediaRoleValue = String(currentValue)
+                                    Accessible.name: qsTr("Fonte de imagem a aplicar")
+                                }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeLayoutMediaApply"
+                                    text: qsTr("Definir fonte")
+                                    enabled: nativeMediaRole.currentIndex >= 0
+                                    onClicked: {
+                                        const role = String(nativeMediaRole.currentValue)
+                                        if (role.startsWith("master:"))
+                                            panel.setNativeLayoutField("template.properties.source", "asset:" + role.slice(7))
+                                        else
+                                            panel.requestEditorMutation("theme.editor.edit-binding", {sessionId: panel.editorSessionId, layoutId: panel.bindingLayoutName, prop: "source", binding: "item." + role, fallback: ""})
+                                    }
+                                }
+                            }
+                            Repeater {
+                                model: bindingColumn.layoutNames.length ? [
+                                    {field: "selected", label: qsTr("Seleção"), low: 0, high: 127, step: 1},
+                                    {field: "item.width", label: qsTr("Largura"), low: 1, high: 2048, step: 1},
+                                    {field: "item.height", label: qsTr("Altura"), low: 1, high: 2048, step: 1},
+                                    {field: "gap", label: qsTr("Espaçamento"), low: 0, high: 256, step: 1},
+                                    {field: "highlight.scale", label: qsTr("Escala central"), low: 0.5, high: 2, step: 0.05},
+                                    {field: "offset.minScale", label: qsTr("Escala mínima lateral"), low: 0.25, high: 1, step: 0.05}
+                                ] : []
+                                delegate: RowLayout {
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    Label { text: modelData.label; color: panel.mutedColor; Layout.fillWidth: true }
+                                    AuthRangeSpinBox {
+                                        objectName: "nativeLayout_" + modelData.field.replace(/\./g, "_")
+                                        fieldName: modelData.label
+                                        Accessible.name: modelData.label
+                                        rangeMinimum: modelData.low
+                                        rangeMaximum: modelData.high
+                                        rangeStep: modelData.step
+                                        rangeDecimals: modelData.step < 1 ? 2 : 0
+                                        declaredValue: panel.nativeLayoutValue(modelData.field, modelData.field === "offset.minScale" ? 0.7 : modelData.field === "highlight.scale" ? 1 : 0)
+                                        onValueCommitted: function(value) { panel.setNativeLayoutField(modelData.field, value) }
+                                    }
+                                }
+                            }
+                            Label { text: qsTr("Entrada, saída e movimento"); color: panel.textColor }
+                            Flow {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: childrenRect.height
+                                spacing: 8
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionEvent; objectName: "nativeMotionEvent"; model: ["enter", "exit", "move"]; Accessible.name: qsTr("Evento da transição") }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionFrom; objectName: "nativeMotionFrom"; model: panel.motionStateOptions; Accessible.name: qsTr("Estado inicial") }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionTo; objectName: "nativeMotionTo"; model: panel.motionStateOptions; currentIndex: 1; Accessible.name: qsTr("Estado final") }
+                                AuthRangeSpinBox { width: Math.min(implicitWidth, parent.width); id: nativeMotionDuration; objectName: "nativeMotionDuration"; fieldName: qsTr("Duração em milissegundos"); rangeMinimum: 0; rangeMaximum: 2000; rangeStep: 1; rangeDecimals: 0; declaredValue: 240; property int chosen: 240; onValueCommitted: function(value) { chosen = value } }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width); id: nativeMotionEasing; objectName: "nativeMotionEasing"; model: panel.editorMotionSchema.easings || ["linear", "quadOut", "cubicOut"]; Accessible.name: qsTr("Curva da transição") }
+                                AuthButton { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMotionApply"
+                                    text: qsTr("Aplicar transição")
+                                    enabled: panel.bindingLayoutName !== ""
+                                    onClicked: {
+                                        const name = "layout" + nativeMotionEvent.currentText
+                                        panel.editMotion("set_transition", name, {value: {from: nativeMotionFrom.currentText, to: nativeMotionTo.currentText, duration: nativeMotionDuration.chosen, easing: nativeMotionEasing.currentText}})
+                                        panel.setNativeLayoutField("motion." + nativeMotionEvent.currentText, name)
+                                    }
+                                }
+                                AuthCombo { width: Math.min(implicitWidth, parent.width)
+                                    objectName: "nativeMotionInterruption"
+                                    model: ["retarget", "snap"]
+                                    Accessible.name: qsTr("Interrupção durante navegação rápida")
+                                    currentIndex: model.indexOf(panel.nativeLayoutValue("motion.interruption", "retarget"))
+                                    onActivated: panel.setNativeLayoutField("motion.interruption", currentText)
+                                }
+                            }
                             Label {
                                 objectName: "bindingEmpty"
                                 visible: bindingColumn.layoutNames.length === 0
                                 Layout.fillWidth: true
                                 wrapMode: Text.WordWrap
-                                text: qsTr("Este tema não declara layouts. Crie o tema a partir de um que tenha layouts (por exemplo, a demonstração de receitas) para ligar propriedades a metadados.")
+                                text: qsTr("Crie uma composição para organizar itens e ligar imagens ou metadados públicos.")
                                 color: panel.mutedColor
                                 font.pixelSize: Math.round(11 * panel.visualScale)
                             }
@@ -3731,7 +4041,9 @@ Rectangle {
                                     objectName: "bindingField"
                                     requestedImplicitHeight: 40
                                     Accessible.name: qsTr("Metadado")
-                                    model: ["title", "year", "developer", "publisher", "genre", "description", "rating", "players", "region", "language", "series"]
+                                    model: panel.bindingPropName === "source"
+                                        ? Object.keys(panel.editorBindingSchema.mediaFields || ({})).filter(function(field) { return panel.editorBindingSchema.mediaFields[field] === "image" })
+                                        : ["title", "year", "developer", "publisher", "genre", "description", "rating", "players", "region", "language", "series"]
                                 }
                                 AuthField {
                                     id: bindingFallbackField
@@ -3938,7 +4250,7 @@ Rectangle {
                     }
 
                     Rectangle {
-                        visible: panel.assetRecipeEditorActive || panel.assetRecipeCanInitialize
+                        visible: panel.editorSessionId !== ""
                         // Os controles desta seção usavam a paleta do estilo do sistema e
                         // destoavam do cartão; passam a herdar as cores do tema em edição.
                         palette.window: panel._previewBridge.surface
@@ -4508,17 +4820,26 @@ Rectangle {
                                     Layout.minimumHeight: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Valor numérico de %1")
                                         .arg(panel.assetRecipeFieldSelection)
-                                    validator: DoubleValidator {
-                                        bottom: Number(panel.assetRecipeFieldSpec.minimum || 0)
-                                        top: Number(panel.assetRecipeFieldSpec.maximum || 999)
-                                        decimals: 3
-                                        notation: DoubleValidator.StandardNotation
+                                    // DoubleValidator segue a locale do sistema: em pt-BR
+                                    // recusava "0.5" sem aviso. Aceita "." e "," e
+                                    // valida o intervalo da receita ao confirmar.
+                                    validator: RegularExpressionValidator {
+                                        regularExpression: /^-?\d{0,6}([.,]\d{0,3})?$/
                                     }
                                     onEditingFinished: {
                                         const parsed = Number(text.replace(",", "."))
-                                        if (Number.isFinite(parsed))
+                                        const low = Number(panel.assetRecipeFieldSpec.minimum || 0)
+                                        const high = Number(panel.assetRecipeFieldSpec.maximum || 999)
+                                        if (text !== "" && Number.isFinite(parsed)
+                                                && parsed >= low && parsed <= high) {
                                             panel.editSelectedAssetRecipeField(
                                                 panel.assetRecipeFieldSelection, parsed)
+                                            return
+                                        }
+                                        text = panel.assetRecipeCurrentNode
+                                            ? String(panel.assetRecipeCurrentNode[panel.assetRecipeFieldSelection]) : ""
+                                        panel.authoringNotice = qsTr("Valor fora do intervalo %1–%2; o valor anterior foi mantido.")
+                                            .arg(low).arg(high)
                                     }
                                 }
                             }
@@ -4569,35 +4890,67 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: nativeCompositionPreview
+                        readonly property var viewport: panel._previewBridge.sceneLayoutPreview.viewport
+                            || ({width: 640, height: 360})
+                        readonly property real fitScale: Math.min(1, Math.max(0, width - 24) / viewport.width)
                         visible: panel.sceneLayoutPreviewActive
                         color: panel._previewBridge.surface
                         radius: panel._previewBridge.radiusMedium
                         Layout.fillWidth: true
-                        implicitHeight: visible ? 112 : 0
+                        implicitHeight: visible ? nativePreviewTitle.implicitHeight + 36
+                            + viewport.height * fitScale : 0
                         border.color: panel._previewBridge.border
                         border.width: 1
 
                         Label {
+                            id: nativePreviewTitle
                             anchors.left: parent.left
+                            anchors.right: parent.right
                             anchors.top: parent.top
                             anchors.margins: 12
-                            text: qsTr("Grid responsivo · bindings materializados")
+                            text: qsTr("Composição nativa · %1 · %2 · prévia %3×%4")
+                                .arg(panel.bindingLayoutName)
+                                .arg(panel._previewBridge.sceneLayoutPreview.contextSource === "published"
+                                    ? qsTr("Dados publicados") : qsTr("Dados de exemplo"))
+                                .arg(nativeCompositionPreview.viewport.width)
+                                .arg(nativeCompositionPreview.viewport.height)
+                            wrapMode: Text.WordWrap
                             color: panel._previewBridge.textMuted
                             font.pixelSize: Math.round(11 * panel.visualScale)
                         }
 
-                        SceneRepeater {
-                            id: sceneLayoutRepeater
-                            objectName: "sceneLayoutRepeater"
+                        Item {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
-                            anchors.top: parent.top
+                            anchors.top: nativePreviewTitle.bottom
                             anchors.margins: 12
-                            anchors.topMargin: 32
-                            layout: panel.sceneLayoutPreview
-                            visualScale: panel.visualScale
+                            clip: true
+                            SceneRepeater {
+                                id: sceneLayoutRepeater
+                                objectName: "sceneLayoutRepeater"
+                                x: (parent.width - width * scale) / 2
+                                width: nativeCompositionPreview.viewport.width
+                                height: nativeCompositionPreview.viewport.height
+                                scale: nativeCompositionPreview.fitScale
+                                transformOrigin: Item.TopLeft
+                                layout: panel.sceneLayoutPreview
+                                visualScale: panel.visualScale
+                            }
                         }
+                    }
+
+                    Label {
+                        objectName: "nativeLayoutRenderFeedback"
+                        textFormat: Text.PlainText
+                        visible: panel.sceneLayoutPreviewActive
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: sceneLayoutRepeater.renderFeedback.map(function(item) {
+                            return item.element + ": " + item.state + (item.reason ? " · " + item.reason : "")
+                        }).join("\n")
+                        color: panel._previewBridge.textMuted
                     }
 
                     Rectangle {
@@ -4851,6 +5204,226 @@ Rectangle {
                 })
                 exportPreviewDialog.open()
             })
+        }
+    }
+
+    FileDialog {
+        id: nativeMasterDialog
+        title: qsTr("Escolher master colorido preservado")
+        fileMode: FileDialog.OpenFile
+        nameFilters: [qsTr("Imagens (*.png *.jpg *.jpeg *.webp *.avif)")]
+        onAccepted: panel.requestEditorMutation("theme.editor.preserve-source", {
+            sessionId: panel.editorSessionId, slot: masterSlot.currentText,
+            source: panel.localPath(selectedFile), license: masterLicense.text.trim(),
+            origin: masterOrigin.text.trim(), attribution: masterAttribution.text.trim()
+        }, function(result) {
+            panel._applyEditorResult(result)
+            panel.requestEditorMutation("theme.editor.sources", {sessionId: panel.editorSessionId}, function(r) { panel.nativeSources = r.sources || [] })
+        })
+    }
+
+    ThemedDialog {
+        id: sourceAssignmentDialog
+        objectName: "nativeSourceAssignmentDialog"
+        surfaceColor: panel.surfaceColor
+        raisedColor: panel.raisedColor
+        borderColor: panel.borderColor
+        textColor: panel.textColor
+        mutedColor: panel.mutedColor
+        accentColor: panel.cyanColor
+        visualScale: panel.visualScale
+        title: qsTr("Associar imagem a jogo")
+        modal: true
+        width: Math.min(Math.max(panel.width - 32, 1), 620)
+        x: (panel.width - width) / 2
+        y: Math.max((panel.height - height) / 2, 0)
+        standardButtons: Dialog.NoButton
+        closePolicy: busy ? Popup.NoAutoClose : Popup.CloseOnEscape
+
+        property var master: null
+        property var games: []
+        property var roles: []
+        property var plan: null
+        property string notice: ""
+        property bool busy: false
+        property int generation: 0
+        readonly property string editBlockedReason: busy ? qsTr("Aguarde a resposta da biblioteca.")
+            : plan ? qsTr("Confirme a associação ou feche a revisão.")
+            : qsTr("Nenhuma opção está disponível.")
+        readonly property var filteredGames: {
+            const query = assignmentSearch.text.trim().toLocaleLowerCase()
+            return games.filter(function(game) {
+                return !query || (game.title + " " + game.platformName).toLocaleLowerCase().indexOf(query) >= 0
+            })
+        }
+
+        function roleLabel(role) {
+            switch (role) {
+            case "logo": return qsTr("Logotipo")
+            case "cover": return qsTr("Capa")
+            case "fanart": return qsTr("Arte de fundo")
+            case "icon": return qsTr("Ícone")
+            case "marquee": return qsTr("Letreiro")
+            case "screenshot": return qsTr("Captura de tela")
+            default: return ""
+            }
+        }
+
+        function request(actionId, payload, success) {
+            const activeGeneration = generation
+            busy = true
+            panel.requestEditorMutation(actionId,
+                Object.assign({sessionId: panel.editorSessionId}, payload), function(result) {
+                    if (generation !== activeGeneration)
+                        return
+                    busy = false
+                    success(result)
+                }, function(message) {
+                    if (generation !== activeGeneration)
+                        return
+                    busy = false
+                    plan = null
+                    notice = String(message)
+                })
+        }
+
+        function begin(source) {
+            master = source
+            games = []
+            roles = []
+            plan = null
+            assignmentSearch.text = ""
+            notice = qsTr("Consultando jogos…")
+            open()
+            request("theme.editor.source-assignment.targets", {}, function(result) {
+                games = result.games || []
+                roles = result.roles || []
+                notice = games.length ? "" : qsTr("A biblioteca ainda não tem jogos disponíveis para associar.")
+                assignmentSearch.forceActiveFocus()
+            })
+        }
+
+        function review() {
+            const game = filteredGames[assignmentGame.currentIndex]
+            const role = roles[assignmentRole.currentIndex]
+            if (!game || !role || !master)
+                return
+            notice = ""
+            request("theme.editor.source-assignment.plan", {gameId: game.gameId, platformId: game.platformId,
+                role: role, digest: master.digest}, function(result) {
+                if (result.status === "unchanged") {
+                    notice = qsTr("Esta imagem já está associada ao jogo e ao papel escolhidos.")
+                    return
+                }
+                plan = {gameId: game.gameId, platformId: game.platformId,
+                    planId: result.planId, confirmToken: result.confirmToken}
+                notice = (result.replacing
+                    ? qsTr("Substituir %1 em %2?") : qsTr("Associar %1 a %2?"))
+                    .arg(roleLabel(role)).arg(result.title)
+                assignmentConfirm.forceActiveFocus()
+            })
+        }
+
+        onClosed: {
+            generation += 1
+            busy = false
+            plan = null
+        }
+
+        Connections {
+            target: panel
+            function onEditorSessionIdChanged() { sourceAssignmentDialog.close() }
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 10
+            Label {
+                Layout.fillWidth: true
+                text: sourceAssignmentDialog.master ? sourceAssignmentDialog.master.filename : ""
+                textFormat: Text.PlainText
+                elide: Text.ElideRight
+                color: panel.textColor
+                font.pixelSize: Math.round(13 * panel.visualScale)
+            }
+            Label {
+                Layout.fillWidth: true
+                text: qsTr("A associação é compartilhada pelos temas que usam a imagem do jogo.")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                color: panel.mutedColor
+                font.pixelSize: Math.round(13 * panel.visualScale)
+            }
+            AuthField {
+                id: assignmentSearch
+                objectName: "nativeSourceAssignmentSearch"
+                Layout.fillWidth: true
+                placeholderText: qsTr("Buscar jogo ou plataforma")
+                Accessible.name: placeholderText
+                enabled: !sourceAssignmentDialog.busy && !sourceAssignmentDialog.plan
+                Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+            }
+            AuthCombo {
+                id: assignmentGame
+                objectName: "nativeSourceAssignmentGame"
+                Layout.fillWidth: true
+                model: sourceAssignmentDialog.filteredGames.map(function(game) {
+                    return game.title + " · " + game.platformName
+                })
+                Accessible.name: qsTr("Jogo da biblioteca")
+                enabled: count > 0 && !sourceAssignmentDialog.busy && !sourceAssignmentDialog.plan
+                Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+            }
+            AuthCombo {
+                id: assignmentRole
+                objectName: "nativeSourceAssignmentRole"
+                Layout.fillWidth: true
+                model: sourceAssignmentDialog.roles.map(sourceAssignmentDialog.roleLabel)
+                Accessible.name: qsTr("Papel da imagem no jogo")
+                enabled: count > 0 && !sourceAssignmentDialog.busy && !sourceAssignmentDialog.plan
+                Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+            }
+            Label {
+                objectName: "nativeSourceAssignmentNotice"
+                Layout.fillWidth: true
+                text: sourceAssignmentDialog.notice
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                color: panel.textColor
+                font.pixelSize: Math.round(13 * panel.visualScale)
+                visible: text.length > 0
+                Accessible.name: text
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                AuthButton {
+                    objectName: "nativeSourceAssignmentClose"
+                    Layout.fillWidth: true
+                    text: qsTr("Fechar")
+                    enabled: !sourceAssignmentDialog.busy
+                    Accessible.description: enabled ? "" : sourceAssignmentDialog.editBlockedReason
+                    onClicked: sourceAssignmentDialog.close()
+                }
+                AuthButton {
+                    id: assignmentConfirm
+                    objectName: "nativeSourceAssignmentConfirm"
+                    Layout.fillWidth: true
+                    text: sourceAssignmentDialog.plan ? qsTr("Confirmar associação") : qsTr("Revisar associação")
+                    enabled: !sourceAssignmentDialog.busy && assignmentGame.currentIndex >= 0
+                        && assignmentRole.currentIndex >= 0
+                    Accessible.description: enabled ? "" : sourceAssignmentDialog.busy
+                        ? sourceAssignmentDialog.editBlockedReason : qsTr("Escolha um jogo e um papel para a imagem.")
+                    onClicked: {
+                        if (!sourceAssignmentDialog.plan) {
+                            sourceAssignmentDialog.review()
+                            return
+                        }
+                        sourceAssignmentDialog.request("theme.editor.source-assignment.apply", sourceAssignmentDialog.plan, function(_result) {
+                            sourceAssignmentDialog.plan = null
+                            sourceAssignmentDialog.notice = qsTr("Imagem associada. O Histórico permite desfazer a operação.")
+                        })
+                    }
+                }
+            }
         }
     }
 
@@ -5714,18 +6287,19 @@ Rectangle {
             }
         }
 
-        validator: DoubleValidator {
-            bottom: -1000000
-            top: 1000000
-            decimals: rangeSpin.rangeDecimals
-            locale: rangeSpin.locale.name
-        }
+        // Exibição e entrada seguem a locale (inclusive agrupamento); "." como
+        // decimal também é aceito quando a locale não o lê. DoubleValidator em
+        // pt-BR bloqueava "1.35" sem aviso. O intervalo é verificado ao confirmar.
+        validator: RegularExpressionValidator { regularExpression: /^-?[0-9.,]{0,14}$/ }
         textFromValue: function(raw, locale) {
             return panel.formatEffectNumber(raw / rangeSpin.precisionFactor,
                 locale, rangeSpin.rangeDecimals)
         }
         valueFromText: function(text, locale) {
-            const parsed = Number.fromLocaleString(locale, text)
+            let parsed = NaN
+            try { parsed = Number.fromLocaleString(locale, text) } catch (error) { parsed = NaN }
+            if (!Number.isFinite(parsed) && /^-?\d+[.,]\d+$/.test(String(text)))
+                parsed = Number(String(text).replace(",", "."))
             if (!Number.isFinite(parsed) || parsed < rangeSpin.rangeMinimum
                     || parsed > rangeSpin.rangeMaximum
                     || (rangeSpin.rangeDecimals === 0 && !Number.isInteger(parsed))) {

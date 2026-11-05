@@ -23,13 +23,19 @@ ComponentRollback = Callable[[str], Any]
 
 _SCHEMA = "feat-operation-history-v1.schema.json"
 _MAX_JOURNAL_BYTES = 4 * 1024 * 1024
+_MAX_DOMAIN_PLAN_BYTES = 32 * 1024 * 1024
 _MAX_RECORDS = 4096
 _MAX_LEGACY_INDEX = 1000
 _PLAN_TTL = 3600
 _GENERIC_ROUTE = "transaction"
 _COMPONENT_ROUTE = "component-flatpak"
+_THEME_ROLLBACK_REASON = (
+    "Desfaça esta operação na área de temas, onde as referências são verificadas."
+)
 
 _TITLES = {
+    "theme.acquire": "Instalação de tema",
+    "theme.preference.activate": "Preferência de tema",
     "bios.link": "Vínculos de BIOS",
     "component.lsfg.install": "Instalação do LSFG-VK",
     "emulator.config": "Configuração de emulador",
@@ -37,6 +43,7 @@ _TITLES = {
     "library.convert": "Conversão de jogo",
     "library.organize": "Organização da biblioteca",
     "media.reconcile": "Organização de mídia",
+    "media.source-assignment": "Associação de imagem a jogo",
     "steam.media-package": "Arte da biblioteca Steam",
     "steam.cloud-shortcuts.sync": "Atalhos cloud na Steam",
     "steam.shortcuts.sync": "Atalhos não-Steam",
@@ -44,6 +51,10 @@ _TITLES = {
     "switch-library.quarantine": "Quarentena da biblioteca Switch",
     "switch-library.rename": "Organização da biblioteca Switch",
 }
+
+
+def _needs_theme_context(kind: str) -> bool:
+    return kind == "theme.acquire" or kind.startswith("theme.preference.")
 
 
 def _now() -> datetime:
@@ -145,14 +156,18 @@ def _transaction_context(
 
 
 def _validate_transaction_plan(
-    operation_id: str, kind: str, records: list[dict[str, Any]]
+    operation_id: str,
+    kind: str,
+    records: list[dict[str, Any]],
+    *,
+    maximum_plan_bytes: int = _MAX_JOURNAL_BYTES,
 ) -> transaction.Plan:
     begin = next(item for item in records if item.get("type") == "operation.begin")
     plan_id = str(begin["planId"])
     if not ids.is_ulid(plan_id):
         raise SteamZeroError("E-STATE-INTEGRITY", detail="planId do journal inválido")
     plan_path = paths.plan_path(plan_id)
-    _safe_file(plan_path, paths.plan_path(plan_id), maximum=_MAX_JOURNAL_BYTES)
+    _safe_file(plan_path, paths.plan_path(plan_id), maximum=maximum_plan_bytes)
     try:
         plan = transaction.load_plan(plan_id)
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
@@ -337,6 +352,20 @@ class OperationHistory:
         contracts.validate(payload, _SCHEMA)
         return payload
 
+    def transaction_plan(self, operation_id: str) -> transaction.Plan:
+        """Read the journal-bound original plan for its owning domain service."""
+        row = self._row(operation_id)
+        path = Path(str(row.get("journal_path") or ""))
+        kind, _timestamp, _actual, records = _transaction_context(
+            operation_id, path, str(row["state"])
+        )
+        # Embedded file payloads make a valid frontend plan larger than its
+        # journal (e.g. an existing 3MiB ES-DE document becomes >4MiB in base64).
+        # The generic History route retains its original 4MiB evidence bound.
+        return _validate_transaction_plan(
+            operation_id, kind, records, maximum_plan_bytes=_MAX_DOMAIN_PLAN_BYTES
+        )
+
     def plan_rollback(self, operation_id: str) -> dict[str, Any]:
         row = self._row(operation_id)
         item = self._item(row)
@@ -399,6 +428,8 @@ class OperationHistory:
             )
         if _now() > datetime.fromisoformat(str(plan["expiresAt"])):
             raise SteamZeroError("E-TX-CONFIRM-REQUIRED", detail="confirmToken expirado")
+        if _needs_theme_context(str(plan["operationKind"])):
+            raise SteamZeroError("E-TX-STALE-PLAN", detail=_THEME_ROLLBACK_REASON)
         operation_id = str(plan["operationId"])
         row = self._row(operation_id)
         if row["state"] != "committed":
@@ -499,12 +530,16 @@ class OperationHistory:
                 raise SteamZeroError(
                     "E-STATE-INTEGRITY", detail="formato de evidência desconhecido"
                 )
-            available = effective_state == "committed" and (
-                route == _GENERIC_ROUTE or self._component_rollback is not None
+            available = (
+                not _needs_theme_context(kind)
+                and effective_state == "committed"
+                and (route == _GENERIC_ROUTE or self._component_rollback is not None)
             )
             reason = (
                 ""
                 if available
+                else _THEME_ROLLBACK_REASON
+                if _needs_theme_context(kind) and effective_state == "committed"
                 else "A operação já foi desfeita."
                 if effective_state == "rolled-back"
                 else "Rollback indisponível neste contexto."

@@ -1,6 +1,21 @@
 # MODULE-BOUNDARIES — limites e dependências permitidas
 
-## Grafo de dependências (só é permitido depender "para baixo")
+## Caminhos em execução — 05/11/2026
+
+Os entry points estão em pyproject.toml. A CLI usa cli.main.HANDLERS.
+service.core recebe JSON-RPC pelo socket Unix e reutiliza os handlers depois
+de validar o método em service.methods. A Central monta o coordenador KDE
+e DesktopDashboard, atende ações em desktop_ui e apresenta Main.qml.
+O Launcher monta biblioteca, Jornada e sessão em launcher.app e usa launcher_ui
+para a ponte com seu QML. Os adapters de composição consomem serviços de domínio,
+portas dos runtimes, SQLite, filesystem e transações existentes.
+
+O grafo e a tabela abaixo preservam o desenho de destino de API. As pontes
+HTTP atuais e o dispatcher Unix têm os caminhos específicos acima.
+O gate executável de fronteiras é tools/lint_boundaries.py. Os testes de
+CLI, serviço e pontes verificam os contratos desses caminhos.
+
+## Grafo de dependências do desenho de destino
 
 ```
 ui.gamemode │ ui.desktop │ ui.qam │ cli

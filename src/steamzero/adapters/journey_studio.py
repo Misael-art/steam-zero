@@ -34,6 +34,9 @@ from steamzero.domain.experience_journey import (
 _HISTORY_LIMIT = 100
 MAX_PUBLIC_RECORDS = 20_000
 MAX_PREVIEW_ROWS = 64
+MAX_THEME_CONSUMER_FILES = 256
+MAX_THEME_CONSUMER_BYTES = 16 * 1024 * 1024
+MAX_THEME_CONSUMER_SNAPSHOTS = 4096
 _DEFAULT_READ_MODEL = "library.games"
 _BEZEL_RESOURCE_THEME = re.compile(
     r"^asset://bezels/(?P<theme>[a-z0-9]+(?:[.-][a-z0-9]+)+)@"
@@ -234,6 +237,40 @@ class JourneyStudioService:
             journeys.append({"id": document.id, "name": str(document.data["name"])})
         return journeys
 
+    def theme_consumers(self, theme_id: str) -> builtins.list[str]:
+        """Read saved and open consumers without truncating an unknown graph."""
+        consumers: set[str] = set()
+        with self._lock:
+            if self._root.is_symlink() or (self._root.exists() and not self._root.is_dir()):
+                raise ValueError("armazenamento das jornadas indisponível")
+            total_bytes = 0
+            for count, path in enumerate(self._root.glob("*.journey.json"), start=1):
+                total_bytes += path.lstat().st_size
+                if count > MAX_THEME_CONSUMER_FILES or total_bytes > MAX_THEME_CONSUMER_BYTES:
+                    raise JourneyBudgetError(
+                        "JOURNEY-BUDGET-THEME-CONSUMERS",
+                        "jornadas excedem o orçamento de leitura; nenhuma remoção foi feita",
+                    )
+                document = self._store.load(path.name.removesuffix(".journey.json"))
+                if theme_id in self._theme_dependency_ids(document):
+                    consumers.add(f"jornada {document.id}")
+            remaining = MAX_THEME_CONSUMER_SNAPSHOTS
+            for session in self._sessions.values():
+                remaining -= 1 + len(session.undo_stack) + len(session.redo_stack)
+                if session.saved_payload is not None:
+                    remaining -= 1
+                if remaining < 0:
+                    raise JourneyBudgetError(
+                        "JOURNEY-BUDGET-THEME-CONSUMERS",
+                        "histórico de jornadas excede o orçamento; nenhuma remoção foi feita",
+                    )
+                snapshots = [session.data, *session.undo_stack, *session.redo_stack]
+                if session.saved_payload is not None:
+                    snapshots.append(json.loads(session.saved_payload))
+                if any(theme_id in self._theme_dependency_ids_in(data) for data in snapshots):
+                    consumers.add(f"rascunho de jornada {session.data['id']}")
+        return sorted(consumers)
+
     def create(
         self,
         *,
@@ -286,6 +323,13 @@ class JourneyStudioService:
         document = self._store.import_copy(bundle, copy_id=copy_id, copy_name=copy_name)
         snapshot = self._open(dict(document.data), saved_payload=None)
         snapshot["dependencies"] = self._theme_dependencies(document)
+        scene_ids = {
+            appearance["sceneId"]
+            for menu in document.menus
+            if (appearance := menu.get("appearance", {})).get("mode") == "imported-scene"
+        }
+        if scene_ids:
+            snapshot["sceneDependencies"] = sorted(scene_ids)
         snapshot["packageContents"] = ["experience.json"]
         return snapshot
 
@@ -387,6 +431,7 @@ class JourneyStudioService:
         used_stages: builtins.list[str],
         themes: dict[str, dict[str, Any]],
         aura_version: str,
+        imported_scenes: Mapping[str, str] | None = None,
         required_theme_capabilities: dict[str, builtins.list[str]] | None = None,
         adapter_capabilities: builtins.list[str] | None = None,
         operation_requirements: dict[str, builtins.list[str]] | None = None,
@@ -397,6 +442,7 @@ class JourneyStudioService:
             used_stages=used_stages,
             themes=themes,
             aura_version=aura_version,
+            imported_scenes=imported_scenes,
             required_theme_capabilities=required_theme_capabilities,
             adapter_capabilities=adapter_capabilities,
             operation_requirements=operation_requirements,
@@ -556,12 +602,16 @@ class JourneyStudioService:
 
     @staticmethod
     def _theme_dependency_ids(document: JourneyDocument) -> builtins.list[str]:
+        return JourneyStudioService._theme_dependency_ids_in(document.data)
+
+    @staticmethod
+    def _theme_dependency_ids_in(data: Mapping[str, Any]) -> builtins.list[str]:
         themes: set[str] = set()
-        for menu in document.data["menus"]:
+        for menu in data["menus"]:
             appearance = menu.get("appearance", {})
             if appearance.get("mode") == "custom":
                 themes.add(str(appearance["themeId"]))
-        for stage in document.data["sessionStages"]:
+        for stage in data["sessionStages"]:
             appearance = stage.get("appearance", {})
             if appearance.get("mode") == "custom":
                 themes.add(str(appearance["themeId"]))

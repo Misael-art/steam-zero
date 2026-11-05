@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from steamzero.adapters.linux_runtime import (
     LinuxDevicePort,
     LinuxSessionEnvironment,
@@ -102,6 +104,45 @@ def test_linux_ports_observe_deck_and_uuid_volume(tmp_path: Path) -> None:
     assert volumes[0].capacity and volumes[0].free
 
 
+@pytest.mark.parametrize(
+    "partition,disk,removable,role",
+    [
+        ("sda2", "sda", "1", "usb"),
+        ("sdb3", "sdb", "0", "internal"),
+        ("nvme0n1p2", "nvme0n1", "1", "usb"),
+        ("mmcblk0p1", "mmcblk0", "0", "microsd"),
+    ],
+)
+def test_volume_role_reads_whole_disk_evidence_for_partition(
+    tmp_path: Path, partition: str, disk: str, removable: str, role: str
+) -> None:
+    sys_root, proc_root, dev_root = (tmp_path / name for name in ("sys", "proc", "dev"))
+    mountpoint = tmp_path / "volume"
+    mountpoint.mkdir()
+    device = dev_root / partition
+    _write(device, "")
+    _write(sys_root / "class/block" / disk / "removable", removable)
+    # Opposite partition evidence catches a lookup of the partition, not its disk.
+    _write(sys_root / "class/block" / partition / "removable", "0" if removable == "1" else "1")
+    by_uuid = dev_root / "disk/by-uuid"
+    by_uuid.mkdir(parents=True)
+    (by_uuid / "ABCD-1234").symlink_to(Path("../..") / partition)
+    _write(
+        proc_root / "self/mountinfo",
+        f"42 31 8:2 / {mountpoint} rw,relatime - ext4 {device} rw\n",
+    )
+
+    volumes = LinuxStoragePort(
+        sys_root=sys_root, proc_root=proc_root, dev_root=dev_root
+    ).list_volumes()
+
+    assert len(volumes) == 1
+    assert volumes[0].uuid == "ABCD-1234"
+    assert volumes[0].role == role
+    assert volumes[0].mountpoint == str(mountpoint)
+    assert (sys_root / "class/block" / disk / "removable").read_text() == removable
+
+
 def test_session_environment_is_read_only_and_degrades_missing_sources(tmp_path: Path) -> None:
     sys_root, proc_root, dev_root, _mountpoint = _fixture(tmp_path)
     snapshot = LinuxSessionEnvironment(
@@ -136,3 +177,47 @@ def test_session_environment_is_read_only_and_degrades_missing_sources(tmp_path:
     assert empty["displays"] == []
     assert empty["volumes"] == []
     assert empty["power"]["onAC"] is None
+
+
+@pytest.mark.parametrize(
+    "capacity,expected",
+    [
+        (None, None),
+        ("\n", None),
+        ("unavailable\n", None),
+        ("-1\n", None),
+        ("101\n", None),
+        ("0\n", 0),
+        ("100\n", 100),
+    ],
+    ids=["missing", "empty", "not-integer", "below-minimum", "above-maximum", "minimum", "maximum"],
+)
+def test_power_snapshot_preserves_unknown_capacity_without_changing_sources(
+    tmp_path: Path, capacity: str | None, expected: int | None
+) -> None:
+    sys_root, proc_root, dev_root, _mountpoint = _fixture(tmp_path)
+    source = sys_root / "class/power_supply/BAT1/capacity"
+    if capacity is None:
+        source.unlink()
+    else:
+        source.write_text(capacity)
+    before = {
+        path.relative_to(sys_root): path.read_bytes()
+        for path in sys_root.rglob("*")
+        if path.is_file()
+    }
+
+    snapshot = LinuxSessionEnvironment(
+        sys_root=sys_root, proc_root=proc_root, dev_root=dev_root, environ={}
+    ).snapshot()
+
+    assert snapshot["readOnly"] is True
+    assert snapshot["power"] == {
+        "onAC": False,
+        "batteries": [{"name": "BAT1", "capacityPercent": expected, "status": "Discharging"}],
+    }
+    assert {
+        path.relative_to(sys_root): path.read_bytes()
+        for path in sys_root.rglob("*")
+        if path.is_file()
+    } == before
