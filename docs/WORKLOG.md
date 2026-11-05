@@ -16051,3 +16051,15 @@ navegação), a0d5f422 (onHighlightEnter; eventos partem do valor exibido). Inte
 checkout no commit exato; fetch interno travava em prompt de credencial (passa
 com GIT_TERMINAL_PROMPT=0). Instalação usa pkexec (senha digitada pelo
 proprietário). Recibo: evidence/2026-11-05-retrofe-exit-locale/README.md.
+
+
+## 2026-11-05 — instalação de 2.0.0rc1-c58195919b07 (Claude Code)
+
+Com autorização do proprietário e senha polkit digitada por ele, a release do
+merge do PR268 foi instalada pelo release_host. A ferramenta ativou a release e
+falhou no daemon-reload de usuário porque herdou XDG_RUNTIME_DIR do env.sh;
+convergência concluída pelo `steamzero service refresh` oficial no runtime da
+sessão (ready, sourceDirty false, NeedDaemonReload=no). Doctor 9 pass/0 fail/3
+warn pré-existentes. Causa corrigida em 75ab8ac8 (guarda de runtime antes de
+qualquer passo de host). Rollback: 2.0.0rc1-59ecc2d8f0f6. Pendentes do operador:
+reboot, boot direto, PNG da release instalada e jornadas físicas.

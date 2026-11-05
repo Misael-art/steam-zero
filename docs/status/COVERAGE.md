@@ -25,7 +25,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 12 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 14 | 9 | unit |  |
-| SZ-AURA-LAUNCHER | 335 | 122 | 76 | dev |  |
+| SZ-AURA-LAUNCHER | 335 | 123 | 77 | dev |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -71,7 +71,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
 | SZ-GOVERNANCE-STATUS | 27 | 37 | 20 | dev |  |
-| SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 14 | 11 | hw |  |
+| SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 15 | 12 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LAUNCH-READINESS-PREPARATION | 72 | 9 | 6 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 35 | 15 | hw |  |

@@ -136,3 +136,32 @@ continuam fora deste lote; merge do PR #268 exige autorização.
   3. `git checkout codex/product-recovery-2026-10-16`
   Depois: validação read-only (versão, doctor, units, sessões), reboot e prova
   física com PNG pelo operador.
+
+## Instalação de `2.0.0rc1-c58195919b07` (05/11/2026 14:55–15:05)
+
+- Autorização expressa do proprietário na thread; senha polkit digitada por ele.
+  `release_host.py install --bundle build/release/c5819591 --rollback-release
+  2.0.0rc1-59ecc2d8f0f6 --confirm-install INSTALAR-2.0.0rc1-c58195919b07` com o
+  checkout no commit do artifact; journal: duas sessões `pkexec` às 14:55:38/44.
+- Resultado da ferramenta: `E-HOST-RESTART-FAILED: daemon-reload falhou` — o
+  processo herdou `XDG_RUNTIME_DIR` do perfil de desenvolvimento (env.sh) e não
+  alcançava o barramento de usuário. A ativação já tinha ocorrido:
+  `/opt/steamzero/current` → `releases/2.0.0rc1-c58195919b07`; o socket ativou o
+  daemon da release nova às 14:56; sem quarentena; units com `NeedDaemonReload=yes`.
+- Recuperação pelo caminho oficial do produto (não manual):
+  `steamzero service refresh` com `XDG_RUNTIME_DIR=/run/user/1000` →
+  `state: ready`, identidade `2.0.0rc1-c58195919b07` / `c58195919b07a799…` /
+  `sourceDirty: false`; `NeedDaemonReload=no` e `active` em `steamzero-core.service`
+  e `.socket`.
+- Validação read-only: `steamzero --version` 2.0.0rc1; `steamzero service status`
+  `converged`, daemon na release ativada, quarentena nula; `steamzero doctor`
+  `degraded` com 9 pass, 0 fail e 3 warn (13 backups e 9 journals órfãos
+  pré-existentes; `boot.direct` sem permissão para leitura); sessão
+  `/usr/share/wayland-sessions/steamzero-gamemode.desktop` com marcador de ownership.
+- Correção da causa: `75ab8ac8` — `install/rollback/cycle/update` recusam, antes de
+  qualquer passo de host, um `XDG_RUNTIME_DIR` diferente de `/run/user/<uid>` ou sem
+  barramento.
+- Rollback disponível: `release_host.py rollback 2.0.0rc1-59ecc2d8f0f6
+  --confirm-rollback REVERTER-2.0.0rc1-59ecc2d8f0f6` (fora do env.sh).
+- Não certificado: reboot, boot direto, captura PNG da release instalada, jornada
+  launch/return, controle físico e receptor — ações do operador.

@@ -26,7 +26,7 @@
     "tools/release_host.py",
     "docs/09-operations/evidence/2026-08-26-host-update-preflight"
   ],
-  "scopeDigest": "4fec13d47bbd1fbe8d0f0eff386e57c6d2ee781e10d333b1f2a72ed881613cde",
+  "scopeDigest": "1bda42a246588b2037622da04b39b8e69561dff09d6cbc8383a30de12c1e5470",
   "dependsOn": [],
   "knownGaps": [
     "GAP-HOST-UPDATE-VM-CYCLE"
@@ -126,6 +126,12 @@
       "kind": "test",
       "reference": "tests/integration/test_host_installer.py",
       "command": "2026-11-05: 44 testes por runner isolado em 3.14 s. Cinco novos casos preservam units não gerenciadas e a unit privada de cotas entre ativações repetidas. Nenhuma mutação de host, mudança do instalador ou renovação de aceite físico.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 75ab8ac8: guarda de runtime de sessão no release_host; 632 testes de release/install/host, ruff/format/mypy/independence verdes. Sem promoção de eixos.",
       "result": "passed"
     }
   ],
