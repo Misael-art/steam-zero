@@ -116,3 +116,23 @@ continuam fora deste lote; merge do PR #268 exige autorização.
   `prepare` acima e segue para `install` com token; o `pkexec` abre a janela de
   senha, digitada pelo proprietário. Release ativa permanece
   `2.0.0rc1-59ecc2d8f0f6`; rollback é a própria release ativa.
+
+### Atualização: bundle pronto, instalação pendente de autenticação do operador
+
+- Causa do "gh sem login": `.steamzero-dev/env.sh` isola `XDG_CONFIG_HOME`; o
+  `prepare` passa com `GH_CONFIG_DIR=$HOME/.config/gh`. Bundle preparado e
+  verificado: `2.0.0rc1-c58195919b07`, wheel sha256
+  `24f1fd359eabf59de6b037158bb354e7fb3731729427b0c012ac7227fbdae4ce`, run 42040231859
+  (`build/release/c5819591`, não versionado).
+- `install` exige o checkout no commit do artifact (recusa sem mutação em outra
+  HEAD). Três tentativas expiraram no teto de 90 s da autorização `pkexec`: duas a
+  partir do shell isolado do agente (janela não chega à sessão) e uma do terminal
+  do operador às 13:12:45, em que o journal registra o diálogo polkit sem senha
+  ("conversation failed"). Host inalterado: `2.0.0rc1-59ecc2d8f0f6`.
+- Retomada (terminal do operador, em `~/Projects/SteamZero`):
+  1. `git status --porcelain && git -c advice.detachedHead=false checkout c58195919b07a799c67ac716ceb9e3ca99ba3f12`
+  2. `source .steamzero-dev/env.sh && GH_CONFIG_DIR=$HOME/.config/gh GIT_TERMINAL_PROMPT=0 PYTHONPATH=src .venv/bin/python tools/release_host.py install --bundle build/release/c5819591 --rollback-release 2.0.0rc1-59ecc2d8f0f6 --confirm-install INSTALAR-2.0.0rc1-c58195919b07`
+     (senha na janela polkit em até 90 s)
+  3. `git checkout codex/product-recovery-2026-10-16`
+  Depois: validação read-only (versão, doctor, units, sessões), reboot e prova
+  física com PNG pelo operador.
