@@ -1026,3 +1026,32 @@ documento RetroFE na Jornada e no Launcher permanece pendente.
 [Recibo e manifesto](studio-native-context.json)
 
 ![Cena RetroFE reproduzida no Studio instalado](studio-native-context/19-installed-retrofe-entry-studio.png)
+
+
+## 2026-11-05 — preservação de cenas importadas e aviso do Launcher
+
+O diagnóstico reproduziu colisão entre ID de cena e sidecar, coleta do único
+asset importado, publicação parcial e cache que ocultava desaparecimento de
+blob. A correção reutiliza transação/rollback, valida identidade e revisão e
+protege os assets usados pela cena atual e pela revisão recuperável. Studio,
+Jornada e Launcher consomem a mesma resolução; o aviso de perda fica legível
+acima da navegação. Não há promoção de aceites físicos ou de animações não
+suportadas.
+
+| Item | Commit | Evidência |
+|---|---|---|
+| Identidade, publicação transacional e GC de cenas | e8c5eada | testes de colisão nos dois sentidos, falha controlada, recuperação, GC e rollback |
+| Studio/Jornada/Launcher e resolução de assets | 44f51d47 | fonte/Qt, mesmo ID nativo preservado, desaparecimento e retorno de blob |
+| Proteção das units não gerenciadas | dd026fec |44 testes focados; unit privada do host parada/desabilitada por autorização própria |
+| Sondagem de processos e cursor inválido determinísticos | b392dc94 |68 testes focados; rejeição anterior à abertura do banco e procfs controlado |
+| Aviso legível e navegação preservada | 6461ed8b |Qt verifica contraste configurado e posição acima do rodapé; pacote/captura pendentes nesta fotografia |
+
+Integral **R6:7351 passed/48 skipped/22 warnings,2494,49s**; supervisor0,
+fontes congeladas e perfil preservados, limpeza normal, cobertura com branches
+85,8776727996022% >=85,87214763246588%. Ruff, mypy307, independence/boundaries e
+catálogo aprovados. Duas CPUs, prioridade reduzida, reserva3GiB e guarda térmica
+temporária; nenhuma intervenção da guarda. Os resultados não aprovados R4/R5
+permanecem no [recibo estruturado](studio-native-context.json), incluindo a
+instabilidade dos testes de perda do observador ainda sem causa comprovada.
+
+O pacote seguinte e as capturas serão registrados abaixo após execução.

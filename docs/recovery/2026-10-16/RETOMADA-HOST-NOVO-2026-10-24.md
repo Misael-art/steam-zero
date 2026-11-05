@@ -1,5 +1,19 @@
 # Retomada em host novo — 24/10/2026
 
+## Prioridade de contenção — 05/11/2026
+
+A unit privada `codex-quota-panel.service` foi parada e desabilitada após
+autorização específica do operador, mesmo sem propriedade SteamZero comprovada.
+Arquivo e cópia privada preservados; observação de 69,66 s confirmou inatividade
+e zero novos logs. Não há nexo causal comprovado com o reboot. Não restaurar
+plugin nem incorporar painel ao produto. Desenvolvimento retomado com orçamento
+de recursos e uma verificação por vez.
+Veja [baseline, custódia, ação exata e rollback](../../09-operations/evidence/2026-10-24-new-host-handoff/CHECKPOINT.md#incidente-da-unit-privada-de-cotas--05112026).
+Integral R3 de05/11 interrompida; R4/R5 e seus limites preservados no recibo.
+R6 passou7351/48, cobertura85,8777%, fontes/perfil preservados e cleanup normal.
+Commits locais dd026fec/b392dc94/6461ed8b; próximo passo é pacote isolado e
+checkpoint de publicação da branch, sem instalação privilegiada.
+
 ## Localização e identidade — 28/10/2026
 
 A procura pelo nome Port Steam confirmou o mesmo projeto SteamZero: os commits

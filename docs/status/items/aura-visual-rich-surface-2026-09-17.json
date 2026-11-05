@@ -16,7 +16,7 @@
     "tests/qml/launcher/check_launcher_focus_bootstrap.qml",
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed"
   ],
-  "scopeDigest": "f71074c897afe71dbd369eaed417074d935796e0b5414c16a0399cc71e36a049",
+  "scopeDigest": "5d9825c6709fe33218e528d28a8d1dc6fa269ac6c6d875379a8c8cb16d852b21",
   "dependsOn": [
     "SZ-AURA-VISUAL-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",

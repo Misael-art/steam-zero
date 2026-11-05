@@ -25,7 +25,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 12 | 5 | dev |  |
 | SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 12 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 335 | 118 | 72 | dev |  |
+| SZ-AURA-LAUNCHER | 335 | 119 | 73 | dev |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -71,7 +71,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
 | SZ-GOVERNANCE-STATUS | 27 | 36 | 19 | dev |  |
-| SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 13 | 10 | hw |  |
+| SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 14 | 11 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LAUNCH-READINESS-PREPARATION | 72 | 9 | 6 | dev |  |
 | SZ-LIBRARY-CANONICAL | 169 | 34 | 14 | hw |  |
@@ -85,7 +85,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-MULTIDISC-DESCRIPTOR-RECONCILIATION | 15 | 13 | 13 | dev |  |
 | SZ-MULTIDISC-MATERIALIZATION-INGESTION | 4 | 8 | 4 | unit |  |
 | SZ-MULTIDISC-SESSION-DISC-IDENTITY | 9 | 4 | 3 | hw |  |
-| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 22 | 12 | 5 | dev |  |
+| SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP | 23 | 14 | 7 | dev |  |
 | SZ-ONLINE-P2P | 37 | 2 | 1 | none |  |
 | SZ-PHYSICAL-VALIDATION-UNBLOCK-PLAN | 205 | 4 | 0 | none |  |
 | SZ-PLATFORM-CORE-PER-SYSTEM | 78 | 8 | 4 | unit |  |
@@ -110,9 +110,9 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-THEME-ENGINE | 244 | 93 | 66 | dev |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 20 | 9 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 22 | 11 | hw |  |
-| SZ-THEME-IMPORT-RETROFE | 15 | 30 | 15 | hw |  |
+| SZ-THEME-IMPORT-RETROFE | 15 | 31 | 16 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 22 | 11 | unit |  |
-| SZ-THEME-STUDIO | 226 | 93 | 66 | dev |  |
+| SZ-THEME-STUDIO | 228 | 94 | 67 | dev |  |
 | SZ-UI-DESKTOP-AUDIT | 843 | 207 | 116 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |

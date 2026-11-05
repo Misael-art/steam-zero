@@ -177,8 +177,12 @@
     "docs/status/items/gamemode-readiness-g29.json",
     "docs/status/items/aura-platform-media-scope-2026-09-20.json",
     "docs/status/items/recovery-r2-game-data.json",
-    "src/steamzero/ui/qml/Main.qml"
+    "src/steamzero/ui/qml/Main.qml",
+    "README.md",
+    "docs/03-architecture/MODULE-BOUNDARIES.md",
+    "tests/unit/test_host_probing_coverage.py",
+    "tests/unit/test_playtime.py"
   ],
-  "nextAction": "Executor serial codex-central-executor. PR268, último SHA remoto cb1d6f87. Em andamento SZ-THEME-IMPORT-RETROFE: impedir colisão de IDs e revisão parcial, proteger assets no GC. Em seguida SZ-THEME-STUDIO/SZ-AURA-LAUNCHER: cache e painel compacto, gate integral, pacote isolado e publicação. Baseline de 05/11 em build/agent-runs/diagnostico-20261105/relatorio.html. Instalação, hardware, login e restauração privada bloqueados por janela/autorização ou insumos do operador. Preservar os 35 arquivos herdados.",
+  "nextAction": "R6 integral aprovada:7351/48,85.8776727996022%>=85.87214763246588%, fontes e perfil preservados, cleanup normal, guarda encerrada sem ação. Commits dd026fec/b392dc94/6461ed8b. Validar pacote não editable e imagens do aviso/recuperação, depois checkpoint limpo/PR268/SHA remoto. Preservar falhas R4/R5 e investigação de instabilidade; sem instalar no host.",
   "updatedAt": "2026-11-05"
 }

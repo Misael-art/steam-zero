@@ -15987,3 +15987,17 @@ O CI do lote anterior confirmou oito jobs e cobertura sem regressão.
 O próximo incremento é selecionar na Jornada e resolver no Launcher o mesmo
 documento RetroFE persistido. Eventos adicionais, menu, áudio e validação
 física continuam abertos.
+
+
+## 2026-11-05 — contenção autorizada do painel privado legado
+
+Raiz única/branch de continuidade preservadas. Unit codex-quota-panel.service sem
+marcador: script privado ausente gerava restart a cada5s, 473 reinícios observados.
+Após autorização específica, somente stop/disable de usuário; cópia privada/hash
+preservados, inactive/disabled/PID0 e zero novos logs por69.66s. Sem substituto,
+instalação, boot ou atribuição causal ao reboot.44 testes isolados do instalador
+passaram (3.14s), mais Ruff, mypy308, independence/boundaries/status. Fonte do
+instalador inalterada; cinco regressões de ownership acrescentadas. WIP anterior
+preservado; integralR3 interrompida não aprovada, retomada funcional em novo gate
+limitado. Recibo e rollback: CHECKPOINT.md em evidence/2026-10-24-new-host-handoff.
+Publicação aguarda checkpoint limpo do lote de continuidade, PR268 existente.

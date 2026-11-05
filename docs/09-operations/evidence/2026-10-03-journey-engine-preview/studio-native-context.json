@@ -1368,11 +1368,134 @@
       "exitCode": 0,
       "limits": "Private development XDG profile, fixture/software Qt; no gameplay or activation"
     },
-    "nextAction": "Run frozen source checkpoint and verify package and PR SHA.",
+    "nextAction": "Build clean verification package from committed source, preserve its generated build metadata outside source after byte comparison, exercise installed package and inspect warning/recovery PNGs, then publish one clean branch checkpoint and verify remote SHA/CI.",
     "focusedFollowup": "57 passed in 12.02s, includes .assets IDs through real GC and rollback retained assets.",
     "commits": [
-      "44f51d4772bab0586d76ea843c4147d8ba28b9d9 fix(studio): resolve saved scenes consistently through Journey and Launcher",
-      "e8c5eadafa93663dade15a24f24181ae1e6fc3c6 fix(themes): preserve imported scene identity and transactional recovery"
-    ]
+      {
+        "title": "test(host): preserve unmanaged user units across release changes",
+        "sha": "dd026fec374cfa534eab2fdddb1ca2d4910e8884",
+        "files": [
+          "tests/integration/test_host_installer.py"
+        ]
+      },
+      {
+        "title": "test: stabilize process probe and invalid cursor coverage",
+        "sha": "b392dc9497b20b5f682d7ae109c14e324ec4d3e0",
+        "files": [
+          "tests/unit/test_host_probing_coverage.py",
+          "tests/unit/test_playtime.py"
+        ]
+      },
+      {
+        "title": "fix(launcher): keep imported scene notices legible above navigation",
+        "sha": "6461ed8b4ddcd0812466a0b629a71b1292bb3c2a",
+        "files": [
+          "src/steamzero/ui/qml/launcher/LauncherCinema.qml",
+          "tests/qml/check_theme_scene_runtime_e2e.qml"
+        ]
+      }
+    ],
+    "packageCheckpoint": {
+      "commit": "fedee5cb554866a3d649b973ca41f936ba791c95",
+      "wheelSha256": "335f7aa243b62d6008e1cd739f68bf05dc7743a6507f70bf4d67b7af8fa6a323",
+      "steps": 9,
+      "cases": 17,
+      "seconds": 58.5936,
+      "resources": 644,
+      "modulesCheckedBeforeSceneCases": 240,
+      "isolated": true,
+      "hostActivated": false,
+      "initialHarnessFailure": "FileExistsError in fixture setup. Fixed runner profile directory without changing product or assertions."
+    },
+    "visualFollowup": "Package screenshot exposed dark text on dark warning and overlap with footer. Candidate now uses white text and anchors loss notice above actual footer.17 focused pass/8.83s. Full and revised package pending.",
+    "interruption": {
+      "state": "interrupted",
+      "gate": "full-20261105-diagnostic-r3",
+      "finalResultAvailable": false,
+      "lastProgressApproxPercent": 28,
+      "cause": "Host reboot reported by operator; causal diagnosis unknown",
+      "nextAction": "Operator authorized containment of private unit, now inactive/disabled; resume bounded serial validation."
+    },
+    "legacyContainment": {
+      "state": "contained",
+      "observedAt": "2026-11-05T08:25:29Z",
+      "newJournalRecords": 0,
+      "observationSeconds": 69.66,
+      "unitUnchanged": true,
+      "rebootCause": "unknown"
+    },
+    "fullGateR4": {
+      "state": "failed",
+      "passed": 7338,
+      "skipped": 48,
+      "failed": 1,
+      "seconds": 2347.89,
+      "supervisorSeconds": 2360.1365453439994,
+      "testedFilesUnchanged": true,
+      "signals": [],
+      "profileUnchanged": true,
+      "catalogFailure": "Ignored generated src/steamzero/_build_info.py left by prior wheel build had no custodian. Bytes matched fedee5cb wheel; preserved under ignored build evidence and moved out of source. No test weakened.",
+      "cleanupFailure": "OSError ENOTEMPTY at temporary root; only empty runtime/pulse remained, no matching environment consumers found, empty directories removed. Writer not proven.",
+      "coverage": 85.86720811060927,
+      "baselineCoverage": 85.87214763246588,
+      "coverageNonRegression": false,
+      "followup": "73 focused tests passed; only generated COVERAGE view stale after metadata move. Re-render, deterministic proc/cursor regressions, then one new full checkpoint R5 with original coverage baseline; do not label R4 green."
+    },
+    "fullGateR5": {
+      "state": "interrupted-after-failures",
+      "seconds": 310.4129361060004,
+      "testedFilesUnchanged": true,
+      "profileUnchanged": true,
+      "failuresObserved": 3,
+      "signal": 2,
+      "signalOwner": "this task, to stop an already failing heavy run",
+      "limitation": "SIGINT propagated through Xvfb/runner before pytest printed failure detail; inferred test names from marker offsets and unchanged collection, not a preserved assertion traceback.",
+      "suspectedCases": [
+        "test_live_descendant_prevents_recovery_after_owner_and_leader_exit",
+        "test_qml_retains_terminal_context_after_reply_loss_and_restarts[post-reply-loss]",
+        "test_qml_retains_terminal_context_after_reply_loss_and_restarts[terminal-get-restart]"
+      ],
+      "focusedFollowup": {
+        "withoutCoverage": "14 passed in108.79s",
+        "withCoverage": "3 passed in29.45s; command exit1 because narrow diagnostic coverage10.84% does not meet global85%, no threshold relaxed"
+      },
+      "cause": "not reproduced in isolation; unknown",
+      "nextAction": "One full fail-fast diagnostic checkpoint R6 with --maxfail=1 --tb=short, same frozen product and coverage baseline, bounded resources; do not label intermittent failures fixed."
+    },
+    "deterministicCoverageFollowup": {
+      "tests": 68,
+      "seconds": 1.81,
+      "catalogTests": 13,
+      "catalogSeconds": 6.91,
+      "staticChecks": "passed; mypy307 sources after own generated build metadata preserved outside source"
+    },
+    "fullGateR6": {
+      "exitCode": 0,
+      "seconds": 2506.4843238460007,
+      "signals": [],
+      "testedFilesUnchanged": true,
+      "coverage": {
+        "current": 85.8776727996022,
+        "baseline": 85.87214763246588,
+        "nonRegression": true,
+        "branches": 18430
+      },
+      "state": "passed",
+      "pytestPassed": 7351,
+      "pytestSkipped": 48,
+      "pytestWarnings": 22,
+      "pytestSeconds": 2494.49,
+      "profileUnchanged": true,
+      "cleanup": "completed without error",
+      "testedManifestSha256": "5e4401928f2c629a73a0b71bcfa97f19ad2e8a073537aa9d8fc1bf05ce6ba847",
+      "resourceWatch": {
+        "samples": 251,
+        "minimumAvailableKiB": 4972296,
+        "maximumAcpiC": 97.0,
+        "actions": [],
+        "ended": true
+      },
+      "limits": "R4 cleanup writer and R5 intermittent assertion cause remain unproven; this complete run passed without weakening tests or baseline. No host activation or physical acceptance."
+    }
   }
 }

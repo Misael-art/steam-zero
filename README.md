@@ -2,9 +2,9 @@
 
 Plataforma autônoma de jogos e emulação para Steam Deck e desktops Linux.
 
-> **Status:** em desenvolvimento. A instalação versionada, os smoke checks e o rollback foram verificados no host BigLinux. A instalação real em VM e a substituição da fonte EOL do DuckStation continuam pendentes.
+> **Status:** em desenvolvimento. Consulte os cinco eixos por capacidade em [docs/STATUS.md](docs/STATUS.md) e a [passagem de contexto](docs/recovery/2026-10-16/RETOMADA-HOST-NOVO-2026-10-24.md). O registro empacotado já seleciona o AppImage oficial do DuckStation com versão e hash fixados. Instalação, execução de jogos, rollback e hardware têm evidências e aceites próprios.
 
-Consulte [IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) para detalhes e evidências por fase.
+[IMPLEMENTATION-REPORT.md](IMPLEMENTATION-REPORT.md) preserva o histórico por fase. O catálogo de status registra o estado atual.
 
 ## Metodologia replicável
 

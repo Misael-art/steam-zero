@@ -101,3 +101,141 @@ foi corrigida por regeneração, sem alterações nas validações nem nos teste
 Commit funcional recuperável: `c38e74f53c1cd6bc63ae4acba377447a0932bc3c`, na branch de continuidade.
 O commit documental separado fecha regras, evidências e estado; o SHA final e
 o PR devem ser conferidos no remoto antes de integrar.
+
+
+## Incidente da unit privada de cotas — 05/11/2026
+
+Prioridade expressa do operador: conter `codex-quota-panel.service` antes de
+retomar o desenvolvimento. Checkout canônico confirmado, branch de continuidade
+`codex/product-recovery-2026-10-16`, HEAD `fedee5cb`, três commits locais além de
+`cb1d6f87` no remoto. PR #268 aberto em rascunho; os oito jobs verdes observados
+pertencem a `cb1d6f87`, não às mudanças locais. As 16 modificações existentes
+foram preservadas. Esta intervenção acrescenta testes de ownership, sem mudar
+comportamento do instalador ou acrescentar serviço ao produto.
+
+**Causa comprovada do ciclo:** o Python sai com código 2 porque o script
+`panel_server.py` referido em `Projects/Steam Zero/plugins/codex-quota-resume`
+não existe. `Restart=on-failure` e `RestartSec=5` repetem a falha. A unit está
+habilitada por `default.target`, sem timer/socket, drop-in, consumidor reverso
+específico ou propagação de parada observados. Sua linha de execução também
+aponta para dados e pacote internos de uma aplicação legada; nenhum desses
+arquivos foi aberto. Não foi lido nem copiado o plugin privado.
+
+**Responsabilidade:** a unit pessoal tem 640 bytes, modo 0644, pertence ao
+usuário e não tem marcador SteamZero. O registro de reinstalação de 21/10,
+seção 2, classifica o plugin como arquivo privado externo ao Git. O código
+atual não publica painel/API de cotas Codex. `tools/install_host.py` limita
+as units a `steamzero-core.service` e `steamzero-core.socket`, com recusa de
+alvos não gerenciados. O nome da pasta antiga não comprova propriedade pelo
+instalador. A decisão para este lote é aposentar a ligação privada órfã, sem
+incorporá-la ao produto, restaurar o plugin ou criar monitor substituto.
+Não há valor confiável de cota disponível: estado desconhecido; nenhuma ação
+de recuperação de aplicativos é autorizada por esse estado.
+
+**Baseline real, 08:08–08:11 UTC:** contador 295, depois 320 e 331 reinícios;
+`activating/auto-restart`, `MainPID=0` entre tentativas. Amostras de CPU do
+cgroup por ativação: 34.812.000 e 26.934.000 ns; picos de memória 4.390.912 e
+3.682.304 bytes. Esses contadores não são consumo acumulado desde o boot.
+Janela de journal de 60 s: 60 registros, 5.040 bytes de mensagens;
+86.903 bytes na representação JSON exportada (não mede ocupação física do
+journal). Recursos antes dos testes: 126 GiB livres, RAM disponível 7,2 GiB,
+swap usada 2,6 GiB, carga 2,78/3,34/2,98.
+
+**Custódia e ação preparada:** cópia byte a byte em armazenamento privado
+`$HOME/.local/share/project-recovery/SteamZero/codex-quota-panel-20261105/`,
+diretório 0700, arquivos 0600, metadados e estado anterior em `before.json`.
+SHA-256 da unit:
+`875c818e563518ac1810f94598cf9410063307e88b9acdb465b26241d18a5a61`.
+O original não foi editado, removido, remarcado nem adotado pelo instalador.
+A autorização inicial condiciona a parada à propriedade SteamZero confirmada;
+essa condição não foi comprovada. Ação preparada antes da autorização específica para a
+unit privada: `systemctl --user stop codex-quota-panel.service`, seguido por
+`systemctl --user disable codex-quota-panel.service`. Nenhum comando de
+instalação, root, daemon-reload global, mask ou reset-failed é necessário.
+O procedimento exigiu reconferir hash, dependências e estado, executar somente
+essas duas ações e comparar observações separadas por pelo menos 60 s.
+Aceite: inactive, disabled, PID zero, contador estável e nenhum novo erro
+após a parada. O arquivo original deve conservar o mesmo hash.
+
+**Rollback:** como o arquivo será preservado, `systemctl --user enable
+codex-quota-panel.service` restaura o vínculo de habilitação; `start` restauraria
+a execução, inclusive o defeito atual. Não executar esse rollback automaticamente.
+A cópia privada permite comparar/restaurar conteúdo somente mediante revisão;
+não sobrescrever uma unit que outro owner tenha mudado. A cópia é local e não
+comprova backup externo.
+
+**Reinício abrupto do host, investigação separada:** o journal do boot anterior
+termina às 01:41:50 locais; o novo boot começa às 04:42:18. A consulta limitada
+a eventos de OOM, watchdog, panic, thermal e hardware retornou inicializações,
+sem diagnóstico causal de falha. Isso não exclui travamento, energia, pressão
+de recursos, GPU ou perda do journal. Não atribuir o reboot à unit de cotas.
+A integral R3 anterior parou em aproximadamente 28%, sem recibo final: resultado
+interrompido/desconhecido, nunca aprovado. R2 permanece evidência histórica,
+não valida o WIP posterior. Não repetir carga pesada para provocar o incidente.
+
+**Alcance dos testes:** fixtures em HOME isolado exercitam recusa de units
+sem marcador e symlinks antes da publicação; ativação repetida e retorno entre
+releases preservam unit privada e seu vínculo de habilitação. Somente binários
+sintéticos da fixture podem ser executados; chamadas a serviços reais falham
+o teste. Script ausente é representado, nunca executado. Não existe coletor
+novo: dados de cota inválidos, timeout de coleta, backoff e disjuntor não são
+contratos de runtime introduzidos por este lote. Nenhuma migração de propriedade
+ou substituição simultânea de serviço é feita. Os gates integrais do produto
+continuam pendentes; este checkpoint não declara release pronta.
+
+
+### Contenção autorizada e verificada — 05/11, 08:24 UTC
+
+Após a explicação de que a unit não tem propriedade SteamZero comprovada,
+o operador autorizou prosseguir com a correção desse legado e depois retomar
+o desenvolvimento. Hash do arquivo e cópia novamente conferidos, sem drop-ins,
+consumidores específicos ou propagação de parada. Somente `systemctl --user stop
+codex-quota-panel.service` e `systemctl --user disable codex-quota-panel.service`
+foram executados, ambos com saída 0. A habilitação em `default.target.wants`
+foi removida; o arquivo original permanece intacto. Nenhum serviço substituto,
+instalação, alteração privilegiada, reboot ou recuperação de aplicativo.
+
+Imediatamente antes: 473 reinícios, CPU da última ativação 23.224.000 ns,
+pico 3.686.400 bytes. Depois: `inactive/dead`, `disabled`, PID 0; systemd zerou
+`NRestarts` na parada e deixou CPU/memória sem cgroup ativo. Segunda observação
+69,66 s após a conclusão: mesmos estados, zero novas mensagens e zero bytes
+de mensagens no journal. Hash original e backup permanecem iguais ao registrado.
+Isso comprova contenção do ciclo, não correção da causa dos reboots do host.
+
+44 testes focados do instalador passaram em 3,14 s, com perfil preservado;
+Ruff check/format (742 arquivos), mypy (308 fontes), independence, boundaries e
+status-check passaram. O primeiro ensaio teve 43 aprovações e uma falha do
+harness por bloquear o próprio executável sintético; a allowlist da fixture
+foi corrigida, sem modificar código de produção. Uma sobreposição documental
+de claims foi reconciliada antes do status-check verde. A suíte integral não
+foi repetida para esta contenção: não há mudança de runtime do produto. Ela
+continua exigida para o lote funcional do Launcher retomado separadamente.
+
+Durante a consulta solicitada sobre a ventoinha, uma compilação Rust iniciada
+cerca de três minutos antes consumia 87,3% de um núcleo e 2,89 GiB RSS; terminou
+antes da identificação de sua origem. As verificações desta tarefa também
+ocorreram nesse intervalo e podem ter contribuído. A carga chegou a 6,28;
+ACPI marcou 92 °C e GPU 77 °C, depois 72 °C. São amostras, não diagnóstico de
+thermal shutdown. Antes da retomada, carga 2,34 e RAM disponível 7,9 GiB.
+Nenhum processo alheio foi interrompido. A suíte seguinte usa runner oficial,
+prioridade reduzida e afinidade de dois núcleos; nenhuma unit extra é criada.
+
+
+A observação prolongada às09:43:43UTC confirmou **4.763,34 s (79,4 min)** desde
+a contenção, zero novos registros, inactive/dead/disabled/PID0 e SHA original
+inalterado. O teste de proteção das units foi commitado em `dd026fec`.
+Desenvolvimento retomado: integral R6 passou7351/48 em2494,49s, sem delta no
+perfil ou erro de cleanup, com cobertura85,8776727996022% contra85,87214763246588%.
+A guarda temporária terminou sem intervenção; nenhuma unit foi criada para ela.
+R4 e R5 permaneceram registradas como reprovada/interrompida, com as limitações
+no recibo studio-native-context.json. R4 deixou runtime/pulse vazio; não havia
+consumidor com HOME/XDG/PULSE apontando para a raiz e somente os três diretórios
+vazios foram removidos. O autor da recriação não foi demonstrado.
+
+O build anterior deixou `_build_info.py` ignorado no fonte, causando a falha de
+custódia. Seus bytes correspondiam exatamente ao wheel fedee5cb; o arquivo foi
+preservado no diretório ignorado de evidências do build. Não se alterou o teste
+para ignorar arquivos sem dono. Depois do render, os13 testes do catálogo
+passaram. Builds seguintes devem preservar esse metadado junto ao próprio wheel,
+com hash/bytes conferidos e sem sobrescrever material preexistente, antes de
+retomar gates do fonte. As etapas de CI de fonte e pacote já são separadas.
