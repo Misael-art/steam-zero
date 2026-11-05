@@ -9,7 +9,7 @@
   "verification": "hw",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "d79dc671a71faaff9cb4a0477687f1887e02496bb12387525712ef0ce27738e3",
+  "scopeDigest": "083e44c5581ca5fcd09cbef3531d1561b9dd64dbe21c914e4e620e75b07aaa16",
   "scopePaths": [
     "src/steamzero/adapters/desktop_contracts.py",
     "src/steamzero/adapters/desktop_dashboard.py",
@@ -21,7 +21,8 @@
     "tests/qml/check_theme_editor_import.qml",
     "docs/09-operations/evidence/2026-09-08-theme-retrofe-ui",
     "tests/integration/test_retrofe_import_dialog_compact.py",
-    "tests/qml/golden/import-dialogs/retrofe"
+    "tests/qml/golden/import-dialogs/retrofe",
+    "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md"
   ],
   "dependsOn": [
     "SZ-THEME-ENGINE"
