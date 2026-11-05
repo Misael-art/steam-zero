@@ -1894,6 +1894,7 @@ Rectangle {
         errorColor: panel.redColor
         visualScale: panel.visualScale
         compactLayout: panel.compactLayout
+        reducedMotion: panel.reducedMotion
         onCloseRequested: panel.journeyMode = false
     }
 

@@ -2126,8 +2126,11 @@ class DesktopDashboard:
         store = self._theme_store()
         live = theme_assets.live_digests(theme_assets.load_installed_manifests(paths.themes_dir()))
         rollback = theme_acquire.rollback_live_digests()
-        result = store.collect_garbage(live | rollback, dry_run=not apply)
+        with theme_scene.imported_scene_publication(create=apply):
+            imported = theme_scene.imported_live_digests()
+            result = store.collect_garbage(live | rollback | imported, dry_run=not apply)
         result["protectedByRollback"] = len(rollback - live)
+        result["protectedByImportedScenes"] = len(imported - live - rollback)
         return result
 
     def _theme_runtime_model(

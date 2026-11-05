@@ -323,6 +323,13 @@ class JourneyStudioService:
         document = self._store.import_copy(bundle, copy_id=copy_id, copy_name=copy_name)
         snapshot = self._open(dict(document.data), saved_payload=None)
         snapshot["dependencies"] = self._theme_dependencies(document)
+        scene_ids = {
+            appearance["sceneId"]
+            for menu in document.menus
+            if (appearance := menu.get("appearance", {})).get("mode") == "imported-scene"
+        }
+        if scene_ids:
+            snapshot["sceneDependencies"] = sorted(scene_ids)
         snapshot["packageContents"] = ["experience.json"]
         return snapshot
 
@@ -424,6 +431,7 @@ class JourneyStudioService:
         used_stages: builtins.list[str],
         themes: dict[str, dict[str, Any]],
         aura_version: str,
+        imported_scenes: Mapping[str, str] | None = None,
         required_theme_capabilities: dict[str, builtins.list[str]] | None = None,
         adapter_capabilities: builtins.list[str] | None = None,
         operation_requirements: dict[str, builtins.list[str]] | None = None,
@@ -434,6 +442,7 @@ class JourneyStudioService:
             used_stages=used_stages,
             themes=themes,
             aura_version=aura_version,
+            imported_scenes=imported_scenes,
             required_theme_capabilities=required_theme_capabilities,
             adapter_capabilities=adapter_capabilities,
             operation_requirements=operation_requirements,

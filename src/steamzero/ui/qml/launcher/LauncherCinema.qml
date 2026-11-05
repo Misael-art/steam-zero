@@ -28,6 +28,9 @@ Item {
     readonly property var externalViewData: _externalView(compiledThemeScene)
     readonly property bool externalSceneAvailable: externalViewData !== null
         && Array.isArray(externalViewData.elements)
+        && (!activeTheme.requestedSceneId || externalScene.drawnCount > 0)
+    readonly property bool importedSceneWithoutContent: Boolean(activeTheme.requestedSceneId)
+        && externalViewData !== null && externalScene.drawnCount === 0
     readonly property var themeTokens: activeTheme && activeTheme.resolved
         ? activeTheme.resolved : ({})
     readonly property var themeColors: themeTokens.color || ({})
@@ -238,6 +241,7 @@ Item {
     }
 
     SceneEsdeView {
+        id: externalScene
         objectName: "launcherCinemaXmlScene"
         anchors.fill: parent
         z: 50
@@ -253,8 +257,30 @@ Item {
     }
 
     Rectangle {
+        visible: externalScene.visible && Boolean(cinema.activeTheme.requestedSceneId)
+            && externalScene.unsupportedTimelines.length > 0
+        z: 60
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: lossText.implicitHeight + 16
+        color: cinema.highContrast ? "#000000" : "#182735"
+        Text {
+            id: lossText
+            anchors.fill: parent
+            anchors.margins: 8
+            text: qsTr("Animações sem suporte nesta cena: %1")
+                .arg(externalScene.unsupportedTimelines.length)
+            color: cinema.primaryTextColor
+            font.pixelSize: 14 * cinema.textScale
+            wrapMode: Text.WordWrap
+        }
+    }
+
+    Rectangle {
         visible: cinema.activeTheme.sceneResolutionState === "degraded"
             || cinema.activeTheme.sceneResolutionState === "failed"
+            || cinema.importedSceneWithoutContent
         z: 60
         anchors.left: parent.left
         anchors.right: parent.right
@@ -267,10 +293,14 @@ Item {
         radius: 8
         Text {
             id: xmlSceneDiagnostic
+            objectName: "launcherExternalSceneDiagnostic"
+            textFormat: Text.PlainText
             anchors.fill: parent
             anchors.margins: 10
             text: qsTr("A cena XML está incompleta. A navegação continua disponível. %1")
-                .arg(String(cinema.activeTheme.sceneDiagnostic || "Revise o tema no Studio."))
+                .arg(String(cinema.activeTheme.sceneDiagnostic || (cinema.importedSceneWithoutContent
+                    ? qsTr("A cena salva não tem elementos disponíveis nesta tela.")
+                    : qsTr("Revise o tema no Studio."))))
             color: cinema.primaryTextColor
             wrapMode: Text.WordWrap
             font.pixelSize: 14 * cinema.textScale

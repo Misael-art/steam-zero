@@ -1627,6 +1627,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 "preview": {"items": engine_rows},
             }
             appearance = menu.get("appearance")
+            imported_preview = None
+            imported_states: dict[str, str] = {}
+            if isinstance(appearance, Mapping) and appearance.get("mode") == "imported-scene":
+                from steamzero.domain.theme_scene import resolve_journey_imported_scene
+
+                scene_id = str(appearance["sceneId"])
+                imported_preview = resolve_journey_imported_scene(scene_id)
+                imported_states[scene_id] = imported_preview["state"]
             declared_theme_id = (
                 str(appearance.get("themeId"))
                 if isinstance(appearance, Mapping)
@@ -1732,12 +1740,15 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                         used_stages=[f"menu:{menu_id}"],
                         themes=manifests,
                         aura_version=str(aura_manifest.get("version") or "unknown"),
+                        imported_scenes=imported_states,
                     )
                     coverage_stage = coverage["stages"][0]
                     theme_id = str(coverage_stage.get("sourceThemeId") or aura_id)
                     resolution_state = str(coverage_stage.get("appearance") or "unknown")
                     resolution_diagnostic = ""
-                    if resolution_state == "missing-reference":
+                    if imported_preview is not None:
+                        resolution_diagnostic = imported_preview["diagnostic"]
+                    elif resolution_state == "missing-reference":
                         resolution_diagnostic = (
                             f"O tema {declared_theme_id} não está disponível; "
                             "a prévia usa AURA para esta etapa."
@@ -1789,6 +1800,11 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                         "manifest": dict(manifest),
                         "declared": dict(declared),
                         "preview": dict(preview),
+                        **(
+                            {"importedScenePreview": imported_preview}
+                            if imported_preview is not None
+                            else {}
+                        ),
                     }
             finally:
                 for theme_session_id in theme_session_ids:
@@ -1808,12 +1824,18 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             # cobertura reporte versão/cor/procedência iguais ao manifesto
             # carregado nas etapas com herança explícita.
             theme_ids = {"org.steamzero.default", "org.steamzero.aura"}
+            scene_ids: set[str] = set()
+            requested_stages = set(used_stages)
             for menu in document.get("menus", []):
                 appearance = menu.get("appearance", {})
                 if appearance.get("mode") == "custom" and isinstance(
                     appearance.get("themeId"), str
                 ):
                     theme_ids.add(appearance["themeId"])
+                elif appearance.get("mode") == "imported-scene" and (
+                    f"menu:{menu['id']}" in requested_stages
+                ):
+                    scene_ids.add(appearance["sceneId"])
             for stage in document.get("sessionStages", []):
                 appearance = stage.get("appearance", {})
                 if appearance.get("mode") == "custom" and isinstance(
@@ -1851,6 +1873,7 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 used_stages=used_stages,
                 themes=themes,
                 aura_version=aura_version,
+                imported_scenes=self._journey_imported_scene_states(scene_ids),
                 operation_requirements={
                     "gameplay": ["launch"],
                     "entryFade": ["launch"],
@@ -2202,7 +2225,20 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
         result["sourceState"] = str(model.get("state") or "unavailable")
         return result, session, menu, model
 
+    @staticmethod
+    def _journey_imported_scene_states(scene_ids: set[str]) -> dict[str, str]:
+        from steamzero.domain.theme_scene import resolve_journey_imported_scene
+
+        if len(scene_ids) > 32:
+            raise SteamZeroError("E-THEME-LIMIT", detail="consulte até 32 cenas RetroFE por vez")
+        return {
+            scene_id: str(resolve_journey_imported_scene(scene_id)["state"])
+            for scene_id in sorted(scene_ids)
+        }
+
     def _journey_catalog(self, models: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
+        from steamzero.domain.theme_scene import list_imported_scene_ids
+
         read_models: list[dict[str, Any]] = []
         labels = {
             "library.games": "Jogos publicados",
@@ -2246,6 +2282,7 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             "schemaVersion": 1,
             "readModels": read_models,
             "themes": themes,
+            "importedScenes": [{"id": scene_id} for scene_id in list_imported_scene_ids()],
             "bezels": list_bezel_resources(),
             "limits": {
                 "maxRecords": MAX_PUBLIC_RECORDS,

@@ -55,6 +55,8 @@ Rectangle {
     property var coverageResult: null
     property var themePreviewObject: null
     property var themePreviewManifest: null
+    property var importedScenePreview: null
+    property bool reducedMotion: false
     property string themePreviewThemeId: ""
     property string themePreviewMode: ""
     property string themePreviewError: ""
@@ -347,6 +349,7 @@ Rectangle {
         panel.coverageResult = null
         panel.themePreviewObject = null
         panel.themePreviewManifest = null
+        panel.importedScenePreview = null
         panel.themePreviewThemeId = ""
         panel.themePreviewMode = ""
         panel.themePreviewError = ""
@@ -439,14 +442,16 @@ Rectangle {
             panel.themePreviewObject = preview
             panel.themePreviewManifest = manifest
             panel.themePreviewThemeId = themeId
+            panel.importedScenePreview = result.importedScenePreview || null
             const nativeLayouts = declared.sceneLayouts && declared.sceneLayouts.layouts
                 ? declared.sceneLayouts.layouts : ({})
             const assets = manifest.assets || ({})
             const hasEsdeScene = Object.keys(assets).some(function(name) {
                 return String(name).toLowerCase().endsWith(".xml")
             })
-            panel.themePreviewMode = Object.keys(nativeLayouts).length > 0
-                ? "native" : (hasEsdeScene ? "esde" : "identity")
+            panel.themePreviewMode = panel.importedScenePreview && panel.importedScenePreview.scene
+                ? "imported" : Object.keys(nativeLayouts).length > 0
+                    ? "native" : (hasEsdeScene ? "esde" : "identity")
             panel.themePreviewLoading = false
             panel.inspectCoverage()
         }, function(error) {
@@ -903,6 +908,9 @@ Rectangle {
             panel.applySnapshot(result)
             panel.importDependencies = result.dependencies || []
             const unresolved = panel.importDependencies.map(panel.dependencyDescription)
+                .concat((result.sceneDependencies || []).map(function(sceneId) {
+                    return qsTr("Cena RetroFE %1 (arquivo separado)").arg(sceneId)
+                }))
             panel.notice = qsTr("Cópia importada; o ZIP contém somente experience.json. Dependências: %1")
                 .arg(unresolved.length ? unresolved.join(", ") : qsTr("nenhuma referência personalizada"))
             panel.refreshListAfterSave()
@@ -1352,6 +1360,7 @@ Rectangle {
                 }
 
                 ScrollView {
+                    id: inspectorScroll
                     objectName: "journeyInspectorScroll"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -1605,6 +1614,42 @@ Rectangle {
                                     onClicked: panel.transact("set-menu-appearance", {
                                         menuId: panel.currentMenu.id,
                                         appearance: {mode: "inherit-aura"}
+                                    })
+                                }
+                            }
+                            Label {
+                                visible: !!panel.currentMenu && !!panel.currentMenu.appearance
+                                    && panel.currentMenu.appearance.mode === "imported-scene"
+                                text: visible ? qsTr("Cena RetroFE deste menu: %1")
+                                    .arg(panel.currentMenu.appearance.sceneId) : ""
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                color: panel.textColor
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                visible: scenePicker.count > 0
+                                Layout.fillWidth: true
+                                ComboBox {
+                                    id: scenePicker
+                                    objectName: "journeyImportedScenePicker"
+                                    Layout.fillWidth: true
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    model: panel.catalog.importedScenes || []
+                                    textRole: "id"
+                                    valueRole: "id"
+                                    Accessible.name: qsTr("Cena RetroFE salva para este menu")
+                                }
+                                Button {
+                                    objectName: "journeyApplyImportedScene"
+                                    text: qsTr("Usar cena RetroFE")
+                                    Accessible.name: text
+                                    Layout.minimumHeight: panel.minimumInteractiveTarget
+                                    enabled: !panel.busy && panel.currentMenu !== null
+                                        && scenePicker.currentIndex >= 0
+                                    onClicked: panel.transact("set-menu-appearance", {
+                                        menuId: panel.currentMenu.id,
+                                        appearance: {mode: "imported-scene", sceneId: scenePicker.currentValue}
                                     })
                                 }
                             }
@@ -1985,8 +2030,11 @@ Rectangle {
                                     Layout.fillWidth: true
                                     text: modelData.stageId + " · " + modelData.appearance
                                         + " · " + modelData.reason
-                                        + " · origem: " + modelData.sourceThemeId
-                                        + " @ " + modelData.sourceVersion
+                                        + (modelData.declaredSceneId
+                                            ? qsTr(" · cena RetroFE: %1 · %2").arg(modelData.declaredSceneId)
+                                                .arg(modelData.sceneResolutionState)
+                                            : " · origem: " + modelData.sourceThemeId
+                                                + " @ " + modelData.sourceVersion)
                                         + (modelData.providedSceneElements
                                            && modelData.providedSceneElements.length
                                             ? " · slots: " + modelData.providedSceneElements.join(", ") : "")
@@ -2019,10 +2067,14 @@ Rectangle {
                             Layout.fillWidth: true
                             spacing: 8
                             Label {
+                                objectName: "journeyScenePreviewTitle"
                                 text: panel.currentMenu
                                     ? qsTr("Prévia de %1 · %2").arg(panel.currentMenu.name)
-                                        .arg(panel.themePreviewThemeId || panel.currentThemeId)
+                                        .arg(panel.themePreviewMode === "imported"
+                                            ? panel.currentMenu.appearance.sceneId
+                                            : panel.themePreviewThemeId || panel.currentThemeId)
                                     : qsTr("Prévia da jornada")
+                                textFormat: Text.PlainText
                                 color: panel.textColor
                                 font.weight: Font.DemiBold
                                 Layout.fillWidth: true
@@ -2031,7 +2083,9 @@ Rectangle {
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.minimumHeight: 240
-                                Layout.preferredHeight: panel.compactLayout ? 300 : 360
+                                Layout.preferredHeight: panel.themePreviewMode === "imported"
+                                    ? Math.max(240, Math.min(360, inspectorScroll.availableHeight - 44))
+                                    : panel.compactLayout ? 300 : 360
                                 color: "#000000"
                                 border.color: panel.borderColor
                                 clip: true
@@ -2066,6 +2120,21 @@ Rectangle {
                                     mutedColor: panel.mutedColor
                                     focusColor: panel.accentColor
                                     synthetic: true
+                                }
+                                ThemeScenePreview {
+                                    objectName: "journeyImportedScenePreview"
+                                    anchors.fill: parent
+                                    visible: panel.themePreviewMode === "imported"
+                                    importedScene: true
+                                    rendered: panel.importedScenePreview
+                                    reducedMotion: panel.reducedMotion
+                                    viewId: panel.previewViewId()
+                                    runtimeModelOverride: panel.journeyRuntimeModel()
+                                    surfaceColor: panel.surfaceColor
+                                    borderColor: panel.borderColor
+                                    textColor: panel.textColor
+                                    mutedColor: panel.mutedColor
+                                    focusColor: panel.accentColor
                                 }
                                 ColumnLayout {
                                     anchors.fill: parent

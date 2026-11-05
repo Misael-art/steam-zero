@@ -834,6 +834,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             resolved_themes: dict[str, dict[str, Any]] = {}
 
             def resolve_journey_theme(_menu_id: str, appearance: object) -> Mapping[str, Any]:
+                if isinstance(appearance, Mapping) and appearance.get("mode") == "imported-scene":
+                    from steamzero.domain.theme_scene import resolve_journey_imported_scene
+
+                    scene_id = str(appearance["sceneId"])
+                    base = resolve_journey_theme(_menu_id, None)
+                    imported = resolve_journey_imported_scene(scene_id)
+                    theme = dict(base)
+                    theme.pop("compiledScene", None)
+                    theme["requestedSceneId"] = scene_id
+                    theme["sceneResolutionState"] = (
+                        imported["state"]
+                        if imported["state"] in ("resolved", "degraded")
+                        else "failed"
+                    )
+                    theme["sceneDiagnostic"] = imported["diagnostic"]
+                    if imported["scene"] is not None:
+                        theme["compiledScene"] = imported["scene"]
+                        theme["sceneFidelity"] = imported["fidelity"]
+                    return theme
                 requested_theme_id = (
                     str(appearance.get("themeId"))
                     if isinstance(appearance, Mapping)
