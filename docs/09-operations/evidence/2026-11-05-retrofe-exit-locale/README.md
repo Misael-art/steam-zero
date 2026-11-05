@@ -102,3 +102,17 @@ continuam fora deste lote; merge do PR #268 exige autorização.
   verdes. Fonte + Qt offscreen.
 - Ainda sem suporte e sinalizados como perda: `menu*`, `game*`, `playlist*`,
   `highlightExit`.
+
+## Release do `c5819591` — bloqueada por autenticação
+
+- `release_host.py prepare --commit c58195919b07a799c67ac716ceb9e3ca99ba3f12
+  --run-id 42040231859 --output build/release/c5819591`, com o checkout no commit
+  exato (árvore limpa) e `GIT_TERMINAL_PROMPT=0`: recusado com
+  "autenticação do GitHub falhou … gh auth login". O `gh` do host não tem login
+  armazenado; o agente não inicia autenticação.
+- Primeira tentativa travou no `git fetch` interno (prompt de credencial, 120 s);
+  repetível e evitável com `GIT_TERMINAL_PROMPT=0`.
+- Ação do proprietário: `gh auth login` neste host. Depois, o agente repete o
+  `prepare` acima e segue para `install` com token; o `pkexec` abre a janela de
+  senha, digitada pelo proprietário. Release ativa permanece
+  `2.0.0rc1-59ecc2d8f0f6`; rollback é a própria release ativa.
