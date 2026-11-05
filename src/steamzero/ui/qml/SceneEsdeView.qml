@@ -28,7 +28,7 @@ Item {
         const out = []
         for (const element of elements) {
             for (const event of Object.keys(element.on || ({}))) {
-                if (event !== "enter" || !view.entryTimeline(element))
+                if (!view.motionEvents.includes(event) || !view.timeline(element, event))
                     out.push({id: element.id, event: event,
                         reason: qsTr("Evento ou propriedade de movimento sem suporte")})
             }
@@ -36,8 +36,21 @@ Item {
         return out
     }
 
-    function entryTimeline(element) {
-        const blocks = element.on && element.on.enter
+    // Eventos de movimento que este renderizador executa. `exit` é a saída da
+    // view (RetroFE onExit): toca antes de a superfície trocar de tela.
+    readonly property var motionEvents: ["enter", "exit"]
+    // Teto da transição de saída: a animação nunca segura a operação de
+    // sessão nem o controle do usuário além deste limite.
+    property int exitBudgetMs: 1500
+    readonly property bool exiting: d_exiting
+    property bool d_exiting: false
+    property int d_exitPending: 0
+    signal exitFinished(bool completed)
+
+    function entryTimeline(element) { return view.timeline(element, "enter") }
+
+    function timeline(element, eventName) {
+        const blocks = element.on && element.on[eventName]
         if (!view.isDrawable(element) || !blocks || typeof blocks !== "object"
                 || !Number.isInteger(blocks.length) || blocks.length < 1 || blocks.length > 32)
             return null
@@ -77,6 +90,57 @@ Item {
             ? 2 * progress * progress : 1 - 2 * (1 - progress) * (1 - progress)
         default: return progress
         }
+    }
+
+    // Inicia a saída. Cada elemento com timeline de saída parte do estado atual;
+    // a view emite exitFinished(true) quando todos assentam, ou (false) no teto.
+    function playExit() {
+        if (view.d_exiting)
+            return
+        exitBudget.interval = Math.max(0, view.exitBudgetMs)
+        view.d_exiting = true
+        view.d_exitPending = 0
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (loader && loader.startExit && loader.startExit())
+                view.d_exitPending += 1
+        }
+        if (view.d_exitPending === 0) {
+            Qt.callLater(view.finishExit, true)
+            return
+        }
+        exitBudget.restart()
+    }
+
+    function exitSettled() {
+        if (!view.d_exiting) return
+        view.d_exitPending -= 1
+        if (view.d_exitPending <= 0)
+            Qt.callLater(view.finishExit, true)
+    }
+
+    function finishExit(completed) {
+        if (!view.d_exiting) return
+        exitBudget.stop()
+        view.d_exiting = false
+        view.exitFinished(completed)
+    }
+
+    // Navegação durante ou após a saída (retorno à tela): interrompe e devolve a
+    // cena ao estado final de entrada.
+    function cancelExit() {
+        exitBudget.stop()
+        view.d_exiting = false
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (loader && loader.abortExit) loader.abortExit()
+        }
+    }
+
+    Timer {
+        id: exitBudget
+        repeat: false
+        onTriggered: view.finishExit(false)
     }
     function elementAt(index) {
         const loader = elementRepeater.itemAt(index)
@@ -494,8 +558,12 @@ Item {
 
             readonly property var entryBlocks: modelData.on && modelData.on.enter
                 ? view.entryTimeline(modelData) : null
+            readonly property var exitBlocks: modelData.on && modelData.on.exit
+                ? view.timeline(modelData, "exit") : null
+            property bool exitPhase: false
+            readonly property var phaseBlocks: exitPhase ? exitBlocks : entryBlocks
             readonly property bool entryVisible: visible && entryBlocks !== null
-            readonly property bool entryReducedMotion: entryVisible && view.reducedMotion
+            readonly property bool entryReducedMotion: (entryVisible || exitPhase) && view.reducedMotion
             readonly property real baseOpacity: view.numberOr(app, "opacity", 1)
             property bool entryReady: false
             property int entryIndex: 0
@@ -514,8 +582,44 @@ Item {
                 return entryValues[channel] === undefined ? fallback : entryValues[channel]
             }
 
+            function startExit() {
+                if (!visible || exitBlocks === null)
+                    return false
+                entryClock.stop()
+                if (entryTo && Object.keys(entryTo).length) settleEntry()
+                entryValues = {
+                    alpha: entryValue("alpha", baseOpacity), x: entryValue("x", fx),
+                    y: entryValue("y", fy)}
+                exitPhase = true
+                entryIndex = 0
+                advanceEntry()
+                return true
+            }
+
+            function abortExit() {
+                if (!exitPhase) return
+                exitPhase = false
+                resetEntry()
+                settleAll()
+            }
+
+            function settleAll() {
+                entryClock.stop()
+                while (entryIndex < (phaseBlocks ? phaseBlocks.length : 0) || entryProgress < 1) {
+                    settleEntry()
+                    if (!phaseBlocks || entryIndex >= phaseBlocks.length) break
+                    const block = phaseBlocks[entryIndex++]
+                    const targets = {}
+                    for (const clip of block.animations)
+                        if (clip.property !== "nop") targets[clip.property] = clip.to
+                    entryTo = targets
+                }
+                settleEntry()
+            }
+
             function resetEntry() {
                 entryClock.stop()
+                exitPhase = false
                 entryIndex = 0
                 entryValues = {alpha: baseOpacity, x: fx, y: fy}
                 entryTo = ({})
@@ -526,8 +630,9 @@ Item {
             }
 
             function advanceEntry() {
-                while (entryVisible && entryIndex < entryBlocks.length) {
-                    const block = entryBlocks[entryIndex++]
+                const blocks = phaseBlocks
+                while (blocks && (exitPhase || entryVisible) && entryIndex < blocks.length) {
+                    const block = blocks[entryIndex++]
                     const starts = {}
                     const targets = {}
                     const curves = {}
@@ -543,7 +648,7 @@ Item {
                     entryFrom = starts
                     entryTo = targets
                     entryEasing = curves
-                    if (!entryReducedMotion && block.duration > 0) {
+                    if (!view.reducedMotion && block.duration > 0) {
                         entryProgress = 0
                         entryClock.duration = Math.max(1, Math.round(block.duration * 1000))
                         entryClock.start()
@@ -551,6 +656,8 @@ Item {
                     }
                     settleEntry()
                 }
+                if (exitPhase && blocks && entryIndex >= blocks.length)
+                    view.exitSettled()
             }
 
             function settleEntry() {
@@ -559,7 +666,7 @@ Item {
                 entryProgress = 1
             }
 
-            onEntryVisibleChanged: if (entryReady) resetEntry()
+            onEntryVisibleChanged: if (entryReady && !exitPhase) resetEntry()
             onEntryReducedMotionChanged: {
                 if (entryReady && entryReducedMotion && entryClock.running) {
                     entryClock.stop()

@@ -178,8 +178,52 @@ Item {
             compare(node.x, view.width * 0.25)
             compare(node.y, view.height * 0.25)
             assertGradient(logo, 1, 0, view)  // verde → magenta
+            // Saída agora é executada; evento sem suporte continua identificável.
             compare(view.unsupportedTimelines.length, 1)
-            compare(view.unsupportedTimelines[0].event, "exit")
+            compare(view.unsupportedTimelines[0].event, "highlightEnter")
+
+            // Saída RetroFE (onExit alpha→0): toca, assenta e notifica.
+            const spy = Qt.createQmlObject("import QtTest; SignalSpy { signalName: 'exitFinished' }", view)
+            spy.target = view
+            view.playExit()
+            verify(view.exiting)
+            spy.wait(1500)
+            compare(spy.signalArguments[0][0], true)
+            compare(node.opacity, 0)
+            verify(!view.exiting)
+
+            // Navegação rápida interrompe e restaura o estado final de entrada.
+            view.cancelExit()
+            view.viewData = null
+            show(response.body)
+            const again = view.elementAt(0).parent
+            tryCompare(again, "opacity", 0.85, 1500)
+            spy.clear()
+            view.playExit()
+            view.cancelExit()
+            verify(!view.exiting)
+            compare(again.opacity, 0.85)
+            compare(spy.count, 0)
+
+            // Movimento reduzido: sem animação, mesmo estado final, conclusão imediata.
+            view.reducedMotion = true
+            view.playExit()
+            spy.wait(500)
+            compare(spy.signalArguments[0][0], true)
+            compare(again.opacity, 0)
+            view.reducedMotion = false
+
+            // Teto: a saída nunca segura a sessão além do orçamento.
+            view.viewData = null
+            show(response.body)
+            const third = view.elementAt(0).parent
+            tryCompare(third, "opacity", 0.85, 1500)
+            spy.clear()
+            view.exitBudgetMs = 10
+            view.playExit()
+            spy.wait(500)
+            compare(spy.signalArguments[0][0], false)
+            view.exitBudgetMs = 1500
         }
 
         function test_03_studio_reabre_e_reproduz_cena_salva() {
@@ -201,6 +245,7 @@ Item {
             const scene = find(preview, "sceneView")
             tryVerify(function() { return scene.elementAt(0) !== null })
             tryCompare(scene.elementAt(0).parent, "opacity", 0.85, 1500)
+            compare(scene.unsupportedTimelines.length, 1)
             verify(find(preview, "notDrawnLine").text.indexOf("1") !== -1)
             dialog.close()
             tryCompare(dialog, "opened", false)
@@ -296,6 +341,18 @@ Item {
             compare(String(text.color), "#ffffff")
             verify(loss.y + loss.height < footer.y)
             assertGradient(imageFor(scene, scene.elements[0].source), 1, 0, scene)
+
+            // Ativar lança na hora; a saída do tema acompanha e a navegação restaura.
+            const launched = Qt.createQmlObject("import QtTest; SignalSpy { signalName: 'activated' }", cinema)
+            launched.target = cinema
+            cinema.currentFocus = cfg.launcher.focusId
+            verify(cinema.activateFocused())
+            compare(launched.count, 1)
+            verify(scene.exiting)
+            tryCompare(node, "opacity", 0, 1500)
+            verify(!scene.exiting)
+            cinema.moveRequested("right")
+            compare(node.opacity, 0.85)
         }
 
         function test_06_launcher_preserva_a_navegacao_sem_cena() {

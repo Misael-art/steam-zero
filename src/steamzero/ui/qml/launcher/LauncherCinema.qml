@@ -380,6 +380,12 @@ Item {
         return true;
     }
 
+    // Ativação (toque ou controle): a operação de sessão já partiu pelo sinal;
+    // a saída do tema só acompanha, com teto próprio, e nunca atrasa o lançamento.
+    // Navegação ou retorno à tela devolvem a cena ao estado de entrada.
+    onActivated: if (externalScene.visible) externalScene.playExit()
+    onMoveRequested: externalScene.cancelExit()
+    onVisibleChanged: if (visible) externalScene.cancelExit()
     Keys.onLeftPressed: cinema.moveRequested("left")
     Keys.onRightPressed: cinema.moveRequested("right")
     Keys.onUpPressed: cinema.moveRequested("up")

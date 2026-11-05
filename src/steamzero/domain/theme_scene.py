@@ -377,8 +377,9 @@ def _normalize_retrofe_scene(scene: dict[str, Any]) -> dict[str, Any]:
                     if key in layout:
                         layout[key] = _retrofe_fraction(layout[key], extent)
             events = element.get("on")
-            entry = events.get("enter") if isinstance(events, dict) else None
-            for block in entry if isinstance(entry, list) else ():
+            timelines = [events.get(name) for name in ("enter", "exit") if isinstance(events, dict)]
+            blocks = [b for t in timelines if isinstance(t, list) for b in t]
+            for block in blocks:
                 clips = block.get("animations") if isinstance(block, dict) else None
                 for clip in clips if isinstance(clips, list) else ():
                     if not isinstance(clip, dict):
