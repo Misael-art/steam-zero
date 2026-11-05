@@ -7,9 +7,9 @@
   "implementation": "complete",
   "integration": "integrated",
   "verification": "hw",
-  "operation": "ready",
+  "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "2b553890349c839118328e4a253e177389e487d707e4ca86254bc68f6f92d6f7",
+  "scopeDigest": "cc8e9a9d0ac5b165ec057dce19bb2c711b31ef1832e69cec343ead8a90d6eedf",
   "scopePaths": [
     "src/steamzero/adapters/desktop_contracts.py",
     "src/steamzero/adapters/desktop_dashboard.py",
@@ -210,9 +210,15 @@
       "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
       "command": "R3 terminou7221passed/48skipped/1failed documental/22warnings em3058,56s;1309 entradas e estado pessoal inalterados. Cobertura85,74876854203798%>=85,72395128552097%,171 guardas críticos passam.294 módulos comparados: duas linhas do retry SQLite não exercidas, sem regressão agregada. Única falha: digests/visões alterados durante a integral; corrigir e validar somente status conforme AGENTS§6. RHI focado4pass após guard de seleção de backend; nenhuma assertiva relaxada. Fonte/Qt, não instalação/hardware.",
       "result": "recorded"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-10-03-journey-engine-preview/studio-native-context.json",
+      "command": "2026-11-05: 67 focados/12.50s, follow-up57/12.02s; integral7334passed/48skipped/2747.82s, coverage85.87214763246588%; fault recovery and installed defects isolated.",
+      "result": "passed"
     }
   ],
-  "nextAction": "Manter a entrada RetroFE instalada e documentar explicitamente que inspeção/importação não promove ativação automática da cena.",
+  "nextAction": "Fonte corrigida e integral 7334/48 aprovada em 05/11. Validar pacote, publicar PR268 e conferir CI. Instalada59ecc2d8 ainda reproduz colisão de IDs e perda de arte no GC; requalificação depende de instalação autorizada.",
   "activeWorkstreams": [],
   "updatedAt": "2026-11-02",
   "notes": "A rota QML RetroFE oferece origem por pasta/XML, inspeção de layouts, relatório de cobertura/degradação, créditos/licença e confirmação explícita. A aplicação valida a licença, recusa assets ausentes ou symlinkados, grava blobs por conteúdo e publica sidecar de custódia junto ao IR; a cena continua sem ativação automática. A release 2.0.0rc1-435f9108eeb7 foi instalada e convergida no host, com rollback 2.0.0rc1-b09908a58261. 2026-10-02: renovacao de escopo por alteracao restrita aos inspetores de autoria do Theme Studio. Importacao ES-DE/RetroFE, dialogs do shell e eixos deste item nao foram alterados nem promovidos. Em 2026-10-02, os controles compartilhados ganharam alvo mínimo efetivo de 48 px. O diálogo RetroFE mudou visualmente nos quatro viewports; os goldens foram atualizados após inspeção e a rodada combinada ES-DE/RetroFE passou 13/13. A rodada vermelha contra as baselines antigas permanece registrada; isso não certifica input físico ou release. Em 2026-10-02, as baselines de RetroFE foram atualizadas após inspeção da captura causada pela nova entrada Abrir Jornadas no fundo do ThemeEditorPanel. O modal manteve geometria/conteúdo; o teste combinado passou 13/13 em Qt offscreen. Esta renovação não promove instalação física nem release.\n\n2026-10-11: scopeDigest renovado porque src/steamzero/adapters/desktop_ui.py passa a publicar na Jornada o catálogo que o Launcher executa, em vez do recorte editorial. Nenhum eixo deste item foi promovido e a Home editorial não mudou.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.\n\n02/11/2026: reconciliação serial após testes focados contexto/Qt25, importador/renderer57 e tema/herança118 (rodada final111). Recibo studio-native-context.json separa fonte, CI e instalação. Integral inicial cancelada para corrigir integração UI identificada por revisão; sem aprovação parcial. Goldens preservados. Provas instaladas/físicas anteriores são históricas e não certificam esta candidata.\n02/11: Central primary/copy e duas regressões Launcher corrigidas;54 focados aprovados.131 testes de segurança/tema e127 Dashboard/bootstrap/Qt/renderer aprovados. Integral final pendente; sem alterar goldens.\n02/11 atualização corrente: r2 concluída7219/48/3 somente imagens antigas; três referências autorizadas/revisadas em1f6be082,22 focados verdes, r3 final em execução. Notas anteriores de espera de autorização/log403 descrevem etapas superadas; recibo atual distingue log histórico acessível via helper existente sem login de símbolo SSL ainda não observado. Nenhuma promoção instalada/física.\n02/11 resultado r3:7221pass/48skip/1falha documental, cobertura85,74876854203798% acima da base e171 guardas passam. Falha por atualização documental durante execução; resultado original preservado e correção restrita de status conforme AGENTS§6. Sem selo de integral verde nem novo aceite instalado.\n02/11/2026: lote serial de consumidores/recuperação validado por182 focados e integral7260passed/48skipped/22warnings/3310,94s; cobertura85,75618340013686%>=85,74876854203798%.3747 arquivos congelados e estado pessoal inalterados;172 casos críticos passam sem skips. Recibo studio-native-context.json explicita uma aresta incidental perdida em301módulos inalterados, sem regressão agregada. Eixos/aceites específicos anteriores preservados; pacote não editable deste delta ainda pendente."

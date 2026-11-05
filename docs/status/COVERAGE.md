@@ -110,7 +110,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-THEME-ENGINE | 244 | 93 | 66 | dev |  |
 | SZ-THEME-ESDE-SCENE-RENDER | 26 | 20 | 9 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 22 | 11 | hw |  |
-| SZ-THEME-IMPORT-RETROFE | 15 | 29 | 14 | hw |  |
+| SZ-THEME-IMPORT-RETROFE | 15 | 30 | 15 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 22 | 11 | unit |  |
 | SZ-THEME-STUDIO | 226 | 93 | 66 | dev |  |
 | SZ-UI-DESKTOP-AUDIT | 843 | 207 | 116 | dev |  |

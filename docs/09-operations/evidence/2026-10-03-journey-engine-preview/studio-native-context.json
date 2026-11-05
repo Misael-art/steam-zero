@@ -1113,7 +1113,10 @@
       "qaSources": "studio-imported-entry-qa-sources.json",
       "previousAttempt": "The Qt screenshot helper wrote a valid PNG but exposed no return value. The first harness invocation misinterpreted this as a failure. The corrected harness verifies the PNG on disk and reused the same wheel and application assertions."
     },
-    "functionalCommits": ["6eb17801", "d9e8c94b"],
+    "functionalCommits": [
+      "6eb17801",
+      "d9e8c94b"
+    ],
     "focused": "72 importer, renderer, preview and Studio tests passed. Eight focused Qt/viewport tests passed after the final field alignment and inspection of four updated dialog references.",
     "fullSource": {
       "run": "full-20261103-imported-entry-r2",
@@ -1291,5 +1294,85 @@
       "makeStatusCheck": "passed",
       "codeUnchangedFromR1DuringViewCorrection": true
     }
+  },
+  "diagnosticRepair20261105": {
+    "owner": "codex-central-executor",
+    "branch": "codex/product-recovery-2026-10-16",
+    "pr": 268,
+    "lastPublishedSha": "cb1d6f87ee4a3096944ef1e54abc7eb6a3542ac7",
+    "inheritedChanges": 35,
+    "baseline": "Diagnostic reproduced two installed data losses, interrupted pair publication, stale Launcher media and Qt undefined boolean.",
+    "queue": [
+      {
+        "id": "SZ-THEME-IMPORT-RETROFE",
+        "state": "em validação",
+        "objective": "Preserve conflicting IDs and whole scene revisions, including rollback artwork",
+        "evidence": "67 focused tests passed in 12.50s, software Qt and private profiles",
+        "next": "Frozen integral then isolated package and existing PR",
+        "blocker": null
+      },
+      {
+        "id": "SZ-THEME-STUDIO",
+        "state": "em validação",
+        "objective": "Recover compact Journey panel and connect saved imported scene",
+        "evidence": "Same 67 focused cases",
+        "next": "Full gate",
+        "blocker": null
+      },
+      {
+        "id": "SZ-AURA-LAUNCHER",
+        "state": "em validação",
+        "objective": "Reobserve actual assets through the shared scene resolver",
+        "evidence": "Live bridge reports resolved/degraded/resolved after isolated asset removal/restoration",
+        "next": "Full gate and package",
+        "blocker": null
+      },
+      {
+        "id": "SZ-RECOVERY-R3-LAUNCHER-JOURNEY",
+        "state": "bloqueado",
+        "objective": "Installed gameplay and return",
+        "evidence": "Installed pointer remains 59ecc2d8",
+        "next": "Operator provides installation authorization and dedicated physical window",
+        "blocker": "Current recovery forbids privileged installation and personal desktop testing"
+      },
+      {
+        "id": "SZ-CAST-LAN",
+        "state": "bloqueado",
+        "objective": "Pair and transmit to real receiver",
+        "next": "Receiver and dedicated session",
+        "blocker": "Physical receiver not provisioned for this task"
+      },
+      {
+        "id": "SZ-NEW-HOST-DEVELOPMENT-BOOTSTRAP",
+        "state": "bloqueado",
+        "objective": "Private external restore",
+        "next": "Operator-controlled external destination and readback",
+        "blocker": "External private backup destination and restore sample unavailable"
+      }
+    ],
+    "limits": [
+      "No new host installation/authentication/release/merge/boot",
+      "Fault injection and Qt software are isolated proofs",
+      "Nine mockups remain after functional recovery",
+      "Import publication now delegates to core.transaction and reports operationId; general operation recovery restores interrupted pairs"
+    ],
+    "fullGate": {
+      "run": "full-20261105-diagnostic-r2",
+      "passed": 7334,
+      "skipped": 48,
+      "seconds": 2747.82,
+      "coverage": 85.87214763246588,
+      "baseline": 85.85439613794634,
+      "frozenFiles": 3764,
+      "unchanged": true,
+      "exitCode": 0,
+      "limits": "Private development XDG profile, fixture/software Qt; no gameplay or activation"
+    },
+    "nextAction": "Run frozen source checkpoint and verify package and PR SHA.",
+    "focusedFollowup": "57 passed in 12.02s, includes .assets IDs through real GC and rollback retained assets.",
+    "commits": [
+      "44f51d4772bab0586d76ea843c4147d8ba28b9d9 fix(studio): resolve saved scenes consistently through Journey and Launcher",
+      "e8c5eadafa93663dade15a24f24181ae1e6fc3c6 fix(themes): preserve imported scene identity and transactional recovery"
+    ]
   }
 }

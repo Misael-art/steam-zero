@@ -4,10 +4,14 @@
   "id": "WS-2026-10-STUDIO-DRAFT-HISTORY",
   "item": "SZ-THEME-STUDIO",
   "branch": "codex/product-recovery-2026-10-16",
-  "baseRef": "f00de9a5424712be3ec8ed7da4c230238fd8371a",
+  "baseRef": "cb1d6f87ee4a3096944ef1e54abc7eb6a3542ac7",
   "owner": "codex-central-executor",
   "state": "active",
   "exclusivePaths": [
+    "src/steamzero/schemas/experience-journey-v2.schema.json",
+    "src/steamzero/domain/experience_journey.py",
+    "src/steamzero/domain/theme_import_retrofe.py",
+    "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
     "src/steamzero/ui/qml/ThemeEditorPanel.qml",
     "tests/qml/check_theme_editor_asset_recipes.qml",
     "docs/status/items/theme-studio.json",
@@ -175,6 +179,6 @@
     "docs/status/items/recovery-r2-game-data.json",
     "src/steamzero/ui/qml/Main.qml"
   ],
-  "nextAction": "Entrada RetroFE no Studio passou na integral R2 e no pacote 637d05bb. O executor central assume em seguida a seleção da cena salva na Jornada e a resolução desse mesmo documento pelo Launcher, com precedência e recuperação verificadas. Os dois testes de cena e as referências RetroFE vieram da frente V1–V3 encerrada. Main.qml segue compartilhado com R2. Os nove mockups seguem após o fechamento do pedido original.",
-  "updatedAt": "2026-11-04"
+  "nextAction": "Executor serial codex-central-executor. PR268, último SHA remoto cb1d6f87. Em andamento SZ-THEME-IMPORT-RETROFE: impedir colisão de IDs e revisão parcial, proteger assets no GC. Em seguida SZ-THEME-STUDIO/SZ-AURA-LAUNCHER: cache e painel compacto, gate integral, pacote isolado e publicação. Baseline de 05/11 em build/agent-runs/diagnostico-20261105/relatorio.html. Instalação, hardware, login e restauração privada bloqueados por janela/autorização ou insumos do operador. Preservar os 35 arquivos herdados.",
+  "updatedAt": "2026-11-05"
 }
