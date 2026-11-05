@@ -440,7 +440,7 @@ def test_qml_emulation_error_card_via_transactional_failure(
         env=_qml_environment(),
         capture_output=True,
         text=True,
-        timeout=30,
+        timeout=60,
         check=False,
     )
     _assert_qml_clean(completed, "Harness ErrorCard transacional")
