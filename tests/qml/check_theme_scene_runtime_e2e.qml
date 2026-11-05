@@ -178,15 +178,28 @@ Item {
             compare(node.x, view.width * 0.25)
             compare(node.y, view.height * 0.25)
             assertGradient(logo, 1, 0, view)  // verde → magenta
-            // Saída agora é executada; evento sem suporte continua identificável.
+            // Saída e destaque são executados; evento sem suporte continua identificável.
             compare(view.unsupportedTimelines.length, 1)
-            compare(view.unsupportedTimelines[0].event, "highlightEnter")
+            compare(view.unsupportedTimelines[0].event, "menuEnter")
+
+            // Destaque RetroFE (onHighlightEnter alpha→1 em 0,1 s): toca na nova
+            // seleção, recomeça do estado atual e respeita movimento reduzido.
+            compare(view.playHighlight(), 1)
+            tryCompare(node, "opacity", 1, 1000)
+            compare(view.playHighlight(), 1)
+            compare(view.playHighlight(), 1)  // seleção rápida: recomeça, sem acumular
+            tryCompare(node, "opacity", 1, 1000)
+            view.reducedMotion = true
+            compare(view.playHighlight(), 1)
+            compare(node.opacity, 1)
+            view.reducedMotion = false
 
             // Saída RetroFE (onExit alpha→0): toca, assenta e notifica.
             const spy = Qt.createQmlObject("import QtTest; SignalSpy { signalName: 'exitFinished' }", view)
             spy.target = view
             view.playExit()
             verify(view.exiting)
+            compare(view.playHighlight(), 0)  // destaque não interrompe a saída
             spy.wait(1500)
             compare(spy.signalArguments[0][0], true)
             compare(node.opacity, 0)
@@ -354,6 +367,12 @@ Item {
             cinema.moveRequested("right")
             compare(node.opacity, 0.85)
 
+            // Nova seleção na coleção dispara onHighlightEnter (alpha→1).
+            const moved = JSON.parse(JSON.stringify(cfg.launcher))
+            moved.selected = Number(cfg.launcher.selected || 0) + 1
+            cinema.scene = moved
+            tryCompare(node, "opacity", 1, 1000, "a nova seleção não tocou o destaque")
+
             // Troca de coleção: a nova fica ativa e navegável na hora; a cópia da
             // anterior toca a saída por cima, sem entrada, e some ao assentar.
             const ghost = find(cinema, "launcherCollectionExitScene")
@@ -365,7 +384,7 @@ Item {
                       "a saída da coleção anterior não começou")
             verify(!ghost.enabled)
             const ghostNode = ghost.elementAt(0).parent
-            verify(ghostNode.opacity > 0, "a cópia não partiu do estado final de entrada")
+            verify(ghostNode.opacity > 0.5, "a cópia não partiu do estado final de entrada: " + ghostNode.opacity)
             cinema.currentFocus = cfg.launcher.focusId
             verify(cinema.activateFocused(), "a navegação ficou presa durante a saída")
             tryVerify(function() { return !ghost.visible }, 2500, "a cópia de saída não foi removida")

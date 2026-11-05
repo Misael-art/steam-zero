@@ -436,6 +436,9 @@ Item {
     // Navegação ou retorno à tela devolvem a cena ao estado de entrada.
     onActivated: if (externalScene.visible) externalScene.playExit()
     onMoveRequested: externalScene.cancelExit()
+    // Nova seleção na coleção: o tema reage com onHighlightEnter, se declarar.
+    readonly property int selectedIndexValue: Number(cinema.scene && cinema.scene.selected || 0)
+    onSelectedIndexValueChanged: if (externalScene.visible) externalScene.playHighlight()
     onVisibleChanged: if (visible) externalScene.cancelExit()
     Keys.onLeftPressed: cinema.moveRequested("left")
     Keys.onRightPressed: cinema.moveRequested("right")

@@ -103,6 +103,7 @@ def test_qml_desenha_pixels_das_cenas_esde_e_retrofe(
             <onExit><set duration="0.2"><animate type="alpha" to="0"/></set></onExit>
             <onHighlightEnter><set duration="0.1"><animate type="alpha" to="1"/></set>
             </onHighlightEnter>
+            <onMenuEnter><set duration="0.1"><animate type="alpha" to="1"/></set></onMenuEnter>
             </image></layout>""",
         )
     )
