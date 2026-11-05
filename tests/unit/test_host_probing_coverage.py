@@ -12,7 +12,42 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from steamzero.adapters import preservation
+
+
+def test_disappeared_proc_entry_does_not_claim_steam_is_running(tmp_path: Path) -> None:
+    from steamzero.adapters import desktop_dashboard
+
+    (tmp_path / "901").mkdir()
+    assert desktop_dashboard._steam_process_running(proc_root=tmp_path) is False
+    live = tmp_path / "902"
+    live.mkdir()
+    (live / "comm").write_text("steam\n", encoding="utf-8")
+    assert desktop_dashboard._steam_process_running(proc_root=tmp_path) is True
+
+
+@pytest.mark.parametrize(
+    "contents", [None, "truncated", "42 (fixture worker) S 1 " + "0 " * 17 + "12345\n"]
+)
+def test_spawn_identity_uses_start_ticks_or_unknown_without_host_dependency(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contents: str | None
+) -> None:
+    from steamzero.adapters import emulation
+
+    stat = tmp_path / "stat"
+    if contents is not None:
+        stat.write_text(contents, encoding="utf-8")
+
+    def fixture_path(value: str) -> Path:
+        assert value == "/proc/42/stat"
+        return stat
+
+    monkeypatch.setattr(emulation, "Path", fixture_path)
+    assert emulation._read_proc_start_ticks(42) == (
+        12345 if contents is not None and "fixture worker" in contents else None
+    )
 
 
 class TestHostDriverFingerprint:

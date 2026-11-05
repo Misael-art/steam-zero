@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 from pathlib import Path
 
@@ -160,3 +161,27 @@ def test_cursor_fuzz_is_valid_page_or_typed_error(tmp_path: Path, cursor: str) -
 def test_limit_is_closed_and_bounded(tmp_path: Path, limit: object) -> None:
     with pytest.raises(SteamZeroError, match="limit"):
         PlaytimeCatalog(lambda: StateStore(tmp_path / "state.db")).list(limit=limit)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        {},
+        [],
+        ["2026-11-05"],
+        ["2026-11-05", "id", "extra"],
+        ["", "id"],
+        ["2026-11-05", 42],
+        ["not-a-date", "id"],
+    ],
+)
+def test_structured_invalid_cursor_is_rejected_before_opening_store(
+    tmp_path: Path, value: object
+) -> None:
+    path = tmp_path / "unused.db"
+    cursor = base64.urlsafe_b64encode(json.dumps(value).encode()).decode().rstrip("=")
+    with pytest.raises(SteamZeroError) as error:
+        PlaytimeCatalog(lambda: StateStore(path)).list(cursor=cursor)
+    assert error.value.code == "E-API-SCHEMA"
+    assert not path.exists()
