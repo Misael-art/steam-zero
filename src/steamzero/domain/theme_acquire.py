@@ -98,7 +98,7 @@ def _theme_operation_records(
             or not isinstance(begin.get("kind"), str)
         ):
             raise ValueError("cabeçalho de journal inválido")
-        if begin["kind"] != "theme.acquire":
+        if begin["kind"] not in {"theme.acquire", "theme.retrofe.import"}:
             return None
         payload = first + stream.read(MAX_THEME_JOURNAL_BYTES + 1)
     if len(payload) > MAX_THEME_JOURNAL_BYTES:
@@ -181,6 +181,13 @@ def _core_rollback_live_digests(count: int = 0, total: int = 0) -> set[str]:
             intents = [record for record in records if record.get("type") == "action.intent"]
             if not intents and not journal.has_type(records, journal.COMMIT):
                 continue  # No manifest publication preceded a durable intent.
+            retrofe = records[0]["kind"] == "theme.retrofe.import"
+            if retrofe:
+                if len(intents) > 2:
+                    raise ValueError("publicação RetroFE com ações inesperadas")
+                # Core sorts targets before writing. The sidecar sorts before
+                # its scene, including scene IDs that themselves end in .assets.
+                intents = intents[:1]
             if len(intents) != 1:
                 raise ValueError("journal de tema sem alvo único")
             intent = intents[0]
@@ -188,7 +195,15 @@ def _core_rollback_live_digests(count: int = 0, total: int = 0) -> set[str]:
             target = Path(undo["target"])
             # A different profile/root owns its own asset store. Do not add
             # unrelated test/custom-root backups to this store's live graph.
-            if target.name != "theme.json" or target.parent.parent != paths.themes_dir().resolve():
+            if retrofe:
+                if (
+                    not target.name.endswith(".assets.json")
+                    or target.parent != paths.scenes_dir().resolve()
+                ):
+                    continue
+            elif (
+                target.name != "theme.json" or target.parent.parent != paths.themes_dir().resolve()
+            ):
                 continue
             if undo["op"] == "delete":
                 continue

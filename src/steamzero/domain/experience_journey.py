@@ -1551,6 +1551,7 @@ def resolve_theme_coverage(
     used_stages: Iterable[str],
     themes: Mapping[str, Mapping[str, Any]],
     aura_version: str,
+    imported_scenes: Mapping[str, str] | None = None,
     required_theme_capabilities: Mapping[str, Iterable[str]] | None = None,
     adapter_capabilities: Iterable[str] | None = None,
     operation_requirements: Mapping[str, Iterable[str]] | None = None,
@@ -1598,6 +1599,7 @@ def resolve_theme_coverage(
         source_version = aura_version
         declared_theme_id: str | None = None
         declared_theme_version: str | None = None
+        scene_details: dict[str, Any] = {}
         missing_theme_caps: list[str] = []
         missing_scene_elements: list[str] = []
         provided_scene_elements: list[str] = []
@@ -1610,6 +1612,16 @@ def resolve_theme_coverage(
             packaged_aura = themes.get("org.steamzero.aura")
             if isinstance(packaged_aura, Mapping) and packaged_aura.get("version"):
                 source_version = str(packaged_aura["version"])
+        elif isinstance(assignment, Mapping) and assignment.get("mode") == "imported-scene":
+            scene_id = str(assignment["sceneId"])
+            state = (imported_scenes or {}).get(scene_id, "missing")
+            scene_details = {"declaredSceneId": scene_id, "sceneResolutionState": state}
+            if state in ("resolved", "degraded"):
+                appearance_state = "custom"
+                reason = "imported-scene" if state == "resolved" else "imported-scene-degraded"
+            else:
+                appearance_state = "missing-reference" if state == "missing" else "incompatible"
+                reason = "imported-scene-unavailable"
         elif isinstance(assignment, Mapping) and assignment.get("mode") == "custom":
             theme_id = str(assignment.get("themeId", ""))
             declared_theme_id = theme_id
@@ -1662,6 +1674,7 @@ def resolve_theme_coverage(
                 "providedSceneElements": provided_scene_elements,
                 "operationCapability": operation_state,
                 "missingOperationCapabilities": missing_operations,
+                **scene_details,
             }
         )
     return results
