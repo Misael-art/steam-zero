@@ -353,6 +353,30 @@ Item {
             verify(!scene.exiting)
             cinema.moveRequested("right")
             compare(node.opacity, 0.85)
+
+            // Troca de coleção: a nova fica ativa e navegável na hora; a cópia da
+            // anterior toca a saída por cima, sem entrada, e some ao assentar.
+            const ghost = find(cinema, "launcherCollectionExitScene")
+            verify(ghost && !ghost.visible)
+            const next = JSON.parse(JSON.stringify(cfg.launcher))
+            next.collection = String(cfg.launcher.collection || "") + "-outra"
+            cinema.scene = next
+            tryVerify(function() { return ghost.visible && ghost.exiting }, 1000,
+                      "a saída da coleção anterior não começou")
+            verify(!ghost.enabled)
+            const ghostNode = ghost.elementAt(0).parent
+            verify(ghostNode.opacity > 0, "a cópia não partiu do estado final de entrada")
+            cinema.currentFocus = cfg.launcher.focusId
+            verify(cinema.activateFocused(), "a navegação ficou presa durante a saída")
+            tryVerify(function() { return !ghost.visible }, 2500, "a cópia de saída não foi removida")
+            verify(find(cinema, "launcherCinemaXmlScene").visible)
+
+            // Movimento reduzido: troca imediata, sem cópia.
+            cinema.accessibility = {reducedMotion: true}
+            next.collection = next.collection + "-2"
+            cinema.scene = JSON.parse(JSON.stringify(next))
+            wait(50)
+            verify(!ghost.visible)
         }
 
         function test_06_launcher_preserva_a_navegacao_sem_cena() {

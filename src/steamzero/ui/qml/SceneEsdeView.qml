@@ -42,6 +42,8 @@ Item {
     // Teto da transição de saída: a animação nunca segura a operação de
     // sessão nem o controle do usuário além deste limite.
     property int exitBudgetMs: 1500
+    // Cópia de saída: elementos nascem no estado final de entrada, sem animá-la.
+    property bool startSettled: false
     readonly property bool exiting: d_exiting
     property bool d_exiting: false
     property int d_exitPending: 0
@@ -676,8 +678,11 @@ Item {
             }
             Component.onCompleted: {
                 entryReady = true
-                if (entryVisible)
+                if (entryVisible) {
                     resetEntry()
+                    if (view.startSettled)
+                        settleAll()
+                }
             }
 
             NumberAnimation {
