@@ -257,21 +257,24 @@ Item {
     }
 
     Rectangle {
+        objectName: "importedSceneLossBanner"
         visible: externalScene.visible && Boolean(cinema.activeTheme.requestedSceneId)
             && externalScene.unsupportedTimelines.length > 0
         z: 60
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.bottom: footer.top
+        anchors.bottomMargin: 12
         height: lossText.implicitHeight + 16
         color: cinema.highContrast ? "#000000" : "#182735"
         Text {
             id: lossText
+            objectName: "importedSceneLossText"
             anchors.fill: parent
             anchors.margins: 8
             text: qsTr("Animações sem suporte nesta cena: %1")
                 .arg(externalScene.unsupportedTimelines.length)
-            color: cinema.primaryTextColor
+            color: "#ffffff"
             font.pixelSize: 14 * cinema.textScale
             wrapMode: Text.WordWrap
         }
@@ -301,7 +304,7 @@ Item {
                 .arg(String(cinema.activeTheme.sceneDiagnostic || (cinema.importedSceneWithoutContent
                     ? qsTr("A cena salva não tem elementos disponíveis nesta tela.")
                     : qsTr("Revise o tema no Studio."))))
-            color: cinema.primaryTextColor
+            color: "#ffffff"
             wrapMode: Text.WordWrap
             font.pixelSize: 14 * cinema.textScale
         }

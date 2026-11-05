@@ -283,6 +283,12 @@ Item {
             tryCompare(node, "opacity", 0.85, 1500)
             compare(node.x, scene.width * 0.25)
             compare(node.y, scene.height * 0.25)
+            const loss = find(cinema, "importedSceneLossBanner")
+            const text = find(cinema, "importedSceneLossText")
+            const footer = find(cinema, "cinemaFooter")
+            verify(loss.visible)
+            compare(String(text.color), "#ffffff")
+            verify(loss.y + loss.height < footer.y)
             assertGradient(imageFor(scene, scene.elements[0].source), 1, 0, scene)
         }
 
@@ -296,6 +302,7 @@ Item {
             compare(cinema.externalSceneAvailable, false)
             const notice = find(cinema, "launcherExternalSceneDiagnostic")
             verify(notice && notice.visible)
+            compare(String(notice.color), "#ffffff")
             verify(notice.text.indexOf(cfg.launcher.theme.requestedSceneId) !== -1)
         }
     }
