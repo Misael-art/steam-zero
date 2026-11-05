@@ -16020,3 +16020,21 @@ Preparado checkpoint limpo para um push da continuidade/PR268, com conferência
 de SHA/checks; sem merge/release/instalação privilegiada. Documentação e imagens
 recuperáveis no diretório de evidências da Jornada; backup da unit permanece
 privado. Fonte seguinte segue backlog/aceites independentes, sem painel substituto.
+
+
+## 2026-11-05 — saída RetroFE, decimal por locale e piso do Pillow (Claude Code)
+
+Continuidade serial na mesma branch/PR268, sem outro escritor ativo. CI de
+08306596: sete jobs verdes e gate visual QML vermelho em test_04 (prévia mais alta
+que a viewport do inspetor); corrigido em a9bd7edc. Lote: 38ff2be9 (Studio aceita
+"." e "," em pt-BR; DoubleValidator bloqueava 0.5 sem aviso, defeito pré-existente
+achado pelo integral; caso wide-pt-BR acrescentado), 1659e72d (RetroFE onExit no
+renderizador comum e Launcher, teto 1,5 s, cancelamento, movimento reduzido; a
+ativação sai antes e nunca espera a animação), b46eb04d (Pillow>=13.0.0). Os 41
+alertas Dependabot são Pillow<13 no pin da main; branch e release ativa já usam
+13.0.0. Integral r2 7349/48 com 3 falhas por tempo sob carga que passam isoladas;
+cobertura 85,8765% com reexecuções anexadas (integral puro 85,8682%) >= 85,8721%.
+Estáticos e status verdes. Fonte + Qt offscreen; sem instalação, host ou hardware.
+Recibo: docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md.
+Próximo: CI do SHA publicado; saída ao trocar coleção/menu; merge do PR268 (fecha
+os alertas) exige autorização do proprietário.

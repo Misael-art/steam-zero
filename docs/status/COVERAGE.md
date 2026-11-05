@@ -20,12 +20,12 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AGG-TESTS | 612 | 10 | 4 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 45 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 4 | 1 | unit |  |
-| SZ-AURA-CINEMA-COMPLETION | 98 | 41 | 20 | dev |  |
+| SZ-AURA-CINEMA-COMPLETION | 98 | 42 | 21 | dev |  |
 | SZ-AURA-CONTRACTS | 38 | 3 | 3 | unit |  |
 | SZ-AURA-CURRENT-RELEASE-EVIDENCE | 17 | 4 | 4 | hw |  |
 | SZ-AURA-ESDE-ACTIVE-SURFACE | 8 | 12 | 5 | dev |  |
-| SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 12 | 7 | unit |  |
-| SZ-AURA-LAUNCHER | 335 | 120 | 74 | dev |  |
+| SZ-AURA-ESDE-RUNTIME-BRIDGE | 11 | 13 | 8 | unit |  |
+| SZ-AURA-LAUNCHER | 335 | 121 | 75 | dev |  |
 | SZ-AURA-LAUNCHER-EXIT | 5 | 3 | 2 | dev |  |
 | SZ-AURA-METADATA | 23 | 10 | 10 | unit |  |
 | SZ-AURA-PERFORMANCE-VALIDATION | 36 | 10 | 9 | hw |  |
@@ -38,7 +38,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-AURA-SESSION-OSD | 48 | 27 | 10 | dev |  |
 | SZ-AURA-UI | 16 | 14 | 6 | unit |  |
 | SZ-AURA-VISUAL-COMPLETION | 38 | 23 | 8 | dev |  |
-| SZ-AURA-VISUAL-RICH-SURFACE | 11 | 14 | 10 | hw |  |
+| SZ-AURA-VISUAL-RICH-SURFACE | 11 | 15 | 11 | hw |  |
 | SZ-CAST-INTERNET | 44 | 2 | 1 | none |  |
 | SZ-CAST-LAN | 6 | 4 | 3 | unit |  |
 | SZ-COMPONENT-LIFECYCLE | 30 | 24 | 20 | hw |  |
@@ -70,7 +70,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-FRONTEND-SRM | 3 | 1 | 1 | unit |  |
 | SZ-FRONTEND-STEAM-SHORTCUTS | 2 | 1 | 1 | unit |  |
 | SZ-GAMEMODE-READINESS | 9 | 8 | 3 | hw |  |
-| SZ-GOVERNANCE-STATUS | 27 | 36 | 19 | dev |  |
+| SZ-GOVERNANCE-STATUS | 27 | 37 | 20 | dev |  |
 | SZ-HOST-UPDATE-TRANSACTIONAL | 18 | 14 | 11 | hw |  |
 | SZ-JOB-RECOVERY-DOCTOR | 10 | 3 | 1 | dev |  |
 | SZ-LAUNCH-READINESS-PREPARATION | 72 | 9 | 6 | dev |  |
@@ -107,13 +107,13 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 9 | 8 | dev |  |
-| SZ-THEME-ENGINE | 248 | 93 | 66 | dev |  |
-| SZ-THEME-ESDE-SCENE-RENDER | 26 | 20 | 9 | hw |  |
+| SZ-THEME-ENGINE | 248 | 94 | 67 | dev |  |
+| SZ-THEME-ESDE-SCENE-RENDER | 26 | 21 | 10 | hw |  |
 | SZ-THEME-IMPORT-ESDE-LAYOUT | 32 | 22 | 11 | hw |  |
-| SZ-THEME-IMPORT-RETROFE | 15 | 32 | 17 | hw |  |
-| SZ-THEME-IMPORT-SURFACE | 10 | 22 | 11 | unit |  |
-| SZ-THEME-STUDIO | 232 | 95 | 68 | dev |  |
-| SZ-UI-DESKTOP-AUDIT | 843 | 207 | 116 | dev |  |
+| SZ-THEME-IMPORT-RETROFE | 15 | 33 | 18 | hw |  |
+| SZ-THEME-IMPORT-SURFACE | 10 | 23 | 12 | unit |  |
+| SZ-THEME-STUDIO | 232 | 96 | 69 | dev |  |
+| SZ-UI-DESKTOP-AUDIT | 843 | 208 | 117 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
