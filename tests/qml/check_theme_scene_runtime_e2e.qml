@@ -252,12 +252,18 @@ Item {
             verify(title.text.indexOf(cfg.retrofeId) !== -1)
             tryVerify(function() {
                 const point = preview.mapToItem(inspector, 0, 0)
-                if (point.y >= 0 && point.y + preview.height <= inspector.height)
+                // A prévia pode ser mais alta que a viewport (fonte/DPI do CI):
+                // exige topo visível e o maior trecho possível na área.
+                const needed = Math.min(preview.height, inspector.height)
+                const visible = Math.min(point.y + preview.height, inspector.height) - Math.max(point.y, 0)
+                if (preview.height > 0 && point.y >= 0 && visible >= needed - 1)
                     return true
                 inspector.contentY = Math.max(0, Math.min(inspector.contentHeight - inspector.height,
-                    inspector.contentY + point.y - title.height - 8))
+                    inspector.contentY + point.y
+                    - Math.max(0, Math.min(title.height + 8, inspector.height - preview.height))))
                 return false
-            }, 3000, "prévia não está visível na área do inspetor")
+            }, 3000, "prévia não está visível na área do inspetor: preview="
+                + preview.height + " viewport=" + inspector.height)
             const scene = find(preview, "sceneView")
             tryVerify(function() { return scene.elementAt(0) !== null })
             tryCompare(scene.elementAt(0).parent, "opacity", 0.85, 1500)
