@@ -161,7 +161,7 @@ continuam fora deste lote; merge do PR #268 exige autorização.
 - Correção da causa: `75ab8ac8` — `install/rollback/cycle/update` recusam, antes de
   qualquer passo de host, um `XDG_RUNTIME_DIR` diferente de `/run/user/<uid>` ou sem
   barramento.
-- Rollback disponível: `release_host.py rollback 2.0.0rc1-59ecc2d8f0f6
+- Rollback disponível: `release_host.py rollback --release 2.0.0rc1-59ecc2d8f0f6
   --confirm-rollback REVERTER-2.0.0rc1-59ecc2d8f0f6` (fora do env.sh).
 - Não certificado: reboot, boot direto, captura PNG da release instalada, jornada
   launch/return, controle físico e receptor — ações do operador.
