@@ -206,9 +206,15 @@ def test_native_wheel_pixels_identity_rapid_selection_and_decode_feedback(
         assert black and max(max(p[:3]) for p in black) < 8
 
 
-@pytest.mark.parametrize("compact", [False, True], ids=["wide", "compact-large-text"])
+# A locale entra na matriz porque o editor numérico já recusou "0.5" em pt-BR
+# enquanto o CI, em C.UTF-8, permanecia verde.
+@pytest.mark.parametrize(
+    ("compact", "locale"),
+    [(False, "C.UTF-8"), (True, "C.UTF-8"), (False, "pt_BR.UTF-8")],
+    ids=["wide", "compact-large-text", "wide-pt-BR"],
+)
 def test_wheel_authoring_controls_use_real_bridge_and_persist(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, compact: bool
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, compact: bool, locale: str
 ) -> None:
     import queue
     import re
@@ -289,6 +295,8 @@ def test_wheel_authoring_controls_use_real_bridge_and_persist(
         QT_FORCE_STDERR_LOGGING="1",
         QT_LOGGING_RULES="",
         QML_XHR_ALLOW_FILE_READ="1",
+        LANG=locale,
+        LC_ALL=locale,
     )
     assert RUNNER is not None
     try:

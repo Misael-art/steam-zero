@@ -4820,17 +4820,26 @@ Rectangle {
                                     Layout.minimumHeight: panel.minimumInteractiveTarget
                                     Accessible.name: qsTr("Valor numérico de %1")
                                         .arg(panel.assetRecipeFieldSelection)
-                                    validator: DoubleValidator {
-                                        bottom: Number(panel.assetRecipeFieldSpec.minimum || 0)
-                                        top: Number(panel.assetRecipeFieldSpec.maximum || 999)
-                                        decimals: 3
-                                        notation: DoubleValidator.StandardNotation
+                                    // DoubleValidator segue a locale do sistema: em pt-BR
+                                    // recusava "0.5" sem aviso. Aceita "." e "," e
+                                    // valida o intervalo da receita ao confirmar.
+                                    validator: RegularExpressionValidator {
+                                        regularExpression: /^-?\d{0,6}([.,]\d{0,3})?$/
                                     }
                                     onEditingFinished: {
                                         const parsed = Number(text.replace(",", "."))
-                                        if (Number.isFinite(parsed))
+                                        const low = Number(panel.assetRecipeFieldSpec.minimum || 0)
+                                        const high = Number(panel.assetRecipeFieldSpec.maximum || 999)
+                                        if (text !== "" && Number.isFinite(parsed)
+                                                && parsed >= low && parsed <= high) {
                                             panel.editSelectedAssetRecipeField(
                                                 panel.assetRecipeFieldSelection, parsed)
+                                            return
+                                        }
+                                        text = panel.assetRecipeCurrentNode
+                                            ? String(panel.assetRecipeCurrentNode[panel.assetRecipeFieldSelection]) : ""
+                                        panel.authoringNotice = qsTr("Valor fora do intervalo %1–%2; o valor anterior foi mantido.")
+                                            .arg(low).arg(high)
                                     }
                                 }
                             }
@@ -6278,18 +6287,19 @@ Rectangle {
             }
         }
 
-        validator: DoubleValidator {
-            bottom: -1000000
-            top: 1000000
-            decimals: rangeSpin.rangeDecimals
-            locale: rangeSpin.locale.name
-        }
+        // Exibição e entrada seguem a locale (inclusive agrupamento); "." como
+        // decimal também é aceito quando a locale não o lê. DoubleValidator em
+        // pt-BR bloqueava "1.35" sem aviso. O intervalo é verificado ao confirmar.
+        validator: RegularExpressionValidator { regularExpression: /^-?[0-9.,]{0,14}$/ }
         textFromValue: function(raw, locale) {
             return panel.formatEffectNumber(raw / rangeSpin.precisionFactor,
                 locale, rangeSpin.rangeDecimals)
         }
         valueFromText: function(text, locale) {
-            const parsed = Number.fromLocaleString(locale, text)
+            let parsed = NaN
+            try { parsed = Number.fromLocaleString(locale, text) } catch (error) { parsed = NaN }
+            if (!Number.isFinite(parsed) && /^-?\d+[.,]\d+$/.test(String(text)))
+                parsed = Number(String(text).replace(",", "."))
             if (!Number.isFinite(parsed) || parsed < rangeSpin.rangeMinimum
                     || parsed > rangeSpin.rangeMaximum
                     || (rangeSpin.rangeDecimals === 0 && !Number.isInteger(parsed))) {
