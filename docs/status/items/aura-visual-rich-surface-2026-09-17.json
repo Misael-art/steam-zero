@@ -16,7 +16,7 @@
     "tests/qml/launcher/check_launcher_focus_bootstrap.qml",
     "docs/09-operations/evidence/2026-09-20-aura-session-osd-installed"
   ],
-  "scopeDigest": "45999068a6c69d6dcf4b3807aeefcfd5d29ad241297b455552605dbf2e57a7e0",
+  "scopeDigest": "81117e39f259d9bc4da3d15428413498147ac7acf22fbcf27b9cba444bfc6040",
   "dependsOn": [
     "SZ-AURA-VISUAL-COMPLETION",
     "SZ-AURA-SAVE-STATE-GALLERY",
@@ -123,6 +123,12 @@
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
       "command": "05/11/2026 renovação de escopo por 38ff2be9/1659e72d/b46eb04d: integral r2 7349passed/48skipped, 3 falhas por tempo sob carga que passam isoladas; cobertura 85,8765% (com reexecuções anexadas) >= 85,8721%; ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem instalação, hardware ou promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 lote 2 (92c79da5/8331fa87/a0d5f422): integral 7354passed/48skipped; cobertura 85,8737% >= 85,8721%; pt-BR/ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem promoção de eixos.",
       "result": "passed"
     }
   ],

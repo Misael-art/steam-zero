@@ -16038,3 +16038,16 @@ Estáticos e status verdes. Fonte + Qt offscreen; sem instalação, host ou hard
 Recibo: docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md.
 Próximo: CI do SHA publicado; saída ao trocar coleção/menu; merge do PR268 (fecha
 os alertas) exige autorização do proprietário.
+
+
+## 2026-11-05 — merge do PR268 e lote 2 de movimento RetroFE (Claude Code)
+
+Autorização expressa do proprietário nesta thread para o que dependia dele. PR268
+mergeado em c5819591 (merge commit, head f4617285 verde; push CI da main
+42040231859 verde). Lote 2 na continuidade: 92c79da5 (tetos de espera limitados em
+três testes sob carga), 8331fa87 (saída na troca de coleção sem segurar a
+navegação), a0d5f422 (onHighlightEnter; eventos partem do valor exibido). Integral
+7354/48, cobertura 85,8737%; estáticos e status verdes. Release: prepare exige o
+checkout no commit exato; fetch interno travava em prompt de credencial (passa
+com GIT_TERMINAL_PROMPT=0). Instalação usa pkexec (senha digitada pelo
+proprietário). Recibo: evidence/2026-11-05-retrofe-exit-locale/README.md.

@@ -85,3 +85,20 @@ deixou de ser "sem suporte" e o fixture ganhou `onHighlightEnter`.
 
 Instalação, compositor real, controle físico e captura PNG da release instalada
 continuam fora deste lote; merge do PR #268 exige autorização.
+
+## Lote 2 (após o merge do PR #268 em `c5819591`)
+
+| Commit | Conteúdo |
+|---|---|
+| `92c79da5` | Tetos limitados de espera em três testes que estouraram sob carga (12→30 s, 30→60 s, 10→20 s); isolados levam 1–20 s; porta livre conferida. |
+| `8331fa87` | Saída do tema ao trocar coleção: coleção nova ativa na hora; cópia não interativa da anterior toca a saída por cima, teto 1,5 s; movimento reduzido sem cópia. |
+| `a0d5f422` | `onHighlightEnter` na mudança de seleção; eventos partem do valor exibido; cópia de saída assenta ao ficar visível (8331fa87 passava por tempo). Fixture usa `onMenuEnter` como exemplo sem suporte. |
+
+- Merge do PR #268: CI do `f4617285` verde nos 8 jobs; merge commit `c5819591`
+  com `--match-head-commit`; CI push da `main` (run 42040231859) verde nos 8 jobs.
+- Integral do lote 2: 7354 passed, 48 skipped, 1 falha (`test_project_status`,
+  digests, resolvida neste commit), 41m13s; cobertura com branches **85,8737%**
+  no integral puro (referência 85,8721%); pt-BR, ruff, format, mypy, independence
+  verdes. Fonte + Qt offscreen.
+- Ainda sem suporte e sinalizados como perda: `menu*`, `game*`, `playlist*`,
+  `highlightExit`.

@@ -37,7 +37,7 @@
     "tests/qml/check_theme_scene_preview.qml",
     "tests/unit/test_theme_scene.py"
   ],
-  "scopeDigest": "176948434c150e3690a4ae92c8a1db16805a7fcd6c0aff7af8c186b5f5cf13bc",
+  "scopeDigest": "315693b2349e568ce280071afc6b51799d5f230dc9a9f019c7af2808393a87e1",
   "dependsOn": [
     "SZ-THEME-IMPORT-ESDE-LAYOUT"
   ],
@@ -185,6 +185,12 @@
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
       "command": "05/11/2026 renovação de escopo por 38ff2be9/1659e72d/b46eb04d: integral r2 7349passed/48skipped, 3 falhas por tempo sob carga que passam isoladas; cobertura 85,8765% (com reexecuções anexadas) >= 85,8721%; ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem instalação, hardware ou promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 lote 2 (92c79da5/8331fa87/a0d5f422): integral 7354passed/48skipped; cobertura 85,8737% >= 85,8721%; pt-BR/ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem promoção de eixos.",
       "result": "passed"
     }
   ],
