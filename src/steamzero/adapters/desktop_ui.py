@@ -48,6 +48,7 @@ from steamzero.adapters.journey_studio import (
     JourneyStudioService,
 )
 from steamzero.adapters.launcher_media import launcher_media_metadata
+from steamzero.adapters.scene_studio import SceneStudioService
 from steamzero.adapters.steam_session import readiness as session_readiness
 from steamzero.adapters.steam_session import request_target
 from steamzero.adapters.theme_catalog import list_bezel_resources
@@ -61,6 +62,7 @@ from steamzero.domain.desktop import (
     automatic_profile,
     profile_for,
 )
+from steamzero.domain.scene_authoring import SceneAuthoringError
 from steamzero.ports import CaptureConsent
 
 _MAX_BODY = 64 * 1024
@@ -140,6 +142,14 @@ _JOURNEY_OPERATION_FIELDS: dict[str, tuple[frozenset[str], frozenset[str]]] = {
     "set-menu-appearance": (frozenset({"menuId", "appearance"}), frozenset()),
     "set-stage-appearance": (frozenset({"stageId", "appearance"}), frozenset()),
     "set-stage-bezel": (frozenset({"stageId", "bezelResource"}), frozenset()),
+    "delete-instance": (frozenset({"menuId"}), frozenset({"entryMenuId"})),
+    "set-nature": (frozenset({"menuId", "nature"}), frozenset()),
+    "set-layout": (frozenset({"menuId", "x", "y"}), frozenset()),
+    "set-launch-request": (frozenset({"menuId", "launchRequest"}), frozenset()),
+    "update-connection": (
+        frozenset({"connectionId"}),
+        frozenset({"event", "when", "action", "to", "label", "bindings"}),
+    ),
 }
 
 
@@ -608,6 +618,7 @@ class DesktopControlServer(ThreadingHTTPServer):
     bios_source_handles: dict[str, str]
     bios_source_lock: threading.Lock
     journey_studio: JourneyStudioService
+    scene_studio: SceneStudioService
 
     def __init__(
         self,
@@ -621,6 +632,7 @@ class DesktopControlServer(ThreadingHTTPServer):
         self.token = token
         self.dashboard = dashboard
         self.journey_studio = journey_studio or JourneyStudioService(paths.data_home() / "journeys")
+        self.scene_studio = SceneStudioService(paths.data_home() / "scenes")
         self._journey_read_models: dict[str, dict[str, Any]] | None = None
         self._journey_media_stamp: tuple[str, int, int, int] | None = None
         self._journey_read_models_lock = threading.RLock()
@@ -1534,6 +1546,30 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
                 raise SteamZeroError(
                     "E-API-SCHEMA", detail=f"{exc}; nenhuma mudança foi feita"
                 ) from exc
+        if path == "/studio/scene/create":
+            return self._scene_studio_route("create", payload)
+        if path == "/studio/scene/load":
+            return self._scene_studio_route("load", payload)
+        if path == "/studio/scene/list":
+            return self._scene_studio_route("list", payload)
+        if path == "/studio/scene/import-media":
+            return self._scene_studio_route("import-media", payload)
+        if path == "/studio/scene/transact":
+            return self._scene_studio_route("transact", payload)
+        if path == "/studio/scene/save":
+            return self._scene_studio_route("save", payload)
+        if path == "/journey/studio/removal-impact":
+            self._require_exact_keys(payload, {"sessionId", "menuId"})
+            try:
+                return self._control_server.journey_studio.removal_impact(
+                    self._required_string(payload, "sessionId"),
+                    self._required_string(payload, "menuId"),
+                )
+            except ValueError as exc:
+                raise SteamZeroError("E-API-SCHEMA", detail=str(exc)) from exc
+        if path == "/journey/studio/natures":
+            self._require_exact_keys(payload, set())
+            return {"natures": self._control_server.journey_studio.natures()}
         if path == "/journey/studio/save":
             self._require_exact_keys(payload, {"sessionId", "overwrite"})
             overwrite = payload.get("overwrite")
@@ -2329,7 +2365,14 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
             "readModelId",
             "connectionId",
             "stageId",
+            "nature",
+            "entryMenuId",
         }
+        if operation == "set-layout" and not all(
+            isinstance(payload.get(axis), (int, float)) and not isinstance(payload.get(axis), bool)
+            for axis in ("x", "y")
+        ):
+            raise SteamZeroError("E-API-SCHEMA", detail="posição do cartão precisa ser numérica")
         for field_id in string_fields.intersection(payload):
             value = payload[field_id]
             if value is None and field_id in {"parentId", "replacementMenuId"}:
@@ -2449,6 +2492,53 @@ class DesktopControlHandler(BaseHTTPRequestHandler):
         if len(selection) != len(set(selection)):
             raise SteamZeroError("E-API-SCHEMA", detail="selection de BIOS contém duplicatas")
         return scan_id, selection
+
+    def _scene_studio_route(self, route: str, payload: dict[str, Any]) -> dict[str, Any]:
+        service = self._control_server.scene_studio
+        try:
+            if route == "create":
+                self._require_exact_keys(payload, {"projectId", "name"})
+                return service.create(
+                    self._required_string(payload, "projectId"),
+                    self._required_string(payload, "name")[:80],
+                )
+            if route == "load":
+                self._require_exact_keys(payload, {"projectId"})
+                return service.load(self._required_string(payload, "projectId"))
+            if route == "list":
+                self._require_exact_keys(payload, set())
+                return {"projects": service.list()}
+            if route == "import-media":
+                self._require_exact_keys(payload, {"sessionId", "path", "origin"})
+                source = Path(self._required_string(payload, "path")).expanduser()
+                if not source.is_absolute():
+                    raise SteamZeroError(
+                        "E-API-SCHEMA", detail="caminho da foto precisa ser absoluto"
+                    )
+                return service.import_media(
+                    self._required_string(payload, "sessionId"),
+                    source,
+                    origin=self._required_string(payload, "origin"),
+                )
+            if route == "transact":
+                self._require_exact_keys(payload, {"sessionId", "operation", "payload"})
+                return service.transact(
+                    self._required_string(payload, "sessionId"),
+                    self._required_string(payload, "operation"),
+                    self._required_dict(payload, "payload"),
+                )
+            if route == "save":
+                self._require_exact_keys(payload, {"sessionId"})
+                return service.save(self._required_string(payload, "sessionId"))
+        except (SceneAuthoringError, KeyError, TypeError, ValueError) as exc:
+            raise SteamZeroError(
+                "E-API-SCHEMA", detail=f"{exc}; nenhuma mudança foi feita"
+            ) from exc
+        except OSError as exc:
+            raise SteamZeroError(
+                "E-API-SCHEMA", detail="gravação da cena falhou; o arquivo anterior foi preservado"
+            ) from exc
+        raise SteamZeroError("E-API-SCHEMA", detail="rota de cena não allowlisted")
 
     def _required_dict(self, payload: dict[str, Any], key: str) -> dict[str, Any]:
         value = payload.get(key)

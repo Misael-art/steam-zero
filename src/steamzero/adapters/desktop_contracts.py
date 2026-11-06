@@ -1817,6 +1817,108 @@ def handheld_ui_contracts() -> dict[str, Any]:
             ),
         ),
         _action(
+            "studio.scene.create",
+            "Criar cena",
+            "/studio/scene/create",
+            service="journey",
+            screen="system",
+            control="studio-scene-create",
+            schema=_closed_schema(
+                ("projectId", "name"),
+                {
+                    "projectId": {"type": "string", "minLength": 1},
+                    "name": {"type": "string", "minLength": 1},
+                },
+            ),
+        ),
+        _action(
+            "studio.scene.load",
+            "Abrir cena",
+            "/studio/scene/load",
+            service="journey",
+            screen="system",
+            control="studio-scene-load",
+            schema=_closed_schema(
+                ("projectId",), {"projectId": {"type": "string", "minLength": 1}}
+            ),
+        ),
+        _action(
+            "studio.scene.list",
+            "Listar cenas",
+            "/studio/scene/list",
+            service="journey",
+            screen="system",
+            control="studio-scene-list",
+            schema=_closed_schema((), {}),
+        ),
+        _action(
+            "studio.scene.import-media",
+            "Trazer foto",
+            "/studio/scene/import-media",
+            service="journey",
+            screen="system",
+            control="studio-scene-import-media",
+            schema=_closed_schema(
+                ("sessionId", "path", "origin"),
+                {
+                    "sessionId": {"type": "string", "minLength": 1},
+                    "path": {"type": "string", "minLength": 1},
+                    "origin": {"enum": ["library", "folder"]},
+                },
+            ),
+        ),
+        _action(
+            "studio.scene.transact",
+            "Editar cena",
+            "/studio/scene/transact",
+            service="journey",
+            screen="system",
+            control="studio-scene-transact",
+            schema=_closed_schema(
+                ("sessionId", "operation", "payload"),
+                {
+                    "sessionId": {"type": "string", "minLength": 1},
+                    "operation": {"type": "string"},
+                    "payload": {"type": "object"},
+                },
+            ),
+        ),
+        _action(
+            "studio.scene.save",
+            "Salvar cena",
+            "/studio/scene/save",
+            service="journey",
+            screen="system",
+            control="studio-scene-save",
+            schema=_closed_schema(
+                ("sessionId",), {"sessionId": {"type": "string", "minLength": 1}}
+            ),
+        ),
+        _action(
+            "journey.studio.removal-impact",
+            "Ver impacto da exclusão",
+            "/journey/studio/removal-impact",
+            service="journey",
+            screen="system",
+            control="journey-studio-impact",
+            schema=_closed_schema(
+                ("sessionId", "menuId"),
+                {
+                    "sessionId": {"type": "string", "minLength": 1},
+                    "menuId": {"type": "string", "minLength": 1},
+                },
+            ),
+        ),
+        _action(
+            "journey.studio.natures",
+            "Naturezas de instância",
+            "/journey/studio/natures",
+            service="journey",
+            screen="system",
+            control="journey-studio-natures",
+            schema=_closed_schema((), {}),
+        ),
+        _action(
             "journey.studio.save",
             "Salvar jornada",
             "/journey/studio/save",

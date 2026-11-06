@@ -23,12 +23,15 @@ from steamzero.domain.experience_journey import (
     MAX_MENUS,
     MAX_NAVIGATION_HISTORY,
     MAX_ORGANIZATION_NODES,
+    NATURE_EVENTS,
     JourneyBudgetError,
     JourneyDocument,
     JourneyStore,
+    migrate_journey_v2_to_v3,
     query_public_records,
     resolve_theme_coverage,
     summarize_theme_coverage,
+    uses_v3_features,
 )
 
 _HISTORY_LIMIT = 100
@@ -494,6 +497,8 @@ class JourneyStudioService:
                 raise ValueError("rascunho mudou; recarregue antes de aplicar esta edição")
             candidate = deepcopy(session.data)
             self._apply_operation(candidate, operation, payload)
+            if candidate.get("schemaVersion") == 2 and uses_v3_features(candidate):
+                candidate = migrate_journey_v2_to_v3(candidate)
             document = JourneyDocument.parse(candidate)
             serialized = document.serialize()
             if serialized != self._serialize(session.data):
@@ -504,6 +509,34 @@ class JourneyStudioService:
                 session.data = dict(document.data)
                 session.generation += 1
             return self.snapshot(session_id)
+
+    def removal_impact(self, session_id: str, menu_id: str) -> dict[str, Any]:
+        """Describe what deleting an instance affects before the author confirms."""
+        with self._lock:
+            data = self._session(session_id).data
+            self._menu(data, menu_id)
+            incoming = [
+                str(item["id"])
+                for item in data["connections"]
+                if item["to"].get("kind") == "menu" and item["to"].get("id") == menu_id
+            ]
+            outgoing = [
+                str(item["id"])
+                for item in data["connections"]
+                if item["from"].get("kind") == "menu" and item["from"].get("id") == menu_id
+            ]
+            return {
+                "menuId": menu_id,
+                "isEntry": data["entryMenuId"] == menu_id,
+                "incomingConnectionIds": incoming,
+                "outgoingConnectionIds": outgoing,
+                "undoable": True,
+            }
+
+    @staticmethod
+    def natures() -> dict[str, builtins.list[str]]:
+        """Natures and the events each publishes, for the Studio selector."""
+        return {nature: sorted(events) for nature, events in NATURE_EVENTS.items()}
 
     def undo(self, session_id: str) -> dict[str, Any]:
         with self._lock:
@@ -748,6 +781,67 @@ class JourneyStudioService:
                 for node in data["organization"]
                 if not (node["kind"] == "menu" and node["menuId"] == menu_id)
             ]
+        elif operation == "delete-instance":
+            # Exclusão com impacto: remove a instância e suas ligações. Desfazer
+            # restaura ambos pelo histórico transacional da sessão.
+            menu_id = str(payload["menuId"])
+            if len(data["menus"]) == 1:
+                raise ValueError("a jornada precisa manter pelo menos uma instância")
+            self._menu(data, menu_id)
+            if data["entryMenuId"] == menu_id:
+                replacement = payload.get("entryMenuId")
+                if replacement is None or str(replacement) == menu_id:
+                    raise ValueError("escolha outra entrada antes de excluir a instância")
+                self._menu(data, str(replacement))
+                data["entryMenuId"] = str(replacement)
+            data["connections"] = [
+                item
+                for item in data["connections"]
+                if not any(
+                    endpoint.get("kind") == "menu" and endpoint.get("id") == menu_id
+                    for endpoint in (item["from"], item["to"])
+                )
+            ]
+            node_ids = {
+                str(node["id"])
+                for node in data["organization"]
+                if node["kind"] == "menu" and node["menuId"] == menu_id
+            }
+            data["organization"] = [
+                node for node in data["organization"] if str(node["id"]) not in node_ids
+            ]
+            for node in data["organization"]:
+                if node.get("parentId") in node_ids:
+                    node["parentId"] = None
+            data["menus"] = [menu for menu in data["menus"] if menu["id"] != menu_id]
+        elif operation == "set-nature":
+            nature = str(payload["nature"])
+            if nature not in NATURE_EVENTS:
+                raise ValueError(f"natureza desconhecida: {nature}")
+            menu = self._menu(data, str(payload["menuId"]))
+            menu["nature"] = nature
+            if nature != "direct-launch":
+                menu.pop("launchRequest", None)
+        elif operation == "set-layout":
+            menu = self._menu(data, str(payload["menuId"]))
+            menu["layout"] = {"x": float(payload["x"]), "y": float(payload["y"])}
+        elif operation == "set-launch-request":
+            menu = self._menu(data, str(payload["menuId"]))
+            request = payload.get("launchRequest")
+            if request is None:
+                menu.pop("launchRequest", None)
+            else:
+                menu["launchRequest"] = deepcopy(request)
+        elif operation == "update-connection":
+            connection_id = str(payload["connectionId"])
+            target = next(
+                (item for item in data["connections"] if item["id"] == connection_id), None
+            )
+            if target is None:
+                raise ValueError(f"conexão não existe: {connection_id}")
+            for key in ("event", "when", "action", "to", "label", "bindings"):
+                if key in payload:
+                    target[key] = deepcopy(payload[key])
         elif operation == "reorder-menus":
             order = [str(value) for value in payload["menuIds"]]
             current = {str(menu["id"]): menu for menu in data["menus"]}

@@ -76,6 +76,7 @@ Rectangle {
     property string pendingReplacementMenuId: ""
     property string compactPane: "tree"
     signal closeRequested()
+    signal sceneRequested()
     property alias importControl: importDialog
     property alias importNameControl: importNameField
     property alias deleteMenuDialogControl: deleteMenuDialog
@@ -625,6 +626,69 @@ Rectangle {
         return affected
     }
 
+    // --- Autoria visual (v3): natureza, mapa e exclusão com impacto ----------
+    readonly property var natureIds: ["free", "platforms", "games", "categories",
+        "direct-launch", "transition", "session", "recovery"]
+    property string pendingImpactText: ""
+    readonly property var invalidConnectionIds: {
+        const ids = []
+        const issues = session && session.diagnostics ? session.diagnostics : []
+        for (let i = 0; i < issues.length; ++i)
+            if (issues[i].severity === "error" && issues[i].subjectId)
+                ids.push(String(issues[i].subjectId))
+        return ids
+    }
+
+    function setNature(nature) {
+        if (!currentMenu || !nature || currentMenu.nature === nature)
+            return
+        transact("set-nature", {menuId: String(currentMenu.id), nature: nature})
+    }
+
+    function defaultLinkFor(fromMenu) {
+        const nature = fromMenu && fromMenu.nature ? fromMenu.nature : "free"
+        if (nature === "transition")
+            return {event: "complete", when: "operation-success", action: "navigate"}
+        if (nature === "recovery")
+            return {event: "retry", when: "user-input", action: "retry"}
+        if (nature === "direct-launch")
+            return {event: "context-missing", when: "operation-failure", action: "navigate"}
+        return {event: "select", when: "user-input", action: "navigate"}
+    }
+
+    function linkInstances(fromId, toId) {
+        const fromMenu = menus.find(function(menu) { return menu.id === fromId })
+        const link = defaultLinkFor(fromMenu)
+        transact("add-connection", {connection: {
+            id: "link-" + String(Date.now()).slice(-8),
+            from: {kind: "menu", id: fromId},
+            event: link.event, when: link.when, action: link.action,
+            to: {kind: "menu", id: toId},
+            label: qsTr("%1 → %2").arg(menuDisplayName(fromId)).arg(menuDisplayName(toId)),
+            bindings: []
+        }})
+    }
+
+    function deleteSelectedInstance() {
+        if (!currentMenu || !session)
+            return
+        const menuId = String(currentMenu.id)
+        invoke("journey.studio.removal-impact", {sessionId: session.sessionId, menuId: menuId}, function(impact) {
+            if (impact.isEntry) {
+                panel.notice = qsTr("Defina outra entrada antes de excluir esta instância.")
+                panel.noticeIsError = true
+                return
+            }
+            const links = (impact.incomingConnectionIds || []).length + (impact.outgoingConnectionIds || []).length
+            const next = (menus.find(function(menu) { return menu.id !== menuId }) || {}).id || ""
+            panel.transact("delete-instance", {menuId: menuId}, function() {
+                panel.selectedMenuId = next
+                panel.notice = qsTr("Instância excluída com %1 ligação(ões). Use Desfazer para restaurar.").arg(links)
+                panel.noticeIsError = false
+            })
+        })
+    }
+
     function beginRemoveSelectedMenu() {
         if (!currentMenu)
             return
@@ -1025,6 +1089,21 @@ Rectangle {
                 font.pixelSize: Math.round(22 * panel.visualScale)
                 font.weight: Font.Bold
                 Layout.fillWidth: true
+            }
+            Button {
+                objectName: "journeyOpenScene"
+                text: qsTr("Compor cena")
+                Accessible.name: qsTr("Abrir autoria direta de cena")
+                Layout.minimumHeight: panel.minimumInteractiveTarget
+                onClicked: panel.sceneRequested()
+            }
+            Button {
+                objectName: "journeyOpenMap"
+                text: qsTr("Mapa")
+                Accessible.name: qsTr("Abrir mapa e naturezas das instâncias")
+                enabled: panel.session !== null
+                Layout.minimumHeight: panel.minimumInteractiveTarget
+                onClicked: journeyMapPopup.open()
             }
             Button {
                 objectName: "journeyClose"
@@ -2271,6 +2350,98 @@ Rectangle {
                     }
                 }
             }
+        }
+    }
+
+    Popup {
+        id: journeyMapPopup
+        objectName: "journeyMapPopup"
+        parent: panel
+        x: Math.round(panel.width * 0.05)
+        y: Math.round(panel.height * 0.08)
+        width: Math.round(panel.width * 0.9)
+        height: Math.round(panel.height * 0.84)
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        background: Rectangle { color: panel.surfaceColor; border.color: panel.borderColor; radius: 10 }
+        contentItem: ColumnLayout {
+            spacing: 8
+            RowLayout {
+                Layout.fillWidth: true
+                Label {
+                    text: qsTr("Mapa da Jornada")
+                    color: panel.textColor
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+                Button {
+                    objectName: "journeyMapUndo"
+                    text: qsTr("Desfazer")
+                    enabled: !!panel.session && !!panel.session.history && panel.session.history.canUndo === true
+                    onClicked: panel.historyAction("journey.studio.undo")
+                }
+                Button { text: qsTr("Fechar"); onClicked: journeyMapPopup.close() }
+            }
+            Label {
+                text: panel.notice
+                visible: panel.notice !== ""
+                color: panel.noticeIsError ? panel.errorColor : panel.amberColor
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+                RowLayout {
+                    objectName: "journeyInstanceAuthoring"
+                    visible: panel.session !== null && panel.currentMenu !== null
+                    Layout.fillWidth: true
+                    spacing: 8
+                    Label { text: qsTr("Natureza"); color: panel.textColor }
+                    ComboBox {
+                        objectName: "journeyNaturePicker"
+                        model: panel.natureIds
+                        currentIndex: panel.currentMenu ? panel.natureIds.indexOf(panel.currentMenu.nature || "") : -1
+                        displayText: currentIndex >= 0 ? journeyMap.natureLabels[panel.natureIds[currentIndex]] : qsTr("Escolher")
+                        Accessible.name: qsTr("Natureza da instância")
+                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                        onActivated: function(index) { panel.setNature(panel.natureIds[index]) }
+                    }
+                    Button {
+                        objectName: "journeyDeleteInstance"
+                        text: qsTr("Excluir instância")
+                        Accessible.name: text
+                        Layout.minimumHeight: panel.minimumInteractiveTarget
+                        onClicked: panel.deleteSelectedInstance()
+                    }
+                    Label {
+                        text: journeyMap.linkSourceId !== ""
+                            ? qsTr("Escolha o cartão de destino para ligar a saída.") : ""
+                        color: panel.accentColor
+                        Layout.fillWidth: true
+                    }
+                }
+
+                JourneyGraphMap {
+                    id: journeyMap
+                    visible: panel.session !== null
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    menus: panel.menus
+                    connections: panel.connections
+                    entryMenuId: panel.journeyDocument.entryMenuId || ""
+                    selectedMenuId: panel.selectedMenuId
+                    invalidConnectionIds: panel.invalidConnectionIds
+                    cardColor: panel.raisedColor
+                    borderColor: panel.borderColor
+                    accentColor: panel.accentColor
+                    textColor: panel.textColor
+                    mutedColor: panel.mutedColor
+                    errorColor: panel.errorColor
+                    onMenuSelected: function(menuId) { panel.selectedMenuId = menuId }
+                    onLayoutRequested: function(menuId, x, y) {
+                        panel.transact("set-layout", {menuId: menuId, x: Math.round(x), y: Math.round(y)})
+                    }
+                    onConnectRequested: function(fromId, toId) { panel.linkInstances(fromId, toId) }
+                }
         }
     }
 

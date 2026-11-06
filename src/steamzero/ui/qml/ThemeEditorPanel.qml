@@ -35,6 +35,7 @@ Rectangle {
 
     property bool compactLayout: false
     property bool journeyMode: false
+    property bool sceneMode: false
     // Tema ativo no host (dashboard.theme.activeId). Main.qml deve vincular.
     property string activeThemeId: ""
     // Nome de apresentacao do tema em vigor. Vazio significa "o tema
@@ -1896,6 +1897,30 @@ Rectangle {
         compactLayout: panel.compactLayout
         reducedMotion: panel.reducedMotion
         onCloseRequested: panel.journeyMode = false
+        onSceneRequested: panel.sceneMode = true
+    }
+
+    Loader {
+        objectName: "studioSceneEditorLoader"
+        anchors.fill: parent
+        active: panel.editorSessionId === "" && panel.sceneMode
+        visible: active
+        sourceComponent: Rectangle {
+            color: panel.backgroundColor
+            StudioSceneEditor {
+                anchors.fill: parent
+                requestAction: panel.requestAction
+                surfaceColor: panel.surfaceColor
+                raisedColor: panel.raisedColor
+                borderColor: panel.borderColor
+                textColor: panel.textColor
+                mutedColor: panel.mutedColor
+                accentColor: panel.cyanColor
+                errorColor: panel.redColor
+                minimumInteractiveTarget: panel.minimumInteractiveTarget
+                onCloseRequested: panel.sceneMode = false
+            }
+        }
     }
 
     ThemedDialog {
