@@ -7,17 +7,17 @@ onde uma alegacao nao tem evidencia que a sustente.
 
 | ID | Arquivos no escopo | Evidencias | Aprovadas | Verificacao | Observacao |
 |---|---|---|---|---|---|
-| SZ-AGG-ADAPTERS | 135 | 5 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-ADAPTERS | 136 | 5 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-ASSETS | 10 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-CORE | 45 | 2 | 1 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-DOMAIN | 125 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-DOMAIN | 126 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-INPUT-PROFILES | 22 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-JOBS | 3 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-PLATFORM-MANIFESTS | 65 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-PRIVILEGED | 7 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-SCHEMAS | 56 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-SCHEMAS | 57 | 2 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-SERVICE-API | 11 | 0 | 0 | none | custodia declarada; nenhuma capacidade provada |
-| SZ-AGG-TESTS | 612 | 10 | 4 | none | custodia declarada; nenhuma capacidade provada |
+| SZ-AGG-TESTS | 617 | 10 | 4 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AGG-TOOLS | 45 | 1 | 0 | none | custodia declarada; nenhuma capacidade provada |
 | SZ-AURA-ASSET-SANITIZACAO | 2 | 4 | 1 | unit |  |
 | SZ-AURA-CINEMA-COMPLETION | 98 | 43 | 22 | dev |  |
@@ -105,6 +105,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
 | SZ-ROADMAP-CONTINUATION | 121 | 43 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
+| SZ-STUDIO-VISUAL-AUTHORING | 17 | 4 | 4 | dev |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 9 | 8 | dev |  |
 | SZ-THEME-ENGINE | 248 | 94 | 67 | dev |  |
@@ -113,8 +114,8 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-THEME-IMPORT-RETROFE | 16 | 34 | 19 | hw |  |
 | SZ-THEME-IMPORT-SURFACE | 10 | 23 | 12 | unit |  |
 | SZ-THEME-STUDIO | 232 | 97 | 70 | dev |  |
-| SZ-UI-DESKTOP-AUDIT | 843 | 209 | 118 | dev |  |
+| SZ-UI-DESKTOP-AUDIT | 845 | 209 | 118 | dev |  |
 | SZ-UI-PACKAGED-ICONS | 57 | 4 | 2 | unit |  |
 | SZ-V2-HARMONIZED-FUNCTIONAL-RELEASE | 2 | 1 | 0 | none |  |
 
-Arquivos em `src/`: **644**. Sob agregador apenas, sem item de capacidade: **267** (41%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.
+Arquivos em `src/`: **649**. Sob agregador apenas, sem item de capacidade: **267** (41%). Esse numero e o tamanho real do runtime que tem dono declarado e nenhuma capacidade provada; ele deve cair conforme recortes viram itens proprios, e subir e sinal de codigo novo entrando sem capacidade declarada.

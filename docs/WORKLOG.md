@@ -16063,3 +16063,20 @@ sessão (ready, sourceDirty false, NeedDaemonReload=no). Doctor 9 pass/0 fail/3
 warn pré-existentes. Causa corrigida em 75ab8ac8 (guarda de runtime antes de
 qualquer passo de host). Rollback: 2.0.0rc1-59ecc2d8f0f6. Pendentes do operador:
 reboot, boot direto, PNG da release instalada e jornadas físicas.
+
+
+## 2026-11-06 — autoria visual de experiências e Jornadas no Studio (Claude Code)
+
+Base aff0f65c. Lote: autoria direta de cena (`scene_authoring.py`,
+`SceneStudioService`, `StudioSceneEditor.qml`, rotas `/studio/scene/*`) e
+autoria visual de Jornada (`experience-journey-v3` aditivo e migrado sob
+demanda; naturezas de instância, layout, `launchRequest`, `set-nature`,
+`set-layout`, `update-connection`, `delete-instance` com impacto e Desfazer;
+`JourneyExecutor.request_operation/resolve_operation` com recusa de pedido
+duplicado e de resposta atrasada; mapa `JourneyGraphMap.qml`). Critérios 1–5
+provados em modelo e Qt offscreen pela bridge real (mouse via qmltestrunner).
+Decisões e tabela de aceite: docs/01-product/STUDIO-AUTORIA-VISUAL.md.
+Pendentes: Launcher instalado encaminhar o resultado observado ao
+`resolve_operation`; render GPU das receitas; instalação/prova física bloqueadas
+pela orientação vigente de não iniciar autenticação (release ativa
+2.0.0rc1-c58195919b07, rollback 2.0.0rc1-59ecc2d8f0f6).

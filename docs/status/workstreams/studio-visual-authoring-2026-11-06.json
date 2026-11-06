@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "kind": "workstream",
+  "id": "WS-2026-11-STUDIO-VISUAL-AUTHORING",
+  "item": "SZ-STUDIO-VISUAL-AUTHORING",
+  "branch": "codex/product-recovery-2026-10-16",
+  "baseRef": "aff0f65c52ec4d311c7d5961ee125d5ed5a19bb3",
+  "owner": "claude-central-executor",
+  "state": "active",
+  "exclusivePaths": [
+    "src/steamzero/schemas/experience-journey-v3.schema.json",
+    "src/steamzero/domain/scene_authoring.py",
+    "src/steamzero/adapters/scene_studio.py",
+    "src/steamzero/ui/qml/StudioSceneEditor.qml",
+    "src/steamzero/ui/qml/JourneyGraphMap.qml",
+    "tests/unit/test_scene_authoring.py",
+    "tests/unit/test_scene_studio.py",
+    "tests/unit/test_journey_authoring_v3.py",
+    "tests/integration/test_studio_scene_authoring_e2e.py",
+    "tests/qml/check_studio_scene_authoring_e2e.qml",
+    "docs/01-product/STUDIO-AUTORIA-VISUAL.md",
+    "docs/status/items/studio-visual-authoring.json",
+    "docs/status/workstreams/studio-visual-authoring-2026-11-06.json"
+  ],
+  "sharedPaths": [
+    "src/steamzero/domain/experience_journey.py",
+    "src/steamzero/adapters/journey_studio.py",
+    "src/steamzero/adapters/desktop_ui.py",
+    "src/steamzero/adapters/desktop_contracts.py",
+    "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
+    "src/steamzero/ui/qml/ThemeEditorPanel.qml"
+  ],
+  "nextAction": "Funcional em cbbceda7 (M+Q verdes; integral 7369 passed com 3 visuais corrigidos e reexecutados). Ligar o resultado observado pelo serviço de sessão a resolve_operation no LauncherJourneyRuntime/launcher_ui; depois candidata governada e prova instalada quando a autenticação for liberada pelo proprietário.",
+  "updatedAt": "2026-11-06"
+}
