@@ -67,5 +67,5 @@
   ],
   "updatedAt": "2026-10-31",
   "notes": "Slice de R3/D-08 do PLANO existente, assumido apos conclusao local de R2 conforme autorizacao para ausencia. Um executor, checkout e branch existentes. Handoffs prospectivos dos dois paths pela WS-JOURNEY-PLATFORM-PROJECTION e README pela WS-RECOVERY-R2; nao ha implementacao concorrente. Fixtures/offscreen nao provam gameplay, instalacao, hardware ou recuperacao de sessao.\n\n2026-10-31: escopo compartilhado renovado pelo incremento nativo d9392bec. Integral oficial7181passed/48skipped/26warnings, cobertura com branches85,72395128552097%>=85,71972259810555%, guardas/hashes/perfil preservados. Provas de fonte/Qt e PCM virtual; sem revalidar instalação/hardware deste item, promover eixos ou fechar gaps. Histórico preservado.",
-  "scopeDigest": "79b66986ba04ba662e3e16ac812567975157902b2bdfacb18a2609982c865cf7"
+  "scopeDigest": "82c09705fe6ea4a9bf014933a587ca7d3d7127e733c2efd9b8f862221536f600"
 }

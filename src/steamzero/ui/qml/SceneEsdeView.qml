@@ -38,10 +38,14 @@ Item {
 
     // Eventos de movimento que este renderizador executa. `exit` é a saída da
     // view (RetroFE onExit): toca antes de a superfície trocar de tela.
-    readonly property var motionEvents: ["enter", "exit"]
+    // `highlightEnter` é o RetroFE onHighlightEnter: toca quando a seleção
+    // muda (playHighlight) e recomeça do estado atual a cada nova seleção.
+    readonly property var motionEvents: ["enter", "exit", "highlightEnter"]
     // Teto da transição de saída: a animação nunca segura a operação de
     // sessão nem o controle do usuário além deste limite.
     property int exitBudgetMs: 1500
+    // Cópia de saída: elementos nascem no estado final de entrada, sem animá-la.
+    property bool startSettled: false
     readonly property bool exiting: d_exiting
     property bool d_exiting: false
     property int d_exitPending: 0
@@ -124,6 +128,19 @@ Item {
         exitBudget.stop()
         view.d_exiting = false
         view.exitFinished(completed)
+    }
+
+    // Nova seleção: toca onHighlightEnter nos elementos que o declaram. Não
+    // interfere numa saída em curso; seleção rápida recomeça do estado atual.
+    function playHighlight() {
+        if (view.d_exiting) return 0
+        let started = 0
+        for (let i = 0; i < elementRepeater.count; ++i) {
+            const loader = elementRepeater.itemAt(i)
+            if (loader && loader.startHighlight && loader.startHighlight())
+                started += 1
+        }
+        return started
     }
 
     // Navegação durante ou após a saída (retorno à tela): interrompe e devolve a
@@ -560,10 +577,14 @@ Item {
                 ? view.entryTimeline(modelData) : null
             readonly property var exitBlocks: modelData.on && modelData.on.exit
                 ? view.timeline(modelData, "exit") : null
-            property bool exitPhase: false
-            readonly property var phaseBlocks: exitPhase ? exitBlocks : entryBlocks
+            readonly property var highlightBlocks: modelData.on && modelData.on.highlightEnter
+                ? view.timeline(modelData, "highlightEnter") : null
+            property string phaseEvent: "enter"
+            readonly property bool exitPhase: phaseEvent === "exit"
+            readonly property var phaseBlocks: phaseEvent === "exit" ? exitBlocks
+                : phaseEvent === "highlightEnter" ? highlightBlocks : entryBlocks
             readonly property bool entryVisible: visible && entryBlocks !== null
-            readonly property bool entryReducedMotion: (entryVisible || exitPhase) && view.reducedMotion
+            readonly property bool entryReducedMotion: (entryVisible || phaseEvent !== "enter") && view.reducedMotion
             readonly property real baseOpacity: view.numberOr(app, "opacity", 1)
             property bool entryReady: false
             property int entryIndex: 0
@@ -582,23 +603,30 @@ Item {
                 return entryValues[channel] === undefined ? fallback : entryValues[channel]
             }
 
-            function startExit() {
-                if (!visible || exitBlocks === null)
+            // Começa um evento a partir do valor exibido agora (inclusive no
+            // meio de outra animação), sem saltar para o fim do bloco corrente.
+            function startEvent(eventName, blocks) {
+                if (!visible || blocks === null)
                     return false
                 entryClock.stop()
-                if (entryTo && Object.keys(entryTo).length) settleEntry()
                 entryValues = {
                     alpha: entryValue("alpha", baseOpacity), x: entryValue("x", fx),
                     y: entryValue("y", fy)}
-                exitPhase = true
+                entryTo = ({})
+                entryProgress = 1
+                phaseEvent = eventName
                 entryIndex = 0
                 advanceEntry()
                 return true
             }
+            function startExit() { return startEvent("exit", exitBlocks) }
+            function startHighlight() {
+                return phaseEvent !== "exit" && startEvent("highlightEnter", highlightBlocks)
+            }
 
             function abortExit() {
                 if (!exitPhase) return
-                exitPhase = false
+                phaseEvent = "enter"
                 resetEntry()
                 settleAll()
             }
@@ -619,7 +647,7 @@ Item {
 
             function resetEntry() {
                 entryClock.stop()
-                exitPhase = false
+                phaseEvent = "enter"
                 entryIndex = 0
                 entryValues = {alpha: baseOpacity, x: fx, y: fy}
                 entryTo = ({})
@@ -631,7 +659,7 @@ Item {
 
             function advanceEntry() {
                 const blocks = phaseBlocks
-                while (blocks && (exitPhase || entryVisible) && entryIndex < blocks.length) {
+                while (blocks && (phaseEvent !== "enter" || entryVisible) && entryIndex < blocks.length) {
                     const block = blocks[entryIndex++]
                     const starts = {}
                     const targets = {}
@@ -666,7 +694,13 @@ Item {
                 entryProgress = 1
             }
 
-            onEntryVisibleChanged: if (entryReady && !exitPhase) resetEntry()
+            onEntryVisibleChanged: {
+                if (entryReady && phaseEvent === "enter") {
+                    resetEntry()
+                    if (view.startSettled && entryVisible)
+                        settleAll()
+                }
+            }
             onEntryReducedMotionChanged: {
                 if (entryReady && entryReducedMotion && entryClock.running) {
                     entryClock.stop()
@@ -676,8 +710,11 @@ Item {
             }
             Component.onCompleted: {
                 entryReady = true
-                if (entryVisible)
+                if (entryVisible) {
                     resetEntry()
+                    if (view.startSettled)
+                        settleAll()
+                }
             }
 
             NumberAnimation {

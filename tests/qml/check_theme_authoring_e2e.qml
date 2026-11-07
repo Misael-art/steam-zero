@@ -486,7 +486,7 @@ Item {
             harness.refreshRuntimeTheme()
             // O primeiro snapshot real agrega o catálogo do dashboard e pode
             // levar mais de cinco segundos no cold path do backend de teste.
-            tryVerify(function() { return harness.runtimeThemeRefreshed }, 10000,
+            tryVerify(function() { return harness.runtimeThemeRefreshed }, 20000,
                       "o refresh inicial do dashboard não respondeu: "
                       + JSON.stringify(harness.errors))
             tryVerify(function() {
@@ -717,7 +717,9 @@ Item {
             tryVerify(function() { return panel.applyPlan === null }, 5000,
                       "a aplicação do tema não concluiu")
             harness.refreshRuntimeTheme()
-            tryVerify(function() { return harness.runtimeThemeRefreshed }, 10000,
+            // Mesmo teto do refresh inicial: sob cobertura e carga o snapshot
+            // real ultrapassou 10 s no integral de 2026-11-05 (isolado ~2 s).
+            tryVerify(function() { return harness.runtimeThemeRefreshed }, 20000,
                       "o refresh do dashboard não respondeu: " + JSON.stringify(harness.errors))
             tryVerify(function() {
                 return runtimeBridge.active && runtimeBridge.themeId === themeId

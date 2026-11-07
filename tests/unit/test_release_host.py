@@ -2006,3 +2006,51 @@ def test_supersession_refuses_anything_that_advanced_past_discovery(tmp_path: Pa
     assert not release_host._discovery_can_be_superseded(
         sujo, next_commit=_NEW, current_release=_CURRENT, runner=_HeadRunner(_NEW, dirty=True)
     ), "árvore suja não autoriza descartar transação"
+
+
+def test_session_runtime_guard_rejects_dev_profile_runtime(tmp_path: Path) -> None:
+    # 2026-11-05: com o XDG_RUNTIME_DIR do perfil de desenvolvimento, a release era
+    # ativada e só depois o daemon-reload de usuário falhava (E-HOST-RESTART-FAILED).
+    with pytest.raises(release_host.AutomationError, match="não é o runtime da sessão"):
+        release_host.require_user_session_runtime(
+            {"XDG_RUNTIME_DIR": str(tmp_path / "profile" / "runtime")}, uid=1000
+        )
+    with pytest.raises(release_host.AutomationError, match="ausente"):
+        release_host.require_user_session_runtime({}, uid=1000)
+
+
+def test_session_runtime_guard_requires_the_user_bus(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run_user = tmp_path / "run" / "user"
+    (run_user / "1000").mkdir(parents=True)
+    real_path = release_host.Path
+
+    def fake_path(*parts: object) -> Path:
+        if parts and parts[0] == "/run/user":
+            return real_path(run_user, *[str(p) for p in parts[1:]])
+        return real_path(*[str(p) for p in parts])
+
+    monkeypatch.setattr(release_host, "Path", fake_path)
+    env = {"XDG_RUNTIME_DIR": str(run_user / "1000")}
+    with pytest.raises(release_host.AutomationError, match="barramento de usuário ausente"):
+        release_host.require_user_session_runtime(env, uid=1000)
+    (run_user / "1000" / "bus").touch()
+    release_host.require_user_session_runtime(env, uid=1000)
+
+
+def test_session_bound_actions_fail_before_any_host_step(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("XDG_RUNTIME_DIR", "/nonexistent/dev-profile/runtime")
+
+    def forbidden(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("passo de host executado antes da guarda de sessão")
+
+    monkeypatch.setattr(release_host, "install", forbidden)
+    monkeypatch.setattr(release_host, "load_bundle", forbidden)
+    code = release_host.main(
+        ["install", "--bundle", "/nonexistent", "--rollback-release", "x", "--confirm-install", "y"]
+    )
+    assert code != 0
+    assert "runtime da sessão" in capsys.readouterr().out

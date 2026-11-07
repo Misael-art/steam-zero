@@ -18,7 +18,7 @@
     "tests/unit/test_desktop_dashboard.py",
     "docs/09-operations/evidence/2026-09-21-aura-harmonization"
   ],
-  "scopeDigest": "312956719a82fe1a089c1d37fc48ce2b00b84e2e29bb8cc1d0ebb4c282d8e652",
+  "scopeDigest": "8a27f12d7b7a1fa976dd117a585f1818e8ef253fc9024d364a5ec85c73e44221",
   "dependsOn": [
     "SZ-THEME-ENGINE",
     "SZ-AURA-LAUNCHER"
@@ -113,6 +113,12 @@
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
       "command": "05/11/2026 renovação de escopo por 38ff2be9/1659e72d/b46eb04d: integral r2 7349passed/48skipped, 3 falhas por tempo sob carga que passam isoladas; cobertura 85,8765% (com reexecuções anexadas) >= 85,8721%; ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem instalação, hardware ou promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 lote 2 (92c79da5/8331fa87/a0d5f422): integral 7354passed/48skipped; cobertura 85,8737% >= 85,8721%; pt-BR/ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem promoção de eixos.",
       "result": "passed"
     }
   ],

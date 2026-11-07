@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "installed",
-  "scopeDigest": "8af71d15e2aa4c604c24c8da73151e38cc872860c4acffeed3cc3539d0a6cfcb",
+  "scopeDigest": "3f52225b2fc3a4595a05357fb8c34e0787c6200a227e15ea568ba2ff78cf4c56",
   "scopePaths": [
     "src/steamzero/cli/main.py",
     "src/steamzero/adapters/emulation.py",
@@ -858,6 +858,18 @@
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
       "command": "05/11/2026 renovação de escopo por 38ff2be9/1659e72d/b46eb04d: integral r2 7349passed/48skipped, 3 falhas por tempo sob carga que passam isoladas; cobertura 85,8765% (com reexecuções anexadas) >= 85,8721%; ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem instalação, hardware ou promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 lote 2 (92c79da5/8331fa87/a0d5f422): integral 7354passed/48skipped; cobertura 85,8737% >= 85,8721%; pt-BR/ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 75ab8ac8: guarda de runtime de sessão no release_host; 632 testes de release/install/host, ruff/format/mypy/independence verdes. Sem promoção de eixos.",
       "result": "passed"
     }
   ],

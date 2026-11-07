@@ -256,6 +256,57 @@ Item {
         Accessible.name: qsTr("Cena XML do tema")
     }
 
+    // Troca de coleção: a coleção nova já está ativa e navegável embaixo; uma
+    // cópia da cena anterior toca a saída do tema por cima, sem receber entrada,
+    // e some ao assentar ou no teto da saída. Nunca segura a navegação.
+    readonly property string currentCollection: String(cinema.scene && cinema.scene.collection || "")
+    property string d_lastCollection: ""
+    property var d_lastRuntime: ({})
+    onCurrentCollectionChanged: {
+        const previous = cinema.d_lastCollection
+        const previousRuntime = cinema.d_lastRuntime
+        cinema.d_lastCollection = cinema.currentCollection
+        cinema.d_lastRuntime = externalScene.runtimeModel
+        if (previous === "" || !externalScene.visible || cinema.reducedMotion)
+            return
+        collectionExit.viewData = externalScene.viewData
+        collectionExit.runtimeModel = previousRuntime
+        collectionExit.active = true
+        Qt.callLater(collectionExit.playExit)
+    }
+    Component.onCompleted: {
+        cinema.d_lastCollection = cinema.currentCollection
+        cinema.d_lastRuntime = externalScene.runtimeModel
+    }
+    // Guarda os itens da coleção corrente qualquer que seja a ordem dos sinais:
+    // se os itens novos chegarem antes do nome novo, a cópia ainda é a anterior.
+    Connections {
+        target: externalScene
+        function onRuntimeModelChanged() {
+            if (cinema.currentCollection === cinema.d_lastCollection)
+                cinema.d_lastRuntime = externalScene.runtimeModel
+        }
+    }
+
+    SceneEsdeView {
+        id: collectionExit
+        objectName: "launcherCollectionExitScene"
+        property bool active: false
+        anchors.fill: parent
+        z: 51
+        visible: active
+        enabled: false
+        startSettled: true
+        viewData: ({"id": "", "elements": []})
+        highContrast: cinema.highContrast
+        reducedMotion: cinema.reducedMotion
+        Accessible.ignored: true
+        onExitFinished: function(completed) {
+            active = false
+            viewData = {"id": "", "elements": []}
+        }
+    }
+
     Rectangle {
         objectName: "importedSceneLossBanner"
         visible: externalScene.visible && Boolean(cinema.activeTheme.requestedSceneId)
@@ -385,6 +436,9 @@ Item {
     // Navegação ou retorno à tela devolvem a cena ao estado de entrada.
     onActivated: if (externalScene.visible) externalScene.playExit()
     onMoveRequested: externalScene.cancelExit()
+    // Nova seleção na coleção: o tema reage com onHighlightEnter, se declarar.
+    readonly property int selectedIndexValue: Number(cinema.scene && cinema.scene.selected || 0)
+    onSelectedIndexValueChanged: if (externalScene.visible) externalScene.playHighlight()
     onVisibleChanged: if (visible) externalScene.cancelExit()
     Keys.onLeftPressed: cinema.moveRequested("left")
     Keys.onRightPressed: cinema.moveRequested("right")

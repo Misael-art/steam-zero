@@ -25,7 +25,21 @@ from steamzero.core import fs
 
 SCHEMA_V1 = "experience-journey-v1.schema.json"
 SCHEMA_V2 = "experience-journey-v2.schema.json"
+SCHEMA_V3 = "experience-journey-v3.schema.json"
 SCHEMA = SCHEMA_V2
+#: Instance natures the Studio can author (v3). Each nature publishes which
+#: events its outputs may answer; operations stay owned by session services.
+NATURE_EVENTS: Mapping[str, frozenset[str]] = {
+    "free": frozenset({"select", "route", "back"}),
+    "platforms": frozenset({"select", "route", "back"}),
+    "categories": frozenset({"select", "route", "back"}),
+    "games": frozenset({"select", "route", "back", "play"}),
+    "direct-launch": frozenset({"play", "context-missing", "back", "retry"}),
+    "transition": frozenset({"complete"}),
+    "session": frozenset({"exit", "pause", "resume", "open-saves", "save", "load", "back"}),
+    "recovery": frozenset({"retry", "select", "route", "back"}),
+}
+V3_MENU_KEYS = ("nature", "layout", "launchRequest")
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
 MAX_MENUS = 4096
 MAX_CONNECTIONS = 16384
@@ -69,6 +83,34 @@ def migrate_journey_v1_to_v2(raw: Mapping[str, Any]) -> dict[str, Any]:
     for connection in upgraded.get("connections", []):
         connection.setdefault("bindings", [])
     return upgraded
+
+
+def migrate_journey_v2_to_v3(raw: Mapping[str, Any]) -> dict[str, Any]:
+    """Upgrade v2 additively; IDs, menus, connections and stages are preserved."""
+    upgraded = json.loads(json.dumps(raw, ensure_ascii=False))
+    if not isinstance(upgraded, dict):
+        raise ValueError("documento de jornada exige objeto raiz")
+    if upgraded.get("schemaVersion") == 3:
+        return upgraded
+    if (
+        upgraded.get("schemaVersion") != 2
+        or upgraded.get("kind") != "steamzero-experience-journey-v2"
+    ):
+        raise ValueError("a migração exige uma jornada v2")
+    upgraded["schemaVersion"] = 3
+    upgraded["kind"] = "steamzero-experience-journey-v3"
+    return upgraded
+
+
+def uses_v3_features(raw: Mapping[str, Any]) -> bool:
+    """True when a document needs v3 to be represented."""
+    for menu in raw.get("menus", []):
+        if isinstance(menu, Mapping) and any(key in menu for key in V3_MENU_KEYS):
+            return True
+    return any(
+        isinstance(item, Mapping) and item.get("event") in {"complete", "context-missing"}
+        for item in raw.get("connections", [])
+    )
 
 
 @dataclass(frozen=True)
@@ -321,7 +363,10 @@ class JourneyDocument:
         if snapshot.get("schemaVersion") == 1:
             contracts.validate(snapshot, SCHEMA_V1)
             snapshot = migrate_journey_v1_to_v2(snapshot)
-        contracts.validate(snapshot, SCHEMA)
+        if snapshot.get("schemaVersion") == 3:
+            contracts.validate(snapshot, SCHEMA_V3)
+        else:
+            contracts.validate(snapshot, SCHEMA)
         serialized = json.dumps(
             snapshot, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False
         ).encode("utf-8")
@@ -448,6 +493,107 @@ def _automatic_cycle(connections: Sequence[Mapping[str, Any]]) -> bool:
             if indegree[target] == 0:
                 queue.append(target)
     return visited != len(adjacency)
+
+
+def _nature_diagnostics(
+    raw: Mapping[str, Any],
+    menus: Sequence[Mapping[str, Any]],
+    connections: Sequence[Mapping[str, Any]],
+    menu_ids: set[str],
+) -> list[JourneyDiagnostic]:
+    """Check authored natures, launch outcomes and safe exits (v3 documents)."""
+    issues: list[JourneyDiagnostic] = []
+    outgoing: dict[str, list[Mapping[str, Any]]] = {}
+    for connection in connections:
+        source = connection.get("from")
+        if isinstance(source, Mapping) and source.get("kind") == "menu":
+            outgoing.setdefault(str(source.get("id", "")), []).append(connection)
+    natures = {str(menu.get("id", "")): str(menu["nature"]) for menu in menus if "nature" in menu}
+    for menu_id, nature in natures.items():
+        allowed = NATURE_EVENTS.get(nature, frozenset())
+        for connection in outgoing.get(menu_id, []):
+            if connection.get("event") not in allowed:
+                issues.append(
+                    JourneyDiagnostic(
+                        "JOURNEY-NATURE-OUTPUT-INCOMPATIBLE",
+                        f"a saída {connection.get('event')} não existe para a natureza "
+                        f"{nature}; remapeie ou remova a ligação",
+                        str(connection.get("id", "")),
+                    )
+                )
+        plays = [item for item in outgoing.get(menu_id, []) if item.get("event") == "play"]
+        if nature == "direct-launch" or plays:
+            outcomes = {str(item.get("when", "")) for item in plays}
+            for outcome, label in (
+                ("operation-success", "sessão confirmada"),
+                ("operation-failure", "falha"),
+                ("timeout", "tempo esgotado"),
+            ):
+                if outcome not in outcomes:
+                    issues.append(
+                        JourneyDiagnostic(
+                            "JOURNEY-LAUNCH-OUTCOME-MISSING",
+                            f"lançamento sem destino para {label}",
+                            menu_id,
+                        )
+                    )
+        if nature == "direct-launch":
+            request = None
+            for menu in menus:
+                if str(menu.get("id", "")) == menu_id:
+                    request = menu.get("launchRequest")
+            if not isinstance(request, Mapping):
+                issues.append(
+                    JourneyDiagnostic(
+                        "JOURNEY-LAUNCH-REQUEST-MISSING",
+                        "lançamento direto exige jogo do contexto ou jogo vinculado",
+                        menu_id,
+                    )
+                )
+            elif request.get("gameSource") == "context" and not any(
+                item.get("event") == "context-missing" for item in outgoing.get(menu_id, [])
+            ):
+                issues.append(
+                    JourneyDiagnostic(
+                        "JOURNEY-LAUNCH-CONTEXT-ROUTE",
+                        "sem jogo no contexto não há caminho para escolher um jogo",
+                        menu_id,
+                    )
+                )
+        if nature == "transition" and not any(
+            item.get("event") == "complete" for item in outgoing.get(menu_id, [])
+        ):
+            issues.append(
+                JourneyDiagnostic(
+                    "JOURNEY-TRANSITION-UNROUTED",
+                    "o término da transição não encaminha para nenhuma instância",
+                    menu_id,
+                )
+            )
+    if natures:
+        entry = str(raw.get("entryMenuId", ""))
+        reachable: set[str] = set()
+        pending = [entry] if entry in menu_ids else []
+        while pending:
+            current = pending.pop()
+            if current in reachable:
+                continue
+            reachable.add(current)
+            for connection in outgoing.get(current, []):
+                target = connection.get("to")
+                if isinstance(target, Mapping) and target.get("kind") == "menu":
+                    pending.append(str(target.get("id", "")))
+        for menu_id in sorted(reachable):
+            if not outgoing.get(menu_id):
+                issues.append(
+                    JourneyDiagnostic(
+                        "JOURNEY-DEAD-END",
+                        "instância sem saída; adicione voltar, um destino ou uma recuperação",
+                        menu_id,
+                        "warning",
+                    )
+                )
+    return issues
 
 
 def _organization_cycle(nodes: Sequence[Mapping[str, Any]]) -> bool:
@@ -651,6 +797,8 @@ def validate_journey(
         "load": "load",
         "exit": "exit",
         "retry": "retry",
+        "complete": "navigate",
+        "context-missing": "navigate",
     }
     route_keys: set[tuple[str, str, str]] = set()
     for menu in menus:
@@ -736,6 +884,8 @@ def validate_journey(
                 "ciclo automático pode não terminar; adicione uma saída ou torne a ação manual",
             )
         )
+
+    issues.extend(_nature_diagnostics(raw, menus, connections, menu_ids))
 
     organization_ids = {str(node.get("id", "")) for node in organization}
     for node in organization:
@@ -1303,6 +1453,137 @@ class JourneyExecutor:
             published_read_models=published_read_models,
         )
         self._menus = {str(menu["id"]): menu for menu in document.menus}
+        self._pending: dict[str, Any] | None = None
+        self._operation_serial = 0
+
+    @property
+    def pending_operation(self) -> Mapping[str, Any] | None:
+        return dict(self._pending) if self._pending is not None else None
+
+    def request_operation(self, event: str) -> JourneyExecutionResult:
+        """Register one operation intent; a second request while pending is refused.
+
+        The session service executes and observes the operation; the journey only
+        advances when :meth:`resolve_operation` receives the observed outcome.
+        """
+        if self._pending is not None:
+            return JourneyExecutionResult(
+                "operation-pending",
+                diagnostic_code="JOURNEY-OPERATION-PENDING",
+                diagnostic_message="Já existe um pedido em andamento; aguarde o resultado.",
+                recovery_action="wait-operation",
+            )
+        source = {"kind": "menu", "id": self.navigator.context.menu_id}
+        menu = self._menus.get(self.navigator.context.menu_id, {})
+        if event == "play" and menu.get("nature") == "direct-launch":
+            request = menu.get("launchRequest") or {}
+            game_id = request.get("gameId") if request.get("gameSource") == "fixed" else None
+            if game_id is None:
+                field = str(request.get("contextFieldId", "gameId"))
+                game_id = dict(self.navigator.context.filters).get(field)
+            if not isinstance(game_id, str) or not game_id:
+                missing = [
+                    item
+                    for item in self.document.data["connections"]
+                    if item["from"] == source and item["event"] == "context-missing"
+                ]
+                if missing and missing[0]["to"].get("kind") == "menu":
+                    self.navigator.navigate(str(missing[0]["to"]["id"]))
+                return JourneyExecutionResult(
+                    "context-missing",
+                    connection_id=str(missing[0]["id"]) if missing else "",
+                    diagnostic_code="JOURNEY-LAUNCH-CONTEXT-MISSING",
+                    diagnostic_message="Nenhum jogo no contexto; escolha um jogo para continuar.",
+                    recovery_action="choose-game" if missing else "edit-connections",
+                    context=self.navigator.context,
+                )
+        else:
+            game_id = None
+        if not any(
+            item["from"] == source and item["event"] == event
+            for item in self.document.data["connections"]
+        ):
+            return JourneyExecutionResult(
+                "unmatched",
+                diagnostic_code="JOURNEY-CONNECTION-NOT-FOUND",
+                diagnostic_message="Nenhuma conexão atende a este evento.",
+                recovery_action="stay-current",
+            )
+        self._operation_serial += 1
+        token = f"op-{self._operation_serial}"
+        self._pending = {
+            "token": token,
+            "event": event,
+            "source": source,
+            "gameId": game_id,
+            "generation": self.navigator.generation,
+        }
+        return JourneyExecutionResult(
+            "operation-request",
+            connection_id=token,
+            action=event,
+            context=self.navigator.context,
+            return_context=self.navigator.capture_return_context(),
+        )
+
+    def cancel_operation(self, token: str) -> bool:
+        """Drop a pending intent the adapter refused before dispatching it."""
+        if self._pending is not None and self._pending["token"] == token:
+            self._pending = None
+            return True
+        return False
+
+    def routes_outcomes(self, menu_id: str, event: str) -> bool:
+        """True when ``event`` from ``menu_id`` waits for an observed outcome (v3)."""
+        source = {"kind": "menu", "id": menu_id}
+        return any(
+            item["from"] == source and item["event"] == event and item["when"] != _INPUT_ONLY
+            for item in self.document.data["connections"]
+        )
+
+    def resolve_operation(self, token: str, outcome: str) -> JourneyExecutionResult:
+        """Route the outcome observed by the owning service to its declared destination."""
+        pending = self._pending
+        if pending is None or pending["token"] != token:
+            return JourneyExecutionResult(
+                "stale-response",
+                diagnostic_code="JOURNEY-RESPONSE-STALE",
+                diagnostic_message=(
+                    "A resposta pertence a um pedido anterior; o contexto atual foi mantido."
+                ),
+                recovery_action="keep-current-route",
+            )
+        if outcome not in {"operation-success", "operation-failure", "timeout"}:
+            raise ValueError(f"resultado de operação desconhecido: {outcome}")
+        self._pending = None
+        connection = next(
+            (
+                item
+                for item in self.document.data["connections"]
+                if item["from"] == pending["source"]
+                and item["event"] == pending["event"]
+                and item["when"] == outcome
+            ),
+            None,
+        )
+        if connection is None:
+            return JourneyExecutionResult(
+                "recovery-required",
+                diagnostic_code="JOURNEY-LAUNCH-OUTCOME-MISSING",
+                diagnostic_message="O resultado observado não tem destino declarado.",
+                recovery_action="stay-current",
+                context=self.navigator.context,
+            )
+        target = connection["to"]
+        if target.get("kind") == "menu":
+            self.navigator.navigate(str(target["id"]))
+        return JourneyExecutionResult(
+            "navigated" if target.get("kind") == "menu" else "stage",
+            connection_id=str(connection["id"]),
+            action=str(connection["action"]),
+            target=dict(target),
+            context=self.navigator.context,
+        )
 
     def execute(
         self,

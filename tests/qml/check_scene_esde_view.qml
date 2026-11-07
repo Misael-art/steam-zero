@@ -83,10 +83,10 @@ import "../../src/steamzero/ui/qml"
             const previous = view.viewData
             view.viewData = {id: "motion", elements: [{id: "probe", kind: "text", text: "Probe",
                 layout: {width: 0.5, height: 0.2},
-                on: {highlightEnter: [{duration: 1, animations: [{property: "alpha", to: 0}]}]}}]}
+                on: {menuEnter: [{duration: 1, animations: [{property: "alpha", to: 0}]}]}}]}
             compare(view.unsupportedTimelines.length, 1)
             compare(view.unsupportedTimelines[0].id, "probe")
-            compare(view.unsupportedTimelines[0].event, "highlightEnter")
+            compare(view.unsupportedTimelines[0].event, "menuEnter")
             verify(view.unsupportedTimelines[0].reason.length > 0)
             view.viewData = previous
         }

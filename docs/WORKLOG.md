@@ -16038,3 +16038,51 @@ Estáticos e status verdes. Fonte + Qt offscreen; sem instalação, host ou hard
 Recibo: docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md.
 Próximo: CI do SHA publicado; saída ao trocar coleção/menu; merge do PR268 (fecha
 os alertas) exige autorização do proprietário.
+
+
+## 2026-11-05 — merge do PR268 e lote 2 de movimento RetroFE (Claude Code)
+
+Autorização expressa do proprietário nesta thread para o que dependia dele. PR268
+mergeado em c5819591 (merge commit, head f4617285 verde; push CI da main
+42040231859 verde). Lote 2 na continuidade: 92c79da5 (tetos de espera limitados em
+três testes sob carga), 8331fa87 (saída na troca de coleção sem segurar a
+navegação), a0d5f422 (onHighlightEnter; eventos partem do valor exibido). Integral
+7354/48, cobertura 85,8737%; estáticos e status verdes. Release: prepare exige o
+checkout no commit exato; fetch interno travava em prompt de credencial (passa
+com GIT_TERMINAL_PROMPT=0). Instalação usa pkexec (senha digitada pelo
+proprietário). Recibo: evidence/2026-11-05-retrofe-exit-locale/README.md.
+
+
+## 2026-11-05 — instalação de 2.0.0rc1-c58195919b07 (Claude Code)
+
+Com autorização do proprietário e senha polkit digitada por ele, a release do
+merge do PR268 foi instalada pelo release_host. A ferramenta ativou a release e
+falhou no daemon-reload de usuário porque herdou XDG_RUNTIME_DIR do env.sh;
+convergência concluída pelo `steamzero service refresh` oficial no runtime da
+sessão (ready, sourceDirty false, NeedDaemonReload=no). Doctor 9 pass/0 fail/3
+warn pré-existentes. Causa corrigida em 75ab8ac8 (guarda de runtime antes de
+qualquer passo de host). Rollback: 2.0.0rc1-59ecc2d8f0f6. Pendentes do operador:
+reboot, boot direto, PNG da release instalada e jornadas físicas.
+
+
+## 2026-11-06 — autoria visual de experiências e Jornadas no Studio (Claude Code)
+
+Base aff0f65c. Lote: autoria direta de cena (`scene_authoring.py`,
+`SceneStudioService`, `StudioSceneEditor.qml`, rotas `/studio/scene/*`) e
+autoria visual de Jornada (`experience-journey-v3` aditivo e migrado sob
+demanda; naturezas de instância, layout, `launchRequest`, `set-nature`,
+`set-layout`, `update-connection`, `delete-instance` com impacto e Desfazer;
+`JourneyExecutor.request_operation/resolve_operation` com recusa de pedido
+duplicado e de resposta atrasada; mapa `JourneyGraphMap.qml`). Critérios 1–5
+provados em modelo e Qt offscreen pela bridge real (mouse via qmltestrunner).
+Decisões e tabela de aceite: docs/01-product/STUDIO-AUTORIA-VISUAL.md.
+Pendentes: Launcher instalado encaminhar o resultado observado ao
+`resolve_operation`; render GPU das receitas; instalação/prova física bloqueadas
+pela orientação vigente de não iniciar autenticação (release ativa
+2.0.0rc1-c58195919b07, rollback 2.0.0rc1-59ecc2d8f0f6).
+
+Complemento 2026-11-06: resultado observado do lançamento roteado no Launcher
+(fonte) — `JourneyRuntime` registra pedido com token/prazo e o evento
+`operation-outcome`; `LauncherMain.qml` informa sucesso (emulador visível),
+falha e tempo esgotado. 522 testes Launcher/Jornada verdes. Prova instalada
+segue pendente da liberação de autenticação.

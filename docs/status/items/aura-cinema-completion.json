@@ -42,7 +42,7 @@
     "tests/unit/test_session_overlay.py",
     "tests/unit/test_session_overlay_adapter.py"
   ],
-  "scopeDigest": "034cbed206e7c7abdb39c1355a4b73faac0db0adbb22f238558a7ff652f6ebbc",
+  "scopeDigest": "786b9703c1f2b759bb9b296b1bcfd45588176a8265bf906c4f8dba09c4220e37",
   "dependsOn": [
     "SZ-AURA-SAVE-STATE-GALLERY",
     "SZ-AURA-SESSION-OSD",
@@ -311,6 +311,12 @@
       "kind": "test",
       "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
       "command": "05/11/2026 renovação de escopo por 38ff2be9/1659e72d/b46eb04d: integral r2 7349passed/48skipped, 3 falhas por tempo sob carga que passam isoladas; cobertura 85,8765% (com reexecuções anexadas) >= 85,8721%; ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem instalação, hardware ou promoção de eixos.",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "docs/09-operations/evidence/2026-11-05-retrofe-exit-locale/README.md",
+      "command": "05/11/2026 lote 2 (92c79da5/8331fa87/a0d5f422): integral 7354passed/48skipped; cobertura 85,8737% >= 85,8721%; pt-BR/ruff/format/mypy/independence verdes. Fonte + Qt offscreen; sem promoção de eixos.",
       "result": "passed"
     }
   ],

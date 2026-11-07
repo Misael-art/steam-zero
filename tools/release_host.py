@@ -32,7 +32,7 @@ import sys
 import tempfile
 import time
 import zipfile
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from email.parser import Parser
@@ -2711,9 +2711,41 @@ def _emit(data: dict[str, object], compact: bool) -> None:
     print(json.dumps(data, ensure_ascii=False, sort_keys=True, indent=None if compact else 2))
 
 
+#: Ações que terminam reiniciando as units de usuário pelo instalador.
+_SESSION_BOUND_ACTIONS = frozenset({"install", "rollback", "cycle", "update"})
+
+
+def require_user_session_runtime(
+    environ: Mapping[str, str] | None = None, *, uid: int | None = None
+) -> None:
+    """Recusa, antes de qualquer passo privilegiado, um runtime que não é o da sessão.
+
+    O perfil de desenvolvimento (`.steamzero-dev/env.sh`) isola XDG_RUNTIME_DIR.
+    Herdado aqui, o instalador ativava a release e só depois falhava no
+    `systemctl --user daemon-reload` (E-HOST-RESTART-FAILED, 2026-11-05), deixando a
+    convergência das units para trás. Sobrescrever em silêncio esconderia o erro
+    de configuração; falhar cedo e explicar não deixa nada pela metade.
+    """
+    env = os.environ if environ is None else environ
+    expected = Path("/run/user") / str(os.getuid() if uid is None else uid)
+    raw = env.get("XDG_RUNTIME_DIR", "")
+    if not raw or Path(raw) != expected:
+        raise AutomationError(
+            f"XDG_RUNTIME_DIR={raw or '(ausente)'} não é o runtime da sessão ({expected}); "
+            "execute sem `.steamzero-dev/env.sh` ou com "
+            f"XDG_RUNTIME_DIR={expected} DBUS_SESSION_BUS_ADDRESS=unix:path={expected}/bus"
+        )
+    if not (expected / "bus").exists():
+        raise AutomationError(
+            f"barramento de usuário ausente em {expected}/bus; execute na sessão gráfica"
+        )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        if args.action in _SESSION_BOUND_ACTIONS:
+            require_user_session_runtime()
         if args.action == "inspect":
             result = inspect()
         elif args.action == "verify-bundle":

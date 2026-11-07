@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-item",
+  "id": "SZ-STUDIO-VISUAL-AUTHORING",
+  "title": "Studio — autoria visual de experiências e Jornadas",
+  "domain": "themes",
+  "implementation": "partial",
+  "integration": "feature-branch",
+  "verification": "dev",
+  "operation": "degraded",
+  "distribution": "not-packaged",
+  "scopeDigest": "34d55f727d5c1b095042f0dea12939bcac8db574ed48e7a8b894e73dc609ae65",
+  "scopePaths": [
+    "src/steamzero/schemas/experience-journey-v3.schema.json",
+    "src/steamzero/domain/scene_authoring.py",
+    "src/steamzero/adapters/scene_studio.py",
+    "src/steamzero/ui/qml/StudioSceneEditor.qml",
+    "src/steamzero/ui/qml/JourneyGraphMap.qml",
+    "tests/unit/test_scene_authoring.py",
+    "tests/unit/test_scene_studio.py",
+    "tests/unit/test_journey_authoring_v3.py",
+    "tests/integration/test_studio_scene_authoring_e2e.py",
+    "tests/qml/check_studio_scene_authoring_e2e.qml",
+    "docs/01-product/STUDIO-AUTORIA-VISUAL.md",
+    "src/steamzero/domain/experience_journey.py",
+    "src/steamzero/adapters/journey_studio.py",
+    "src/steamzero/adapters/desktop_ui.py",
+    "src/steamzero/adapters/desktop_contracts.py",
+    "src/steamzero/ui/qml/ExperienceJourneyPanel.qml",
+    "src/steamzero/ui/qml/ThemeEditorPanel.qml",
+    "src/steamzero/launcher/journey_runtime.py",
+    "src/steamzero/adapters/launcher_ui.py",
+    "src/steamzero/ui/qml/launcher/LauncherMain.qml",
+    "src/steamzero/ui/qml/launcher/LauncherJourney.qml",
+    "tests/unit/test_launcher_journey_runtime.py"
+  ],
+  "dependsOn": [
+    "SZ-THEME-STUDIO",
+    "SZ-THEME-ENGINE"
+  ],
+  "knownGaps": [
+    "GAP-STUDIO-AUTHORING-GPU-RECIPE-RENDER",
+    "GAP-STUDIO-AUTHORING-FILE-MANAGER-DROP",
+    "GAP-STUDIO-AUTHORING-INSTALLED-PROOF"
+  ],
+  "acceptanceCriteria": [
+    "Cena: importar, soltar, mover, redimensionar com proporção, alinhar, tratar, resize de janela, desfazer/refazer, salvar e reabrir com master íntegro.",
+    "Lançamento direto com contexto ausente, falha, tempo esgotado, nova tentativa, duplicata e resposta atrasada; sessão só após resultado observado.",
+    "A→B→C→D plataforma, jogo, transição e sessão com bezel.",
+    "Ramificação, lista compartilhada com filtros por origem e retorno com seleção, filtros, foco e rolagem.",
+    "Edição de Jornada: natureza, remapeamento, exclusão com impacto e desfazer, ciclos manual/automático, regressão v2."
+  ],
+  "evidence": [
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_scene_authoring.py",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests/unit/test_scene_authoring.py -q",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_journey_authoring_v3.py",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests/unit/test_journey_authoring_v3.py -q",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/integration/test_studio_scene_authoring_e2e.py",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests/integration/test_studio_scene_authoring_e2e.py -q",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_scene_studio.py",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests/unit/test_scene_studio.py -q",
+      "result": "passed"
+    },
+    {
+      "kind": "test",
+      "reference": "tests/unit/test_launcher_journey_runtime.py",
+      "command": ".venv/bin/python tools/run_tests_isolated.py tests/unit/test_launcher_journey_runtime.py -q",
+      "result": "passed"
+    }
+  ],
+  "nextAction": "Resultado observado do lançamento já roteado no Launcher (fonte). Próximo: candidata governada e prova instalada dos critérios 2–4 quando a autenticação for liberada.",
+  "activeWorkstreams": [
+    "WS-2026-11-STUDIO-VISUAL-AUTHORING"
+  ],
+  "updatedAt": "2026-11-06",
+  "notes": "Contrato e decisões em docs/01-product/STUDIO-AUTORIA-VISUAL.md. Evidência M/Q apenas; nenhuma promoção de Launcher, instalação ou hardware. Lacunas: GAP-STUDIO-AUTHORING-GPU-RECIPE-RENDER: prévia renderiza a receita via MultiEffect (Qt offscreen); falta medição em GPU/hardware. | GAP-STUDIO-AUTHORING-FILE-MANAGER-DROP: Arraste vindo do gerenciador de arquivos e pasta de rede sem prova no ambiente de uso. | GAP-STUDIO-AUTHORING-INSTALLED-PROOF: Instalação governada e prova física pendentes: direção vigente proíbe iniciar autenticação/senha (bigsudo)."
+}

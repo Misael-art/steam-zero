@@ -24,6 +24,10 @@ FocusScope {
     // o próximo refresh bem-sucedido o publica em vez de apagar a mensagem.
     property string pendingLaunchError: ""
     property int saveSlot: 0
+    // v3: token of a launch whose destination waits for the outcome observed
+    // by the session service (success, failure or timeout).
+    property string pendingOperationToken: ""
+    property int pendingOperationTimeoutSeconds: 0
     property int minimumInteractiveTarget: 48
     readonly property var items: view && Array.isArray(view.items) ? view.items : []
     readonly property var facets: view && Array.isArray(view.facets) ? view.facets : []
@@ -235,6 +239,16 @@ FocusScope {
         return true
     }
 
+    function reportOutcome(outcome) {
+        const token = pendingOperationToken
+        if (token === "")
+            return false
+        pendingOperationToken = ""
+        pendingOperationTimeoutSeconds = 0
+        busy = false
+        return sendEvent("operation-outcome", null, {operationToken: token, outcome: String(outcome)})
+    }
+
     function sendEvent(eventId, row, extra) {
         if (busy || typeof requestFunction !== "function" || !view)
             return false
@@ -280,6 +294,8 @@ FocusScope {
                 saveGallery = result.view.saveStates
             if (result.operationRequest && result.operationRequest.action === "launch") {
                 const operation = result.operationRequest
+                journey.pendingOperationToken = String(operation.operationToken || "")
+                journey.pendingOperationTimeoutSeconds = Number(operation.timeoutSeconds || 0)
                 journey.launchRequested(String(operation.gameId || ""), String(operation.focusId || ""))
             }
             if (result.state === "operation-confirmed") {

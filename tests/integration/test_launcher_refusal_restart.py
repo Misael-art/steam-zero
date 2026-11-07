@@ -418,7 +418,7 @@ def test_qml_restores_lost_refusal_twice_then_retries_and_returns(tmp_path):
             env=env,
             capture_output=True,
             text=True,
-            timeout=12,
+            timeout=30,
         )
         assert created.returncode == 0, created.stdout + created.stderr
         accepted = json.loads(created.stdout)

@@ -85,3 +85,83 @@ deixou de ser "sem suporte" e o fixture ganhou `onHighlightEnter`.
 
 Instalação, compositor real, controle físico e captura PNG da release instalada
 continuam fora deste lote; merge do PR #268 exige autorização.
+
+## Lote 2 (após o merge do PR #268 em `c5819591`)
+
+| Commit | Conteúdo |
+|---|---|
+| `92c79da5` | Tetos limitados de espera em três testes que estouraram sob carga (12→30 s, 30→60 s, 10→20 s); isolados levam 1–20 s; porta livre conferida. |
+| `8331fa87` | Saída do tema ao trocar coleção: coleção nova ativa na hora; cópia não interativa da anterior toca a saída por cima, teto 1,5 s; movimento reduzido sem cópia. |
+| `a0d5f422` | `onHighlightEnter` na mudança de seleção; eventos partem do valor exibido; cópia de saída assenta ao ficar visível (8331fa87 passava por tempo). Fixture usa `onMenuEnter` como exemplo sem suporte. |
+
+- Merge do PR #268: CI do `f4617285` verde nos 8 jobs; merge commit `c5819591`
+  com `--match-head-commit`; CI push da `main` (run 42040231859) verde nos 8 jobs.
+- Integral do lote 2: 7354 passed, 48 skipped, 1 falha (`test_project_status`,
+  digests, resolvida neste commit), 41m13s; cobertura com branches **85,8737%**
+  no integral puro (referência 85,8721%); pt-BR, ruff, format, mypy, independence
+  verdes. Fonte + Qt offscreen.
+- Ainda sem suporte e sinalizados como perda: `menu*`, `game*`, `playlist*`,
+  `highlightExit`.
+
+## Release do `c5819591` — bloqueada por autenticação
+
+- `release_host.py prepare --commit c58195919b07a799c67ac716ceb9e3ca99ba3f12
+  --run-id 42040231859 --output build/release/c5819591`, com o checkout no commit
+  exato (árvore limpa) e `GIT_TERMINAL_PROMPT=0`: recusado com
+  "autenticação do GitHub falhou … gh auth login". O `gh` do host não tem login
+  armazenado; o agente não inicia autenticação.
+- Primeira tentativa travou no `git fetch` interno (prompt de credencial, 120 s);
+  repetível e evitável com `GIT_TERMINAL_PROMPT=0`.
+- Ação do proprietário: `gh auth login` neste host. Depois, o agente repete o
+  `prepare` acima e segue para `install` com token; o `pkexec` abre a janela de
+  senha, digitada pelo proprietário. Release ativa permanece
+  `2.0.0rc1-59ecc2d8f0f6`; rollback é a própria release ativa.
+
+### Atualização: bundle pronto, instalação pendente de autenticação do operador
+
+- Causa do "gh sem login": `.steamzero-dev/env.sh` isola `XDG_CONFIG_HOME`; o
+  `prepare` passa com `GH_CONFIG_DIR=$HOME/.config/gh`. Bundle preparado e
+  verificado: `2.0.0rc1-c58195919b07`, wheel sha256
+  `24f1fd359eabf59de6b037158bb354e7fb3731729427b0c012ac7227fbdae4ce`, run 42040231859
+  (`build/release/c5819591`, não versionado).
+- `install` exige o checkout no commit do artifact (recusa sem mutação em outra
+  HEAD). Três tentativas expiraram no teto de 90 s da autorização `pkexec`: duas a
+  partir do shell isolado do agente (janela não chega à sessão) e uma do terminal
+  do operador às 13:12:45, em que o journal registra o diálogo polkit sem senha
+  ("conversation failed"). Host inalterado: `2.0.0rc1-59ecc2d8f0f6`.
+- Retomada (terminal do operador, em `~/Projects/SteamZero`):
+  1. `git status --porcelain && git -c advice.detachedHead=false checkout c58195919b07a799c67ac716ceb9e3ca99ba3f12`
+  2. `source .steamzero-dev/env.sh && GH_CONFIG_DIR=$HOME/.config/gh GIT_TERMINAL_PROMPT=0 PYTHONPATH=src .venv/bin/python tools/release_host.py install --bundle build/release/c5819591 --rollback-release 2.0.0rc1-59ecc2d8f0f6 --confirm-install INSTALAR-2.0.0rc1-c58195919b07`
+     (senha na janela polkit em até 90 s)
+  3. `git checkout codex/product-recovery-2026-10-16`
+  Depois: validação read-only (versão, doctor, units, sessões), reboot e prova
+  física com PNG pelo operador.
+
+## Instalação de `2.0.0rc1-c58195919b07` (05/11/2026 14:55–15:05)
+
+- Autorização expressa do proprietário na thread; senha polkit digitada por ele.
+  `release_host.py install --bundle build/release/c5819591 --rollback-release
+  2.0.0rc1-59ecc2d8f0f6 --confirm-install INSTALAR-2.0.0rc1-c58195919b07` com o
+  checkout no commit do artifact; journal: duas sessões `pkexec` às 14:55:38/44.
+- Resultado da ferramenta: `E-HOST-RESTART-FAILED: daemon-reload falhou` — o
+  processo herdou `XDG_RUNTIME_DIR` do perfil de desenvolvimento (env.sh) e não
+  alcançava o barramento de usuário. A ativação já tinha ocorrido:
+  `/opt/steamzero/current` → `releases/2.0.0rc1-c58195919b07`; o socket ativou o
+  daemon da release nova às 14:56; sem quarentena; units com `NeedDaemonReload=yes`.
+- Recuperação pelo caminho oficial do produto (não manual):
+  `steamzero service refresh` com `XDG_RUNTIME_DIR=/run/user/1000` →
+  `state: ready`, identidade `2.0.0rc1-c58195919b07` / `c58195919b07a799…` /
+  `sourceDirty: false`; `NeedDaemonReload=no` e `active` em `steamzero-core.service`
+  e `.socket`.
+- Validação read-only: `steamzero --version` 2.0.0rc1; `steamzero service status`
+  `converged`, daemon na release ativada, quarentena nula; `steamzero doctor`
+  `degraded` com 9 pass, 0 fail e 3 warn (13 backups e 9 journals órfãos
+  pré-existentes; `boot.direct` sem permissão para leitura); sessão
+  `/usr/share/wayland-sessions/steamzero-gamemode.desktop` com marcador de ownership.
+- Correção da causa: `75ab8ac8` — `install/rollback/cycle/update` recusam, antes de
+  qualquer passo de host, um `XDG_RUNTIME_DIR` diferente de `/run/user/<uid>` ou sem
+  barramento.
+- Rollback disponível: `release_host.py rollback --release 2.0.0rc1-59ecc2d8f0f6
+  --confirm-rollback REVERTER-2.0.0rc1-59ecc2d8f0f6` (fora do env.sh).
+- Não certificado: reboot, boot direto, captura PNG da release instalada, jornada
+  launch/return, controle físico e receptor — ações do operador.
