@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "not-packaged",
-  "scopeDigest": "5af1af872f4d4c005ef40a83d1bab12872bcd5cd873fd37192fd7c4dd83b0705",
+  "scopeDigest": "48ed01660f1fd7ef01fd7b40fbd256be223d8a73ac4f0301eedddd349e165efd",
   "scopePaths": [
     "src/steamzero/schemas/experience-journey-v3.schema.json",
     "src/steamzero/domain/scene_authoring.py",
@@ -87,5 +87,5 @@
     "WS-2026-11-STUDIO-VISUAL-AUTHORING"
   ],
   "updatedAt": "2026-11-06",
-  "notes": "Contrato e decisões em docs/01-product/STUDIO-AUTORIA-VISUAL.md. Evidência M/Q apenas; nenhuma promoção de Launcher, instalação ou hardware. Lacunas: GAP-STUDIO-AUTHORING-GPU-RECIPE-RENDER: Canvas Qt aplica enquadramento e escurecimento; saturação/preset são receitas persistidas renderizadas pela Theme Engine, sem prova visual em GPU. | GAP-STUDIO-AUTHORING-FILE-MANAGER-DROP: Arraste vindo do gerenciador de arquivos e pasta de rede sem prova no ambiente de uso. | GAP-STUDIO-AUTHORING-INSTALLED-PROOF: Instalação governada e prova física pendentes: direção vigente proíbe iniciar autenticação/senha (bigsudo)."
+  "notes": "Contrato e decisões em docs/01-product/STUDIO-AUTORIA-VISUAL.md. Evidência M/Q apenas; nenhuma promoção de Launcher, instalação ou hardware. Lacunas: GAP-STUDIO-AUTHORING-GPU-RECIPE-RENDER: prévia renderiza a receita via MultiEffect (Qt offscreen); falta medição em GPU/hardware. | GAP-STUDIO-AUTHORING-FILE-MANAGER-DROP: Arraste vindo do gerenciador de arquivos e pasta de rede sem prova no ambiente de uso. | GAP-STUDIO-AUTHORING-INSTALLED-PROOF: Instalação governada e prova física pendentes: direção vigente proíbe iniciar autenticação/senha (bigsudo)."
 }
