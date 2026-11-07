@@ -1526,6 +1526,21 @@ class JourneyExecutor:
             return_context=self.navigator.capture_return_context(),
         )
 
+    def cancel_operation(self, token: str) -> bool:
+        """Drop a pending intent the adapter refused before dispatching it."""
+        if self._pending is not None and self._pending["token"] == token:
+            self._pending = None
+            return True
+        return False
+
+    def routes_outcomes(self, menu_id: str, event: str) -> bool:
+        """True when ``event`` from ``menu_id`` waits for an observed outcome (v3)."""
+        source = {"kind": "menu", "id": menu_id}
+        return any(
+            item["from"] == source and item["event"] == event and item["when"] != _INPUT_ONLY
+            for item in self.document.data["connections"]
+        )
+
     def resolve_operation(self, token: str, outcome: str) -> JourneyExecutionResult:
         """Route the outcome observed by the owning service to its declared destination."""
         pending = self._pending

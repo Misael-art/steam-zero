@@ -367,6 +367,7 @@ Window {
                 if (clientId && observation.clientRequestId !== clientId)
                     return
                 const accepted = shell.observeSession(observation)
+                root.reportJourneyOutcome(shell, observation)
                 if (!accepted && (observation.state === "closed" || observation.state === "failed"))
                     return
                 // D-12: o rodapé consome o snapshot de /model tirado antes do
@@ -392,6 +393,31 @@ Window {
                     root.restoreJourneyAfterLaunch()
             } catch (error) {}
         })
+    }
+
+    // v3 Journeys: the destination after "play" depends on what the session
+    // service observed. Visible emulator = success; failed = failure; the
+    // timer below reports a timeout. The runtime ignores stale tokens.
+    function reportJourneyOutcome(shell, observation) {
+        const journey = journeyLoader.item
+        if (!journey || journey.pendingOperationToken === "")
+            return
+        if (shell.launchState === "emulator-visible")
+            journey.reportOutcome("operation-success")
+        else if (observation && observation.state === "failed")
+            journey.reportOutcome("operation-failure")
+    }
+
+    Timer {
+        id: journeyOutcomeTimeout
+        objectName: "journeyOutcomeTimeout"
+        repeat: false
+        interval: Math.max(1, journeyLoader.item ? journeyLoader.item.pendingOperationTimeoutSeconds : 60) * 1000
+        running: journeyLoader.item !== null && journeyLoader.item.pendingOperationToken !== ""
+        onTriggered: {
+            if (journeyLoader.item && journeyLoader.item.reportOutcome("timeout"))
+                root.restoreJourneyAfterLaunch()
+        }
     }
 
     function restoreJourneyAfterLaunch(launchError) {
@@ -977,6 +1003,8 @@ Window {
                                       } else {
                                           const launchDetail = root.launchErrorText(status, text)
                                           launcherShell.failLaunch(launchDetail)
+                                          if (journeyLoader.item)
+                                              journeyLoader.item.reportOutcome("operation-failure")
                                           if (root.journeyLaunchActive)
                                               root.restoreJourneyAfterLaunch(launchDetail)
                                       }

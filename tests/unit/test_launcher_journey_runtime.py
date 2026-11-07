@@ -714,3 +714,112 @@ def test_missing_launcher_library_does_not_invent_a_catalog(tmp_path: Path, monk
     monkeypatch.setattr(desktop_ui, "_launcher_catalog_memo", None)
 
     assert desktop_ui._launcher_journey_catalog() is None
+
+
+def _observed_launch_runtime() -> JourneyRuntime:
+    """v3 journey: games → play waits for the result observed by the session service."""
+    base = _runtime()
+
+    def menu(menu_id: str, nature: str, source: str = "library.games") -> dict[str, object]:
+        return {
+            "id": menu_id,
+            "name": menu_id.title(),
+            "nature": nature,
+            "source": {"readModelId": source},
+            "filters": [],
+            "sort": [],
+            "groupBy": [],
+        }
+
+    def link(cid: str, src: str, event: str, action: str, to: str, when: str) -> dict[str, object]:
+        return {
+            "id": cid,
+            "from": {"kind": "menu", "id": src},
+            "event": event,
+            "when": when,
+            "action": action,
+            "to": {"kind": "menu", "id": to},
+            "label": cid,
+        }
+
+    document = JourneyDocument.parse(
+        {
+            "schemaVersion": 3,
+            "kind": "steamzero-experience-journey-v3",
+            "id": "org.test.observed-launch",
+            "name": "Observed",
+            "entryMenuId": "games",
+            "organization": [],
+            "menus": [
+                menu("games", "games"),
+                menu("session", "session"),
+                menu("recover", "recovery"),
+            ],
+            "connections": [
+                link("ok", "games", "play", "launch", "session", "operation-success"),
+                link("fail", "games", "play", "launch", "recover", "operation-failure"),
+                link("late", "games", "play", "launch", "recover", "timeout"),
+                link("again", "recover", "retry", "retry", "games", "user-input"),
+                link("end", "session", "exit", "exit", "games", "user-input"),
+            ],
+            "sessionStages": [],
+        }
+    )
+    return JourneyRuntime(
+        document,
+        read_models={key: list(rows or ()) for key, rows in base._read_models.items()},
+        published_read_models=base._published,
+        source_states={"library.games": "available"},
+        launchable_game_ids=("celeste", "metroid"),
+    )
+
+
+def _outcome(runtime: JourneyRuntime, token: str, outcome: str) -> dict[str, object]:
+    return runtime.handle(
+        {
+            "requestId": f"outcome-{token}-{outcome}",
+            "event": "operation-outcome",
+            "menuId": "stale-menu",
+            "generation": 0,
+            "operationToken": token,
+            "outcome": outcome,
+        }
+    )
+
+
+def test_observed_launch_routes_success_failure_timeout_and_refuses_duplicates() -> None:
+    runtime = _observed_launch_runtime()
+    record = next(row["id"] for row in runtime.current()["items"] if row.get("gameId") == "celeste")
+    first = _event(runtime, "play", record_id=record)
+    assert first["state"] == "operation-request"
+    request = first["operationRequest"]
+    assert request["gameId"] == "celeste" and request["timeoutSeconds"] == 60
+    assert runtime.current()["menuId"] == "games"  # no session before the observed result
+    assert _event(runtime, "play", record_id=record)["state"] == "operation-pending"
+
+    failed = _outcome(runtime, request["operationToken"], "operation-failure")
+    assert failed["state"] == "navigated" and failed["view"]["menuId"] == "recover"
+    late = _outcome(runtime, request["operationToken"], "operation-success")
+    assert late["state"] == "stale-response" and late["view"]["menuId"] == "recover"
+
+    runtime.navigator.navigate("games")
+    second = _event(runtime, "play", record_id=record)["operationRequest"]
+    assert _outcome(runtime, second["operationToken"], "timeout")["view"]["menuId"] == "recover"
+
+    runtime.navigator.navigate("games")
+    third = _event(runtime, "play", record_id=record)["operationRequest"]
+    confirmed = _outcome(runtime, third["operationToken"], "operation-success")
+    assert confirmed["view"]["menuId"] == "session"
+    assert _outcome(runtime, "op-999", "bogus")["diagnosticCode"] == "JOURNEY-OUTCOME-INVALID"
+
+
+def test_observed_launch_refuses_unlaunchable_game_and_clears_pending() -> None:
+    runtime = _observed_launch_runtime()
+    blocked = next(
+        row["id"]
+        for row in runtime.current()["items"]
+        if row.get("gameId") not in {"celeste", "metroid"}
+    )
+    refused = _event(runtime, "play", record_id=blocked)
+    assert refused["state"] == "operation-unavailable"
+    assert runtime.executor.pending_operation is None

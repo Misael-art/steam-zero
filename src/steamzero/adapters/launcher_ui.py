@@ -564,6 +564,8 @@ class LauncherBridge:
             "value",
             "slot",
             "confirmed",
+            "outcome",
+            "operationToken",
         }
         request_id = payload.get("requestId")
         if (

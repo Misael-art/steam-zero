@@ -482,7 +482,11 @@ class JourneyRuntime:
                     "Escolha uma conexão de navegação publicada para este menu.",
                     "choose-published-route",
                 )
-            if menu_id != current.menu_id or expected_generation != self.navigator.generation:
+            # The outcome is correlated by its operation token; a newer route
+            # is handled by resolve_operation itself (stale tokens are ignored).
+            if event != "operation-outcome" and (
+                menu_id != current.menu_id or expected_generation != self.navigator.generation
+            ):
                 return self._failure(
                     request_id,
                     "JOURNEY-RESPONSE-STALE",
@@ -490,6 +494,11 @@ class JourneyRuntime:
                     "keep-current-route",
                     state="stale-response",
                 )
+
+            if event == "operation-outcome":
+                return self._operation_outcome(request_id, request)
+            if event == "play" and self.executor.routes_outcomes(current.menu_id, "play"):
+                return self._request_observed_launch(request_id, request)
 
             if event == "facet":
                 facet_result = self._set_facet(request)
@@ -603,6 +612,97 @@ class JourneyRuntime:
             elif execution.state != "stale-response":
                 payload["view"] = self._view()
             return payload
+
+    def _request_observed_launch(
+        self, request_id: str, request: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        """Register a v3 launch whose destination depends on the observed result."""
+        record_id = request.get("recordId")
+        record = None
+        if isinstance(record_id, str) and record_id:
+            record = next(
+                (row for row in self._view()["items"] if str(row.get("id")) == record_id),
+                None,
+            )
+            if record is None:
+                return self._failure(
+                    request_id,
+                    "JOURNEY-SELECTION-UNAVAILABLE",
+                    "O item selecionado não pertence aos resultados atuais.",
+                    "refresh-menu",
+                )
+        menu = self._menus[self.navigator.context.menu_id]
+        if record is None and menu.get("nature") != "direct-launch":
+            return self._failure(
+                request_id,
+                "JOURNEY-SELECTION-MISSING",
+                "Selecione um jogo antes de jogar.",
+                "select-item",
+            )
+        if record is not None and menu.get("nature") != "direct-launch":
+            self.navigator.update_context(selected_item_id=str(record_id))
+        execution = self.executor.request_operation("play")
+        payload: dict[str, Any] = {
+            "requestId": request_id,
+            "state": execution.state,
+            "generation": self.navigator.generation,
+            "connectionId": execution.connection_id,
+            "diagnosticCode": execution.diagnostic_code,
+            "diagnosticMessage": execution.diagnostic_message,
+            "recoveryAction": execution.recovery_action,
+        }
+        if execution.state != "operation-request":
+            payload["view"] = self._view()
+            return payload
+        pending = self.executor.pending_operation or {}
+        game_id = pending.get("gameId")
+        if not isinstance(game_id, str) and record is not None:
+            game_id = record.get("gameId")
+        if not isinstance(game_id, str) or game_id not in self._launchable_game_ids:
+            self.executor.cancel_operation(execution.connection_id)
+            payload.update(
+                state="operation-unavailable",
+                diagnosticCode="JOURNEY-LAUNCH-UNAVAILABLE",
+                diagnosticMessage="Este resultado não possui uma rota de lançamento publicada.",
+                recoveryAction="choose-launchable-game",
+                view=self._view(),
+            )
+            return payload
+        timeout = (menu.get("launchRequest") or {}).get("timeoutSeconds", 60)
+        payload["operationRequest"] = {
+            "action": "launch",
+            "gameId": game_id,
+            "recordId": record_id if isinstance(record_id, str) else None,
+            "operationToken": execution.connection_id,
+            "timeoutSeconds": int(timeout),
+        }
+        return payload
+
+    def _operation_outcome(self, request_id: str, request: Mapping[str, Any]) -> dict[str, Any]:
+        token = request.get("operationToken")
+        outcome = request.get("outcome")
+        if not isinstance(token, str) or outcome not in {
+            "operation-success",
+            "operation-failure",
+            "timeout",
+        }:
+            return self._failure(
+                request_id,
+                "JOURNEY-OUTCOME-INVALID",
+                "O resultado observado não identifica o pedido ou o desfecho.",
+                "review-request",
+            )
+        result = self.executor.resolve_operation(token, str(outcome))
+        return {
+            "requestId": request_id,
+            "state": result.state,
+            "generation": self.navigator.generation,
+            "connectionId": result.connection_id,
+            "diagnosticCode": result.diagnostic_code,
+            "diagnosticMessage": result.diagnostic_message,
+            "recoveryAction": result.recovery_action,
+            "view": self._view(),
+        }
 
     def _set_facet(self, request: Mapping[str, Any]) -> dict[str, Any]:
         field_id = request.get("fieldId")
