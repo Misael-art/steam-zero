@@ -149,3 +149,4 @@ def test_scene_authoring_qml_with_mouse_through_real_bridge(journey_bridge, tmp_
     output = (completed.stdout or "") + (completed.stderr or "")
     assert completed.returncode == 0, output[-7000:]
     assert "FAIL!" not in output, output[-7000:]
+    assert "PASS   : qmltestrunner::StudioSceneAuthoring::test_03" in output, output[-7000:]

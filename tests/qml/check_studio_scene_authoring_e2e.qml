@@ -64,6 +64,16 @@ Item {
         ]
         entryMenuId: "a"
     }
+    Loader {
+        id: panelLoader
+        width: harness.width
+        height: harness.height
+        active: false
+        sourceComponent: ExperienceJourneyPanel {
+            requestAction: harness.requestAction
+        }
+    }
+
     SignalSpy { id: layoutSpy; target: graph; signalName: "layoutRequested" }
     SignalSpy { id: linkSpy; target: graph; signalName: "connectRequested" }
 
@@ -196,6 +206,49 @@ Item {
             tryCompare(linkSpy, "count", 1)
             compare(linkSpy.signalArguments[0][0], "a")
             compare(linkSpy.signalArguments[0][1], "b")
+        }
+
+        function test_03_panel_map_nature_and_undoable_delete() {
+            graph.visible = false
+            loader.active = false
+            panelLoader.active = true
+            const panel = panelLoader.item
+            panel.refresh()
+            tryVerify(function() { return panel.bridgeAvailable && panel.catalog.readModels.length > 0 }, 5000)
+            panel.createJourney("blank")
+            tryVerify(function() { return panel.session !== null && panel.menus.length === 1 }, 5000)
+            panel.selectedMenuId = panel.menus[0].id
+            tryVerify(function() { return !panel.busy }, 5000)
+            panel.addMenu()
+            tryVerify(function() { return panel.menus.length === 2 }, 5000)
+            const second = panel.menus[1].id
+            tryVerify(function() { return !panel.busy }, 5000)
+            mouseClick(findChild(panel, "journeyOpenMap"))
+            const popup = findChild(panel, "journeyMapPopup")
+            tryVerify(function() { return popup.opened }, 5000)
+            panel.selectedMenuId = second
+            tryVerify(function() { return !panel.busy }, 5000)
+            panel.setNature("games")
+            tryVerify(function() {
+                return panel.menus[1].nature === "games" && panel.journeyDocument.schemaVersion === 3
+            }, 5000)
+            compare(panel.menus[1].id, second)
+            tryVerify(function() { return !panel.busy }, 5000)
+            panel.linkInstances(panel.menus[0].id, second)
+            tryVerify(function() { return panel.connections.length === 1 }, 5000)
+            panel.selectedMenuId = second
+            tryVerify(function() { return !panel.busy }, 5000)
+            panel.deleteSelectedInstance()
+            tryVerify(function() { return panel.menus.length === 1 && panel.connections.length === 0 }, 5000)
+            verify(panel.notice.indexOf("1 ligação") >= 0)
+            tryVerify(function() { return !panel.busy }, 5000)
+            mouseClick(findChild(panel, "journeyMapUndo"))
+            tryVerify(function() { return panel.menus.length === 2 && panel.connections.length === 1 }, 5000)
+            panel.selectedMenuId = panel.journeyDocument.entryMenuId
+            tryVerify(function() { return !panel.busy }, 5000)
+            panel.deleteSelectedInstance()
+            tryVerify(function() { return panel.noticeIsError && panel.notice.indexOf("entrada") >= 0 }, 5000)
+            compare(panel.menus.length, 2)
         }
     }
 }
