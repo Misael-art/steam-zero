@@ -122,6 +122,22 @@ Item {
         })
     }
 
+    // Receita → efeitos do renderer compartilhado. O master nunca é alterado.
+    function recipeEffects(recipe) {
+        if (!recipe)
+            return []
+        const effects = []
+        const saturation = recipe.preset === "mono" ? -1.0 : Number(recipe.saturation) - 1.0
+        if (saturation !== 0)
+            effects.push({type: "saturation", parameters: {amount: Math.max(-1, Math.min(1, saturation))}})
+        if (Number(recipe.brightness) !== 0)
+            effects.push({type: "brightness", parameters: {amount: Number(recipe.brightness)}})
+        if (recipe.preset === "warm" || recipe.preset === "cool")
+            effects.push({type: "colorize", parameters: {strength: 0.25,
+                color: recipe.preset === "warm" ? "#ff9a3c" : "#3c9aff"}})
+        return effects
+    }
+
     function masterUrl(mediaId) {
         return snapshot && snapshot.masterRoot ? "file://" + snapshot.masterRoot + "/" + mediaId : ""
     }
@@ -294,15 +310,32 @@ Item {
                             z: index
 
                             Image {
+                                id: layerImage
+                                objectName: "sceneLayerImage"
                                 anchors.fill: parent
                                 visible: layerItem.modelData.kind === "image"
+                                    && (layerEffect.status !== Loader.Ready || layerEffect.item === null)
                                 source: layerItem.modelData.kind === "image" ? editor.masterUrl(layerItem.modelData.mediaId) : ""
                                 fillMode: layerItem.modelData.recipe.fit === "contain" ? Image.PreserveAspectFit : Image.PreserveAspectCrop
                                 horizontalAlignment: layerItem.modelData.recipe.focalX < 0.34 ? Image.AlignLeft
                                     : (layerItem.modelData.recipe.focalX > 0.66 ? Image.AlignRight : Image.AlignHCenter)
                                 verticalAlignment: layerItem.modelData.recipe.focalY < 0.34 ? Image.AlignTop
                                     : (layerItem.modelData.recipe.focalY > 0.66 ? Image.AlignBottom : Image.AlignVCenter)
-                                opacity: Math.max(0.15, 1 + Math.min(0, layerItem.modelData.recipe.brightness))
+                                opacity: layerEffect.status === Loader.Ready
+                                    ? 1 : Math.max(0.15, 1 + Math.min(0, layerItem.modelData.recipe.brightness))
+                                layer.enabled: layerEffect.status === Loader.Ready
+                            }
+                            Loader {
+                                id: layerEffect
+                                objectName: "sceneLayerEffect"
+                                anchors.fill: parent
+                                readonly property var effects: editor.recipeEffects(layerItem.modelData.recipe)
+                                active: layerItem.modelData.kind === "image" && effects.length > 0
+                                source: active ? "MediaMultiEffectRenderer.qml" : ""
+                                onLoaded: {
+                                    item.sourceItem = layerImage
+                                    item.effects = Qt.binding(function() { return layerEffect.effects })
+                                }
                             }
                             Rectangle {
                                 anchors.fill: parent

@@ -150,6 +150,14 @@ Item {
             tryVerify(function() { return editor.selectedLayer !== null }, 5000)
             editor.edit("set-recipe", {layerId: editor.layers[0].id, recipe: {preset: "mono", brightness: 0.2}})
             tryVerify(function() { return editor.layers[0].recipe.preset === "mono" }, 5000)
+            const effects = editor.recipeEffects(editor.layers[0].recipe)
+            verify(effects.some(function(e) { return e.type === "saturation" && e.parameters.amount === -1 }))
+            verify(effects.some(function(e) { return e.type === "brightness" }))
+            tryVerify(function() {
+                const live = liveLayer(stage, editor.layers[0].id)
+                const loader = live ? findChild(live, "sceneLayerEffect") : null
+                return loader !== null && loader.status === Loader.Ready && loader.item.effects.length === 2
+            }, 5000)
             const composed = JSON.stringify(editor.layers)
 
             // Window resize: pixels change, normalized composition does not.
