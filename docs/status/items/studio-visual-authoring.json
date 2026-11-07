@@ -9,7 +9,7 @@
   "verification": "dev",
   "operation": "degraded",
   "distribution": "not-packaged",
-  "scopeDigest": "48ed01660f1fd7ef01fd7b40fbd256be223d8a73ac4f0301eedddd349e165efd",
+  "scopeDigest": "34d55f727d5c1b095042f0dea12939bcac8db574ed48e7a8b894e73dc609ae65",
   "scopePaths": [
     "src/steamzero/schemas/experience-journey-v3.schema.json",
     "src/steamzero/domain/scene_authoring.py",
