@@ -105,7 +105,7 @@ onde uma alegacao nao tem evidencia que a sustente.
 | SZ-RETROARCH-FLATPAK-PRESERVATION | 3 | 5 | 3 | dev |  |
 | SZ-ROADMAP-CONTINUATION | 121 | 43 | 15 | dev |  |
 | SZ-SHARPEMU-COMPONENT-SMOKE-CONTRACT | 3 | 1 | 1 | unit |  |
-| SZ-STUDIO-VISUAL-AUTHORING | 17 | 4 | 4 | dev |  |
+| SZ-STUDIO-VISUAL-AUTHORING | 22 | 5 | 5 | dev |  |
 | SZ-SYSTEM-DIAGNOSTICS-GUIDANCE | 5 | 9 | 4 | dev |  |
 | SZ-TEST-STATE-ISOLATION | 4 | 9 | 8 | dev |  |
 | SZ-THEME-ENGINE | 248 | 94 | 67 | dev |  |

@@ -16080,3 +16080,9 @@ Pendentes: Launcher instalado encaminhar o resultado observado ao
 `resolve_operation`; render GPU das receitas; instalação/prova física bloqueadas
 pela orientação vigente de não iniciar autenticação (release ativa
 2.0.0rc1-c58195919b07, rollback 2.0.0rc1-59ecc2d8f0f6).
+
+Complemento 2026-11-06: resultado observado do lançamento roteado no Launcher
+(fonte) — `JourneyRuntime` registra pedido com token/prazo e o evento
+`operation-outcome`; `LauncherMain.qml` informa sucesso (emulador visível),
+falha e tempo esgotado. 522 testes Launcher/Jornada verdes. Prova instalada
+segue pendente da liberação de autenticação.

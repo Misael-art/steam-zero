@@ -38,7 +38,7 @@
     "docs/status/workstreams/journey-launcher-session-2026-10-04.json",
     "docs/09-operations/evidence/2026-10-04-session-exit-wayland-bezel"
   ],
-  "scopeDigest": "a536c104247004695c20cdd52f8f6efde41791177ca7d78b2f59b821236822a5",
+  "scopeDigest": "1960c1b5d361c446407e30af63fc7ac4ad9d96d5e78f57770448b0bc1662a459",
   "dependsOn": [
     "SZ-PROJECT-DESIGN-AUDIT"
   ],

@@ -16,7 +16,7 @@
     "tests/unit/test_catalog_search.py",
     "tests/integration/test_launcher_search_contract.py"
   ],
-  "scopeDigest": "3a086f3eadd6932c063f42a8f7898604d92ae449036a2da553ff6cb9710ca625",
+  "scopeDigest": "50f119ea99ff6c23f62c45a060fae90488bedc789dd313edba32e116edcda128",
   "dependsOn": [
     "SZ-AURA-METADATA"
   ],

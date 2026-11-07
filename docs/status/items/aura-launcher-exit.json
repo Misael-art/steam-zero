@@ -51,7 +51,7 @@
     "WS-2026-09-AURA-LAUNCHER-EXIT"
   ],
   "nextAction": "O roteamento de Escape está integrado em main via #214. Preservar GAP-AURA-LAUNCHER-EXIT-PHYSICAL e validar foco/saída em release instalada; os paths de código/testes foram transferidos serialmente para WS-2026-10-JOURNEY-LAUNCHER-SESSION.",
-  "scopeDigest": "ecaa749f812096edac5614e314e3b517d78a0e0d93beabf5229304a8c2beb31e",
+  "scopeDigest": "e9a058e6e27edc2156dcfda18a3fb9748292641e068eb2378fda7618553d3cd9",
   "updatedAt": "2026-10-04",
   "notes": "Correção isolada: além do caminho semântico do shell, a Home captura Escape no foco efetivo e o encaminha ao pedido de saída; o teste de gesto usa keyClick real.\n02/11/2026: lote serial de consumidores/recuperação validado por182 focados e integral7260passed/48skipped/22warnings/3310,94s; cobertura85,75618340013686%>=85,74876854203798%.3747 arquivos congelados e estado pessoal inalterados;172 casos críticos passam sem skips. Recibo studio-native-context.json explicita uma aresta incidental perdida em301módulos inalterados, sem regressão agregada. Eixos/aceites específicos anteriores preservados; pacote não editable deste delta ainda pendente."
 }
